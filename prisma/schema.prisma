@@ -1,0 +1,154 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+enum SourceType {
+  QURAN
+  HADITH
+  DUA
+  HALIS_AYDEMIR
+  SIYER
+}
+
+enum DonationStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+model User {
+  id                  String       @id @default(uuid()) @db.Uuid
+  phoneNumber         String       @unique @map("phone_number")
+  onboardingStep      Int          @default(1) @map("onboarding_step")
+  onboardingCompleted Boolean      @default(false) @map("onboarding_completed")
+
+  // 4 Bloklu Dijital İkiz Künyesi:
+  // {
+  //   "roles": ["EVLI", "IKI_COCUK", "ESNAF", "HASTA_BAKIMI"],
+  //   "spiritual_trials": ["RIZIK_KAYGISI", "ANI_OFKE", "ELALEM_NE_DER"],
+  //   "biological_energy": ["SABAH_ZOR_UYANMA", "KRONIK_YORGUNLUK"],
+  //   "tone_preference": "SEFKATLI_TESKIN" | "TAVIZSIZ_MUALLIM"
+  // }
+  profileMetadata     Json         @default("{}") @map("profile_metadata")
+
+  createdAt           DateTime     @default(now()) @map("created_at")
+  lastActiveAt        DateTime     @default(now()) @map("last_active_at")
+
+  messages            Message[]
+  vasLogs             VasDailyLog[]
+
+  @@index([phoneNumber])
+  @@map("users")
+}
+
+model KnowledgeChunk {
+  id             String      @id @default(uuid()) @db.Uuid
+  sourceType     SourceType  @map("source_type")
+  sourceTitle    String      @map("source_title")
+  content        String      @db.Text
+  tags           String[]    @default([])
+  nafsTraps      String[]    @default([]) @map("nafs_traps")
+  isRibaRelated  Boolean     @default(false) @map("is_riba_related")
+
+  // Ses Kesiti Metadata (Halis Aydemir Sohbetleri İçin)
+  youtubeId      String?     @map("youtube_id")
+  startSec       Float?      @map("start_sec")
+  endSec         Float?      @map("end_sec")
+  audioUrl       String?     @map("audio_url") // Cloudflare R2 linki (.ogg)
+
+  // pgvector alanı Prisma'da Unsupported olarak tanımlanır, SQL RPC ile aranır
+  embedding      Unsupported("vector(768)")?
+
+  createdAt      DateTime    @default(now()) @map("created_at")
+
+  @@index([tags], type: Gin)
+  @@index([nafsTraps], type: Gin)
+  @@index([sourceType])
+  @@index([isRibaRelated])
+  @@map("knowledge_chunks")
+}
+
+model Message {
+  id              String      @id @default(uuid()) @db.Uuid
+  // Meta Webhook mükerrer mesaj (retry storm) engelleme kilidi
+  waMessageId     String?     @unique @map("wa_message_id")
+
+  userId          String      @map("user_id") @db.Uuid
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role            MessageRole
+  content         String      @db.Text
+
+  // RAG İzlenebilirlik Kayıtları
+  ragChunkIds     String[]    @default([]) @map("rag_chunk_ids")
+
+  // Jev (System 1) Karar Metadata'sı
+  // {
+  //   "noul": { "is_fatwa": 0.05, "is_riba": 0.85, "needs_audio": 0.90 },
+  //   "choice": { "nafs_trap": "FAIRLIK_KORKUSU_VESVESESI", "rag_category": "RIZIK_VE_TICARET" },
+  //   "score": { "distress_level": 7 }
+  // }
+  jevMetadata     Json?       @map("jev_metadata")
+
+  // Gemini 2.5 Flash İçsel Editör Denetim Logu
+  // {
+  //   "murakabe_applied": true,
+  //   "ilahi_riza_checked": true,
+  //   "tevekkul_and_talak_hope_included": true,
+  //   "nafs_and_vesvese_addressed": "...",
+  //   "siyer_example_used": "...",
+  //   "riba_warning_included": true
+  // }
+  editorAudit     Json?       @map("editor_audit")
+
+  // Gönderilen Ses Dosyası
+  audioSent       Boolean     @default(false) @map("audio_sent")
+  audioUrlSent    String?     @map("audio_url_sent")
+
+  createdAt       DateTime    @default(now()) @map("created_at")
+
+  @@index([userId, createdAt])
+  @@index([waMessageId])
+  @@map("messages")
+}
+
+model Donation {
+  id                    String         @id @default(uuid()) @db.Uuid
+  donorName             String?        @map("donor_name")
+  donorPhone            String?        @map("donor_phone")
+  amount                Decimal        @db.Decimal(10, 2)
+  currency              String         @default("TRY")
+  paymentProvider       String         @map("payment_provider") // "PAYTR" | "IYZICO"
+  providerTransactionId String?        @unique @map("provider_transaction_id")
+  status                DonationStatus @default(PENDING)
+  createdAt             DateTime       @default(now()) @map("created_at")
+
+  @@index([status, createdAt])
+  @@map("donations")
+}
+
+model VasDailyLog {
+  id               String   @id @default(uuid()) @db.Uuid
+  userId           String   @map("user_id") @db.Uuid
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  logDate          DateTime @db.Date @map("log_date")
+  incomingCount    Int      @default(0) @map("incoming_count")
+  outgoingCount    Int      @default(0) @map("outgoing_count")
+  estimatedMinutes Float    @default(0) @map("estimated_minutes") // Operatör dakika eşdeğeri
+
+  @@unique([userId, logDate])
+  @@index([logDate])
+  @@map("vas_daily_logs")
+}

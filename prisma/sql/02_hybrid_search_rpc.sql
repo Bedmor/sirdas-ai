@@ -8,7 +8,13 @@
 --   4. En uygun Halis Aydemir Sesli Sohbet Parçası (HALIS_AYDEMIR)
 --   5. Genel Hibrit Benzerlik Adayları (kalan kontenjan için)
 --   6. DISTINCT ON (c.id) ile kusursuz tekilleştirme (Deduplication)
--- ==============================================================================
+-- SourceType enum'ının varlığını garanti et
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'SourceType') THEN
+        CREATE TYPE "SourceType" AS ENUM ('QURAN', 'HADITH', 'DUA', 'HALIS_AYDEMIR', 'SIYER');
+    END IF;
+END $$;
 
 CREATE OR REPLACE FUNCTION match_knowledge_chunks(
     query_embedding vector(768),

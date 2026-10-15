@@ -11,29 +11,43 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
  * Cloudflare R2 S3-Compatible Storage Configuration
  * R2 provides S3-compatible API with zero egress bandwidth costs.
  */
-const accountId = process.env.R2_ACCOUNT_ID || "";
-const accessKeyId =
-  process.env.R2_ACCESS_KEY_ID || process.env.R2_ACCESS_KEY || "";
-const secretAccessKey =
-  process.env.R2_SECRET_ACCESS_KEY || process.env.R2_SECRET_KEY || "";
-const bucketName = process.env.R2_BUCKET_NAME || "sirdas-audio";
-const publicBaseUrl = (
-  process.env.R2_PUBLIC_BASE_URL || "https://media.sirdas.ai"
-).replace(/\/+$/, "");
+export function getR2Config() {
+  const accountId = process.env.R2_ACCOUNT_ID || "";
+  const accessKeyId =
+    process.env.R2_ACCESS_KEY_ID || process.env.R2_ACCESS_KEY || "";
+  const secretAccessKey =
+    process.env.R2_SECRET_ACCESS_KEY || process.env.R2_SECRET_KEY || "";
+  const bucketName = process.env.R2_BUCKET_NAME || "sirdas-audio";
+  const publicBaseUrl = (
+    process.env.R2_PUBLIC_BASE_URL || "https://media.sirdas.ai"
+  ).replace(/\/+$/, "");
 
-const endpoint =
-  process.env.R2_ENDPOINT ||
-  (accountId
-    ? `https://${accountId}.r2.cloudflarestorage.com`
-    : "https://r2.cloudflarestorage.com");
+  const endpoint =
+    process.env.R2_ENDPOINT ||
+    (accountId
+      ? `https://${accountId}.r2.cloudflarestorage.com`
+      : "https://r2.cloudflarestorage.com");
+
+  return {
+    accountId,
+    accessKeyId,
+    secretAccessKey,
+    bucketName,
+    publicBaseUrl,
+    endpoint,
+  };
+}
 
 /**
- * Singleton instance of S3Client configured for Cloudflare R2
+ * Singleton / cached instance of S3Client configured for Cloudflare R2
  */
 let cachedClient: S3Client | null = null;
+let lastEndpoint = "";
+let lastAccessKey = "";
 
 export function getR2Client(): S3Client {
-  if (!cachedClient) {
+  const { accessKeyId, secretAccessKey, endpoint } = getR2Config();
+  if (!cachedClient || lastEndpoint !== endpoint || lastAccessKey !== accessKeyId) {
     cachedClient = new S3Client({
       region: "auto",
       endpoint,
@@ -42,6 +56,8 @@ export function getR2Client(): S3Client {
         secretAccessKey: secretAccessKey || "placeholder-secret-key",
       },
     });
+    lastEndpoint = endpoint;
+    lastAccessKey = accessKeyId;
   }
   return cachedClient;
 }
@@ -66,6 +82,7 @@ export interface UploadSnippetResult {
  * Used to send .ogg audio snippets via Meta WhatsApp Cloud API
  */
 export function getPublicAudioUrl(key: string): string {
+  const { publicBaseUrl } = getR2Config();
   const cleanKey = key.startsWith("/") ? key.slice(1) : key;
   return `${publicBaseUrl}/${cleanKey}`;
 }
@@ -77,6 +94,7 @@ export async function uploadAudioSnippet(
   params: UploadSnippetParams
 ): Promise<UploadSnippetResult> {
   const client = getR2Client();
+  const { bucketName } = getR2Config();
   const cleanKey = params.key.startsWith("/") ? params.key.slice(1) : params.key;
 
   const command = new PutObjectCommand({
@@ -104,6 +122,7 @@ export async function getPresignedDownloadUrl(
   expiresInSeconds: number = 3600
 ): Promise<string> {
   const client = getR2Client();
+  const { bucketName } = getR2Config();
   const cleanKey = key.startsWith("/") ? key.slice(1) : key;
 
   const command = new GetObjectCommand({
@@ -120,6 +139,7 @@ export async function getPresignedDownloadUrl(
 export async function deleteAudioSnippet(key: string): Promise<boolean> {
   try {
     const client = getR2Client();
+    const { bucketName } = getR2Config();
     const cleanKey = key.startsWith("/") ? key.slice(1) : key;
 
     const command = new DeleteObjectCommand({
@@ -143,6 +163,7 @@ export async function checkR2Connection(): Promise<{
   message: string;
   bucket: string;
 }> {
+  const { accessKeyId, secretAccessKey, bucketName } = getR2Config();
   if (!accessKeyId || !secretAccessKey) {
     return {
       ok: false,
@@ -174,7 +195,7 @@ export async function checkR2Connection(): Promise<{
   }
 }
 
-export default {
+const r2Storage = {
   getR2Client,
   r2Client,
   getPublicAudioUrl,
@@ -183,3 +204,5 @@ export default {
   deleteAudioSnippet,
   checkR2Connection,
 };
+
+export default r2Storage;

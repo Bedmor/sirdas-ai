@@ -66,8 +66,17 @@ export async function matchKnowledgeChunks(
   params: MatchKnowledgeChunksParams
 ): Promise<{ data: KnowledgeChunkMatch[] | null; error: Error | null }> {
   try {
+    let embeddingPayload = params.query_embedding;
+    if (typeof embeddingPayload === "string") {
+      try {
+        embeddingPayload = JSON.parse(embeddingPayload);
+      } catch {
+        // If not valid JSON, leave as is
+      }
+    }
+
     const { data, error } = await supabase.rpc("match_knowledge_chunks", {
-      query_embedding: params.query_embedding,
+      query_embedding: embeddingPayload,
       match_threshold: params.match_threshold ?? 0.5,
       match_count: params.match_count ?? 4,
       filter_category: params.filter_category ?? null,

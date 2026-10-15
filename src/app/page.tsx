@@ -57,40 +57,47 @@ export default function HomePage() {
         <Features />
 
         {/* HALİS AYDEMİR AUDIO DEMO PREVIEW */}
-        <section className="py-20 max-w-5xl mx-auto px-4 sm:px-6">
-          <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-br from-emerald-950/90 via-emerald-950/50 to-card p-8 sm:p-12 shadow-xl space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <Badge variant="gold" className="mb-2">
+        <section className="relative py-24 max-w-5xl mx-auto px-4 sm:px-6">
+          <div className="relative rounded-3xl border border-amber-500/35 bg-gradient-to-br from-[#0e1713]/95 via-[#0b120f]/95 to-[#070c09]/95 p-8 sm:p-12 shadow-[0_16px_50px_-5px_rgba(0,0,0,0.5)] space-y-8 backdrop-blur-md overflow-hidden">
+            {/* Top gold line highlight */}
+            <div
+              aria-hidden="true"
+              className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-400/40 to-transparent"
+            />
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+              <div className="space-y-2">
+                <Badge variant="gold" className="text-xs uppercase tracking-wider px-3 py-0.5">
                   Sesli Teskin Kesiti
                 </Badge>
-                <h3 className="text-2xl sm:text-3xl font-bold font-serif text-white">
+                <h3 className="text-2xl sm:text-3xl font-bold font-serif text-white tracking-tight">
                   Halis Aydemir Sohbet Kesitleri
                 </h3>
-                <p className="text-sm text-emerald-100/80 mt-1 max-w-xl">
+                <p className="text-sm text-emerald-100/75 max-w-xl font-light leading-relaxed">
                   Dertleşme esnasında RAG motorunun tespit ettiği hikmet dolu ses
                   kayıtları, WhatsApp üzerinden kullanıcının kulaklarına sekine
                   olur.
                 </p>
               </div>
 
-              <div className="shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs">
-                <Volume2 className="h-4 w-4" />
+              <div className="shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-xl bg-amber-500/15 border border-amber-500/35 text-amber-300 text-xs font-mono shadow-sm">
+                <Volume2 className="h-4 w-4 text-amber-400" />
                 <span>libopus 32k .ogg</span>
               </div>
             </div>
 
-            <div className="rounded-2xl bg-black/40 border border-emerald-800/50 p-6 space-y-4 backdrop-blur-sm">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-muted-foreground">
-                <span className="font-semibold text-emerald-300">
-                  Örnek Kesit: Tevekkül ve Rızık Endişesi (90 sn)
+            <div className="rounded-2xl bg-[#060a08]/80 border border-emerald-900/60 p-6 space-y-5 backdrop-blur-md shadow-inner">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <span className="font-semibold text-emerald-300 flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Örnek Kesit: Tevekkül ve Rızık Endişesi (90 sn)</span>
                 </span>
-                <span className="text-amber-400/90">
+                <span className="text-amber-400/90 font-serif text-[11px]">
                   Kaynak: Halis Aydemir Tefekkür Sohbetleri (R2 Depolama)
                 </span>
               </div>
 
-              {/* Native HTML5 Audio Player */}
+              {/* Native HTML5 Audio Player with custom accent */}
               <audio
                 controls
                 className="w-full accent-amber-500 rounded-lg focus:outline-none"
@@ -103,7 +110,7 @@ export default function HomePage() {
                 Tarayıcınız ses oynatıcısını desteklemiyor.
               </audio>
 
-              <p className="text-xs text-emerald-200/70 italic">
+              <p className="text-xs text-emerald-200/75 italic border-l-2 border-emerald-600/40 pl-3">
                 &ldquo;Kul rızık için telaşlandığında bilmeli ki, rızkı veren
                 yalnızca Rezzak olan Allah&apos;tır; insan sadece sebeplere hürmet
                 eder.&rdquo;
@@ -113,15 +120,15 @@ export default function HomePage() {
         </section>
 
         {/* FAQ SECTION */}
-        <section id="sss" className="py-20 max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="text-center space-y-4 mb-14">
-            <Badge variant="outline" className="text-xs uppercase tracking-wider">
+        <section id="sss" className="relative py-24 max-w-4xl mx-auto px-4 sm:px-6">
+          <div className="text-center space-y-4 mb-16">
+            <Badge variant="outline" className="text-xs uppercase tracking-wider px-3 py-0.5 border-emerald-900/70 text-emerald-300">
               Aklınıza Takılanlar
             </Badge>
-            <h2 className="text-3xl font-bold font-serif tracking-tight text-foreground">
+            <h2 className="text-3xl sm:text-4xl font-bold font-serif tracking-tight text-white">
               Sıkça Sorulan Sorular
             </h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-base text-emerald-100/75 font-light">
               Sırdaş AI&apos;nin manevi sınırları, teknik altyapısı ve işleyişi
               hakkında merak edilenler.
             </p>
@@ -131,18 +138,18 @@ export default function HomePage() {
             {faqs.map((faq, idx) => (
               <details
                 key={idx}
-                className="group rounded-xl border border-border bg-card p-5 transition-colors open:bg-muted/30 hover:border-amber-500/30"
+                className="group rounded-2xl border border-emerald-950/70 bg-[#0e1713]/70 p-6 transition-all duration-200 open:bg-[#121c16]/90 open:border-emerald-800/60 hover:border-amber-500/35 backdrop-blur-md shadow-sm"
               >
-                <summary className="flex cursor-pointer items-center justify-between text-base font-semibold text-foreground font-serif select-none">
-                  <div className="flex items-center gap-3">
-                    <HelpCircle className="h-4 w-4 text-amber-500 shrink-0" />
+                <summary className="flex cursor-pointer items-center justify-between text-base font-semibold text-white font-serif select-none">
+                  <div className="flex items-center gap-3.5">
+                    <HelpCircle className="h-5 w-5 text-amber-400 shrink-0" />
                     <span>{faq.q}</span>
                   </div>
-                  <span className="ml-4 shrink-0 text-muted-foreground group-open:rotate-180 transition-transform">
+                  <span className="ml-4 shrink-0 text-emerald-400/60 group-open:rotate-180 transition-transform duration-200">
                     ↓
                   </span>
                 </summary>
-                <div className="mt-4 pt-3 border-t border-border/60 text-sm text-muted-foreground leading-relaxed">
+                <div className="mt-4 pt-4 border-t border-emerald-950/80 text-sm text-emerald-100/75 leading-relaxed font-light">
                   {faq.a}
                 </div>
               </details>
@@ -151,32 +158,49 @@ export default function HomePage() {
         </section>
 
         {/* BOTTOM FINAL CTA BANNER */}
-        <section className="py-16 bg-gradient-to-t from-emerald-950/70 via-emerald-950/30 to-background border-t border-border/60">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-6">
-            <h2 className="text-3xl sm:text-4xl font-bold font-serif text-white">
+        <section className="relative py-24 bg-gradient-to-t from-[#061811] via-[#090d0b] to-[#090d0b] border-t border-emerald-950/80 overflow-hidden">
+          {/* Ambient Lighting */}
+          <div
+            aria-hidden="true"
+            className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[radial-gradient(ellipse_at_center,_rgba(5,150,105,0.2),_transparent_70%)] blur-2xl pointer-events-none"
+          />
+
+          <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-8">
+            <h2 className="text-3xl sm:text-5xl font-bold font-serif text-white tracking-tight">
               Gönlünüzü Ferahlatmaya Bir Selamla Başlayın
             </h2>
-            <p className="text-base text-emerald-100/80 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-emerald-100/80 max-w-2xl mx-auto font-light leading-relaxed">
               Hiçbir ücret ödemeden, doğrudan WhatsApp üzerinden Selamun Aleykum
               yazarak sırdaşınızla buluşabilirsiniz.
             </p>
 
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a
-                href={waUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-base shadow-xl transition-all border border-emerald-600/40"
-              >
-                <PhoneCall className="h-5 w-5 text-emerald-300" />
-                <span>WhatsApp Sohbeti Başlat</span>
-              </a>
+            <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-5">
+              {/* WhatsApp Pulsating CTA */}
+              <div className="relative group w-full sm:w-auto">
+                <span
+                  aria-hidden="true"
+                  className="absolute -inset-1 rounded-2xl bg-emerald-500/30 animate-pulse-ring pointer-events-none"
+                />
+                <span
+                  aria-hidden="true"
+                  className="absolute -inset-0.5 rounded-2xl bg-amber-500/20 blur-[2px] animate-aura-breathe pointer-events-none"
+                />
+                <a
+                  href={waUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="relative w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-emerald-800 via-emerald-700 to-emerald-800 hover:from-emerald-700 hover:to-emerald-600 text-white font-bold text-base shadow-[0_12px_32px_-4px_rgba(5,150,105,0.45)] transition-all duration-200 active:scale-[0.98] border border-emerald-400/40 hover:border-amber-400/50"
+                >
+                  <PhoneCall className="h-5 w-5 text-emerald-200" />
+                  <span>WhatsApp Sohbeti Başlat</span>
+                </a>
+              </div>
 
               <Link
                 href="/askida-sirdas"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 font-semibold text-base transition-colors border border-amber-500/40"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-4 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-semibold text-base transition-all duration-200 border border-amber-500/40 hover:border-amber-400/60 shadow-sm backdrop-blur-sm"
               >
-                <HeartHandshake className="h-5 w-5" />
+                <HeartHandshake className="h-5 w-5 text-amber-400" />
                 <span>Askıda Sırdaş&apos;a Destek Ol</span>
               </Link>
             </div>

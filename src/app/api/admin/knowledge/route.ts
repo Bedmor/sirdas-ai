@@ -77,7 +77,7 @@ const SEED_KNOWLEDGE_CHUNKS = [
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const sourceType = searchParams.get("sourceType");
+    const sourceType = searchParams.get("sourceType") || searchParams.get("category");
     const search = searchParams.get("search");
 
     let chunks: Array<any> = [];
@@ -97,21 +97,37 @@ export async function GET(request: NextRequest) {
       console.warn("DB knowledge chunks fallback:", dbErr);
     }
 
+    const audioSeedChunks = SEED_KNOWLEDGE_CHUNKS.filter(
+      (c) => (c.sourceType === "HALIS_AYDEMIR" || (c as any).category === "HALIS_AYDEMIR") && c.audioUrl
+    );
+
     if (!chunks || chunks.length === 0) {
       chunks = SEED_KNOWLEDGE_CHUNKS;
+    } else if (
+      (!sourceType || sourceType === "ALL" || sourceType === "HALIS_AYDEMIR") &&
+      !chunks.some((c) => (c.sourceType === "HALIS_AYDEMIR" || (c as any).category === "HALIS_AYDEMIR") && c.audioUrl)
+    ) {
+      chunks = [...chunks, ...audioSeedChunks];
     }
 
-    let filtered = chunks;
+    let filtered = chunks.map((c) => ({
+      ...c,
+      category: c.category || c.sourceType,
+    }));
+
     if (sourceType && sourceType !== "ALL") {
-      filtered = filtered.filter((c) => c.sourceType === sourceType);
+      filtered = filtered.filter(
+        (c) => c.sourceType === sourceType || (c as any).category === sourceType
+      );
     }
+
     if (search) {
       const q = search.toLowerCase();
       filtered = filtered.filter(
         (c) =>
-          c.sourceTitle.toLowerCase().includes(q) ||
-          c.content.toLowerCase().includes(q) ||
-          c.tags.some((t: string) => t.toLowerCase().includes(q))
+          c.sourceTitle?.toLowerCase().includes(q) ||
+          c.content?.toLowerCase().includes(q) ||
+          (Array.isArray(c.tags) && c.tags.some((t: string) => t.toLowerCase().includes(q)))
       );
     }
 
@@ -119,6 +135,7 @@ export async function GET(request: NextRequest) {
       success: true,
       count: filtered.length,
       data: filtered,
+      chunks: filtered,
     });
   } catch (error) {
     console.error("Knowledge chunks API error:", error);

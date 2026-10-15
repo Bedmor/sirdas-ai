@@ -44,36 +44,43 @@
   }
 
   .dark {
+    /* Spiritual Charcoal / Black ground (#090d0b / 224 30% 8%) */
     --background: 224 30% 8%;
-    --foreground: 210 20% 98%;
+    /* Crisply readable luminous off-white/emerald tint (#f0fdf4) */
+    --foreground: 144 40% 96%;
 
-    --card: 224 30% 11%;
-    --card-foreground: 210 20% 98%;
+    /* Deep contemplative card ground (#0d1411) */
+    --card: 153 22% 6.8%;
+    --card-foreground: 144 40% 96%;
 
-    --popover: 224 30% 11%;
-    --popover-foreground: 210 20% 98%;
+    --popover: 153 22% 6.8%;
+    --popover-foreground: 144 40% 96%;
 
-    --primary: 160 70% 36%;
+    /* Deep Emerald (#064e3b & #059669) */
+    --primary: 160 84% 24%;
     --primary-foreground: 0 0% 100%;
 
+    /* Matte Gold Leaf (#f59e0b / #d97706) */
     --secondary: 42 70% 50%;
-    --secondary-foreground: 40 50% 10%;
+    --secondary-foreground: 150 20% 4.5%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 152 24% 12%;
+    /* Muted text passing WCAG AA (>= 4.5:1 against #090d0b) */
+    --muted-foreground: 150 14% 68%;
 
-    --accent: 160 40% 18%;
-    --accent-foreground: 160 70% 40%;
+    --accent: 160 40% 14%;
+    --accent-foreground: 150 75% 75%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 160 70% 36%;
+    /* Micro borders with subtle emerald tint (#192e24) */
+    --border: 153 28% 15%;
+    --input: 153 28% 15%;
+    --ring: 40 92% 50%;
 
     --chart-1: 160 70% 45%;
-    --chart-2: 42 70% 60%;
+    --chart-2: 40 92% 50%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
@@ -88,4 +95,116 @@
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+
+  /* Browser Surfaces Craft */
+  ::selection {
+    background-color: rgba(217, 119, 6, 0.3);
+    color: #fef08a;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #090d0b;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #192e24;
+    border-radius: 9999px;
+    border: 2px solid #090d0b;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #254b3a;
+  }
 }
+
+@layer utilities {
+  .font-serif {
+    font-family: var(--font-cinzel), var(--font-amiri), "Playfair Display", Georgia, serif;
+  }
+  .font-amiri {
+    font-family: var(--font-amiri), serif;
+  }
+  .font-cinzel {
+    font-family: var(--font-cinzel), serif;
+  }
+  .font-sans {
+    font-family: var(--font-sans), "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  /* Islamic Arch (Kemer) Geometric Detailing */
+  .islamic-arch {
+    clip-path: polygon(
+      0% 20%,
+      5% 15%,
+      15% 7%,
+      30% 2%,
+      50% 0%,
+      70% 2%,
+      85% 7%,
+      95% 15%,
+      100% 20%,
+      100% 100%,
+      0% 100%
+    );
+  }
+
+  /* Glassmorphism Surface with soft emerald aura */
+  .glass-card {
+    background: linear-gradient(
+      135deg,
+      rgba(6, 78, 59, 0.18) 0%,
+      rgba(9, 13, 11, 0.75) 50%,
+      rgba(13, 20, 17, 0.9) 100%
+    );
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* Gold-Leaf Micro Border */
+  .border-gold-leaf {
+    border: 1px solid rgba(217, 119, 6, 0.28);
+    box-shadow: 0 0 15px -3px rgba(217, 119, 6, 0.08);
+  }
+  .border-gold-leaf:hover {
+    border-color: rgba(245, 158, 11, 0.55);
+    box-shadow: 0 0 25px -2px rgba(245, 158, 11, 0.18);
+  }
+}
+
+/* Animations */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.92);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.18);
+    opacity: 0.35;
+  }
+  100% {
+    transform: scale(1.42);
+    opacity: 0;
+  }
+}
+
+@keyframes aura-breathe {
+  0%, 100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.04);
+  }
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2.8s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+}
+
+.animate-aura-breathe {
+  animation: aura-breathe 6s ease-in-out infinite;
+}
+

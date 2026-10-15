@@ -1,0 +1,29 @@
+# ==============================================================================
+# Sırdaş AI - Phase 2 Data Pipeline Dependencies (RTX 4060 Local Pipeline)
+# ==============================================================================
+# Note: For CUDA-accelerated WhisperX execution on Linux (RTX 4060 Laptop GPU),
+# use the conda environment at /home/besim/.conda/envs/lyriccat/bin/python
+# which provides CUDA 13.4 runtime, PyTorch 2.8.0+cu128, and CTranslate2 4.8.2.
+# ==============================================================================
+
+# Core Machine Learning & Audio Transcription
+torch>=2.4.0
+torchaudio>=2.4.0
+whisperx>=3.8.0
+ctranslate2>=4.8.0
+
+# Audio & Video Ingestion
+yt-dlp>=2025.1.0
+
+# Cloud Storage & Database
+boto3>=1.35.0
+supabase>=2.10.0
+
+# AI Models & Embeddings
+google-genai>=2.0.0
+requests>=2.32.0
+
+# Data Validation & Typing
+pydantic>=2.10.0
+numpy>=1.26.0
+python-dotenv>=1.0.0

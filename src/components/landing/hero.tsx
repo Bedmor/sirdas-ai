@@ -1,87 +1,150 @@
 import React from "react";
 import Link from "next/link";
-import { ShieldCheck, PhoneCall } from "lucide-react";
+import { ShieldCheck, PhoneCall, Sparkles, HeartHandshake, Compass } from "lucide-react";
 
 interface HeroProps {
   waUrl: string;
 }
 
 export function Hero({ waUrl }: HeroProps) {
-  return (
-    <section className="relative overflow-hidden pt-20 pb-24 md:pt-28 md:pb-32 bg-gradient-to-b from-emerald-950/80 via-emerald-950/40 to-background border-b border-border/50">
-      {/* Subtle Islamic geometric ambient glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-600/10 via-emerald-800/10 to-transparent pointer-events-none" />
+  // Direct wa.me WhatsApp integration
+  const whatsappUrl = waUrl || "https://wa.me/905550200605?text=Selamun%20Aleykum";
 
-      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 text-center space-y-8">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold tracking-wide shadow-sm backdrop-blur-sm animate-in fade-in">
-          <ShieldCheck className="h-4 w-4 text-amber-400" />
+  return (
+    <section className="relative overflow-hidden pt-24 pb-28 md:pt-36 md:pb-36 bg-[#090d0b] border-b border-emerald-950/80">
+      {/* Atmospheric Emerald & Gold Radial Glow */}
+      <div
+        aria-hidden="true"
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[680px] pointer-events-none overflow-hidden"
+      >
+        {/* Top radial emerald radiance */}
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[450px] bg-[radial-gradient(ellipse_at_center,_rgba(5,150,105,0.22),_rgba(4,120,87,0.08)_50%,_transparent_75%)] blur-2xl" />
+        {/* Warm amber focal light */}
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[480px] h-[280px] bg-[radial-gradient(ellipse_at_center,_rgba(217,119,6,0.14),_transparent_70%)] blur-3xl animate-aura-breathe" />
+      </div>
+
+      {/* Islamic Arch (Kemer) Vector Motif Silhouette */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 flex items-start justify-center pointer-events-none opacity-[0.07]"
+      >
+        <svg
+          viewBox="0 0 800 600"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full max-w-4xl h-auto text-amber-300"
+        >
+          {/* Outer Arch */}
+          <path
+            d="M 150 600 L 150 260 C 150 140, 260 50, 400 30 C 540 50, 650 140, 650 260 L 650 600"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeDasharray="6 6"
+          />
+          {/* Inner Cusped Arch */}
+          <path
+            d="M 220 600 L 220 280 C 220 210, 280 140, 340 100 C 370 80, 400 70, 400 70 C 400 70, 430 80, 460 100 C 520 140, 580 210, 580 280 L 580 600"
+            stroke="currentColor"
+            strokeWidth="1.5"
+          />
+          {/* Central Finial Rosette */}
+          <circle cx="400" cy="30" r="10" stroke="currentColor" strokeWidth="2" />
+          <circle cx="400" cy="30" r="3" fill="currentColor" />
+        </svg>
+      </div>
+
+      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 text-center space-y-10">
+        {/* Protective Guarantee Pill */}
+        <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold tracking-wide shadow-sm backdrop-blur-md">
+          <ShieldCheck className="h-4 w-4 text-amber-400 shrink-0" />
           <span>Fetva Vermez • Manevi Ayna Tutar • Çelik Kasa RAG</span>
         </div>
 
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white font-serif leading-[1.15] drop-shadow-sm">
-          Gönül Yaralarına Kur&apos;an, Sünnet ve{" "}
-          <span className="text-amber-400 decoration-amber-500/40 underline decoration-wavy decoration-1">
-            Hikmet Aynası
-          </span>
-        </h1>
+        {/* Primary Headline with Serene Presence */}
+        <div className="space-y-4">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white font-serif leading-[1.18] max-w-4xl mx-auto">
+            Gönül Yaralarına Kur&apos;an, Sünnet ve{" "}
+            <span className="text-amber-400 font-serif">
+              Hikmet Aynası
+            </span>
+          </h1>
 
-        <p className="text-lg sm:text-xl text-emerald-100/80 max-w-3xl mx-auto font-light leading-relaxed">
-          Modern hayatın borç, öfke, rızık kaygısı ve vesvese girdaplarında;
-          fıkhi fetva vermeden, nefsin tuzaklarını deşifre eden ve Halis
-          Aydemir sohbetleri ışığında kulun kalbine sekine fısıldayan dijital
-          sırdaşınız.
-        </p>
+          <p className="text-base sm:text-lg md:text-xl text-emerald-100/85 max-w-3xl mx-auto font-light leading-relaxed pt-2">
+            Modern hayatın borç, öfke, rızık kaygısı ve vesvese girdaplarında;
+            fıkhi fetva vermeden, nefsin tuzaklarını deşifre eden ve Halis
+            Aydemir sohbetleri ışığında kulun kalbine sekine fısıldayan dijital
+            sırdaşınız.
+          </p>
+        </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-          <a
-            href={waUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-emerald-700 to-emerald-800 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold text-base shadow-lg shadow-emerald-950/50 hover:shadow-emerald-900/60 transition-all active:scale-[0.98] border border-emerald-500/40"
-          >
-            <PhoneCall className="h-5 w-5 text-emerald-200" />
-            <span>Sırdaş ile Konuş (WhatsApp)</span>
-          </a>
+        {/* Action Controls */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-5 pt-2">
+          {/* Pulsating WhatsApp CTA with Multi-Layered Breathing Aura */}
+          <div className="relative group w-full sm:w-auto">
+            {/* Pulsating Ring Layer */}
+            <span
+              aria-hidden="true"
+              className="absolute -inset-1 rounded-2xl bg-emerald-500/30 animate-pulse-ring pointer-events-none"
+            />
+            {/* Ambient Breathe Glow */}
+            <span
+              aria-hidden="true"
+              className="absolute -inset-0.5 rounded-2xl bg-amber-500/20 blur-[2px] animate-aura-breathe pointer-events-none"
+            />
+
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative w-full sm:w-auto inline-flex items-center justify-center gap-3.5 px-8 py-4 rounded-xl bg-gradient-to-r from-emerald-800 via-emerald-700 to-emerald-800 hover:from-emerald-700 hover:to-emerald-600 text-white font-semibold text-base shadow-[0_12px_32px_-4px_rgba(5,150,105,0.45)] hover:shadow-[0_16px_36px_-2px_rgba(5,150,105,0.6)] transition-all duration-200 active:scale-[0.98] border border-emerald-400/40 hover:border-amber-400/50"
+            >
+              <div className="relative flex items-center justify-center">
+                <PhoneCall className="h-5 w-5 text-emerald-200 shrink-0" />
+                <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-amber-400 ring-2 ring-emerald-900 animate-ping" />
+              </div>
+              <span className="tracking-wide">Sırdaş ile Konuş (WhatsApp)</span>
+            </a>
+          </div>
 
           <Link
             href="/sorumluluk-reddi"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl border border-border/80 bg-card/60 backdrop-blur-sm text-foreground font-medium text-base hover:bg-muted/60 transition-all"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl border border-emerald-900/60 bg-[#0d1411]/80 hover:bg-[#121c18] backdrop-blur-md text-foreground font-medium text-base hover:border-amber-500/40 transition-all duration-200 shadow-sm"
           >
             <span>Manevi Sınırlar ve Fıkhi Çerçeve</span>
           </Link>
         </div>
 
-        {/* Quick Meta Stats / Highlights */}
-        <div className="pt-10 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto border-t border-emerald-900/40 text-center">
-          <div className="p-3">
-            <div className="text-2xl font-bold text-amber-400 font-serif">
+        {/* Prestigious Highlights Bar */}
+        <div className="pt-12 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto border-t border-emerald-900/40 text-center">
+          <div className="p-4 rounded-xl bg-[#0d1411]/40 border border-emerald-950/60 backdrop-blur-sm">
+            <div className="text-2xl sm:text-3xl font-bold text-amber-400 font-serif">
               142.000+
             </div>
-            <div className="text-xs text-emerald-200/70 mt-0.5">
+            <div className="text-xs text-emerald-200/75 mt-1">
               Manevi Teskin Mesajı
             </div>
           </div>
-          <div className="p-3">
-            <div className="text-2xl font-bold text-amber-400 font-serif">
+          <div className="p-4 rounded-xl bg-[#0d1411]/40 border border-emerald-950/60 backdrop-blur-sm">
+            <div className="text-2xl sm:text-3xl font-bold text-amber-400 font-serif">
               %100 Ücretsiz
             </div>
-            <div className="text-xs text-emerald-200/70 mt-0.5">
+            <div className="text-xs text-emerald-200/75 mt-1">
               Askıda İnfak Modeli
             </div>
           </div>
-          <div className="p-3">
-            <div className="text-2xl font-bold text-amber-400 font-serif">
+          <div className="p-4 rounded-xl bg-[#0d1411]/40 border border-emerald-950/60 backdrop-blur-sm">
+            <div className="text-2xl sm:text-3xl font-bold text-amber-400 font-serif">
               5 Süzgeç
             </div>
-            <div className="text-xs text-emerald-200/70 mt-0.5">
+            <div className="text-xs text-emerald-200/75 mt-1">
               Sarsılmaz Sistem Anayasası
             </div>
           </div>
-          <div className="p-3">
-            <div className="text-2xl font-bold text-amber-400 font-serif">
+          <div className="p-4 rounded-xl bg-[#0d1411]/40 border border-emerald-950/60 backdrop-blur-sm">
+            <div className="text-2xl sm:text-3xl font-bold text-amber-400 font-serif">
               Alo 190
             </div>
-            <div className="text-xs text-emerald-200/70 mt-0.5">
+            <div className="text-xs text-emerald-200/75 mt-1">
               Fetva Koruma Kalkanı
             </div>
           </div>
@@ -90,3 +153,4 @@ export function Hero({ waUrl }: HeroProps) {
     </section>
   );
 }
+

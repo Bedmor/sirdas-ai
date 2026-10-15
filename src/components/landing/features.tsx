@@ -43,16 +43,16 @@ export function Features() {
   ];
 
   return (
-    <section id="ozellikler" className="py-20 bg-muted/30 border-y border-border/60">
+    <section id="ozellikler" className="relative py-24 bg-[#0a0f0d] border-y border-emerald-950/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center space-y-4 max-w-3xl mx-auto mb-16">
-          <Badge variant="emerald" className="text-xs uppercase tracking-wider">
+        <div className="text-center space-y-4 max-w-3xl mx-auto mb-20">
+          <Badge variant="emerald" className="text-xs uppercase tracking-wider px-3.5 py-1">
             Mühendislik &amp; Hikmet Uyumu
           </Badge>
-          <h2 className="text-3xl md:text-4xl font-bold font-serif tracking-tight text-foreground">
+          <h2 className="text-3xl md:text-5xl font-bold font-serif tracking-tight text-white leading-tight">
             Çelik Kasa RAG ve İkili Bilişsel Mimari
           </h2>
-          <p className="text-base text-muted-foreground leading-relaxed">
+          <p className="text-base sm:text-lg text-emerald-100/75 leading-relaxed font-light">
             Yapay zekanın serbest tahmin yapmasına asla izin verilmez. Sistem
             1 (Jev) ile anlık niyet ve kriz teşhisi yapılır; System 2 (Gemini
             2.5 Flash) Çelik Kasa RAG kaynaklarını kullanarak muhatabına
@@ -60,29 +60,38 @@ export function Features() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
           {features.map((feat) => {
             const IconComp = feat.icon;
             return (
               <div
                 key={feat.title}
-                className="p-6 rounded-2xl bg-card border border-border shadow-sm space-y-4 hover:border-emerald-600/40 transition-all"
+                className="group relative p-8 rounded-2xl bg-gradient-to-b from-[#0e1713]/90 via-[#0a110e]/90 to-[#070c09]/95 border border-emerald-900/60 hover:border-amber-500/40 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.35)] hover:shadow-[0_12px_40px_-5px_rgba(5,150,105,0.18)] flex flex-col justify-between backdrop-blur-md"
               >
-                <div className="flex items-center justify-between">
-                  <div className="h-10 w-10 rounded-lg bg-emerald-950/40 border border-emerald-800/40 flex items-center justify-center text-emerald-400">
-                    <IconComp className="h-5 w-5" />
+                <div className="space-y-5">
+                  <div className="flex items-center justify-between">
+                    <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-950 to-emerald-900/70 border border-emerald-700/40 flex items-center justify-center text-emerald-300 group-hover:scale-105 group-hover:text-amber-300 transition-all duration-300 shadow-inner">
+                      <IconComp className="h-6 w-6 stroke-[1.8]" />
+                    </div>
+                    <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-emerald-950/60 text-emerald-300/90 border border-emerald-800/40">
+                      {feat.badge}
+                    </span>
                   </div>
-                  <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border">
-                    {feat.badge}
-                  </span>
+
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-bold text-white font-serif tracking-tight">
+                      {feat.title}
+                    </h3>
+                    <p className="text-sm text-emerald-100/75 leading-relaxed font-light">
+                      {feat.desc}
+                    </p>
+                  </div>
                 </div>
 
-                <h3 className="text-lg font-bold text-foreground font-serif">
-                  {feat.title}
-                </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {feat.desc}
-                </p>
+                <div className="pt-4 mt-6 border-t border-emerald-900/40 text-[11px] text-emerald-400/60 flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  <span>Doğrulanmış Sırdaş Mimarisi</span>
+                </div>
               </div>
             );
           })}
@@ -91,3 +100,4 @@ export function Features() {
     </section>
   );
 }
+

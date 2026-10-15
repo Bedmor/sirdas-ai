@@ -12,6 +12,8 @@ import {
   Users,
   FileSpreadsheet,
   FileCode,
+  ShieldCheck,
+  CheckCircle2,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -89,33 +91,48 @@ export default function VasReportsPage() {
   return (
     <div className="space-y-8">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-emerald-950/60 pb-6">
+        <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <Badge variant="blue" className="text-xs">
-              VAS (Value Added Services)
+            <Badge
+              variant="blue"
+              className="text-[11px] bg-cyan-950/60 text-cyan-300 border border-cyan-800/50 font-mono"
+            >
+              GSM VAS (Value Added Services)
             </Badge>
-            <span className="text-xs text-muted-foreground">GSM Operatör Mutabakatı</span>
+            <span className="text-xs text-muted-foreground flex items-center gap-1">
+              <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+              Operatör Mutabakat Protokolü
+            </span>
           </div>
-          <h1 className="text-2xl font-bold font-serif tracking-tight text-foreground mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold font-serif tracking-tight text-foreground">
             Operatör Trafik ve Dakika Raporlama
           </h1>
-          <p className="text-xs text-muted-foreground">
-            GSM operatörleri ile manevi VAS sponsorlukları ve dakika eşdeğeri mutabakat paneli.
+          <p className="text-xs text-muted-foreground max-w-2xl">
+            GSM operatörleri ile manevi VAS sponsorlukları, eşdeğer ses dakikası mutabakatı ve
+            RFC 4180 uyumlu muhasebe dökümü.
           </p>
         </div>
 
         {/* Export Buttons */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5 self-start sm:self-auto">
           <a href={getCsvDownloadUrl()} download>
-            <Button variant="outline" size="sm" className="gap-2 text-xs">
-              <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-500" />
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 text-xs border-emerald-800/60 bg-emerald-950/30 hover:bg-emerald-900/40 text-emerald-300 hover:text-emerald-100 transition-all duration-150 shadow-sm"
+            >
+              <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-400" />
               <span>CSV İndir</span>
             </Button>
           </a>
           <a href="/api/admin/vas-export?format=json" target="_blank" rel="noopener noreferrer">
-            <Button variant="outline" size="sm" className="gap-2 text-xs">
-              <FileCode className="h-3.5 w-3.5 text-blue-500" />
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2 text-xs border-cyan-800/60 bg-cyan-950/30 hover:bg-cyan-900/40 text-cyan-300 hover:text-cyan-100 transition-all duration-150 shadow-sm"
+            >
+              <FileCode className="h-3.5 w-3.5 text-cyan-400" />
               <span>JSON API</span>
             </Button>
           </a>
@@ -123,20 +140,27 @@ export default function VasReportsPage() {
       </div>
 
       {/* Date Filter Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl border border-border bg-card">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Filter className="h-3.5 w-3.5 text-foreground" />
-          <span className="font-semibold text-foreground">Tarih Aralığı:</span>
+      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl border border-emerald-950/80 bg-[#0d1411]/90 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+        <div className="flex items-center gap-2.5 text-xs">
+          <div className="h-7 w-7 rounded-lg bg-emerald-950/80 border border-emerald-800/60 flex items-center justify-center text-emerald-400">
+            <Filter className="h-3.5 w-3.5" />
+          </div>
+          <div>
+            <span className="font-semibold text-foreground">Tarih Aralığı:</span>
+            <span className="text-muted-foreground ml-1.5 hidden sm:inline text-[11px]">
+              Mutabakat periyodunu seçin
+            </span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 bg-emerald-950/40 p-1 rounded-xl border border-emerald-900/40">
           <button
             type="button"
             onClick={() => setSelectedRange("today")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
               selectedRange === "today"
-                ? "bg-primary text-primary-foreground font-semibold"
-                : "bg-muted text-muted-foreground hover:text-foreground"
+                ? "bg-emerald-900 text-emerald-100 font-semibold shadow-sm border border-emerald-700/60"
+                : "text-muted-foreground hover:text-foreground hover:bg-emerald-950/60"
             }`}
           >
             Bugün
@@ -144,10 +168,10 @@ export default function VasReportsPage() {
           <button
             type="button"
             onClick={() => setSelectedRange("7d")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
               selectedRange === "7d"
-                ? "bg-primary text-primary-foreground font-semibold"
-                : "bg-muted text-muted-foreground hover:text-foreground"
+                ? "bg-emerald-900 text-emerald-100 font-semibold shadow-sm border border-emerald-700/60"
+                : "text-muted-foreground hover:text-foreground hover:bg-emerald-950/60"
             }`}
           >
             Son 7 Gün
@@ -155,10 +179,10 @@ export default function VasReportsPage() {
           <button
             type="button"
             onClick={() => setSelectedRange("30d")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
               selectedRange === "30d"
-                ? "bg-primary text-primary-foreground font-semibold"
-                : "bg-muted text-muted-foreground hover:text-foreground"
+                ? "bg-emerald-900 text-emerald-100 font-semibold shadow-sm border border-emerald-700/60"
+                : "text-muted-foreground hover:text-foreground hover:bg-emerald-950/60"
             }`}
           >
             Son 30 Gün
@@ -166,10 +190,10 @@ export default function VasReportsPage() {
           <button
             type="button"
             onClick={() => setSelectedRange("all")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
               selectedRange === "all"
-                ? "bg-primary text-primary-foreground font-semibold"
-                : "bg-muted text-muted-foreground hover:text-foreground"
+                ? "bg-emerald-900 text-emerald-100 font-semibold shadow-sm border border-emerald-700/60"
+                : "text-muted-foreground hover:text-foreground hover:bg-emerald-950/60"
             }`}
           >
             Tüm Kayıtlar
@@ -178,38 +202,60 @@ export default function VasReportsPage() {
       </div>
 
       {/* Aggregate KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-5 rounded-2xl border border-border bg-card shadow-sm space-y-1">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+        <div className="group p-5 rounded-2xl border border-emerald-950/80 bg-[#0d1411]/90 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:border-emerald-700/60 transition-all duration-200 space-y-2">
           <div className="flex items-center justify-between text-muted-foreground">
-            <span className="text-xs uppercase font-medium">Toplam Gelen Mesaj</span>
-            <ArrowDownLeft className="h-4 w-4 text-emerald-500" />
+            <span className="text-xs uppercase font-semibold text-muted-foreground/90 tracking-wider">
+              Toplam Gelen Mesaj
+            </span>
+            <div className="h-8 w-8 rounded-lg bg-emerald-950/80 border border-emerald-800/60 flex items-center justify-center text-emerald-400">
+              <ArrowDownLeft className="h-4 w-4" />
+            </div>
           </div>
-          <div className="text-2xl font-bold font-serif text-foreground">
+          <div className="text-3xl font-bold font-mono tracking-tight text-foreground tabular-nums">
             {loading ? "..." : totalIncoming.toLocaleString("tr-TR")}
           </div>
-          <p className="text-[11px] text-muted-foreground">Kullanıcı dertleşme girdileri</p>
+          <p className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            Kullanıcı dertleşme girdileri (WhatsApp)
+          </p>
         </div>
 
-        <div className="p-5 rounded-2xl border border-border bg-card shadow-sm space-y-1">
+        <div className="group p-5 rounded-2xl border border-emerald-950/80 bg-[#0d1411]/90 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:border-cyan-700/60 transition-all duration-200 space-y-2">
           <div className="flex items-center justify-between text-muted-foreground">
-            <span className="text-xs uppercase font-medium">Toplam Giden Mesaj</span>
-            <ArrowUpRight className="h-4 w-4 text-blue-500" />
+            <span className="text-xs uppercase font-semibold text-muted-foreground/90 tracking-wider">
+              Toplam Giden Mesaj
+            </span>
+            <div className="h-8 w-8 rounded-lg bg-cyan-950/80 border border-cyan-800/60 flex items-center justify-center text-cyan-400">
+              <ArrowUpRight className="h-4 w-4" />
+            </div>
           </div>
-          <div className="text-2xl font-bold font-serif text-foreground">
+          <div className="text-3xl font-bold font-mono tracking-tight text-foreground tabular-nums">
             {loading ? "..." : totalOutgoing.toLocaleString("tr-TR")}
           </div>
-          <p className="text-[11px] text-muted-foreground">Sırdaş AI hikmet &amp; ses yanıtları</p>
+          <p className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
+            Sırdaş AI hikmet &amp; sesli yanıtları
+          </p>
         </div>
 
-        <div className="p-5 rounded-2xl border border-border bg-card shadow-sm space-y-1">
+        <div className="group p-5 rounded-2xl border border-emerald-950/80 bg-[#0d1411]/90 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:border-amber-500/50 transition-all duration-200 space-y-2">
           <div className="flex items-center justify-between text-muted-foreground">
-            <span className="text-xs uppercase font-medium">Eşdeğer Dakika Hacmi</span>
-            <Clock className="h-4 w-4 text-amber-500" />
+            <span className="text-xs uppercase font-semibold text-muted-foreground/90 tracking-wider">
+              Eşdeğer Dakika Hacmi
+            </span>
+            <div className="h-8 w-8 rounded-lg bg-amber-950/80 border border-amber-600/50 flex items-center justify-center text-amber-300">
+              <Clock className="h-4 w-4" />
+            </div>
           </div>
-          <div className="text-2xl font-bold font-serif text-foreground">
-            {loading ? "..." : Math.round(totalMinutes).toLocaleString("tr-TR")} dk
+          <div className="text-3xl font-bold font-mono tracking-tight text-amber-400 tabular-nums">
+            {loading ? "..." : Math.round(totalMinutes).toLocaleString("tr-TR")}{" "}
+            <span className="text-xl font-sans text-amber-400/80 font-normal">dk</span>
           </div>
-          <p className="text-[11px] text-muted-foreground">Operatör sesli görüşme karşılığı</p>
+          <p className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+            GSM operatör sesli görüşme mutabakatı
+          </p>
         </div>
       </div>
 
@@ -217,19 +263,24 @@ export default function VasReportsPage() {
       <VasChart data={logs} loading={loading} />
 
       {/* VAS Data Table */}
-      <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
-        <div className="p-5 border-b border-border/80 flex items-center justify-between">
-          <h2 className="text-sm font-bold font-serif text-foreground">
-            Günlük Operatör Trafik Dökümü
-          </h2>
-          <span className="text-xs text-muted-foreground">
-            {logs.length} adet kayıt listeleniyor
+      <div className="rounded-2xl border border-emerald-950/80 bg-[#0d1411]/90 backdrop-blur-md shadow-[0_4px_24px_rgba(0,0,0,0.3)] overflow-hidden">
+        <div className="p-5 border-b border-emerald-950/60 flex items-center justify-between">
+          <div className="space-y-0.5">
+            <h2 className="text-sm font-bold font-serif text-foreground">
+              Günlük Operatör Trafik Dökümü
+            </h2>
+            <p className="text-[11px] text-muted-foreground">
+              Kullanıcı telefon numaraları KVKK uyarınca maskelenmiştir (+90 5XX ••• XX).
+            </p>
+          </div>
+          <span className="text-xs font-mono text-emerald-400 bg-emerald-950/60 px-2.5 py-1 rounded-lg border border-emerald-900/40">
+            {logs.length} adet kayıt
           </span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-muted/40 text-muted-foreground uppercase text-[10px] tracking-wider border-b border-border">
+            <thead className="bg-emerald-950/30 text-muted-foreground uppercase text-[10px] tracking-wider border-b border-emerald-950/60">
               <tr>
                 <th className="py-3 px-4 font-semibold">Tarih</th>
                 <th className="py-3 px-4 font-semibold">Kullanıcı No (Maskeli)</th>
@@ -238,35 +289,38 @@ export default function VasReportsPage() {
                 <th className="py-3 px-4 font-semibold text-right">Eşdeğer Dakika</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border/60">
+            <tbody className="divide-y divide-emerald-950/60">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-muted-foreground">
-                    Veriler yükleniyor...
+                  <td colSpan={5} className="py-12 text-center text-muted-foreground">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <div className="h-5 w-5 rounded-full border-2 border-emerald-500/30 border-t-emerald-500 animate-spin" />
+                      <span>Veriler yükleniyor...</span>
+                    </div>
                   </td>
                 </tr>
               ) : logs.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-muted-foreground">
+                  <td colSpan={5} className="py-10 text-center text-muted-foreground">
                     Bu tarih aralığında kayıt bulunamadı.
                   </td>
                 </tr>
               ) : (
                 logs.map((row) => (
-                  <tr key={row.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="py-3 px-4 font-medium text-foreground whitespace-nowrap">
+                  <tr key={row.id} className="hover:bg-emerald-950/20 transition-colors">
+                    <td className="py-3 px-4 font-mono font-medium text-foreground whitespace-nowrap">
                       {row.date}
                     </td>
-                    <td className="py-3 px-4 font-mono text-muted-foreground">
+                    <td className="py-3 px-4 font-mono text-emerald-400/80">
                       {row.userPhone}
                     </td>
-                    <td className="py-3 px-4 text-right font-medium text-emerald-500">
+                    <td className="py-3 px-4 text-right font-mono font-medium text-emerald-400 tabular-nums">
                       {row.incomingCount}
                     </td>
-                    <td className="py-3 px-4 text-right font-medium text-blue-500">
+                    <td className="py-3 px-4 text-right font-mono font-medium text-cyan-400 tabular-nums">
                       {row.outgoingCount}
                     </td>
-                    <td className="py-3 px-4 text-right font-bold text-foreground">
+                    <td className="py-3 px-4 text-right font-mono font-bold text-amber-300 tabular-nums">
                       {row.estimatedMinutes.toFixed(1)} dk
                     </td>
                   </tr>
@@ -279,3 +333,4 @@ export default function VasReportsPage() {
     </div>
   );
 }
+

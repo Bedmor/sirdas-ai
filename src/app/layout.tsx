@@ -1,5 +1,27 @@
 import type { Metadata } from "next";
+import { Amiri, Cinzel, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+
+const amiri = Amiri({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-amiri",
+  display: "swap",
+});
+
+const cinzel = Cinzel({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-cinzel",
+  display: "swap",
+});
+
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-sans",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Sırdaş AI | Dijital Sırdaş ve Manevi Rehber",
@@ -15,9 +37,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="tr" className="dark" suppressHydrationWarning>
-      <body className="min-h-screen bg-background font-sans antialiased">
+      <body
+        className={`${amiri.variable} ${cinzel.variable} ${plusJakarta.variable} min-h-screen bg-background font-sans antialiased selection:bg-amber-500/25 selection:text-amber-200`}
+      >
         {children}
       </body>
     </html>
   );
 }
+

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -23,9 +24,16 @@ export function Navbar() {
         >
           <div
             aria-hidden="true"
-            className="w-9 h-9 rounded-full bg-surface-container-high border border-outline-variant/60 flex items-center justify-center text-primary shadow-inner"
+            className="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant/60 flex items-center justify-center shadow-inner overflow-hidden flex-shrink-0"
           >
-            <i className="ph ph-moon-stars text-xl"></i>
+            <Image
+              src="/icon.png"
+              alt="Sırdaş AI Logosu"
+              width={40}
+              height={40}
+              priority
+              className="w-full h-full object-cover"
+            />
           </div>
           <div className="flex flex-col text-left">
             <span className="font-heading text-xl font-bold tracking-wide text-on-surface leading-none">

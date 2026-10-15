@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -16,7 +17,16 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-10">
           {/* Brand & Philosophy */}
           <div className="md:col-span-5 flex flex-col gap-3">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
+              <div className="w-6 h-6 rounded-full bg-surface-container-high border border-outline-variant/60 flex items-center justify-center shadow-inner overflow-hidden flex-shrink-0">
+                <Image
+                  src="/icon.png"
+                  alt="Sırdaş AI Logosu"
+                  width={24}
+                  height={24}
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <span className="font-heading text-xl font-bold text-primary">Sırdaş AI</span>
               <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-secondary"></span>
             </div>

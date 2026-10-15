@@ -28,6 +28,14 @@ export const metadata: Metadata = {
   description:
     "Kur'an-ı Kerim, Sahih Sünnet ve kadim hikmet rehberliğinde; keder, rızık darlığı ve gelecek endişelerinde ilahi rızayı ve sükûneti arayanlara samimi bir dertleşme ve tefekkür alanı.",
   keywords: ["Sırdaş AI", "Manevi Rehber", "Halis Aydemir", "İslami Rehberlik", "Tevekkül", "WhatsApp Bot"],
+  icons: {
+    icon: [
+      { url: "/icon.png", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    shortcut: "/icon.png",
+    apple: "/icon.png",
+  },
 };
 
 export default function RootLayout({

@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 export default function AdminLayout({
@@ -61,8 +62,15 @@ export default function AdminLayout({
             <div className="h-4 w-[1px] bg-outline-variant/40" />
 
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant/60 flex items-center justify-center text-primary shadow-inner">
-                <i className="ph ph-moon-stars text-base"></i>
+              <div className="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant/60 flex items-center justify-center shadow-inner overflow-hidden flex-shrink-0">
+                <Image
+                  src="/icon.png"
+                  alt="Sırdaş AI Logosu"
+                  width={32}
+                  height={32}
+                  priority
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="flex flex-col">
                 <div className="flex items-center gap-2">

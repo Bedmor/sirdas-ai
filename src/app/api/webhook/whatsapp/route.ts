@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { after } from "next/server";
 import { verifyMetaSignature } from "@/lib/whatsapp/security";
 import { processIncomingMessage } from "@/lib/ai/orchestrator";
+import { WhatsAppClient } from "@/lib/whatsapp/client";
 
 // Serverless ortamında arka plan işlerinin zaman aşımına uğramaması için
 export const maxDuration = 60;
@@ -16,11 +17,6 @@ export async function GET(req: NextRequest) {
   const expectedToken = process.env.META_WEBHOOK_VERIFY_TOKEN;
 
   if (mode === "subscribe" && token && expectedToken && token === expectedToken) {
-    return new NextResponse(challenge, { status: 200 });
-  }
-
-  // Geliştirme veya mock modunda token yoksa bile test için challenge dönebilir
-  if (process.env.NODE_ENV !== "production" && mode === "subscribe" && challenge) {
     return new NextResponse(challenge, { status: 200 });
   }
 
@@ -51,9 +47,28 @@ export async function POST(req: NextRequest) {
   const change = entry?.changes?.[0]?.value;
   const message = change?.messages?.[0];
 
-  // Gelen durum güncellemelerini (sent, delivered, read) yoksay ve 200 OK dön
-  if (!message || message.type !== "text") {
+  // Durum güncellemelerini (sent, delivered, read) yoksay ve 200 OK dön
+  if (!message) {
     return NextResponse.json({ status: "ignored" }, { status: 200 });
+  }
+
+  // Ses, fotoğraf veya doküman gönderildiyse nazikçe yazılı mesaja davet et
+  if (message.type !== "text") {
+    const wa = new WhatsAppClient();
+    try {
+      after(async () => {
+        await wa.sendTextMessage(
+          message.from,
+          "Aziz sırdaşım, şu an yalnızca yazılı dertleşme mesajlarını dinleyebiliyorum. Gönlünü daraltan derdini kelimelere dökerek yazarsan sana kulak vermeye hazırım."
+        );
+      });
+    } catch {
+      wa.sendTextMessage(
+        message.from,
+        "Aziz sırdaşım, şu an yalnızca yazılı dertleşme mesajlarını dinleyebiliyorum. Gönlünü daraltan derdini kelimelere dökerek yazarsan sana kulak vermeye hazırım."
+      ).catch(() => {});
+    }
+    return NextResponse.json({ status: "media_not_supported" }, { status: 200 });
   }
 
   const messageData = {

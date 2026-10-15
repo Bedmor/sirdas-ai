@@ -279,7 +279,8 @@ async function runTests() {
   const webhookRoute = await import("../src/app/api/webhook/whatsapp/route");
 
   // 9a: GET Hub Challenge verification
-  const getReq = new NextRequest("http://localhost:3000/api/webhook/whatsapp?hub.mode=subscribe&hub.challenge=test_challenge_12345&hub.verify_token=any");
+  const token = process.env.META_WEBHOOK_VERIFY_TOKEN || "sirdas_webhook_secret_verify_token_2026";
+  const getReq = new NextRequest(`http://localhost:3000/api/webhook/whatsapp?hub.mode=subscribe&hub.challenge=test_challenge_12345&hub.verify_token=${token}`);
   const getRes = await webhookRoute.GET(getReq);
   assert(getRes.status === 200, "Webhook GET returns 200 OK for challenge");
   const challengeBody = await getRes.text();

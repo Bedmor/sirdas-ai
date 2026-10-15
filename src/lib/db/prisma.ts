@@ -1,4 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import "dotenv/config";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "../../../prisma/generated/client";
 
 /**
  * Prisma Client Singleton for Next.js 15
@@ -10,9 +12,14 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL || "",
+});
+
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
+    adapter,
     log:
       process.env.NODE_ENV === "development"
         ? ["query", "error", "warn"]
@@ -24,3 +31,4 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 export default prisma;
+export * from "../../../prisma/generated/client";

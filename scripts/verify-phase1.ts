@@ -189,7 +189,7 @@ async function runTests() {
 
       // 5. Run Prisma db push to build schema
       const dbUrl = `postgresql://postgres:test@localhost:${testPort}/test_db`;
-      execSync(`DATABASE_URL="${dbUrl}" DIRECT_URL="${dbUrl}" npx prisma db push --skip-generate`, { stdio: "ignore" });
+      execSync(`DATABASE_URL="${dbUrl}" DIRECT_URL="${dbUrl}" npx prisma db push`, { stdio: "ignore" });
       assert(true, "Prisma db push created all tables and relations in PostgreSQL");
 
       // 6. Apply 01_pgvector_init.sql to create HNSW & GIN indexes

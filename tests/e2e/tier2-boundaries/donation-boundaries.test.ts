@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { describe, it, expect } from "../harness";
 import { createMockRequest } from "../harness/utils";
 import { POST as checkoutHandler } from "@/app/api/donation/checkout/route";
@@ -108,7 +109,6 @@ describe("Tier 2: Boundary & Corner Cases — Donation Validation", { tier: 2, f
       const tamperedAmount = "9999";
 
       // Signature calculated on legit amount
-      const crypto = require("crypto");
       const legitHash = crypto
         .createHmac("sha256", "secret_key_123")
         .update(`${merchantOid}salt_456${status}${legitAmount}`)

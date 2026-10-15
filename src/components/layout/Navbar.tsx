@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { MessageCircle, Menu, X, HeartHandshake, Shield, Sparkles, LayoutDashboard } from "lucide-react";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -11,138 +10,136 @@ export function Navbar() {
   const waUrl = `https://wa.me/${cleanWaNumber}?text=Selamun%20Aleykum`;
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border/80 bg-background/90 backdrop-blur-md transition-all">
-      <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Logo and Brand */}
+    <header
+      className="left-0 w-full z-40 bg-[#080c0a]/90 backdrop-blur-md border-b border-outline-variant/40 sticky top-0"
+      role="banner"
+    >
+      <div className="h-20 max-w-[1200px] mx-auto px-6 flex items-center justify-between gap-4">
+        {/* Brand Link */}
         <Link
-          href="/"
-          className="flex items-center gap-3 transition-opacity hover:opacity-90 group"
           aria-label="Sırdaş AI Ana Sayfa"
+          className="flex items-center gap-3 rounded-lg focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
+          href="/"
         >
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-800 to-emerald-950 border border-amber-500/40 flex items-center justify-center text-amber-300 font-serif font-bold text-2xl shadow-inner shadow-amber-500/10 group-hover:scale-105 transition-transform">
-            س
+          <div
+            aria-hidden="true"
+            className="w-9 h-9 rounded-full bg-surface-container-high border border-outline-variant/60 flex items-center justify-center text-primary shadow-inner"
+          >
+            <i className="ph ph-moon-stars text-xl"></i>
           </div>
-          <div className="flex flex-col">
-            <div className="flex items-center gap-1.5">
-              <span className="text-lg font-bold tracking-tight text-foreground font-serif">
-                Sırdaş AI
-              </span>
-              <span className="inline-block text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border border-emerald-700/20">
-                15.1
-              </span>
-            </div>
-            <span className="text-[11px] text-muted-foreground -mt-0.5 font-light tracking-wide">
-              Bütünsel İslami Rehberlik
+          <div className="flex flex-col text-left">
+            <span className="font-heading text-xl font-bold tracking-wide text-on-surface leading-none">
+              Sırdaş AI
+            </span>
+            <span className="text-[11px] tracking-widest text-slate-300 uppercase mt-1">
+              Manevi Tefekkür &amp; Rehberlik
             </span>
           </div>
         </Link>
 
-        {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium" aria-label="Ana Menü">
+        {/* Desktop Navigation */}
+        <nav aria-label="Ana Gezinti" className="hidden lg:flex items-center gap-8">
           <Link
-            href="/"
-            className="text-muted-foreground hover:text-foreground transition-colors"
+            className="text-sm text-slate-300 hover:text-primary transition-colors py-1 px-2 rounded-md focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
+            href="/#sohbet-ornekleri"
           >
-            Ana Sayfa
+            Tefekkür Odaları
           </Link>
           <Link
-            href="/#manevi-suzgecler"
-            className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
-          >
-            <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-            5 Manevi Süzgeç
-          </Link>
-          <Link
+            className="text-sm text-slate-300 hover:text-primary transition-colors py-1 px-2 rounded-md focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
             href="/askida-sirdas"
-            className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
           >
-            <HeartHandshake className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
             Askıda Sırdaş
           </Link>
           <Link
-            href="/sorumluluk-reddi"
-            className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+            className="text-sm text-slate-300 hover:text-primary transition-colors py-1 px-2 rounded-md focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
+            href="/#gayemiz"
           >
-            <Shield className="h-3.5 w-3.5 text-amber-600" />
-            Manevi Sınırlar
+            Gayemiz
           </Link>
           <Link
-            href="/admin"
-            className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+            className="text-sm text-slate-300 hover:text-primary transition-colors py-1 px-2 rounded-md focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
+            href="/sorumluluk-reddi"
           >
-            <LayoutDashboard className="h-3.5 w-3.5 text-blue-500" />
+            Sınırlar &amp; Beyan
+          </Link>
+          <Link
+            className="text-sm text-slate-300 hover:text-primary transition-colors py-1 px-2 rounded-md focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
+            href="/admin"
+          >
             Yönetim
           </Link>
         </nav>
 
-        {/* Action Button */}
-        <div className="hidden sm:flex items-center gap-3">
+        {/* WhatsApp Button & Mobile Toggle */}
+        <div className="flex items-center gap-3">
           <a
+            aria-label="WhatsApp üzerinden Sırdaş AI ile sohbete başla (Yeni sekmede açılır)"
+            className="inline-flex items-center gap-2 bg-[#12231b] hover:bg-[#183125] text-secondary border border-secondary/30 px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
             href={waUrl}
-            target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-800 hover:bg-emerald-900 text-white font-medium text-sm shadow-sm transition-all hover:shadow-emerald-900/20 active:scale-95 border border-emerald-700/40"
+            target="_blank"
           >
-            <MessageCircle className="h-4 w-4 text-emerald-300" />
-            <span>Sırdaş ile Konuş</span>
+            <i aria-hidden="true" className="ph ph-whatsapp-logo text-base"></i>
+            <span className="hidden sm:inline">WhatsApp&apos;ta Başla</span>
+            <span className="sm:hidden">WhatsApp</span>
           </a>
-        </div>
 
-        {/* Mobile Menu Button */}
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          type="button"
-          aria-label={mobileMenuOpen ? "Menüyü kapat" : "Menüyü aç"}
-          className="md:hidden rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-        >
-          {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            type="button"
+            aria-label={mobileMenuOpen ? "Menüyü kapat" : "Menüyü aç"}
+            className="lg:hidden rounded-lg p-2 text-slate-300 hover:bg-surface-container hover:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+          >
+            <i className={`ph text-2xl ${mobileMenuOpen ? "ph-x" : "ph-list"}`}></i>
+          </button>
+        </div>
       </div>
 
-      {/* Mobile Dropdown Menu */}
+      {/* Mobile Dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-lg px-4 pt-3 pb-6 space-y-3 animate-in slide-in-from-top-2">
+        <div className="lg:hidden border-t border-outline-variant/40 bg-[#080c0a]/95 backdrop-blur-xl px-6 pt-4 pb-6 space-y-3">
           <Link
-            href="/"
+            href="/#sohbet-ornekleri"
             onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 rounded-md text-base font-medium text-foreground hover:bg-muted"
+            className="block px-3 py-2 rounded-md text-sm font-medium text-slate-200 hover:text-primary hover:bg-surface-container"
           >
-            Ana Sayfa
-          </Link>
-          <Link
-            href="/#manevi-suzgecler"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 rounded-md text-base font-medium text-foreground hover:bg-muted"
-          >
-            5 Manevi Süzgeç
+            Tefekkür Odaları
           </Link>
           <Link
             href="/askida-sirdas"
             onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 rounded-md text-base font-medium text-foreground hover:bg-muted"
+            className="block px-3 py-2 rounded-md text-sm font-medium text-slate-200 hover:text-primary hover:bg-surface-container"
           >
-            Askıda Sırdaş (İnfak Havuzu)
+            Askıda Sırdaş
+          </Link>
+          <Link
+            href="/#gayemiz"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 rounded-md text-sm font-medium text-slate-200 hover:text-primary hover:bg-surface-container"
+          >
+            Gayemiz
           </Link>
           <Link
             href="/sorumluluk-reddi"
             onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 rounded-md text-base font-medium text-foreground hover:bg-muted"
+            className="block px-3 py-2 rounded-md text-sm font-medium text-slate-200 hover:text-primary hover:bg-surface-container"
           >
-            Sorumluluk Reddi & Fıkhi Sınırlar
+            Sınırlar &amp; Beyan
           </Link>
           <Link
             href="/gizlilik-politikasi"
             onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 rounded-md text-base font-medium text-foreground hover:bg-muted"
+            className="block px-3 py-2 rounded-md text-sm font-medium text-slate-200 hover:text-primary hover:bg-surface-container"
           >
             Gizlilik Politikası (KVKK)
           </Link>
           <Link
             href="/admin"
             onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 rounded-md text-base font-medium text-foreground hover:bg-muted"
+            className="block px-3 py-2 rounded-md text-sm font-medium text-slate-200 hover:text-primary hover:bg-surface-container"
           >
-            Yönetim Paneli
+            Yönetim Konsolu
           </Link>
 
           <div className="pt-2">
@@ -150,10 +147,10 @@ export function Navbar() {
               href={waUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-emerald-800 hover:bg-emerald-900 text-white font-medium text-sm shadow transition-all"
+              className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-full bg-secondary-container hover:bg-[#117a51] text-white font-semibold text-xs shadow transition-all"
             >
-              <MessageCircle className="h-4 w-4 text-emerald-300" />
-              <span>WhatsApp ile Hemen Başla</span>
+              <i aria-hidden="true" className="ph ph-whatsapp-logo text-base"></i>
+              <span>WhatsApp ile Dertleş</span>
             </a>
           </div>
         </div>

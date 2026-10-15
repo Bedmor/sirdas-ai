@@ -1,48 +1,66 @@
 import React from "react";
-import { AlertTriangle, PhoneCall, ShieldAlert, HeartPulse } from "lucide-react";
 
 export function DisclaimerBanner({ className = "" }: { className?: string }) {
   return (
     <aside
-      aria-label="Kalıcı Sorumluluk ve Manevi Uyarı Bildirimi"
-      className={`w-full bg-amber-500/10 border-y border-amber-500/25 py-2.5 px-4 text-xs ${className}`}
+      aria-label="Manevi Sınırlar ve Yasal Uyarı Bildirimi"
+      id="top-sinirlar-banner"
+      className={`w-full bg-[#121a15]/95 border-b border-outline-variant/40 py-2.5 px-4 relative z-50 text-xs text-on-surface-variant backdrop-blur-sm ${className}`}
     >
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5 text-amber-900 dark:text-amber-200">
-          <ShieldAlert className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
-          <p className="leading-snug">
-            <span className="font-semibold underline decoration-amber-500/40 mr-1">
-              Fıkhi &amp; Hukuki Sınır:
-            </span>
-            Sırdaş AI bir fetva makamı veya ruh sağlığı tedavi mercii değildir. Şer&apos;i ve
-            hukuki bağlayıcılığı yoktur.
+      <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-on-surface-variant">
+        <div className="flex items-center gap-2 text-center md:text-left truncate">
+          <span className="text-xs font-semibold tracking-wider text-primary flex-shrink-0">
+            Manevi Sınırlar &amp; Beyan:
+          </span>
+          <p className="text-[11px] text-slate-300 leading-snug truncate" lang="tr">
+            Sırdaş AI bir hoca, fetva makamı veya psikolojik klinik mercii değildir; dini ve hukuki
+            bağlayıcılığı yoktur. Fıkhi hükümler için{" "}
+            <strong className="text-white font-medium">Alo 190</strong>, acil ve kriz durumlarında{" "}
+            <strong className="text-white font-medium">112 Acil</strong> hattı esastır.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <a
+            aria-label="Diyanet Alo 190 Fetva Hattını Ara"
+            className="px-2.5 py-1 rounded-full bg-surface-container border border-outline-variant/50 text-[11px] text-on-surface hover:text-primary flex items-center gap-1.5 transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
             href="tel:190"
-            title="Diyanet Alo 190 Fetva Hattı"
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-500/15 hover:bg-amber-500/25 text-amber-950 dark:text-amber-200 font-medium transition-colors border border-amber-500/30 text-[11px]"
           >
-            <PhoneCall className="h-3 w-3 text-amber-700 dark:text-amber-400" />
-            <span>Alo 190 (Diyanet Fetva)</span>
+            <span
+              aria-hidden="true"
+              className="w-5 h-5 rounded-full bg-[#183125] text-secondary flex items-center justify-center text-[10px] border border-secondary/30 flex-shrink-0"
+            >
+              <i className="ph ph-book-open text-xs"></i>
+            </span>
+            <span className="font-medium">Alo 190</span>
           </a>
+
           <a
+            aria-label="112 Acil Çağrı Merkezini Ara"
+            className="px-2.5 py-1 rounded-full bg-error-container/60 border border-red-500/30 text-red-200 text-[11px] flex items-center gap-1.5 hover:bg-error-container transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
             href="tel:112"
-            title="112 Acil Çağrı Merkezi"
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-rose-500/15 hover:bg-rose-500/25 text-rose-950 dark:text-rose-200 font-medium transition-colors border border-rose-500/30 text-[11px]"
           >
-            <AlertTriangle className="h-3 w-3 text-rose-600 dark:text-rose-400" />
-            <span>112 (Acil Kriz)</span>
+            <span
+              aria-hidden="true"
+              className="w-5 h-5 rounded-full bg-red-950/80 text-red-300 flex items-center justify-center text-[10px] border border-red-500/40 flex-shrink-0"
+            >
+              <i className="ph ph-first-aid text-xs"></i>
+            </span>
+            <span className="font-medium">112 Acil</span>
           </a>
+
           <a
+            aria-label="182 MHRS Sağlık Hattını Ara"
+            className="hidden sm:flex px-2.5 py-1 rounded-full bg-surface-container border border-outline-variant/50 text-[11px] text-on-surface hover:text-primary items-center gap-1.5 transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
             href="tel:182"
-            title="182 Sağlık & Psikolojik Danışma"
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-500/15 hover:bg-blue-500/25 text-blue-950 dark:text-blue-200 font-medium transition-colors border border-blue-500/30 text-[11px]"
           >
-            <HeartPulse className="h-3 w-3 text-blue-600 dark:text-blue-400" />
-            <span>182 (MHRS / Sağlık)</span>
+            <span
+              aria-hidden="true"
+              className="w-5 h-5 rounded-full bg-[#14232b] text-blue-300 flex items-center justify-center text-[10px] border border-blue-500/30 flex-shrink-0"
+            >
+              <i className="ph ph-heartbeat text-xs"></i>
+            </span>
+            <span className="font-medium">182 Sağlık</span>
           </a>
         </div>
       </div>

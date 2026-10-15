@@ -1,3 +1,6 @@
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
+@import url("https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/regular/style.css");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -206,5 +209,36 @@
 
 .animate-aura-breathe {
   animation: aura-breathe 6s ease-in-out infinite;
+}
+
+/* Apple-style wheel fade masks */
+.wheel-mask {
+  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 15%, black 35%, black 65%, rgba(0,0,0,0.5) 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 15%, black 35%, black 65%, rgba(0,0,0,0.5) 85%, transparent 100%);
+}
+
+/* Subtle geometric Selçuklu girih pattern overlay */
+.spiritual-bg-pattern {
+  background-image: radial-gradient(rgba(226, 184, 135, 0.04) 1px, transparent 1px), radial-gradient(rgba(62, 207, 142, 0.03) 1px, transparent 1px);
+  background-size: 36px 36px;
+  background-position: 0 0, 18px 18px;
+}
+
+/* Skip Link for Keyboard Accessibility */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 1rem;
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
+  background-color: #f59e0b;
+  color: #000;
+  font-weight: 700;
+  border-radius: 0.5rem;
+  transition: top 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+.skip-link:focus {
+  top: 1rem;
 }
 

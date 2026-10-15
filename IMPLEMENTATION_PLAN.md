@@ -613,10 +613,11 @@ export const FATWA_REJECTION_MESSAGE =
   "Ancak bu sürecin ruhunuzda, ailenizde veya iç dünyanızda oluşturduğu ağırlık, imtihan ve tevekkül boyutu üzerine dertleşebiliriz.";
 
 export async function analyzeWithJev(params: JevAnalysisRequest): Promise<JevAnalysisResult> {
-  const apiKey = process.env.JEV_API_KEY;
-  const endpoint = process.env.JEV_API_ENDPOINT || "https://api.jev.ai/v1/predict";
+  // OpenRouter Decisions API veya doğrudan TypeSafe AI API desteği
+  const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+  const typeSafeApiKey = process.env.TYPESAFE_API_KEY;
 
-  if (!apiKey) {
+  if (!openRouterApiKey && !typeSafeApiKey) {
     return runHeuristicFallback(params.userMessage);
   }
 
@@ -624,43 +625,89 @@ export async function analyzeWithJev(params: JevAnalysisRequest): Promise<JevAna
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 2000); // 2 saniye SLA
 
+    // OpenRouter Decisions API (veya https://api.typesafe.ai)
+    const endpoint = openRouterApiKey
+      ? "https://openrouter.ai/api/alpha/decisions"
+      : (process.env.TYPESAFE_BASE_URL || "https://api.typesafe.ai/v1/system-one");
+    
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${openRouterApiKey || typeSafeApiKey}`,
+      "HTTP-Referer": "https://sirdas.ai",
+      "X-Title": "Sirdas AI Zakir"
+    };
+
     const res = await fetch(endpoint, {
       method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
-      },
+      headers,
       signal: controller.signal,
       body: JSON.stringify({
-        input: {
+        model: "typesafe/jev-1.14",
+        state: {
           message: params.userMessage,
           context: params.userContextSnippet || ""
         },
-        primitives: {
-          noul: [
-            { id: "is_fiqh_fatwa_request", description: "Kullanıcı miras, nikah, boşanma, ticaret akdi veya ibadet kuralları hakkında bağlayıcı helal/haram/caiz hükmü soruyor." },
-            { id: "is_debt_or_riba_related", description: "Kullanıcı borç, kredi kartı, banka kredisi, faiz sarmalı veya maddi çıkmazdan bahsediyor." },
-            { id: "needs_audio_snippet", description: "Kullanıcıya yazılı cevabın yanında Halis Aydemir hocanın 1-2 dakikalık sesli tefekkür kesitini göndermek manevi olarak faydalı olur." }
-          ],
-          choice: [
-            {
-              id: "nafs_trap",
-              options: [
-                "FAIRLIK_KORKUSU_VESVESESI", "GIZLI_KIBIR_HAKLILIK", "UMITSIZLIK_KARAMSARLIK",
-                "INTIKAM_VE_HASET", "ELALEM_NE_DER_RIYA", "REHAVET_TEMBELLIK"
-              ]
-            },
-            {
-              id: "rag_category",
-              options: [
-                "RIZIK_VE_TICARET", "SABIR_VE_MUSIBET", "OFKE_VE_AHLAK",
-                "AILE_VE_SILA_I_RAHIM", "KUL_HAKKI_VE_ADALET", "TEVEKKUL_VE_MURAKABE", "SIYER_ORNEKLERI"
-              ]
+        questions: {
+          is_fiqh_fatwa_request: {
+            type: "noul",
+            instructions: "Kullanıcı miras, nikah, boşanma, ticaret akdi veya ibadet kuralları hakkında bağlayıcı helal/haram/caiz hükmü (fetva) soruyor mu?",
+            criteria: {
+              true: "Kullanıcı fıkhi/hukuki bağlayıcı bir fetva hükmü istiyor.",
+              false: "Kullanıcı genel dertleşme, ahlaki öğüt veya manevi teskin arıyor."
             }
-          ],
-          score: [
-            { id: "distress_level", min: 0, max: 10, description: "Kullanıcının ruhsal çöküş, bunalım ve çaresizlik şiddeti." }
-          ]
+          },
+          is_debt_or_riba_related: {
+            type: "noul",
+            instructions: "Kullanıcı borç, kredi kartı, banka kredisi, faiz sarmalı veya maddi çıkmazdan bahsediyor mu?",
+            criteria: {
+              true: "Kullanıcı borç, faiz, kredi veya mali darlık içinde.",
+              false: "Borç ve faizle ilgisi olmayan başka bir konu."
+            }
+          },
+          needs_audio_snippet: {
+            type: "noul",
+            instructions: "Kullanıcıya yazılı cevabın yanında Halis Aydemir hocanın 1-2 dakikalık sesli tefekkür kesitini göndermek manevi olarak faydalı olur mu?",
+            criteria: {
+              true: "Kullanıcının hali derin bir sesli tefekkür ve nasihat gerektiriyor.",
+              false: "Yalnızca yazılı kısa mesaj kafi."
+            }
+          },
+          nafs_trap: {
+            type: "choice",
+            instructions: "Kullanıcının ifadelerinde en belirgin nefis tuzağı veya şeytan vesvesesi hangisidir?",
+            criteria: {
+              FAIRLIK_KORKUSU_VESVESESI: "Fakirlikle korkutma ve rızık endişesi",
+              GIZLI_KIBIR_HAKLILIK: "Kendini haklı görme, karşı tarafı suçlama ve gizli kibir",
+              UMITSIZLIK_KARAMSARLIK: "Çaresizlik, bataklık hissi ve ümitsizlik",
+              INTIKAM_VE_HASET: "Öfke, kin, intikam veya kıskançlık",
+              ELALEM_NE_DER_RIYA: "İnsanların onayını arama, elalem putu",
+              REHAVET_TEMBELLIK: "Erteleme, tembellik ve mesuliyetten kaçış"
+            }
+          },
+          rag_category: {
+            type: "choice",
+            instructions: "Bu mesele hangi manevi rehberlik alanına aittir?",
+            criteria: {
+              RIZIK_VE_TICARET: "Rızık, iş, ticaret ve bereket",
+              SABIR_VE_MUSIBET: "Musibet, dert, hastalık ve sabır",
+              OFKE_VE_AHLAK: "Öfke kontrolü, ahlak ve nefs terbiyesi",
+              AILE_VE_SILA_I_RAHIM: "Aile, evlilik, anne-baba ve akraba ilişkileri",
+              KUL_HAKKI_VE_ADALET: "Kul hakkı, adalet ve emanet",
+              TEVEKKUL_VE_MURAKABE: "Tevekkül, murakabe ve Allah ile irtibat",
+              SIYER_ORNEKLERI: "Peygamberimiz ve ashabın hayatından ibretler"
+            }
+          },
+          distress_level: {
+            type: "score",
+            instructions: "Kullanıcının ruhsal çöküş, bunalım ve çaresizlik şiddeti nedir?",
+            criteria: {
+              "0": "Sakin, huzurlu ve mutmain",
+              "3": "Hafif endişe veya can sıkıntısı",
+              "6": "Belirgin sıkıntı, darlık ve hüzün",
+              "8": "Ağır tükenmişlik, ruhsal bunalım ve yoğun keder",
+              "10": "Uç noktada çaresizlik, yıkım veya varoluşsal kriz"
+            }
+          }
         }
       })
     });
@@ -668,18 +715,20 @@ export async function analyzeWithJev(params: JevAnalysisRequest): Promise<JevAna
     clearTimeout(timeout);
 
     if (!res.ok) {
-      console.warn(`[Jev API Error: HTTP ${res.status}], fallback devreye girdi.`);
+      console.warn(`[Jev / OpenRouter Decisions API Error: HTTP ${res.status}], fallback devreye girdi.`);
       return runHeuristicFallback(params.userMessage);
     }
 
     const data = await res.json();
+    const answers = data.answers || data;
+
     return {
-      is_fiqh_fatwa_request: data.noul?.is_fiqh_fatwa_request ?? 0.0,
-      is_debt_or_riba_related: data.noul?.is_debt_or_riba_related ?? 0.0,
-      needs_audio_snippet: data.noul?.needs_audio_snippet ?? 0.0,
-      nafs_trap: data.choice?.nafs_trap ?? "UMITSIZLIK_KARAMSARLIK",
-      rag_category: data.choice?.rag_category ?? "TEVEKKUL_VE_MURAKABE",
-      distress_level: data.score?.distress_level ?? 4
+      is_fiqh_fatwa_request: answers.is_fiqh_fatwa_request?.noul ?? answers.is_fiqh_fatwa_request?.probability ?? 0.0,
+      is_debt_or_riba_related: answers.is_debt_or_riba_related?.noul ?? answers.is_debt_or_riba_related?.probability ?? 0.0,
+      needs_audio_snippet: answers.needs_audio_snippet?.noul ?? answers.needs_audio_snippet?.probability ?? 0.0,
+      nafs_trap: (answers.nafs_trap?.choice as NafsTrap) || "UMITSIZLIK_KARAMSARLIK",
+      rag_category: (answers.rag_category?.choice as RagCategory) || "TEVEKKUL_VE_MURAKABE",
+      distress_level: Math.round(answers.distress_level?.score ?? answers.distress_level?.value ?? 4)
     };
   } catch (error) {
     console.error("[Jev API Fetch Error]", error);

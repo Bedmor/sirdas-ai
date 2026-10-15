@@ -126,7 +126,7 @@ export default function HomePage() {
   }, [isPlaying]);
 
   const audioTimeFormatted = `${Math.floor(audioSeconds / 60)}:${String(
-    audioSeconds % 60
+    audioSeconds % 60,
   ).padStart(2, "0")} / 1:42`;
 
   // Apple-style vertical wheel picker state
@@ -203,7 +203,7 @@ export default function HomePage() {
       return;
     }
     setDonationMessage(
-      `Allah kabul eylesin. ${num} ₺ tutarındaki katkınız askıdaki dertleşme havuzuna iletilmek üzere kaydedildi.`
+      `Allah kabul eylesin. ${num} ₺ tutarındaki katkınız askıdaki dertleşme havuzuna iletilmek üzere kaydedildi.`,
     );
     setTimeout(() => {
       setDonationMessage(null);
@@ -232,11 +232,15 @@ export default function HomePage() {
             <span className="text-xs font-semibold tracking-wider text-primary flex-shrink-0">
               Manevi Sınırlar &amp; Beyan:
             </span>
-            <p className="text-[11px] text-slate-300 leading-snug truncate" lang="tr">
-              Sırdaş AI bir hoca, fetva makamı veya psikolojik klinik mercii değildir; dini ve hukuki
-              bağlayıcılığı yoktur. Fıkhi hükümler için{" "}
-              <strong className="text-white font-medium">Alo 190</strong>, acil ve kriz
-              durumlarında <strong className="text-white font-medium">112 Acil</strong> hattı
+            <p
+              className="text-[11px] text-slate-300 leading-snug truncate"
+              lang="tr"
+            >
+              Sırdaş AI bir hoca, fetva makamı veya psikolojik klinik mercii
+              değildir; dini ve hukuki bağlayıcılığı yoktur. Fıkhi hükümler için{" "}
+              <strong className="text-white font-medium">Alo 190</strong>, acil
+              ve kriz durumlarında{" "}
+              <strong className="text-white font-medium">112 Acil</strong> hattı
               esastır.
             </p>
           </div>
@@ -250,7 +254,9 @@ export default function HomePage() {
                 aria-hidden="true"
                 className="w-5 h-5 rounded-full bg-[#183125] text-secondary flex items-center justify-center text-[10px] border border-secondary/30 flex-shrink-0"
               >
-                <span className="material-symbols-outlined text-xs">menu_book</span>
+                <span className="material-symbols-outlined text-xs">
+                  menu_book
+                </span>
               </span>
               <span className="font-medium">Alo 190</span>
             </a>
@@ -263,7 +269,9 @@ export default function HomePage() {
                 aria-hidden="true"
                 className="w-5 h-5 rounded-full bg-red-950/80 text-red-300 flex items-center justify-center text-[10px] border border-red-500/40 flex-shrink-0"
               >
-                <span className="material-symbols-outlined text-xs">emergency</span>
+                <span className="material-symbols-outlined text-xs">
+                  emergency
+                </span>
               </span>
               <span className="font-medium">112 Acil</span>
             </a>
@@ -287,7 +295,7 @@ export default function HomePage() {
               className="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant/60 flex items-center justify-center shadow-inner overflow-hidden flex-shrink-0"
             >
               <Image
-                src="/icon.png"
+                src="/public/icon.png"
                 alt="Sırdaş AI Logosu"
                 width={40}
                 height={40}
@@ -304,7 +312,10 @@ export default function HomePage() {
               </span>
             </div>
           </Link>
-          <nav aria-label="Ana Gezinti" className="hidden lg:flex items-center gap-8">
+          <nav
+            aria-label="Ana Gezinti"
+            className="hidden lg:flex items-center gap-8"
+          >
             <a
               className="text-sm text-slate-300 hover:text-primary transition-colors py-1 px-2 rounded-md focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
               href="#sohbet-ornekleri"
@@ -338,7 +349,10 @@ export default function HomePage() {
               rel="noopener noreferrer"
               target="_blank"
             >
-              <i aria-hidden="true" className="ph ph-whatsapp-logo text-base"></i>
+              <i
+                aria-hidden="true"
+                className="ph ph-whatsapp-logo text-base"
+              ></i>
               <span>WhatsApp&apos;ta Başla</span>
             </a>
           </div>
@@ -366,9 +380,9 @@ export default function HomePage() {
                 className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl mb-8 font-light"
                 lang="tr"
               >
-                Kur&apos;an-ı Kerim, Sahih Sünnet ve kadim hikmet rehberliğinde; keder, rızık darlığı
-                ve gelecek endişelerinde ilahi rızayı ve sükûneti arayanlara samimi bir dertleşme ve
-                tefekkür alanı.
+                Kur&apos;an-ı Kerim, Sahih Sünnet ve kadim hikmet rehberliğinde;
+                keder, rızık darlığı ve gelecek endişelerinde ilahi rızayı ve
+                sükûneti arayanlara samimi bir dertleşme ve tefekkür alanı.
               </p>
               <div className="flex flex-wrap items-center justify-center gap-4">
                 <a
@@ -378,15 +392,24 @@ export default function HomePage() {
                   rel="noopener noreferrer"
                   target="_blank"
                 >
-                  <i aria-hidden="true" className="ph ph-whatsapp-logo text-lg text-secondary"></i>
+                  <i
+                    aria-hidden="true"
+                    className="ph ph-whatsapp-logo text-lg text-secondary"
+                  ></i>
                   <span>Sırdaş ile Dertleş</span>
-                  <i aria-hidden="true" className="ph ph-arrow-right text-xs"></i>
+                  <i
+                    aria-hidden="true"
+                    className="ph ph-arrow-right text-xs"
+                  ></i>
                 </a>
                 <a
                   className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 text-sm text-slate-200 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
                   href="#sohbet-ornekleri"
                 >
-                  <i aria-hidden="true" className="ph ph-chat-circle-dots text-lg text-primary"></i>
+                  <i
+                    aria-hidden="true"
+                    className="ph ph-chat-circle-dots text-lg text-primary"
+                  ></i>
                   <span>Nasıl Sohbet Eder?</span>
                 </a>
               </div>
@@ -414,13 +437,8 @@ export default function HomePage() {
                     </div>
                     <div className="flex flex-col text-left">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-white text-sm font-bold">Sırdaş AI</span>
-                        <span
-                          aria-label="Onaylı Sırdaş Hattı"
-                          className="material-symbols-outlined text-secondary text-sm"
-                          style={{ fontVariationSettings: "'FILL' 1" }}
-                        >
-                          verified
+                        <span className="text-white text-sm font-bold">
+                          Sırdaş AI
                         </span>
                       </div>
                       <span className="text-emerald-400 text-[11px] leading-tight font-medium">
@@ -428,9 +446,16 @@ export default function HomePage() {
                       </span>
                     </div>
                   </div>
-                  <div aria-hidden="true" className="flex items-center gap-3 text-slate-300">
-                    <span className="material-symbols-outlined text-xl">search</span>
-                    <span className="material-symbols-outlined text-xl">more_vert</span>
+                  <div
+                    aria-hidden="true"
+                    className="flex items-center gap-3 text-slate-300"
+                  >
+                    <span className="material-symbols-outlined text-xl">
+                      search
+                    </span>
+                    <span className="material-symbols-outlined text-xl">
+                      more_vert
+                    </span>
                   </div>
                 </div>
 
@@ -442,8 +467,9 @@ export default function HomePage() {
                   {/* User Bubble */}
                   <div className="self-end max-w-[85%] bg-[#005c4b] text-white p-3.5 rounded-xl rounded-tr-none shadow-md">
                     <p className="text-sm leading-relaxed" lang="tr">
-                      İş yerinde büyük bir haksızlığa uğradım, borçlarım da birikti. İçimdeki öfke
-                      ve çaresizlik kalbimi daraltıyor... Ne yapmalıyım, nereden başlamalıyım?
+                      İş yerinde büyük bir haksızlığa uğradım, borçlarım da
+                      birikti. İçimdeki öfke ve çaresizlik kalbimi daraltıyor...
+                      Ne yapmalıyım, nereden başlamalıyım?
                     </p>
                     <div className="flex justify-end items-center gap-1 mt-1 text-[11px] text-slate-300">
                       <span>21:42</span>
@@ -460,9 +486,12 @@ export default function HomePage() {
                   <div className="self-start max-w-[92%] bg-[#202c33] text-on-surface p-4 rounded-xl rounded-tl-none shadow-lg flex flex-col gap-3">
                     {/* Sacred Ayah Card Quote */}
                     <div className="bg-surface-container-lowest/80 rounded-lg p-3 pl-3.5 border-l-4 border-primary">
-                      <p className="text-primary text-[14px] italic mb-1 leading-snug" lang="tr">
-                        “Kim Allah&apos;tan sakınırsa, O ona bir çıkış yolu ihsan eder ve onu
-                        beklemediği yerden rızıklandırır.”
+                      <p
+                        className="text-primary text-[14px] italic mb-1 leading-snug"
+                        lang="tr"
+                      >
+                        “Kim Allah&apos;tan sakınırsa, O ona bir çıkış yolu
+                        ihsan eder ve onu beklemediği yerden rızıklandırır.”
                       </p>
                       <div className="flex items-center justify-between text-slate-300 text-[11px]">
                         <span className="text-primary-fixed-dim font-medium">
@@ -478,11 +507,16 @@ export default function HomePage() {
                     </div>
 
                     {/* Guidance Message */}
-                    <p className="text-sm leading-relaxed text-[#d1d7db]" lang="tr">
-                      Kıymetli dostum, gönlündeki daralma aslında kalbini bir sığınağa davet
-                      ediyor... Haksızlık fânidir, Adl olan Bâkî&apos;dir. Sebeplere gayretle sarıl
-                      ama kalbini neticenin sahibine, Kadir-i Mutlak&apos;a bağla. Öfkeni kendine
-                      mizan kılma; kul hakkı zayi olmaz, rızkın tayin edilmiş anı şaşmaz.
+                    <p
+                      className="text-sm leading-relaxed text-[#d1d7db]"
+                      lang="tr"
+                    >
+                      Kıymetli dostum, gönlündeki daralma aslında kalbini bir
+                      sığınağa davet ediyor... Haksızlık fânidir, Adl olan
+                      Bâkî&apos;dir. Sebeplere gayretle sarıl ama kalbini
+                      neticenin sahibine, Kadir-i Mutlak&apos;a bağla. Öfkeni
+                      kendine mizan kılma; kul hakkı zayi olmaz, rızkın tayin
+                      edilmiş anı şaşmaz.
                     </p>
 
                     {/* Audio Player Widget */}
@@ -520,7 +554,10 @@ export default function HomePage() {
                           </span>
                         </div>
                         {/* Waveform */}
-                        <div aria-hidden="true" className="flex items-center gap-1 h-4 w-full">
+                        <div
+                          aria-hidden="true"
+                          className="flex items-center gap-1 h-4 w-full"
+                        >
                           <span className="w-1 h-3 bg-primary rounded-full"></span>
                           <span className="w-1 h-4 bg-primary rounded-full"></span>
                           <span className="w-1 h-2 bg-primary rounded-full"></span>
@@ -542,7 +579,9 @@ export default function HomePage() {
                       </div>
                     </div>
                     <div className="flex items-center justify-end pt-1">
-                      <div className="text-[11px] text-slate-300 font-mono">21:44</div>
+                      <div className="text-[11px] text-slate-300 font-mono">
+                        21:44
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -584,8 +623,8 @@ export default function HomePage() {
                 className="text-sm text-slate-300 leading-relaxed max-w-xl mx-auto font-light"
                 lang="tr"
               >
-                Seher vaktinde, darlıkta yahut günün telaşında sineden dökülen feryatların Kur&apos;an
-                ve Sünnet mizanındaki yankısı.
+                Seher vaktinde, darlıkta yahut günün telaşında sineden dökülen
+                feryatların Kur&apos;an ve Sünnet mizanındaki yankısı.
               </p>
             </div>
 
@@ -607,7 +646,10 @@ export default function HomePage() {
                         title="Önceki (Yukarı)"
                         type="button"
                       >
-                        <i aria-hidden="true" className="ph ph-caret-up text-sm"></i>
+                        <i
+                          aria-hidden="true"
+                          className="ph ph-caret-up text-sm"
+                        ></i>
                       </button>
                       <button
                         aria-label="Sonraki senaryoya git (Aşağı)"
@@ -616,7 +658,10 @@ export default function HomePage() {
                         title="Sonraki (Aşağı)"
                         type="button"
                       >
-                        <i aria-hidden="true" className="ph ph-caret-down text-sm"></i>
+                        <i
+                          aria-hidden="true"
+                          className="ph ph-caret-down text-sm"
+                        ></i>
                       </button>
                     </div>
                   </div>
@@ -649,8 +694,8 @@ export default function HomePage() {
                         const opacityClass = isSelected
                           ? "opacity-100"
                           : dist === 1
-                          ? "opacity-40"
-                          : "opacity-25";
+                            ? "opacity-40"
+                            : "opacity-25";
 
                         return (
                           <div
@@ -700,8 +745,13 @@ export default function HomePage() {
 
                   {/* Bottom hint */}
                   <div className="pt-3 border-t border-outline-variant/30 text-center flex items-center justify-center gap-1.5 text-[11px] text-slate-300">
-                    <i aria-hidden="true" className="ph ph-arrows-down-up text-xs text-primary"></i>
-                    <span>Çarkı çevir, oklara dokun veya klavye yön tuşlarını kullan</span>
+                    <i
+                      aria-hidden="true"
+                      className="ph ph-arrows-down-up text-xs text-primary"
+                    ></i>
+                    <span>
+                      Çarkı çevir, oklara dokun veya klavye yön tuşlarını kullan
+                    </span>
                   </div>
                 </div>
               </div>
@@ -730,7 +780,10 @@ export default function HomePage() {
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-mono text-slate-300" id="scenario-time">
+                      <span
+                        className="text-[11px] font-mono text-slate-300"
+                        id="scenario-time"
+                      >
                         {currentScenario.time}
                       </span>
                       <span aria-hidden="true" className="text-outline-variant">
@@ -756,7 +809,9 @@ export default function HomePage() {
                         {currentScenario.userText}
                       </p>
                       <div className="flex justify-end items-center gap-1 mt-1 text-[10px] text-slate-300">
-                        <span id="scenario-user-time">{currentScenario.userTime}</span>
+                        <span id="scenario-user-time">
+                          {currentScenario.userTime}
+                        </span>
                         <span
                           aria-hidden="true"
                           className="material-symbols-outlined text-xs text-[#53bdeb]"
@@ -778,7 +833,11 @@ export default function HomePage() {
                           {currentScenario.ayah}
                         </p>
                       </div>
-                      <p className="text-[#d1d7db] leading-relaxed" id="scenario-reply" lang="tr">
+                      <p
+                        className="text-[#d1d7db] leading-relaxed"
+                        id="scenario-reply"
+                        lang="tr"
+                      >
                         {currentScenario.reply}
                       </p>
                       <div className="flex items-center justify-between text-[11px] pt-1 text-slate-300 border-t border-outline-variant/20">
@@ -789,7 +848,10 @@ export default function HomePage() {
                         >
                           {currentScenario.focusNote}
                         </span>
-                        <span className="font-mono text-slate-300" id="scenario-bot-time">
+                        <span
+                          className="font-mono text-slate-300"
+                          id="scenario-bot-time"
+                        >
                           {currentScenario.botTime}
                         </span>
                       </div>
@@ -809,7 +871,10 @@ export default function HomePage() {
                       target="_blank"
                     >
                       <span>Sohbeti Başlat</span>
-                      <i aria-hidden="true" className="ph ph-arrow-right text-xs"></i>
+                      <i
+                        aria-hidden="true"
+                        className="ph ph-arrow-right text-xs"
+                      ></i>
                     </a>
                   </div>
                 </div>
@@ -844,10 +909,15 @@ export default function HomePage() {
                   <span className="text-xs text-primary-fixed-dim font-medium block mb-4">
                     Mâide Suresi, 2. Âyet-i Kerime
                   </span>
-                  <p className="text-sm text-slate-300 leading-relaxed font-light" lang="tr">
-                    Sırdaş AI ticari bir kazanç aracı değildir. Sunucu ve yapay zeka altyapı
-                    giderleri, gönüldaşların askıya bıraktığı samimi katkılarla karşılanır; böylece
-                    kederli veya darda olan her kardeşimiz hiçbir maddi engel olmadan dertleşebilir.
+                  <p
+                    className="text-sm text-slate-300 leading-relaxed font-light"
+                    lang="tr"
+                  >
+                    Sırdaş AI ticari bir kazanç aracı değildir. Sunucu ve yapay
+                    zeka altyapı giderleri, gönüldaşların askıya bıraktığı
+                    samimi katkılarla karşılanır; böylece kederli veya darda
+                    olan her kardeşimiz hiçbir maddi engel olmadan
+                    dertleşebilir.
                   </p>
                 </div>
 
@@ -933,7 +1003,9 @@ export default function HomePage() {
                   )}
 
                   <div className="mt-4 pt-3 border-t border-outline-variant/20 flex items-center justify-between text-xs text-slate-400">
-                    <span>Güvenli kart ödemesi veya detaylı infak havuzu için:</span>
+                    <span>
+                      Güvenli kart ödemesi veya detaylı infak havuzu için:
+                    </span>
                     <Link
                       className="text-primary hover:underline font-semibold"
                       href="/askida-sirdas"
@@ -969,10 +1041,11 @@ export default function HomePage() {
                     className="text-sm sm:text-base text-on-surface leading-relaxed font-light mb-4"
                     lang="tr"
                   >
-                    Modern hayatın girdabında bunalan, derdini kimseye açamayan, borç, keder ve
-                    gelecek endişesiyle kalbi sıkışan her bir cana; hiçbir fani menfaat
-                    gözetmeksizin, Kur’an ve Sünnet mizanında samimi bir dinleyici, güvenli bir
-                    dertleşme ve tefekkür kapısı olmaktır.
+                    Modern hayatın girdabında bunalan, derdini kimseye açamayan,
+                    borç, keder ve gelecek endişesiyle kalbi sıkışan her bir
+                    cana; hiçbir fani menfaat gözetmeksizin, Kur’an ve Sünnet
+                    mizanında samimi bir dinleyici, güvenli bir dertleşme ve
+                    tefekkür kapısı olmaktır.
                   </p>
                   <span className="text-xs text-primary font-medium tracking-wide uppercase inline-block">
                     Yola bu niyetle çıktık, çünkü Cenâb-ı Hak ferman buyuruyor:
@@ -992,28 +1065,36 @@ export default function HomePage() {
                   lang="tr"
                 >
                   “Şüphesiz Allah{" "}
-                  <span className="text-primary font-normal">adaleti, iyilik yapmayı (ihsanı)</span>{" "}
+                  <span className="text-primary font-normal">
+                    adaleti, iyilik yapmayı (ihsanı)
+                  </span>{" "}
                   ve akrabaya bakmayı emreder...”
                 </blockquote>
                 <div className="flex items-center justify-center gap-2 text-xs uppercase tracking-widest text-primary-fixed-dim font-medium mb-6">
-                  <span aria-hidden="true" className="w-6 h-[1px] bg-primary/40"></span>
+                  <span
+                    aria-hidden="true"
+                    className="w-6 h-[1px] bg-primary/40"
+                  ></span>
                   <span>Nahl Suresi, 90. Âyet-i Kerime</span>
-                  <span aria-hidden="true" className="w-6 h-[1px] bg-primary/40"></span>
+                  <span
+                    aria-hidden="true"
+                    className="w-6 h-[1px] bg-primary/40"
+                  ></span>
                 </div>
                 <p
                   className="font-heading text-base sm:text-lg text-primary/80 font-light italic max-w-xl mx-auto mb-4"
                   lang="tr"
                 >
-                  “Mü’minler ancak kardeştirler; öyleyse kardeşlerinizin arasını düzeltin...”
-                  (Hucurât Suresi, 10)
+                  “Mü’minler ancak kardeştirler; öyleyse kardeşlerinizin arasını
+                  düzeltin...” (Hucurât Suresi, 10)
                 </p>
                 <p
                   className="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto font-light leading-relaxed"
                   lang="tr"
                 >
-                  İlahi emrin gereği olarak; yalnız olmadığınızı hissettirmek, bir din kardeşinizin
-                  dökülen kelamına şahit olmak ve gecenin seherinde bir ferahlık duasına vesile
-                  olmak için buradayız.
+                  İlahi emrin gereği olarak; yalnız olmadığınızı hissettirmek,
+                  bir din kardeşinizin dökülen kelamına şahit olmak ve gecenin
+                  seherinde bir ferahlık duasına vesile olmak için buradayız.
                 </p>
               </div>
             </div>
@@ -1042,8 +1123,8 @@ export default function HomePage() {
                 className="text-sm text-slate-300 max-w-md mb-8 leading-relaxed font-light"
                 lang="tr"
               >
-                Seher vaktinde yahut günün telaşında; hiçbir peşin yargı olmaksızın, Kur&apos;an ve
-                Sünnet ikliminde içini dök.
+                Seher vaktinde yahut günün telaşında; hiçbir peşin yargı
+                olmaksızın, Kur&apos;an ve Sünnet ikliminde içini dök.
               </p>
               <a
                 aria-label="WhatsApp üzerinden derhal sohbete başla (Yeni sekmede açılır)"
@@ -1052,7 +1133,10 @@ export default function HomePage() {
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                <i aria-hidden="true" className="ph ph-whatsapp-logo text-lg text-secondary"></i>
+                <i
+                  aria-hidden="true"
+                  className="ph ph-whatsapp-logo text-lg text-secondary"
+                ></i>
                 <span>WhatsApp Üzerinden Hemen Başla</span>
               </a>
 
@@ -1062,7 +1146,11 @@ export default function HomePage() {
                   aria-hidden="true"
                   className="w-11 h-11 bg-white rounded p-1 flex items-center justify-center flex-shrink-0"
                 >
-                  <svg className="w-full h-full text-black" fill="currentColor" viewBox="0 0 29 29">
+                  <svg
+                    className="w-full h-full text-black"
+                    fill="currentColor"
+                    viewBox="0 0 29 29"
+                  >
                     <rect height="7" width="7" x="0" y="0"></rect>
                     <rect fill="white" height="5" width="5" x="1" y="1"></rect>
                     <rect height="3" width="3" x="2" y="2"></rect>
@@ -1081,9 +1169,12 @@ export default function HomePage() {
                   </svg>
                 </div>
                 <div className="text-xs text-slate-300">
-                  <span className="font-medium text-on-surface block">Masaüstünde misiniz?</span>
+                  <span className="font-medium text-on-surface block">
+                    Masaüstünde misiniz?
+                  </span>
                   <span className="text-[11px] text-slate-300">
-                    Telefon kameranızla okutarak sohbete doğrudan geçebilirsiniz.
+                    Telefon kameranızla okutarak sohbete doğrudan
+                    geçebilirsiniz.
                   </span>
                 </div>
               </div>
@@ -1101,12 +1192,16 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-10">
             <div className="md:col-span-5 flex flex-col gap-3">
               <div className="flex items-center gap-2">
-                <span className="font-heading text-xl font-bold text-primary">Sırdaş AI</span>
-                <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                <span className="font-heading text-xl font-bold text-primary">
+                  Sırdaş AI
+                </span>
               </div>
-              <p className="text-xs text-slate-300 max-w-sm leading-relaxed" lang="tr">
-                Kadim İslami hikmet ile güncel yapay zekayı birleştiren; yargılamayan, dinleyen,
-                sekinet veren mahrem bir manevi sığınak.
+              <p
+                className="text-xs text-slate-300 max-w-sm leading-relaxed"
+                lang="tr"
+              >
+                Kadim İslami hikmet ile güncel yapay zekayı birleştiren;
+                yargılamayan, dinleyen, sekinet veren mahrem bir manevi sığınak.
               </p>
             </div>
             <div className="md:col-span-4 flex flex-col gap-2">
@@ -1114,9 +1209,9 @@ export default function HomePage() {
                 Manevi Çerçeve
               </span>
               <p className="text-xs text-slate-300 leading-relaxed" lang="tr">
-                Sırdaş AI bir fetva makamı değildir. Fıkhi meselelerde Diyanet İşleri
-                Başkanlığı&apos;nın resmi fetva hattı (190), tıbbi ve psikolojik krizlerde 112 Acil
-                servisleri esastır.
+                Sırdaş AI bir fetva makamı değildir. Fıkhi meselelerde Diyanet
+                İşleri Başkanlığı&apos;nın resmi fetva hattı (190), tıbbi ve
+                psikolojik krizlerde 112 Acil servisleri esastır.
               </p>
             </div>
             <div className="md:col-span-3 flex flex-col gap-2">
@@ -1161,14 +1256,6 @@ export default function HomePage() {
           </div>
           <div className="pt-6 border-t border-outline-variant/20 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-300">
             <p>© 2025 Sırdaş AI. Gönüllere sekinet niyetiyle hazırlanmıştır.</p>
-            <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1.5">
-                <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-secondary"></span>
-                Sekinet Hali Aktif
-              </span>
-              <span aria-hidden="true">•</span>
-              <span>Seher &amp; Gece Tefekkürü</span>
-            </div>
           </div>
         </div>
       </footer>

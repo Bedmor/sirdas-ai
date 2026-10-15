@@ -27,12 +27,16 @@ export const metadata: Metadata = {
   title: "Sırdaş AI - Manevi Tefekkür & Rehberlik",
   description:
     "Kur'an-ı Kerim, Sahih Sünnet ve kadim hikmet rehberliğinde; keder, rızık darlığı ve gelecek endişelerinde ilahi rızayı ve sükûneti arayanlara samimi bir dertleşme ve tefekkür alanı.",
-  keywords: ["Sırdaş AI", "Manevi Rehber", "Halis Aydemir", "İslami Rehberlik", "Tevekkül", "WhatsApp Bot"],
+  keywords: [
+    "Sırdaş AI",
+    "Manevi Rehber",
+    "Halis Aydemir",
+    "İslami Rehberlik",
+    "Tevekkül",
+    "WhatsApp Bot",
+  ],
   icons: {
-    icon: [
-      { url: "/icon.png", type: "image/png" },
-      { url: "/favicon.ico", sizes: "any" },
-    ],
+    icon: [],
     shortcut: "/icon.png",
     apple: "/icon.png",
   },
@@ -44,7 +48,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="tr" className="dark" style={{ scrollBehavior: "smooth" }} suppressHydrationWarning>
+    <html
+      lang="tr"
+      className="dark"
+      style={{ scrollBehavior: "smooth" }}
+      suppressHydrationWarning
+    >
       <body
         className={`${amiri.variable} ${titilliumWeb.variable} ${plusJakarta.variable} bg-background font-body text-on-surface antialiased min-h-screen selection:bg-secondary-container selection:text-on-secondary-container spiritual-bg-pattern`}
       >
@@ -53,6 +62,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-
-

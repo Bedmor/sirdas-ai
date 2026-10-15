@@ -15,6 +15,7 @@ export async function handleOnboardingMessage(
     case 1: {
       const lower = incomingText.trim().toLowerCase();
       const isGreeting = [
+        "merhaba",
         "selam",
         "selamun aleykum",
         "selamün aleyküm",

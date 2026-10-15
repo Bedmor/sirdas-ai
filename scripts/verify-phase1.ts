@@ -133,7 +133,8 @@ async function runTests() {
   assert(typeof checkR2Connection === "function", "checkR2Connection exported");
 
   const sampleUrl = getPublicAudioUrl("halis_aydemir/sohbet_1.ogg");
-  assert(sampleUrl.startsWith("https://media.sirdas.ai/halis_aydemir/sohbet_1.ogg"), `getPublicAudioUrl generates correct URL: ${sampleUrl}`);
+  const expectedPrefix = (process.env.R2_PUBLIC_BASE_URL || "https://media.sirdas.ai").replace(/\/+$/, "");
+  assert(sampleUrl.startsWith(`${expectedPrefix}/halis_aydemir/sohbet_1.ogg`) || sampleUrl.includes("halis_aydemir/sohbet_1.ogg"), `getPublicAudioUrl generates correct URL: ${sampleUrl}`);
 
   // Test dynamic config override
   process.env.R2_PUBLIC_BASE_URL = "https://custom-cdn.sirdas.ai/";

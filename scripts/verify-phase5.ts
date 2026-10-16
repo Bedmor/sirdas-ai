@@ -1,3 +1,4 @@
+import "dotenv/config";
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
@@ -250,6 +251,87 @@ async function runTests() {
   // Restore env
   delete process.env.PAYTR_MERCHANT_KEY;
   delete process.env.PAYTR_MERCHANT_SALT;
+
+  // Test 11: Live Trial Section & 1-Time Per-User Limit (/api/trial)
+  console.log("\n[11] Testing Live Trial Section & /api/trial 1-Time Limit Enforcement...");
+  const liveTrialPath = path.join(rootDir, "src/components/landing/live-trial.tsx");
+  assert(fs.existsSync(liveTrialPath), "src/components/landing/live-trial.tsx exists");
+  assert(landingContent.includes("LiveTrialSection"), "Landing page renders LiveTrialSection component");
+
+  const trialRoute = await import("../src/app/api/trial/route");
+  const uniqueTestIp = `198.51.100.${Math.floor(Math.random() * 200) + 10}`;
+  const uniqueTestUa = `SirdasVerifyBot/1.0-${Date.now()}`;
+
+  // 11a: Initial GET /api/trial should show remaining = 1, used = false
+  const initialTrialGetReq = new NextRequest("http://localhost:3000/api/trial", {
+    method: "GET",
+    headers: {
+      "x-forwarded-for": uniqueTestIp,
+      "user-agent": uniqueTestUa,
+    },
+  });
+  const initialTrialGetRes = await trialRoute.GET(initialTrialGetReq);
+  assert(initialTrialGetRes.status === 200, "GET /api/trial returns 200 OK for new visitor");
+  const initialTrialGetJson = await initialTrialGetRes.json();
+  assert(initialTrialGetJson.used === false && initialTrialGetJson.remaining === 1, "New visitor has remaining: 1 and used: false");
+
+  // 11b: First POST /api/trial should succeed (200 OK) and set signed HttpOnly cookie
+  const firstTrialPostReq = new NextRequest("http://localhost:3000/api/trial", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-forwarded-for": uniqueTestIp,
+      "user-agent": uniqueTestUa,
+    },
+    body: JSON.stringify({
+      message: "Gelecek kaygısı ve iş stresinden dolayı geceleri kalbim çok daralıyor, ne yapmalıyım?",
+    }),
+  });
+  const firstTrialPostRes = await trialRoute.POST(firstTrialPostReq);
+  assert(firstTrialPostRes.status === 200, "1st POST /api/trial returns 200 OK");
+  const firstSetCookie = firstTrialPostRes.headers.get("set-cookie") || "";
+  assert(
+    firstSetCookie.includes("sirdas_trial_v1=") && firstSetCookie.toLowerCase().includes("httponly"),
+    "1st POST /api/trial sets HMAC-signed HttpOnly cookie sirdas_trial_v1"
+  );
+  const firstTrialPostJson = await firstTrialPostRes.json();
+  assert(firstTrialPostJson.success === true && firstTrialPostJson.remaining === 0, "1st POST /api/trial returns success: true and remaining: 0");
+  assert(typeof firstTrialPostJson.trial?.replyText === "string" && firstTrialPostJson.trial.replyText.length > 20, "1st POST /api/trial returns non-empty Sırdaş AI reply");
+
+  // 11c: Second POST /api/trial from same IP+UA WITHOUT cookie must still be blocked (429) via server fingerprint
+  const secondTrialNoCookieReq = new NextRequest("http://localhost:3000/api/trial", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-forwarded-for": uniqueTestIp,
+      "user-agent": uniqueTestUa,
+    },
+    body: JSON.stringify({
+      message: "İkinci kez deneme yapmak istiyorum, çerezleri sildim.",
+    }),
+  });
+  const secondTrialNoCookieRes = await trialRoute.POST(secondTrialNoCookieReq);
+  assert(secondTrialNoCookieRes.status === 429, "2nd POST /api/trial (even with cleared cookies) is blocked with 429 Too Many Requests");
+  const secondTrialNoCookieJson = await secondTrialNoCookieRes.json();
+  assert(secondTrialNoCookieJson.error === "TRIAL_LIMIT_REACHED", "2nd POST /api/trial returns error code TRIAL_LIMIT_REACHED");
+
+  // 11d: Second POST /api/trial from a different IP but WITH the signed cookie must also be blocked (429)
+  const cookieTokenMatch = firstSetCookie.match(/sirdas_trial_v1=([^;]+)/);
+  const cookieHeaderVal = cookieTokenMatch ? `sirdas_trial_v1=${cookieTokenMatch[1]}` : "";
+  const secondTrialWithCookieReq = new NextRequest("http://localhost:3000/api/trial", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-forwarded-for": "203.0.113.199",
+      "user-agent": "DifferentBrowser/2.0",
+      cookie: cookieHeaderVal,
+    },
+    body: JSON.stringify({
+      message: "Farklı ağdan ama aynı tarayıcı çereziyle ikinci deneme.",
+    }),
+  });
+  const secondTrialWithCookieRes = await trialRoute.POST(secondTrialWithCookieReq);
+  assert(secondTrialWithCookieRes.status === 429, "2nd POST /api/trial with signed cookie on different IP is blocked with 429");
 
   // Summary
   console.log("\n=======================================================");

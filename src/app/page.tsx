@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { LiveTrialSection } from "@/components/landing/live-trial";
 
 // Backward compatibility markers for verify-phase5 suite:
 // Modular architecture: Hero, Manifesto, Features components; Halis Aydemir Sohbet Kesitleri, Sıkça Sorulan Sorular.
@@ -295,7 +296,7 @@ export default function HomePage() {
               className="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant/60 flex items-center justify-center shadow-inner overflow-hidden flex-shrink-0"
             >
               <Image
-                src="/public/icon.png"
+                src="/icon.png"
                 alt="Sırdaş AI Logosu"
                 width={40}
                 height={40}
@@ -316,6 +317,12 @@ export default function HomePage() {
             aria-label="Ana Gezinti"
             className="hidden lg:flex items-center gap-8"
           >
+            <a
+              className="text-sm text-primary hover:text-amber-300 font-medium transition-colors py-1 px-2 rounded-md focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
+              href="#simdi-dene"
+            >
+              Şimdi Dene
+            </a>
             <a
               className="text-sm text-slate-300 hover:text-primary transition-colors py-1 px-2 rounded-md focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
               href="#sohbet-ornekleri"
@@ -401,6 +408,17 @@ export default function HomePage() {
                     aria-hidden="true"
                     className="ph ph-arrow-right text-xs"
                   ></i>
+                </a>
+                <a
+                  aria-label="Web sitesi üzerinden Sırdaş AI canlı denemesine git"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-surface-container-high hover:bg-surface-container-highest border border-primary/50 text-sm text-primary hover:text-amber-200 font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
+                  href="#simdi-dene"
+                >
+                  <i
+                    aria-hidden="true"
+                    className="ph ph-sparkle text-lg text-primary"
+                  ></i>
+                  <span>Projemizi Deneyin (1 Hak)</span>
                 </a>
                 <a
                   className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 text-sm text-slate-200 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
@@ -881,6 +899,9 @@ export default function HomePage() {
               </div>
             </div>
           </section>
+
+          {/* PROJEMİZİ DENEYİN — 1 SEFERLİK CANLI SIRDAŞ AI DENEYİMİ */}
+          <LiveTrialSection waUrl={waUrl} />
 
           {/* ASKIDA SIRDAŞ */}
           <section

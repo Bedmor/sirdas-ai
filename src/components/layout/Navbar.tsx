@@ -48,6 +48,12 @@ export function Navbar() {
         {/* Desktop Navigation */}
         <nav aria-label="Ana Gezinti" className="hidden lg:flex items-center gap-8">
           <Link
+            className="text-sm text-primary hover:text-amber-300 font-medium transition-colors py-1 px-2 rounded-md focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
+            href="/#simdi-dene"
+          >
+            Şimdi Dene
+          </Link>
+          <Link
             className="text-sm text-slate-300 hover:text-primary transition-colors py-1 px-2 rounded-md focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
             href="/#sohbet-ornekleri"
           >
@@ -107,6 +113,13 @@ export function Navbar() {
       {/* Mobile Dropdown */}
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-outline-variant/40 bg-[#080c0a]/95 backdrop-blur-xl px-6 pt-4 pb-6 space-y-3">
+          <Link
+            href="/#simdi-dene"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 rounded-md text-sm font-semibold text-primary hover:bg-surface-container"
+          >
+            Şimdi Dene (1 Hak)
+          </Link>
           <Link
             href="/#sohbet-ornekleri"
             onClick={() => setMobileMenuOpen(false)}

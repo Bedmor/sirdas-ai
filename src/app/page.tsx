@@ -410,15 +410,11 @@ export default function HomePage() {
                   ></i>
                 </a>
                 <a
-                  aria-label="Web sitesi üzerinden Sırdaş AI canlı denemesine git"
-                  className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-surface-container-high hover:bg-surface-container-highest border border-primary/50 text-sm text-primary hover:text-amber-200 font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
+                  aria-label="Web sitesi üzerinden Sırdaş ile mesajlaşarak dene"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 text-sm text-slate-200 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
                   href="#simdi-dene"
                 >
-                  <i
-                    aria-hidden="true"
-                    className="ph ph-sparkle text-lg text-primary"
-                  ></i>
-                  <span>Projemizi Deneyin (1 Hak)</span>
+                  <span>Şimdi Dene</span>
                 </a>
                 <a
                   className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 text-sm text-slate-200 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"

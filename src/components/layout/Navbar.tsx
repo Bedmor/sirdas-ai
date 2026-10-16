@@ -116,9 +116,9 @@ export function Navbar() {
           <Link
             href="/#simdi-dene"
             onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 rounded-md text-sm font-semibold text-primary hover:bg-surface-container"
+            className="block px-3 py-2 rounded-md text-sm font-medium text-slate-200 hover:text-primary hover:bg-surface-container"
           >
-            Şimdi Dene (1 Hak)
+            Şimdi Dene
           </Link>
           <Link
             href="/#sohbet-ornekleri"

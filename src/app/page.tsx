@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import QRCode from "qrcode";
 import { LiveTrialSection } from "@/components/landing/live-trial";
 
 // Backward compatibility markers for verify-phase5 suite:
@@ -11,6 +12,7 @@ import { LiveTrialSection } from "@/components/landing/live-trial";
 interface Scenario {
   num: string;
   title: string;
+  shortLabel: string;
   time: string;
   userText: string;
   userTime: string;
@@ -24,6 +26,7 @@ const scenariosData: Scenario[] = [
   {
     num: "01",
     title: "Gece Seherinde Kaygı ve Uykusuzluk",
+    shortLabel: "Seher Kaygısı",
     time: "03:18 Gece",
     userText:
       "Gece yarısı oldu, uyuyamıyorum. İçimde geleceğe dair tarifsiz bir kaygı ve ağırlık var, göğsüm daralıyor...",
@@ -37,6 +40,7 @@ const scenariosData: Scenario[] = [
   {
     num: "02",
     title: "Haksızlık & İftira Acısı",
+    shortLabel: "Haksızlık & İftira",
     time: "14:12 Öğle",
     userText:
       "İş yerinde hiç yapmadığım bir hatayla suçlandım, iftira atıldı. Kalbim kin ve intikam ateşiyle yanıyor, haksızlığa tahammül edemiyorum...",
@@ -50,6 +54,7 @@ const scenariosData: Scenario[] = [
   {
     num: "03",
     title: "Rızık Darlığı & Borç Bunalımı",
+    shortLabel: "Rızık & Borç",
     time: "19:40 Akşam",
     userText:
       "Ay sonunu getiremiyorum, borçlar birikti. Aileme mahcup olmaktan ve yarından çok korkuyorum... Ne yapacağımı şaşırdım.",
@@ -63,6 +68,7 @@ const scenariosData: Scenario[] = [
   {
     num: "04",
     title: "Kayıp & Hüzün İmtihanı",
+    shortLabel: "Kayıp & Hüzün",
     time: "22:15 Yatsı",
     userText:
       "Çok sevdiğim bir yakınımı kaybettim. Evdeki her şey onu hatırlatıyor, içimdeki boşluk hiç dolmayacak gibi geliyor...",
@@ -76,6 +82,7 @@ const scenariosData: Scenario[] = [
   {
     num: "05",
     title: "Tükenmişlik & Yalnızlık",
+    shortLabel: "Tükenmişlik & Yalnızlık",
     time: "16:45 İkindi",
     userText:
       "Her şey üstüme geliyor, kimseden fayda yok. İçimde derin bir yalnızlık ve tükenmişlik hissediyorum...",
@@ -130,7 +137,23 @@ export default function HomePage() {
     audioSeconds % 60,
   ).padStart(2, "0")} / 1:42`;
 
-  // Apple-style vertical wheel picker state
+  // QR Code state for desktop users
+  const [qrDataUrl, setQrDataUrl] = useState<string>("");
+
+  useEffect(() => {
+    QRCode.toDataURL(waUrl, {
+      width: 240,
+      margin: 1,
+      color: {
+        dark: "#000000",
+        light: "#ffffff",
+      },
+    })
+      .then((url) => setQrDataUrl(url))
+      .catch((err) => console.error("QR Code error:", err));
+  }, [waUrl]);
+
+  // Active scenario state
   const [wheelIndex, setWheelIndex] = useState(0);
   const wheelContainerRef = useRef<HTMLDivElement>(null);
 
@@ -429,8 +452,8 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* WHATSAPP HERO SOHBET KUTUSU */}
-            <div className="mt-14 max-w-2xl mx-auto" id="sohbet-alani">
+            {/* WHATSAPP HERO SOHBET VİTRİNİ & ÖRNEK SENARYOLAR (MERGED) */}
+            <div className="mt-14 max-w-3xl mx-auto" id="sohbet-ornekleri">
               <div className="rounded-2xl overflow-hidden shadow-2xl border border-outline-variant/40 bg-[#0b141a]">
                 {/* WhatsApp Header */}
                 <div className="bg-[#1f2c34] px-4 py-3 flex items-center justify-between border-b border-outline-variant/20">
@@ -454,39 +477,94 @@ export default function HomePage() {
                         <span className="text-white text-sm font-bold">
                           Sırdaş AI
                         </span>
+                        <span
+                          aria-label="Onaylı Sırdaş Hattı"
+                          className="material-symbols-outlined text-secondary text-sm"
+                          style={{ fontVariationSettings: "'FILL' 1" }}
+                        >
+                          verified
+                        </span>
                       </div>
-                      <span className="text-emerald-400 text-[11px] leading-tight font-medium">
+                      <span className="text-emerald-400 text-xs leading-tight font-medium">
                         Çevrimiçi • Sekinet ve Dinleme Hali
                       </span>
                     </div>
                   </div>
-                  <div
-                    aria-hidden="true"
-                    className="flex items-center gap-3 text-slate-300"
-                  >
-                    <span className="material-symbols-outlined text-xl">
+
+                  {/* Header Navigation Controls */}
+                  <div className="flex items-center gap-2 text-slate-300">
+                    <div className="flex items-center gap-1 bg-[#111b21] px-2 py-1 rounded-lg border border-outline-variant/30 text-xs">
+                      <button
+                        aria-label="Önceki örnek sohbete geç"
+                        className="p-1 text-slate-300 hover:text-white transition-colors"
+                        onClick={() => navigateWheel(-1)}
+                        type="button"
+                      >
+                        <i className="ph ph-caret-left text-sm" />
+                      </button>
+                      <span className="font-mono text-xs px-1 text-primary font-medium">
+                        {currentScenario.num} / 05
+                      </span>
+                      <button
+                        aria-label="Sonraki örnek sohbete geç"
+                        className="p-1 text-slate-300 hover:text-white transition-colors"
+                        onClick={() => navigateWheel(1)}
+                        type="button"
+                      >
+                        <i className="ph ph-caret-right text-sm" />
+                      </button>
+                    </div>
+                    <span className="material-symbols-outlined text-xl hidden sm:inline">
                       search
                     </span>
-                    <span className="material-symbols-outlined text-xl">
+                    <span className="material-symbols-outlined text-xl hidden sm:inline">
                       more_vert
                     </span>
                   </div>
                 </div>
 
+                {/* WhatsApp Scenario / Topic Filter Bar */}
+                <div className="bg-[#111b21] px-4 py-2.5 border-b border-outline-variant/20 flex items-center gap-2 overflow-x-auto no-scrollbar">
+                  <span className="text-xs text-slate-400 whitespace-nowrap mr-1 hidden sm:inline">
+                    Örnek Hâller:
+                  </span>
+                  {scenariosData.map((sc, idx) => {
+                    const isActive = wheelIndex === idx;
+                    return (
+                      <button
+                        key={sc.num}
+                        onClick={() => selectWheelIndex(idx)}
+                        className={`text-xs px-3 py-1.5 rounded-full transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                          isActive
+                            ? "bg-[#005c4b] text-white font-medium shadow-sm"
+                            : "bg-[#202c33]/70 text-slate-300 hover:text-white hover:bg-[#202c33]"
+                        }`}
+                        type="button"
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            isActive ? "bg-secondary" : "bg-slate-400"
+                          }`}
+                        />
+                        <span>{sc.shortLabel}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
                 {/* Chat Area */}
                 <div
-                  aria-label="Örnek WhatsApp Dertleşme Penceresi"
-                  className="p-4 md:p-6 flex flex-col gap-4 bg-gradient-to-b from-[#0b141a] via-[#091117] to-[#0b141a]"
+                  aria-label="WhatsApp Örnek Dertleşme Penceresi"
+                  className="p-4 md:p-6 flex flex-col gap-4 bg-gradient-to-b from-[#0b141a] via-[#091117] to-[#0b141a] min-h-[340px] justify-center transition-all duration-300"
+                  id="sohbet-alani"
                 >
                   {/* User Bubble */}
                   <div className="self-end max-w-[85%] bg-[#005c4b] text-white p-3.5 rounded-xl rounded-tr-none shadow-md">
                     <p className="text-sm leading-relaxed" lang="tr">
-                      İş yerinde büyük bir haksızlığa uğradım, borçlarım da
-                      birikti. İçimdeki öfke ve çaresizlik kalbimi daraltıyor...
-                      Ne yapmalıyım, nereden başlamalıyım?
+                      {currentScenario.userText}
                     </p>
-                    <div className="flex justify-end items-center gap-1 mt-1 text-[11px] text-slate-300">
-                      <span>21:42</span>
+                    <div className="flex justify-end items-center gap-1 mt-1 text-[10px] text-slate-300">
+                      <span>{currentScenario.userTime}</span>
                       <span
                         aria-hidden="true"
                         className="material-symbols-outlined text-xs text-[#53bdeb]"
@@ -499,17 +577,16 @@ export default function HomePage() {
                   {/* Assistant Response Bubble */}
                   <div className="self-start max-w-[92%] bg-[#202c33] text-on-surface p-4 rounded-xl rounded-tl-none shadow-lg flex flex-col gap-3">
                     {/* Sacred Ayah Card Quote */}
-                    <div className="bg-surface-container-lowest/80 rounded-lg p-3 pl-3.5 border-l-4 border-primary">
+                    <div className="bg-[#182229] rounded-lg p-3 pl-3.5 border-l-4 border-primary">
                       <p
                         className="text-primary text-[14px] italic mb-1 leading-snug"
                         lang="tr"
                       >
-                        “Kim Allah&apos;tan sakınırsa, O ona bir çıkış yolu
-                        ihsan eder ve onu beklemediği yerden rızıklandırır.”
+                        {currentScenario.ayah}
                       </p>
                       <div className="flex items-center justify-between text-slate-300 text-[11px]">
                         <span className="text-primary-fixed-dim font-medium">
-                          Talâk Suresi, 2-3. Âyet-i Kerime
+                          {currentScenario.focusNote}
                         </span>
                         <span
                           aria-hidden="true"
@@ -525,12 +602,7 @@ export default function HomePage() {
                       className="text-sm leading-relaxed text-[#d1d7db]"
                       lang="tr"
                     >
-                      Kıymetli dostum, gönlündeki daralma aslında kalbini bir
-                      sığınağa davet ediyor... Haksızlık fânidir, Adl olan
-                      Bâkî&apos;dir. Sebeplere gayretle sarıl ama kalbini
-                      neticenin sahibine, Kadir-i Mutlak&apos;a bağla. Öfkeni
-                      kendine mizan kılma; kul hakkı zayi olmaz, rızkın tayin
-                      edilmiş anı şaşmaz.
+                      {currentScenario.reply}
                     </p>
 
                     {/* Audio Player Widget */}
@@ -592,305 +664,38 @@ export default function HomePage() {
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center justify-end pt-1">
+
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="text-[10px] text-slate-400">
+                        {currentScenario.title}
+                      </span>
                       <div className="text-[11px] text-slate-300 font-mono">
-                        21:44
+                        {currentScenario.botTime}
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Mockup Input Footer */}
+                {/* WhatsApp Input Footer with Direct WhatsApp CTA */}
                 <div
                   aria-hidden="true"
-                  className="bg-[#1f2c34] px-4 py-2.5 flex items-center gap-3"
+                  className="bg-[#1f2c34] px-4 py-2.5 flex items-center gap-3 border-t border-outline-variant/20"
                 >
                   <i className="ph ph-smiley text-xl text-slate-300"></i>
                   <i className="ph ph-paperclip text-xl text-slate-300"></i>
-                  <div className="flex-grow bg-[#2a3942] rounded-full px-4 py-1.5 text-slate-300 text-xs truncate">
+                  <div className="flex-grow bg-[#2a3942] rounded-full px-4 py-2 text-slate-300 text-xs truncate">
                     Gönlünü meşgul eden derdi buraya yaz...
                   </div>
-                  <div className="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-surface">
-                    <i className="ph ph-microphone text-base text-secondary"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* 2. VERTICAL CHAT CAROUSEL WITH APPLE-STYLE WHEEL COUNTER */}
-          <section
-            aria-labelledby="tefekkur-baslik"
-            className="w-full max-w-[1200px] mx-auto px-6 py-20 border-t border-outline-variant/30"
-            id="sohbet-ornekleri"
-          >
-            {/* Header */}
-            <div className="max-w-3xl mx-auto text-center mb-14">
-              <h2
-                className="font-heading text-2xl sm:text-3xl md:text-4xl font-semibold text-on-surface mb-3 tracking-tight"
-                id="tefekkur-baslik"
-                lang="tr"
-              >
-                Sen Ne Yazarsan, Kalbin Nasıl Karşılanır?
-              </h2>
-              <p
-                className="text-sm text-slate-300 leading-relaxed max-w-xl mx-auto font-light"
-                lang="tr"
-              >
-                Seher vaktinde, darlıkta yahut günün telaşında sineden dökülen
-                feryatların Kur&apos;an ve Sünnet mizanındaki yankısı.
-              </p>
-            </div>
-
-            {/* Apple-style Interactive Wheel & Carousel Grid */}
-            <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-              {/* Left Column: Apple-style Vertical Wheel Picker */}
-              <div className="md:col-span-4 flex flex-col items-center">
-                <div className="w-full bg-surface-container-low/90 rounded-2xl border border-outline-variant/40 p-4 relative shadow-2xl backdrop-blur-md">
-                  {/* Wheel Header Controls */}
-                  <div className="flex items-center justify-between pb-3 border-b border-outline-variant/30 mb-2">
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-300">
-                      İmtihan Çarkı
-                    </span>
-                    <div className="flex items-center gap-1">
-                      <button
-                        aria-label="Önceki senaryoya git (Yukarı)"
-                        className="w-7 h-7 rounded-lg bg-surface-container hover:bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-slate-200 hover:text-primary transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
-                        onClick={() => navigateWheel(-1)}
-                        title="Önceki (Yukarı)"
-                        type="button"
-                      >
-                        <i
-                          aria-hidden="true"
-                          className="ph ph-caret-up text-sm"
-                        ></i>
-                      </button>
-                      <button
-                        aria-label="Sonraki senaryoya git (Aşağı)"
-                        className="w-7 h-7 rounded-lg bg-surface-container hover:bg-surface-container-high border border-outline-variant/40 flex items-center justify-center text-slate-200 hover:text-primary transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
-                        onClick={() => navigateWheel(1)}
-                        title="Sonraki (Aşağı)"
-                        type="button"
-                      >
-                        <i
-                          aria-hidden="true"
-                          className="ph ph-caret-down text-sm"
-                        ></i>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Apple Wheel Cylinder Container with Gradient Mask */}
-                  <div
-                    aria-label="Senaryo Seçim Çarkı - Ok tuşları ile gezinebilirsiniz"
-                    className="relative h-[280px] w-full overflow-hidden wheel-mask select-none outline-none"
-                    id="apple-wheel-container"
-                    ref={wheelContainerRef}
-                    tabIndex={0}
+                  <a
+                    aria-label="WhatsApp'ta Sırdaş ile sohbete başla"
+                    className="inline-flex items-center gap-1.5 bg-secondary-container hover:bg-[#117a51] text-white px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-colors"
+                    href={waUrl}
+                    rel="noopener noreferrer"
+                    target="_blank"
                   >
-                    {/* Center Focus Indicator Lines */}
-                    <div
-                      aria-hidden="true"
-                      className="absolute top-1/2 left-0 right-0 -translate-y-1/2 h-[56px] pointer-events-none z-20 border-y border-primary/30 bg-primary/[0.04] rounded-lg"
-                    ></div>
-
-                    {/* Scrollable Items List */}
-                    <div
-                      aria-label="İmtihan ve Tefekkür Senaryoları Listesi"
-                      className="flex flex-col items-center transition-transform duration-300 ease-out pt-[112px]"
-                      id="apple-wheel-track"
-                      role="tablist"
-                      style={{ transform: `translateY(-${wheelIndex * 56}px)` }}
-                    >
-                      {scenariosData.map((scenario, idx) => {
-                        const isSelected = wheelIndex === idx;
-                        const dist = Math.abs(wheelIndex - idx);
-                        const opacityClass = isSelected
-                          ? "opacity-100"
-                          : dist === 1
-                            ? "opacity-40"
-                            : "opacity-25";
-
-                        return (
-                          <div
-                            aria-controls="chat-card-container"
-                            aria-selected={isSelected}
-                            className={`wheel-item h-[56px] flex items-center justify-start gap-4 px-3 w-full cursor-pointer transition-all duration-200 rounded-lg focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412] ${opacityClass}`}
-                            id={`wheel-tab-${idx}`}
-                            key={scenario.num}
-                            onClick={() => selectWheelIndex(idx)}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter" || e.key === " ") {
-                                e.preventDefault();
-                                selectWheelIndex(idx);
-                              }
-                            }}
-                            role="tab"
-                            tabIndex={0}
-                          >
-                            <span
-                              className={`wheel-num font-mono text-2xl tracking-tight transition-all ${
-                                isSelected
-                                  ? "font-bold text-primary scale-110"
-                                  : "font-semibold text-slate-300"
-                              }`}
-                            >
-                              {scenario.num}
-                            </span>
-                            <div className="flex flex-col text-left truncate">
-                              <span
-                                className={`wheel-label text-sm transition-all ${
-                                  isSelected
-                                    ? "font-semibold text-on-surface"
-                                    : "text-slate-300"
-                                }`}
-                              >
-                                {scenario.title}
-                              </span>
-                              <span className="text-[10px] text-slate-300/80 truncate">
-                                {scenario.focusNote}
-                              </span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Bottom hint */}
-                  <div className="pt-3 border-t border-outline-variant/30 text-center flex items-center justify-center gap-1.5 text-[11px] text-slate-300">
-                    <i
-                      aria-hidden="true"
-                      className="ph ph-arrows-down-up text-xs text-primary"
-                    ></i>
-                    <span>
-                      Çarkı çevir, oklara dokun veya klavye yön tuşlarını kullan
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Column: Smoothly Transitioning Chat Preview Card */}
-              <div className="md:col-span-8">
-                <div
-                  aria-atomic="true"
-                  aria-live="polite"
-                  className="bg-surface-container rounded-2xl p-6 sm:p-7 border border-outline-variant/40 shadow-2xl relative overflow-hidden transition-all duration-300"
-                  id="chat-card-container"
-                  role="region"
-                >
-                  {/* Card Header Info */}
-                  <div className="flex items-center justify-between pb-3.5 border-b border-outline-variant/30 mb-5">
-                    <div className="flex items-center gap-3">
-                      <span
-                        aria-hidden="true"
-                        className="w-2 h-2 rounded-full bg-secondary animate-pulse"
-                      ></span>
-                      <span
-                        className="text-xs font-semibold tracking-wide text-on-surface"
-                        id="scenario-title"
-                      >
-                        {currentScenario.title}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="text-[11px] font-mono text-slate-300"
-                        id="scenario-time"
-                      >
-                        {currentScenario.time}
-                      </span>
-                      <span aria-hidden="true" className="text-outline-variant">
-                        •
-                      </span>
-                      <span
-                        className="text-xs font-mono font-bold text-primary"
-                        id="scenario-counter"
-                      >
-                        {currentScenario.num} / 05
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Chat Conversation */}
-                  <div
-                    className="flex flex-col gap-4 mb-6 transition-opacity duration-200"
-                    id="chat-messages-body"
-                  >
-                    {/* User Prompt */}
-                    <div className="self-end max-w-[88%] bg-[#005c4b] text-white p-3.5 rounded-xl rounded-tr-none text-xs sm:text-sm leading-relaxed shadow">
-                      <p id="scenario-user-text" lang="tr">
-                        {currentScenario.userText}
-                      </p>
-                      <div className="flex justify-end items-center gap-1 mt-1 text-[10px] text-slate-300">
-                        <span id="scenario-user-time">
-                          {currentScenario.userTime}
-                        </span>
-                        <span
-                          aria-hidden="true"
-                          className="material-symbols-outlined text-xs text-[#53bdeb]"
-                        >
-                          done_all
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Sırdaş AI Response */}
-                    <div className="self-start max-w-[95%] bg-[#202c33] text-on-surface p-4 rounded-xl rounded-tl-none text-xs sm:text-sm leading-relaxed border-l-2 border-primary shadow-md flex flex-col gap-3">
-                      {/* Sacred Verse Quote Box */}
-                      <div className="bg-surface-container-lowest/80 p-3 rounded-lg border-l-2 border-primary">
-                        <p
-                          className="text-primary italic text-xs sm:text-[13px] leading-snug"
-                          id="scenario-ayah"
-                          lang="tr"
-                        >
-                          {currentScenario.ayah}
-                        </p>
-                      </div>
-                      <p
-                        className="text-[#d1d7db] leading-relaxed"
-                        id="scenario-reply"
-                        lang="tr"
-                      >
-                        {currentScenario.reply}
-                      </p>
-                      <div className="flex items-center justify-between text-[11px] pt-1 text-slate-300 border-t border-outline-variant/20">
-                        <span
-                          className="text-primary-fixed-dim text-[11px] font-medium"
-                          id="scenario-focus-note"
-                          lang="tr"
-                        >
-                          {currentScenario.focusNote}
-                        </span>
-                        <span
-                          className="font-mono text-slate-300"
-                          id="scenario-bot-time"
-                        >
-                          {currentScenario.botTime}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Bottom Action Bar */}
-                  <div className="bg-surface-container-low p-3 rounded-xl border border-outline-variant/30 flex items-center justify-between">
-                    <span className="text-xs text-slate-300" lang="tr">
-                      Bu minvalde içinizi dökmek ister misiniz?
-                    </span>
-                    <a
-                      aria-label="Bu minvalde dertleşmek için WhatsApp sohbetini başlat"
-                      className="inline-flex items-center gap-1.5 text-xs text-secondary hover:text-emerald-400 font-semibold transition-colors py-1 px-2 rounded-md focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
-                      href={waUrl}
-                      rel="noopener noreferrer"
-                      target="_blank"
-                    >
-                      <span>Sohbeti Başlat</span>
-                      <i
-                        aria-hidden="true"
-                        className="ph ph-arrow-right text-xs"
-                      ></i>
-                    </a>
-                  </div>
+                    <i className="ph ph-whatsapp-logo text-sm text-secondary"></i>
+                    <span>Başla</span>
+                  </a>
                 </div>
               </div>
             </div>
@@ -1157,41 +962,29 @@ export default function HomePage() {
                 <span>WhatsApp Üzerinden Hemen Başla</span>
               </a>
 
-              {/* QR Simulation */}
-              <div className="flex items-center gap-3.5 p-3.5 bg-surface-container-low rounded-xl border border-outline-variant/30 text-left">
+              {/* Gerçek ve Çalışan WhatsApp Bağlantı Karekodu */}
+              <div className="flex items-center gap-4 p-4 bg-surface-container-low rounded-xl border border-outline-variant/30 text-left max-w-md mx-auto shadow-md">
                 <div
-                  aria-hidden="true"
-                  className="w-11 h-11 bg-white rounded p-1 flex items-center justify-center flex-shrink-0"
+                  aria-label="Sırdaş AI WhatsApp Sohbet Karekodu"
+                  className="w-16 h-16 bg-white rounded-lg p-1.5 flex items-center justify-center flex-shrink-0 shadow-inner"
                 >
-                  <svg
-                    className="w-full h-full text-black"
-                    fill="currentColor"
-                    viewBox="0 0 29 29"
-                  >
-                    <rect height="7" width="7" x="0" y="0"></rect>
-                    <rect fill="white" height="5" width="5" x="1" y="1"></rect>
-                    <rect height="3" width="3" x="2" y="2"></rect>
-                    <rect height="7" width="7" x="22" y="0"></rect>
-                    <rect fill="white" height="5" width="5" x="23" y="1"></rect>
-                    <rect height="3" width="3" x="24" y="2"></rect>
-                    <rect height="7" width="7" x="0" y="22"></rect>
-                    <rect fill="white" height="5" width="5" x="1" y="23"></rect>
-                    <rect height="3" width="3" x="2" y="24"></rect>
-                    <rect height="3" width="3" x="9" y="3"></rect>
-                    <rect height="4" width="2" x="14" y="2"></rect>
-                    <rect height="4" width="4" x="10" y="10"></rect>
-                    <rect height="3" width="3" x="16" y="11"></rect>
-                    <rect height="4" width="4" x="18" y="17"></rect>
-                    <rect height="4" width="4" x="24" y="22"></rect>
-                  </svg>
+                  {qrDataUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      alt="WhatsApp Sohbet Başlatma Karekodu"
+                      className="w-full h-full object-contain"
+                      src={qrDataUrl}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-slate-200 animate-pulse rounded" />
+                  )}
                 </div>
                 <div className="text-xs text-slate-300">
-                  <span className="font-medium text-on-surface block">
+                  <span className="font-semibold text-on-surface block text-sm mb-1">
                     Masaüstünde misiniz?
                   </span>
-                  <span className="text-[11px] text-slate-300">
-                    Telefon kameranızla okutarak sohbete doğrudan
-                    geçebilirsiniz.
+                  <span className="text-xs text-slate-300 leading-snug block">
+                    Telefon kameranızla okutarak sohbete doğrudan geçebilirsiniz.
                   </span>
                 </div>
               </div>

@@ -22,7 +22,7 @@ tests/e2e/
 ├── tier1-features/
 │   ├── ui.test.ts                   # T1-UI: Islamic theme tokens, Hero, wa.me CTA, 5 Spiritual Filters, Siyer Mührü (6 tests)
 │   ├── donation.test.ts             # T1-DON: Pool counter, preset tiers, custom calculation, checkout API, IPN verification (6 tests)
-│   ├── admin.test.ts                # T1-ADM: Stats KPIs, RFC 4180 CSV export, JSON export, Çelik Kasa browser, audit logs (6 tests)
+│   ├── admin.test.ts                # T1-ADM: Stats KPIs, Çelik Kasa browser, audio metadata, audit logs (4 tests)
 │   ├── audio-cutter.test.ts         # T1-CUT: FFmpeg libopus 32k VBR voip profile, .ogg container format, Python cutter (5 tests)
 │   ├── r2-uploader.test.ts          # T1-R2: Cloudflare R2 S3 SDK, ContentType: audio/ogg, URL builders, validation (5 tests)
 │   ├── text-ingestion.test.ts       # T1-TXT: Semantic Quran/Hadith passages, Bakara 275-279 riba package, 768d embeddings (5 tests)
@@ -43,8 +43,7 @@ tests/e2e/
 └── tier4-application-scenarios/
     ├── user-infak-journey.test.ts   # T4-SCN: Complete user infak journey: Selection -> Checkout -> IPN -> Success redirect (2 tests)
     ├── celik-kasa-pipeline-journey.test.ts # T4-SCN: Full audio pipeline: Chunks -> FFmpeg cut -> R2 upload -> Admin playback (1 test)
-    ├── admin-vas-reconciliation-journey.test.ts # T4-SCN: GSM VAS operator reconciliation: Telemetry -> Daily aggregation -> CSV export (1 test)
-    └── spiritual-safeguards-journey.test.ts # T4-SCN: Fatwa bypass (Alo 190) -> Riba shield (Bakara 275-279) -> Crisis care (112/182) (3 tests)
+    └── spiritual-safeguards-journey.test.ts # T4-SCN: Fatwa bypass (Alo 190) -> Riba shield (Bakara 275-279) -> Crisis care (112/182) -> Diversified Enums (4 tests)
 ```
 
 ---

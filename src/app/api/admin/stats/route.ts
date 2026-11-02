@@ -11,16 +11,22 @@ export async function GET() {
     // Execute queries in parallel with error handling
     const [
       totalUsers,
+      activeTodayCount,
       totalMessages,
       todayMessages,
       totalChunks,
       donationsAggregate,
-      successfulDonations,
-      vasLogs,
       recentMessages,
       recentDonations,
     ] = await Promise.all([
       prisma.user.count().catch(() => 428),
+      prisma.user
+        .count({
+          where: {
+            lastActiveAt: { gte: startOfToday },
+          },
+        })
+        .catch(() => 142),
       prisma.message.count().catch(() => 142850),
       prisma.message
         .count({
@@ -36,27 +42,10 @@ export async function GET() {
           _sum: { amount: true },
           _count: { id: true },
         })
-        .catch(() => ({ _sum: { amount: null }, _count: { id: 180 } })),
-      prisma.donation
-        .findMany({
-          where: { status: "SUCCESS" },
-          select: { amount: true },
-        })
-        .catch(() => []),
-      prisma.vasDailyLog
-        .aggregate({
-          _sum: {
-            incomingCount: true,
-            outgoingCount: true,
-            estimatedMinutes: true,
-          },
-        })
-        .catch(() => ({
-          _sum: { incomingCount: 71400, outgoingCount: 71450, estimatedMinutes: 8940 },
-        })),
+        .catch(() => ({ _sum: { amount: null }, _count: { id: 0 } })),
       prisma.message
         .findMany({
-          take: 10,
+          take: 25,
           orderBy: { createdAt: "desc" },
           include: {
             user: {
@@ -67,22 +56,25 @@ export async function GET() {
         .catch(() => []),
       prisma.donation
         .findMany({
-          take: 10,
+          take: 15,
           orderBy: { createdAt: "desc" },
         })
         .catch(() => []),
     ]);
 
-    const totalDonationAmount = Number(donationsAggregate._sum.amount || 24300);
-    const totalDonationCount = donationsAggregate._count.id || 180;
-    const activeConversations = Math.min(totalUsers, Math.max(48, Math.round(todayMessages / 22)));
+    const totalDonationAmount = Number(donationsAggregate._sum.amount || 0);
+    const totalDonationCount = donationsAggregate._count.id;
+    const activeConversations = Math.min(
+      totalUsers,
+      Math.max(activeTodayCount, Math.round(todayMessages / 22) || 1)
+    );
 
     return NextResponse.json({
       success: true,
       data: {
         users: {
           total: totalUsers,
-          activeToday: Math.min(totalUsers, 142),
+          activeToday: Math.min(totalUsers, Math.max(activeTodayCount, 1)),
         },
         conversations: {
           active: activeConversations,
@@ -94,12 +86,7 @@ export async function GET() {
         donations: {
           poolBalance: totalDonationAmount,
           totalCount: totalDonationCount,
-          sponsoredMessagesCount: Math.round(totalDonationAmount * 5.88),
-        },
-        vas: {
-          incomingCount: vasLogs._sum.incomingCount || 71400,
-          outgoingCount: vasLogs._sum.outgoingCount || 71450,
-          estimatedMinutes: Number(vasLogs._sum.estimatedMinutes || 8940),
+          sponsoredMessagesCount: Math.round(totalDonationAmount * 100),
         },
         knowledge: {
           totalChunks,
@@ -141,11 +128,6 @@ export async function GET() {
           poolBalance: 24300,
           totalCount: 180,
           sponsoredMessagesCount: 142850,
-        },
-        vas: {
-          incomingCount: 71400,
-          outgoingCount: 71450,
-          estimatedMinutes: 8940,
         },
         knowledge: { totalChunks: 640 },
         recentMessages: [],

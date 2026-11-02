@@ -59,13 +59,13 @@ export async function POST(req: NextRequest) {
       after(async () => {
         await wa.sendTextMessage(
           message.from,
-          "Aziz sırdaşım, şu an yalnızca yazılı dertleşme mesajlarını dinleyebiliyorum. Gönlünü daraltan derdini kelimelere dökerek yazarsan sana kulak vermeye hazırım."
+          "Aziz kardeşim, şu an yalnızca yazılı dertleşme mesajlarını dinleyebiliyorum. Gönlünü daraltan derdini kelimelere dökerek yazarsan sana kulak vermeye hazırım."
         );
       });
     } catch {
       wa.sendTextMessage(
         message.from,
-        "Aziz sırdaşım, şu an yalnızca yazılı dertleşme mesajlarını dinleyebiliyorum. Gönlünü daraltan derdini kelimelere dökerek yazarsan sana kulak vermeye hazırım."
+        "Aziz kardeşim, şu an yalnızca yazılı dertleşme mesajlarını dinleyebiliyorum. Gönlünü daraltan derdini kelimelere dökerek yazarsan sana kulak vermeye hazırım."
       ).catch(() => {});
     }
     return NextResponse.json({ status: "media_not_supported" }, { status: 200 });
@@ -77,18 +77,30 @@ export async function POST(req: NextRequest) {
     messageId: message.id
   };
 
+  const runBackgroundTasks = async () => {
+    const wa = new WhatsAppClient();
+    // Eagerly trigger read receipt and typing indicator immediately upon message arrival
+    await Promise.allSettled([
+      wa.markAsRead(message.id),
+      wa.sendTypingIndicator(message.from, message.id)
+    ]);
+
+    // Proceed to full spiritual triage and AI pipeline
+    await processIncomingMessage(messageData);
+  };
+
   // 2. next/server after() ile arka plan işlemini asenkron başlat
   try {
     after(async () => {
       try {
-        await processIncomingMessage(messageData);
+        await runBackgroundTasks();
       } catch (error) {
         console.error("[WhatsApp Webhook Worker Error in after()]", error);
       }
     });
   } catch {
     // Standalone test veya request-scope dışı ortamlarda doğrudan arka plan promise'i olarak çalıştır
-    processIncomingMessage(messageData).catch(error => {
+    runBackgroundTasks().catch(error => {
       console.error("[WhatsApp Webhook Standalone Worker Error]", error);
     });
   }

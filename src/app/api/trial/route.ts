@@ -1,117 +1,171 @@
 import { NextRequest, NextResponse } from "next/server";
-import crypto from "crypto";
 import { prisma } from "@/lib/db/prisma";
-import { supabase } from "@/lib/db/supabase";
-import {
-  analyzeWithJev,
-  FATWA_REJECTION_MESSAGE,
-  CRISIS_EMERGENCY_MESSAGE,
-  JevAnalysisResult
-} from "@/lib/ai/jev-client";
+import { isRemoteDbOffline } from "@/lib/db/local-corpus";
+import { analyzeWithJev, JevAnalysisResult } from "@/lib/ai/jev-client";
 import { generateEmbedding } from "@/lib/ai/embeddings";
-import { generateSirdasReply } from "@/lib/ai/gemini-client";
+import {
+  generateSirdasReply,
+  generateSirdasReplyStream,
+  StreamReplyResult,
+} from "@/lib/ai/gemini-client";
+import {
+  evaluateSpiritualGuardrails,
+  retrieveCelikKasaContext,
+  persistConversationTurn,
+  UnifiedEditorAudit,
+} from "@/lib/ai/rag-pipeline";
+import {
+  TRIAL_COOKIE_NAME,
+  inMemoryUsedFingerprints,
+  computeVisitorFingerprint,
+  createSignedTrialToken,
+  verifySignedTrialToken,
+  isTrialDevMode,
+  applyTrialCookiePolicy,
+  buildTrialLimitReachedResponse,
+} from "@/lib/ai/trial-rate-limit";
 
-const COOKIE_NAME = "sirdas_trial_v1";
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 yıl
+async function persistWebTrialTurn(params: {
+  trialPhoneKey: string;
+  fingerprint: string;
+  isDev: boolean;
+  rawMessage: string;
+  replyText: string;
+  jevResult: JevAnalysisResult;
+  editorAudit: UnifiedEditorAudit | Record<string, unknown>;
+  ragChunkIds?: string[];
+  audioUrlSent: string | null;
+  extraFlags?: {
+    bypassed_to_violence_block?: boolean;
+    bypassed_to_fatwa_block?: boolean;
+    crisis_redirect?: boolean;
+  };
+}): Promise<void> {
+  const {
+    trialPhoneKey,
+    fingerprint,
+    isDev,
+    rawMessage,
+    replyText,
+    jevResult,
+    editorAudit,
+    ragChunkIds = [],
+    audioUrlSent,
+    extraFlags,
+  } = params;
 
-// Sunucu içi bellek önbelleği (DB'ye ek olarak hızlı koruma katmanı)
-const inMemoryUsedFingerprints = new Set<string>();
+  const createdUser = await prisma.user.upsert({
+    where: { phoneNumber: trialPhoneKey },
+    update: {
+      lastActiveAt: new Date(),
+      profileMetadata: {
+        source: "web_trial",
+        fingerprint,
+        usedAt: new Date().toISOString(),
+      },
+    },
+    create: {
+      phoneNumber: trialPhoneKey,
+      onboardingStep: 4,
+      onboardingCompleted: true,
+      profileMetadata: {
+        source: "web_trial",
+        fingerprint,
+        usedAt: new Date().toISOString(),
+      },
+    },
+  });
 
-function getSecret(): string {
+  const msgIdSuffix = isDev
+    ? `_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`
+    : "";
+
+  await persistConversationTurn({
+    userId: createdUser.id,
+    waMessageId: `web_trial_msg_${fingerprint}${msgIdSuffix}`,
+    userMessage: rawMessage,
+    replyText,
+    jevResult,
+    editorAudit,
+    ragChunkIds,
+    audioSent: Boolean(audioUrlSent),
+    audioUrlSent,
+    extraFlags,
+  });
+}
+
+function isUniqueConstraintError(err: unknown): boolean {
+  if (!err || typeof err !== "object") return false;
+  const record = err as { code?: string; message?: string };
   return (
-    process.env.META_APP_SECRET ||
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    "sirdas_ai_trial_hmac_secret_2026"
+    record.code === "P2002" ||
+    String(record.message || "").includes("Unique constraint")
   );
 }
 
 /**
- * Kullanıcının IP + User-Agent bilgisinden anonim, gizlilik dostu SHA-256 parmak izi üretir
- */
-function computeVisitorFingerprint(req: NextRequest): string {
-  const forwarded = req.headers.get("x-forwarded-for");
-  const realIp = req.headers.get("x-real-ip");
-  const ip = forwarded ? forwarded.split(",")[0].trim() : realIp || "127.0.0.1";
-  const ua = req.headers.get("user-agent") || "unknown-ua";
-
-  return crypto
-    .createHmac("sha256", getSecret())
-    .update(`${ip}::${ua}`)
-    .digest("hex")
-    .slice(0, 32);
-}
-
-/**
- * Cookie değerini HMAC ile imzalar (kullanıcının cookie'yi elle değiştirmesini engeller)
- */
-function signTrialToken(fingerprint: string): string {
-  const sig = crypto
-    .createHmac("sha256", getSecret())
-    .update(`used::${fingerprint}`)
-    .digest("hex")
-    .slice(0, 24);
-  return `${fingerprint}.${sig}`;
-}
-
-function verifyTrialToken(cookieValue: string | undefined): boolean {
-  if (!cookieValue || !cookieValue.includes(".")) return false;
-  const [fp, sig] = cookieValue.split(".");
-  if (!fp || !sig) return false;
-  const expected = signTrialToken(fp);
-  return cookieValue === expected;
-}
-
-/**
  * GET /api/trial
- * Ziyaretçinin tek seferlik deneme hakkını kullanıp kullanmadığını kontrol eder.
+ * Checks whether the visitor has already used their one-time web contemplation trial.
  */
 export async function GET(req: NextRequest) {
   try {
-    const cookieVal = req.cookies.get(COOKIE_NAME)?.value;
+    const isDev = isTrialDevMode(req);
+    const cookieVal = req.cookies.get(TRIAL_COOKIE_NAME)?.value;
     const fp = computeVisitorFingerprint(req);
     const trialPhoneKey = `web_trial_${fp}`;
 
-    // 1. Cookie kontrolü
-    const cookieUsed = verifyTrialToken(cookieVal);
-
-    // 2. Bellek kontrolü
+    const cookieUsed = verifySignedTrialToken(cookieVal);
     const memoryUsed = inMemoryUsedFingerprints.has(fp);
 
-    // 3. Veritabanı kontrolü (varsa önceki cevabı da döndür)
     const existingTrialUser = await prisma.user.findUnique({
       where: { phoneNumber: trialPhoneKey },
       include: {
         messages: {
-          orderBy: { createdAt: "asc" },
-          take: 2
-        }
-      }
+          orderBy: { createdAt: "desc" },
+          take: 2,
+        },
+      },
     });
 
-    if (cookieUsed || memoryUsed || existingTrialUser) {
-      const userMsg = existingTrialUser?.messages.find(m => m.role === "USER");
-      const assistantMsg = existingTrialUser?.messages.find(m => m.role === "ASSISTANT");
+    const userMsg = existingTrialUser?.messages.find((m) => m.role === "USER");
+    const assistantMsg = existingTrialUser?.messages.find(
+      (m) => m.role === "ASSISTANT"
+    );
 
+    const previousTrial =
+      userMsg && assistantMsg
+        ? {
+            userMessage: userMsg.content,
+            replyText: assistantMsg.content,
+            jevResult: userMsg.jevMetadata,
+            editorAudit: assistantMsg.editorAudit,
+            audioUrl: assistantMsg.audioUrlSent,
+          }
+        : null;
+
+    if (isDev) {
+      const res = NextResponse.json({
+        used: false,
+        remaining: 999,
+        isDev: true,
+        previousTrial,
+      });
+      res.cookies.delete(TRIAL_COOKIE_NAME);
+      return res;
+    }
+
+    if (cookieUsed || memoryUsed || existingTrialUser) {
       return NextResponse.json({
         used: true,
         remaining: 0,
-        previousTrial:
-          userMsg && assistantMsg
-            ? {
-                userMessage: userMsg.content,
-                replyText: assistantMsg.content,
-                jevResult: userMsg.jevMetadata,
-                editorAudit: assistantMsg.editorAudit,
-                audioUrl: assistantMsg.audioUrlSent
-              }
-            : null
+        previousTrial,
       });
     }
 
     return NextResponse.json({
       used: false,
       remaining: 1,
-      previousTrial: null
+      previousTrial: null,
     });
   } catch (error) {
     console.error("[GET /api/trial Error]", error);
@@ -121,255 +175,418 @@ export async function GET(req: NextRequest) {
 
 /**
  * POST /api/trial
- * Ziyaretçinin tek seferlik mesajını alır, System 1 (Jev) + RAG + System 2 (Gemini) hattından geçirir
- * ve hakkını kalıcı olarak kilitler.
+ * Processes a web trial contemplation message through System 1 (Jev) + Çelik Kasa RAG + System 2 (Gemini).
  */
 export async function POST(req: NextRequest) {
+  const isDev = isTrialDevMode(req);
+  const cookieVal = req.cookies.get(TRIAL_COOKIE_NAME)?.value;
+  const fp = computeVisitorFingerprint(req);
+  const trialPhoneKey = `web_trial_${fp}`;
+
+  const cookieUsed = verifySignedTrialToken(cookieVal);
+  const memoryUsed = inMemoryUsedFingerprints.has(fp);
+
+  if (!isDev && (cookieUsed || memoryUsed)) {
+    return buildTrialLimitReachedResponse();
+  }
+
+  if (!isDev) {
+    inMemoryUsedFingerprints.add(fp);
+  }
+
   try {
+    const existingUser = await prisma.user.findUnique({
+      where: { phoneNumber: trialPhoneKey },
+    });
+
+    if (!isDev && existingUser) {
+      return buildTrialLimitReachedResponse();
+    }
+
     const body = await req.json().catch(() => ({}));
     const rawMessage = typeof body.message === "string" ? body.message.trim() : "";
 
     if (!rawMessage || rawMessage.length < 5) {
+      inMemoryUsedFingerprints.delete(fp);
       return NextResponse.json(
         {
           error: "INVALID_INPUT",
-          message: "Lütfen gönlünüzü meşgul eden durumu en az birkaç kelimeyle ifade edin."
+          message:
+            "Lütfen gönlünüzü meşgul eden durumu en az birkaç kelimeyle ifade edin.",
         },
         { status: 400 }
       );
     }
 
     if (rawMessage.length > 600) {
+      inMemoryUsedFingerprints.delete(fp);
       return NextResponse.json(
         {
           error: "MESSAGE_TOO_LONG",
-          message: "Deneme mesajınız en fazla 600 karakter olabilir."
+          message: "Deneme mesajınız en fazla 600 karakter olabilir.",
         },
         { status: 400 }
       );
     }
 
-    const cookieVal = req.cookies.get(COOKIE_NAME)?.value;
-    const fp = computeVisitorFingerprint(req);
-    const trialPhoneKey = `web_trial_${fp}`;
+    const signedToken = createSignedTrialToken(fp);
+    const acceptHeader = req.headers.get("accept") || "";
+    const userAgent = req.headers.get("user-agent") || "";
+    const isVerifyBot = userAgent.includes("SirdasVerifyBot");
 
-    // Çok katmanlı limit kontrolü (Cookie + In-Memory + PostgreSQL)
-    const cookieUsed = verifyTrialToken(cookieVal);
-    const memoryUsed = inMemoryUsedFingerprints.has(fp);
-    const existingUser = await prisma.user.findUnique({
-      where: { phoneNumber: trialPhoneKey }
-    });
+    const isSseRequested =
+      acceptHeader.includes("text/event-stream") ||
+      body.stream === true ||
+      (!isVerifyBot &&
+        body.stream !== false &&
+        !acceptHeader.includes("application/json"));
 
-    if (cookieUsed || memoryUsed || existingUser) {
-      return NextResponse.json(
-        {
-          error: "TRIAL_LIMIT_REACHED",
-          message:
-            "Web üzerindeki tek seferlik tefekkür hakkınızı kullandınız. Sırdaş AI ile WhatsApp üzerinden tamamen ücretsiz ve sınırsız dertleşmeye devam edebilirsiniz."
+    if (isSseRequested) {
+      const encoder = new TextEncoder();
+
+      const stream = new ReadableStream({
+        async start(controller) {
+          let accumulatedReply = "";
+          let editorAudit: UnifiedEditorAudit | Record<string, unknown> | null = null;
+          let audioUrlSent: string | null = null;
+          let statusType: "processed" | "fatwa_blocked" | "crisis_redirected" =
+            "processed";
+          let jevResult: JevAnalysisResult | null = null;
+          let ragChunkIds: string[] = [];
+          let extraFlags: GuardrailFlags | undefined;
+
+          try {
+            jevResult = await analyzeWithJev({
+              userMessage: rawMessage,
+              userContextSnippet: JSON.stringify({ source: "web_landing_trial" }),
+            });
+
+            const intercept = evaluateSpiritualGuardrails(rawMessage, jevResult);
+
+            if (intercept) {
+              statusType = intercept.status;
+              editorAudit = intercept.editorAudit;
+              extraFlags = intercept.extraFlags;
+              const tokens = intercept.replyText.match(/\S+\s*/g) || [
+                intercept.replyText,
+              ];
+              for (const token of tokens) {
+                accumulatedReply += token;
+                const frame = `event: token\ndata: ${JSON.stringify({ token, text: accumulatedReply })}\n\n`;
+                controller.enqueue(encoder.encode(frame));
+                if (process.env.NODE_ENV !== "test" && !process.env.CI) {
+                  await new Promise((r) => setTimeout(r, 15));
+                }
+              }
+            } else {
+              const queryEmbedding = isRemoteDbOffline()
+                ? new Array(768).fill(0)
+                : await generateEmbedding(rawMessage);
+              const { chunks, isRibaShieldActive } =
+                await retrieveCelikKasaContext({
+                  userMessage: rawMessage,
+                  queryEmbedding,
+                  jevResult,
+                });
+              ragChunkIds = chunks.map((c) => c.id);
+
+              const resolvedTone =
+                jevResult.distress_level >= 8
+                  ? "SEFKATLI_TESKIN"
+                  : jevResult.recommended_tone || "SEFKATLI_TESKIN";
+              const resolvedStage =
+                jevResult.distress_level >= 8
+                  ? "DARLIK_VE_BUNALIM"
+                  : jevResult.spiritual_stage || "ARAYIS_VE_BASLANGIC";
+
+              const streamGenerator = generateSirdasReplyStream({
+                userMessage: rawMessage,
+                userProfile: {
+                  roles: ["MISAFIR_KULLANICI"],
+                  spiritual_trials: [jevResult.nafs_trap],
+                  tone_preference: resolvedTone,
+                  spiritual_stage: resolvedStage,
+                },
+                effectiveTone: resolvedTone,
+                spiritualStage: resolvedStage,
+                distressLevel: jevResult.distress_level,
+                isRibaShieldActive,
+                nafsTrap: jevResult.nafs_trap,
+                ragCategory: jevResult.rag_category,
+                ragChunks: chunks,
+              });
+
+              let hasStrippedGreeting = false;
+              let leadingBuffer = "";
+              let streamFinalResult: StreamReplyResult | null = null;
+
+              while (true) {
+                const nextChunk = await streamGenerator.next();
+                if (nextChunk.done) {
+                  streamFinalResult = nextChunk.value;
+                  break;
+                }
+                const token = nextChunk.value;
+                let textToEmit = token;
+
+                if (!hasStrippedGreeting) {
+                  leadingBuffer += token;
+                  const trimmed = leadingBuffer.trimStart();
+                  const isPotentialGreeting =
+                    /^(v|ve|a|al|ale|aley|aleyk|s|se|sel|sela|selam)/i.test(
+                      trimmed
+                    );
+
+                  if (isPotentialGreeting) {
+                    const greetingMatch = trimmed.match(
+                      /^(ve\s+)?(aleyk[uü]m\s+selam|selam[uü]n\s+aleyk[uü]m)[.,!\s]*/i
+                    );
+                    if (greetingMatch) {
+                      textToEmit = trimmed.slice(greetingMatch[0].length);
+                      hasStrippedGreeting = true;
+                      leadingBuffer = "";
+                      if (!textToEmit) continue;
+                    } else if (trimmed.length > 20) {
+                      textToEmit = leadingBuffer;
+                      hasStrippedGreeting = true;
+                      leadingBuffer = "";
+                    } else {
+                      continue;
+                    }
+                  } else {
+                    textToEmit = leadingBuffer;
+                    hasStrippedGreeting = true;
+                    leadingBuffer = "";
+                  }
+                }
+
+                accumulatedReply += textToEmit;
+                const frame = `event: token\ndata: ${JSON.stringify({ token: textToEmit, text: accumulatedReply })}\n\n`;
+                controller.enqueue(encoder.encode(frame));
+              }
+
+              if (leadingBuffer) {
+                accumulatedReply += leadingBuffer;
+                const frame = `event: token\ndata: ${JSON.stringify({ token: leadingBuffer, text: accumulatedReply })}\n\n`;
+                controller.enqueue(encoder.encode(frame));
+              }
+
+              if (streamFinalResult?.selectedAudioChunkId) {
+                const found = chunks.find(
+                  (c) => c.id === streamFinalResult?.selectedAudioChunkId
+                );
+                audioUrlSent = found?.audioUrl ?? null;
+              } else {
+                audioUrlSent = null;
+              }
+
+              editorAudit = streamFinalResult?.editorAudit || {
+                murakabe_applied: true,
+                ilahi_riza_checked: true,
+                tevekkul_and_talak_hope_included: true,
+                nafs_and_vesvese_addressed: jevResult.nafs_trap,
+                siyer_example_used: isRibaShieldActive
+                  ? "Efendimiz'in borç ve kederden sığınma duası"
+                  : "Taif dönüşü Efendimiz'in (s.a.v.) tevekkülü",
+                riba_warning_included: isRibaShieldActive,
+                nafs_trap: jevResult.nafs_trap,
+                rag_category: jevResult.rag_category,
+                distress_level: jevResult.distress_level,
+                tone: resolvedTone,
+                spiritual_stage: resolvedStage,
+              };
+            }
+
+            try {
+              await persistWebTrialTurn({
+                trialPhoneKey,
+                fingerprint: fp,
+                isDev,
+                rawMessage,
+                replyText: accumulatedReply,
+                jevResult,
+                editorAudit: editorAudit || {},
+                ragChunkIds,
+                audioUrlSent,
+                extraFlags,
+              });
+            } catch (dbErr) {
+              console.warn("[POST /api/trial DB Persistence Warning]", dbErr);
+            }
+
+            const donePayload = JSON.stringify({
+              success: true,
+              status: statusType,
+              remaining: isDev ? 999 : 0,
+              used: !isDev,
+              isDev,
+              trial: {
+                userMessage: rawMessage,
+                replyText: accumulatedReply,
+                jevResult,
+                editorAudit,
+                audioUrl: audioUrlSent,
+              },
+            });
+            controller.enqueue(
+              encoder.encode(`event: done\ndata: ${donePayload}\n\n`)
+            );
+            controller.close();
+          } catch (streamErr) {
+            console.error("[POST /api/trial Stream Error]", streamErr);
+            const errPayload = JSON.stringify({
+              error: "INTERNAL_ERROR",
+              message:
+                "Şu anda tefekkür odasında yoğunluk yaşanıyor, lütfen biraz sonra tekrar deneyin.",
+            });
+            controller.enqueue(
+              encoder.encode(`event: error\ndata: ${errPayload}\n\n`)
+            );
+            controller.close();
+          }
         },
-        { status: 429 }
-      );
+      });
+
+      const response = new NextResponse(stream, {
+        status: 200,
+        headers: {
+          "Content-Type": "text/event-stream; charset=utf-8",
+          "Cache-Control": "no-cache, no-transform",
+          Connection: "keep-alive",
+          "X-Accel-Buffering": "no",
+        },
+      });
+
+      applyTrialCookiePolicy(response, isDev, signedToken);
+      return response;
     }
 
-    // 1. System 1 (Jev) Refleks ve Sınıflandırma Analizi
-    const jevResult: JevAnalysisResult = await analyzeWithJev({
+    // --- NON-STREAMING JSON PATH ---
+    const jevResult = await analyzeWithJev({
       userMessage: rawMessage,
-      userContextSnippet: JSON.stringify({ source: "web_landing_trial" })
+      userContextSnippet: JSON.stringify({ source: "web_landing_trial" }),
     });
 
+    const intercept = evaluateSpiritualGuardrails(rawMessage, jevResult);
+
     let replyText = "";
-    let editorAudit: any = null;
+    let editorAudit: UnifiedEditorAudit | Record<string, unknown>;
     let audioUrlSent: string | null = null;
-    let statusType: "processed" | "fatwa_blocked" | "crisis_redirected" = "processed";
+    let statusType: "processed" | "fatwa_blocked" | "crisis_redirected" =
+      "processed";
+    let ragChunkIds: string[] = [];
+    let extraFlags: GuardrailFlags | undefined;
 
-    // Guardrail 1: Fıkıh ve Fetva Engeli
-    if (jevResult.is_fiqh_fatwa_request >= 0.75) {
-      replyText = FATWA_REJECTION_MESSAGE;
-      statusType = "fatwa_blocked";
-      editorAudit = {
-        murakabe_applied: true,
-        ilahi_riza_checked: true,
-        tevekkul_and_talak_hope_included: true,
-        nafs_and_vesvese_addressed: "FIKIH_FETVA_SINIRI",
-        siyer_example_used: "Ehl-i Zikir ve Alo 190 Yönlendirmesi",
-        riba_warning_included: false
-      };
-    } else if (
-      jevResult.distress_level >= 10 &&
-      ["intihar", "ölmek istiyorum", "canıma kıyacağım", "yaşamak istemiyorum"].some(k =>
-        rawMessage.toLowerCase().includes(k)
-      )
-    ) {
-      // Guardrail 2: Ağır Kriz Emniyet Hattı
-      replyText = CRISIS_EMERGENCY_MESSAGE;
-      statusType = "crisis_redirected";
-      editorAudit = {
-        murakabe_applied: true,
-        ilahi_riza_checked: true,
-        tevekkul_and_talak_hope_included: true,
-        nafs_and_vesvese_addressed: "ACIL_KRIZ_KORUMASI",
-        siyer_example_used: "Can Emaneti ve 112 Acil Yardım",
-        riba_warning_included: false
-      };
+    if (intercept) {
+      statusType = intercept.status;
+      replyText = intercept.replyText;
+      editorAudit = intercept.editorAudit;
+      extraFlags = intercept.extraFlags;
     } else {
-      // 2. Çelik Kasa RAG Araması
-      const isRibaShieldActive = jevResult.is_debt_or_riba_related >= 0.6;
-      const queryEmbedding = await generateEmbedding(rawMessage);
+      const queryEmbedding = isRemoteDbOffline()
+        ? new Array(768).fill(0)
+        : await generateEmbedding(rawMessage);
+      const { chunks, isRibaShieldActive } = await retrieveCelikKasaContext({
+        userMessage: rawMessage,
+        queryEmbedding,
+        jevResult,
+      });
+      ragChunkIds = chunks.map((c) => c.id);
 
-      let chunks: Array<{
-        id: string;
-        sourceType: string;
-        sourceTitle: string;
-        content: string;
-        audioUrl?: string | null;
-      }> = [];
+      const resolvedTone =
+        jevResult.distress_level >= 8
+          ? "SEFKATLI_TESKIN"
+          : jevResult.recommended_tone || "SEFKATLI_TESKIN";
+      const resolvedStage =
+        jevResult.distress_level >= 8
+          ? "DARLIK_VE_BUNALIM"
+          : jevResult.spiritual_stage || "ARAYIS_VE_BASLANGIC";
 
-      try {
-        const { data: ragResults, error: rpcError } = await supabase.rpc(
-          "match_knowledge_chunks",
-          {
-            query_embedding: queryEmbedding,
-            match_threshold: 0.5,
-            match_count: 4,
-            filter_category: jevResult.rag_category,
-            filter_nafs: jevResult.nafs_trap,
-            force_riba: isRibaShieldActive
-          }
-        );
-
-        if (!rpcError && Array.isArray(ragResults) && ragResults.length > 0) {
-          chunks = ragResults.map((r: any) => ({
-            id: r.id,
-            sourceType: r.source_type,
-            sourceTitle: r.source_title,
-            content: r.content,
-            audioUrl: r.audio_url
-          }));
-        }
-      } catch {
-        // Fallback to Prisma below
-      }
-
-      if (chunks.length === 0) {
-        const dbChunks = await prisma.knowledgeChunk.findMany({
-          where: isRibaShieldActive ? { isRibaRelated: true } : undefined,
-          take: 4,
-          orderBy: { createdAt: "desc" }
-        });
-
-        chunks = dbChunks.map(c => ({
-          id: c.id,
-          sourceType: c.sourceType,
-          sourceTitle: c.sourceTitle,
-          content: c.content,
-          audioUrl: c.audioUrl
-        }));
-      }
-
-      // 3. System 2 (Gemini 2.5 Flash) Cevap Üretimi
       const sirdasReply = await generateSirdasReply({
         userMessage: rawMessage,
         userProfile: {
           roles: ["MISAFIR_KULLANICI"],
           spiritual_trials: [jevResult.nafs_trap],
-          tone_preference: "SEFKATLI_TESKIN"
+          tone_preference: resolvedTone,
+          spiritual_stage: resolvedStage,
         },
-        effectiveTone: "SEFKATLI_TESKIN",
+        effectiveTone: resolvedTone,
+        spiritualStage: resolvedStage,
         distressLevel: jevResult.distress_level,
         isRibaShieldActive,
         nafsTrap: jevResult.nafs_trap,
         ragCategory: jevResult.rag_category,
-        ragChunks: chunks
+        ragChunks: chunks,
       });
 
       replyText = sirdasReply.whatsapp_reply;
       editorAudit = sirdasReply.editor_audit;
 
       if (sirdasReply.selected_audio_chunk_id) {
-        const matched = chunks.find(c => c.id === sirdasReply.selected_audio_chunk_id);
+        const matched = chunks.find(
+          (c) => c.id === sirdasReply.selected_audio_chunk_id
+        );
         if (matched?.audioUrl) {
           audioUrlSent = matched.audioUrl;
         }
       }
     }
 
-    // 4. Parmak izini belleğe ve veritabanına kaydet
-    inMemoryUsedFingerprints.add(fp);
-
     try {
-      const createdUser = await prisma.user.create({
-        data: {
-          phoneNumber: trialPhoneKey,
-          onboardingStep: 4,
-          onboardingCompleted: true,
-          profileMetadata: {
-            source: "web_trial",
-            fingerprint: fp,
-            usedAt: new Date().toISOString()
-          }
-        }
+      await persistWebTrialTurn({
+        trialPhoneKey,
+        fingerprint: fp,
+        isDev,
+        rawMessage,
+        replyText,
+        jevResult,
+        editorAudit,
+        ragChunkIds,
+        audioUrlSent,
+        extraFlags,
       });
-
-      await prisma.$transaction([
-        prisma.message.create({
-          data: {
-            waMessageId: `web_trial_msg_${fp}`,
-            userId: createdUser.id,
-            role: "USER",
-            content: rawMessage,
-            jevMetadata: jevResult as any
-          }
-        }),
-        prisma.message.create({
-          data: {
-            userId: createdUser.id,
-            role: "ASSISTANT",
-            content: replyText,
-            editorAudit: editorAudit as any,
-            audioSent: Boolean(audioUrlSent),
-            audioUrlSent
-          }
-        })
-      ]);
     } catch (dbErr) {
+      if (!isDev && isUniqueConstraintError(dbErr)) {
+        return buildTrialLimitReachedResponse();
+      }
       console.warn("[POST /api/trial DB Persistence Warning]", dbErr);
     }
 
-    // 5. İmzalı HttpOnly Cookie ile yanıt dön
-    const signedToken = signTrialToken(fp);
     const response = NextResponse.json({
       success: true,
       status: statusType,
-      used: true,
-      remaining: 0,
+      used: !isDev,
+      remaining: isDev ? 999 : 0,
+      isDev,
       trial: {
         userMessage: rawMessage,
         replyText,
         jevResult,
         editorAudit,
-        audioUrl: audioUrlSent
-      }
+        audioUrl: audioUrlSent,
+      },
     });
 
-    response.cookies.set({
-      name: COOKIE_NAME,
-      value: signedToken,
-      httpOnly: true,
-      sameSite: "lax",
-      path: "/",
-      maxAge: COOKIE_MAX_AGE,
-      secure: process.env.NODE_ENV === "production"
-    });
-
+    applyTrialCookiePolicy(response, isDev, signedToken);
     return response;
   } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      return buildTrialLimitReachedResponse();
+    }
     console.error("[POST /api/trial Error]", error);
     return NextResponse.json(
       {
         error: "INTERNAL_ERROR",
-        message: "Şu anda tefekkür odasında yoğunluk yaşanıyor, lütfen biraz sonra tekrar deneyin."
+        message:
+          "Şu anda tefekkür odasında yoğunluk yaşanıyor, lütfen biraz sonra tekrar deneyin.",
       },
       { status: 500 }
     );
   }
 }
+
+type GuardrailFlags = {
+  bypassed_to_violence_block?: boolean;
+  bypassed_to_fatwa_block?: boolean;
+  crisis_redirect?: boolean;
+};

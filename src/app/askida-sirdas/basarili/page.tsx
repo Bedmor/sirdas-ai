@@ -35,7 +35,7 @@ function SuccessContent() {
         <p className="text-sm text-slate-300 leading-relaxed font-light">
           Sayın <strong className="text-white font-medium">{name}</strong>, yapmış olduğunuz{" "}
           <strong className="text-primary font-medium">{amount} ₺</strong> tutarındaki infak
-          &ldquo;Askıda Sırdaş&rdquo; havuzuna başarıyla aktarılmıştır.
+          &ldquo;Askıda Pusula&rdquo; havuzuna başarıyla aktarılmıştır.
         </p>
       </div>
 
@@ -43,7 +43,7 @@ function SuccessContent() {
       <div className="p-5 rounded-xl bg-surface-container-low border border-outline-variant/30 text-xs text-slate-300 italic space-y-2">
         <p className="text-sm text-primary leading-relaxed" lang="tr">
           “Allah infakınızı dergâh-ı izzetinde en güzel şekilde kabul buyursun. Ömrünüze ve
-          kazancınıza bereket, kalbinize sekinet ihsan eylesin.”
+          kazancınıza bereket, kalbinize inşirah ve ferahlık ihsan eylesin.”
         </p>
         <span className="text-[11px] text-slate-400 not-italic block pt-1">
           Vesilenizle darda olan kardeşlerimizin manevi dertleşme mesajları karşılanacaktır.

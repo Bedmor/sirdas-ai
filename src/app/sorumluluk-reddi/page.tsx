@@ -5,9 +5,9 @@ import { Footer } from "@/components/layout/Footer";
 import { DisclaimerBanner } from "@/components/layout/DisclaimerBanner";
 
 export const metadata: Metadata = {
-  title: "Sorumluluk Reddi ve Manevi Sınırlar | Sırdaş AI",
+  title: "Sorumluluk Reddi ve Manevi Sınırlar | Manevi Pusula",
   description:
-    "Sırdaş AI fıkhi fetva veya tıbbi tedavi makamı değildir. Resmi sınırlar, Diyanet Alo 190 ve acil yardım hatları 112 / 182 bilgilendirmesi.",
+    "Manevi Pusula fıkhi fetva veya tıbbi tedavi makamı değildir. Resmi sınırlar, Diyanet Alo 190 ve acil yardım hatları 112 / 182 bilgilendirmesi.",
 };
 
 export default function DisclaimerPage() {
@@ -27,7 +27,7 @@ export default function DisclaimerPage() {
               Sorumluluk Reddi ve Manevi Sınırlar Beyanı
             </h1>
             <p className="text-sm text-slate-300 leading-relaxed font-light">
-              Bu metin, Sırdaş AI platformunu kullanan her bireyin kabul etmiş sayıldığı fıkhi,
+              Bu metin, Manevi Pusula platformunu kullanan her bireyin kabul etmiş sayıldığı fıkhi,
               tıbbi ve cezai sorumluluk sınırlarını ve acil kriz protokollerini ihtiva eder.
             </p>
           </div>
@@ -97,12 +97,12 @@ export default function DisclaimerPage() {
                 1. Fıkhi ve Dini Sorumluluk Sınırı (Fetva Makamı Değildir)
               </h2>
               <p className="text-sm text-slate-300 font-light leading-relaxed">
-                Sırdaş AI, İslam hukukunun (fıkıh) ihtisas gerektiren miras paylaşımı, nikah, talak
+                Manevi Pusula, İslam hukukunun (fıkıh) ihtisas gerektiren miras paylaşımı, nikah, talak
                 (boşanma), ticaret hukuku, faiz ve şüpheli kazançlar gibi teknik ve içtihadi
                 konularında kesinlikle fetva verme yetkisine sahip değildir ve bu iddiada bulunmaz.
               </p>
               <p className="text-sm text-slate-300 font-light leading-relaxed">
-                Sistemin sunduğu mealler, sahih hadisler ve Halis Aydemir hoca sohbet kesitleri;
+                Sistemin sunduğu mealler, sahih hadisler ve hikmetli tefekkür kesitleri;
                 kulun kalbini dünyevi hırslardan arındırmak, nefsin tuzaklarını fark ettirmek ve
                 tevekkülü diri tutmak için sunulan &ldquo;manevi ayna&rdquo; niteliğindedir. Şer&apos;i
                 hüküm gerektiren hallerde Türkiye Cumhuriyeti Diyanet İşleri Başkanlığı Din İşleri
@@ -119,7 +119,7 @@ export default function DisclaimerPage() {
                 2. Acil Ruhsal Kriz, İntihar ve Güvenlik Protokolü
               </h2>
               <p className="text-sm text-slate-300 font-light leading-relaxed">
-                Sırdaş AI; intihar eğilimi, ağır depresif atak, kendine veya çevresine zarar verme
+                Manevi Pusula; intihar eğilimi, ağır depresif atak, kendine veya çevresine zarar verme
                 niyeti gibi hayati tehlike arz eden durumlarda bir acil müdahale ekibi veya
                 psikiyatrik tedavi merkezi değildir.
               </p>
@@ -149,7 +149,7 @@ export default function DisclaimerPage() {
                 3. Cezai ve Hukuki Sorumluluğun Reddi
               </h2>
               <p className="text-sm text-slate-300 font-light leading-relaxed">
-                Sırdaş AI tarafından üretilen metin veya sesli tefekkür çıktılarının uygulanması
+                Manevi Pusula tarafından üretilen metin veya sesli tefekkür çıktılarının uygulanması
                 sonucunda doğrudan veya dolaylı olarak doğabilecek maddi, manevi, fıkhi veya hukuki
                 zararlardan platform geliştiricileri, içerik sağlayıcıları ve vakıf yetkilileri
                 sorumlu tutulamaz.

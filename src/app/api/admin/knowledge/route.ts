@@ -20,8 +20,8 @@ const SEED_KNOWLEDGE_CHUNKS = [
     sourceTitle: "Talâk Suresi 2-3",
     content:
       "Kim Allah'tan korkup sakınırsa, Allah ona bir çıkış yolu açar ve onu beklemediği yerden rızıklandırır. Kim Allah'a tevekkül ederse, O kendisine yeter. Şüphesiz Allah, emrini yerine getirendir.",
-    tags: ["TALAK_2_3", "TEVEKKUL", "CIKIS_YOLU", "RIZIK"],
-    nafsTraps: ["UMITSIZLIK_VE_REHAVET", "CARESIZLIK_VEHMI"],
+    tags: ["TALAK_2_3", "TEVEKKUL_VE_MURAKABE", "CIKIS_YOLU", "RIZIK_VE_TICARET"],
+    nafsTraps: ["UMITSIZLIK_KARAMSARLIK", "KONTROL_YANILSAMASI_VE_MUKEMMELIYETCILIK"],
     isRibaRelated: false,
   },
   {
@@ -30,37 +30,9 @@ const SEED_KNOWLEDGE_CHUNKS = [
     sourceTitle: "Sahih Müslim (Birr 69)",
     content:
       "Peygamber Efendimiz (s.a.v.) buyurdu: 'Sadaka vermekle mal eksilmez. Kul affettikçe Allah onun izzet ve şerefini artırır. Kim Allah için tevazu gösterirse, Allah onu yüceltir.'",
-    tags: ["INFAK", "SADAKA", "TEVAZU", "BEREKET"],
-    nafsTraps: ["CIMRILIK", "MAL_HIRSI", "KIBIR"],
+    tags: ["INFAK", "SADAKA", "ISRAF_VE_IKTISAT_FIKHI", "KALP_AMELLELI_VE_IHLAS"],
+    nafsTraps: ["CIMRILIK_VE_MAL_HIRSI", "MINNET_VE_BASA_KAKMA", "GIZLI_KIBIR_HAKLILIK"],
     isRibaRelated: false,
-  },
-  {
-    id: "chunk-audio-1",
-    sourceType: "HALIS_AYDEMIR",
-    sourceTitle: "Halis Aydemir - Tefekkür Sohbeti (Rızık ve Sebepler)",
-    content:
-      "Biz sebeplere hürmet ederiz, sebepleri putlaştırmayız. Kul sabah dükkanını açarken 'Rızkı bu dükkan değil, Rezzak olan Allah verecek' şuuruyla besmele çekmelidir. Sebeplere tapınmak insanı vesveseye ve telaşa boğar.",
-    tags: ["RIZIK", "TEVEKKUL", "SEBEPLER", "HALIS_AYDEMIR"],
-    nafsTraps: ["SEBEPLERI_PUTLASTIRMA", "GELECEK_ENDISESI"],
-    isRibaRelated: false,
-    youtubeId: "vB8kLm90Op",
-    startSec: 120,
-    endSec: 210,
-    audioUrl: "https://media.sirdas.ai/halis_aydemir/rizik_ve_sebepler.ogg",
-  },
-  {
-    id: "chunk-audio-2",
-    sourceType: "HALIS_AYDEMIR",
-    sourceTitle: "Halis Aydemir - Vesvese ve Kalp Huzuru",
-    content:
-      "Vesvese kulun kalbine atılan boş bir oltadır. Sen o oltaya takılmazsan, 'Rabbim beni işitir ve görür' dersen o vesvese bir duman gibi dağılır. Kendi içindeki o sesi Rabbinin kelamıyla sustur.",
-    tags: ["VESVESE", "SEKINE", "MURAKABE", "HALIS_AYDEMIR"],
-    nafsTraps: ["ICSEL_VESVESE", "SUPHE_TUZAGI"],
-    isRibaRelated: false,
-    youtubeId: "xY90Pq11Az",
-    startSec: 340,
-    endSec: 435,
-    audioUrl: "https://media.sirdas.ai/halis_aydemir/vesvese_ve_sekine.ogg",
   },
   {
     id: "chunk-siyer-1",
@@ -68,8 +40,8 @@ const SEED_KNOWLEDGE_CHUNKS = [
     sourceTitle: "Taif Dönüşü Hz. Peygamber'in (s.a.v.) İhlas Duası",
     content:
       "Allah'ım! Güçsüzlüğümü, zaafımı ve insanların gözündeki değersizliğimi Sana arz ediyorum. Ey merhametlilerin en merhametlisi! Beni kime bırakıyorsun? Bana kaba davranan bir yabancıya mı, yoksa emrimi eline verdiğin bir düşmana mı? Eğer bana karşı bir gazabın yoksa, çektiğim sıkıntılara aldırmam...",
-    tags: ["TAIF", "SIYER", "TESLIMIYET", "DUA"],
-    nafsTraps: ["SITEM", "ISYAN_MEYLI", "SABIRSIZLIK"],
+    tags: ["TAIF", "SIYERDE_DARLIK_DONEMLERI", "DUA_VE_ILCA_USULU", "KADER_VE_KAZA_HIKMETI"],
+    nafsTraps: ["KADERE_ITIRAZ_VE_ISYAN", "ACELECI_TALEPLER_VE_ISTIACAL"],
     isRibaRelated: false,
   },
 ];
@@ -97,18 +69,9 @@ export async function GET(request: NextRequest) {
       console.warn("DB knowledge chunks fallback:", dbErr);
     }
 
-    const audioSeedChunks = SEED_KNOWLEDGE_CHUNKS.filter(
-      (c) => (c.sourceType === "HALIS_AYDEMIR" || (c as any).category === "HALIS_AYDEMIR") && c.audioUrl
-    );
-
-    if (!chunks || chunks.length === 0) {
-      chunks = SEED_KNOWLEDGE_CHUNKS;
-    } else if (
-      (!sourceType || sourceType === "ALL" || sourceType === "HALIS_AYDEMIR") &&
-      !chunks.some((c) => (c.sourceType === "HALIS_AYDEMIR" || (c as any).category === "HALIS_AYDEMIR") && c.audioUrl)
-    ) {
-      chunks = [...chunks, ...audioSeedChunks];
-    }
+    const seedIds = new Set(chunks.map((c) => c.id));
+    const missingSeeds = SEED_KNOWLEDGE_CHUNKS.filter((s) => !seedIds.has(s.id));
+    chunks = [...chunks, ...missingSeeds];
 
     let filtered = chunks.map((c) => ({
       ...c,

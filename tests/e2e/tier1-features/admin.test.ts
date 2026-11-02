@@ -1,9 +1,8 @@
 import fs from "fs";
 import path from "path";
 import { describe, it, expect } from "../harness";
-import { createMockRequest, parseCsv } from "../harness/utils";
+import { createMockRequest } from "../harness/utils";
 import { GET as statsHandler } from "@/app/api/admin/stats/route";
-import { GET as vasExportHandler } from "@/app/api/admin/vas-export/route";
 import { GET as knowledgeHandler } from "@/app/api/admin/knowledge/route";
 
 describe("Tier 1: Feature Coverage — Admin & Analytics Dashboard", { tier: 1, feature: "Admin" }, () => {
@@ -18,47 +17,10 @@ describe("Tier 1: Feature Coverage — Admin & Analytics Dashboard", { tier: 1, 
     expect(json.data.users.total).toBeGreaterThanOrEqual(0);
     expect(json.data.messages.total).toBeGreaterThanOrEqual(0);
     expect(json.data.donations.poolBalance).toBeGreaterThanOrEqual(0);
-    expect(json.data.vas.incomingCount).toBeGreaterThan(0);
     expect(json.data.knowledge.totalChunks).toBeGreaterThanOrEqual(0);
   });
 
-  it("T1-ADM.2: VAS export API produces RFC 4180 compliant CSV stream with mandatory headers", async () => {
-    const req = createMockRequest("http://localhost:3000/api/admin/vas-export?format=csv");
-    const res = await vasExportHandler(req);
-    expect(res.status).toBe(200);
-
-    const contentType = res.headers.get("content-type") || "";
-    expect(contentType).toContain("text/csv");
-
-    const csvText = await res.text();
-    const { headers, rows } = parseCsv(csvText);
-
-    expect(headers).toContain("Kayit_ID");
-    expect(headers).toContain("Tarih");
-    expect(headers).toContain("Gelen_Mesaj_Adedi");
-    expect(headers).toContain("Giden_Mesaj_Adedi");
-    expect(headers).toContain("Operator_Esdeger_Dakika");
-    expect(rows.length).toBeGreaterThan(0);
-  });
-
-  it("T1-ADM.3: VAS export API provides structured JSON format for GSM operator reconciliation", async () => {
-    const req = createMockRequest("http://localhost:3000/api/admin/vas-export?format=json");
-    const res = await vasExportHandler(req);
-    expect(res.status).toBe(200);
-
-    const json = await res.json();
-    expect(json.success).toBe(true);
-    expect(Array.isArray(json.data)).toBe(true);
-    expect(json.count).toBeGreaterThan(0);
-
-    const sample = json.data[0];
-    expect(sample.id).toBeDefined();
-    expect(sample.incomingCount).toBeGreaterThan(0);
-    expect(sample.outgoingCount).toBeGreaterThan(0);
-    expect(sample.estimatedMinutes).toBeGreaterThan(0);
-  });
-
-  it("T1-ADM.4: Çelik Kasa Knowledge API filters records by category and keyword search", async () => {
+  it("T1-ADM.2: Çelik Kasa Knowledge API filters records by category and keyword search", async () => {
     const quranReq = createMockRequest("http://localhost:3000/api/admin/knowledge?sourceType=QURAN");
     const quranRes = await knowledgeHandler(quranReq);
     expect(quranRes.status).toBe(200);

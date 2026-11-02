@@ -184,8 +184,71 @@
     "source_type": "SIYER",
     "source_title": "Sevr Mağarası - 'Korkma, Allah Bizimle Beraberdir'",
     "content": "Mekke'den Medine'ye hicret ederken Resûlullah (s.a.v.) ile Hz. Ebubekir Sevr Mağarası'na sığınmışlardı. Müşrikler iz sürerek mağaranın ağzına kadar geldiklerinde Hz. Ebubekir derin bir endişeyle: 'Ey Allah'ın Resûlü, ayaklarının dibine bir baksalar bizi görecekler' dedi. Kainatın Efendisi sarsılmaz bir sükunet ve tevekkülle buyurdu: 'Ey Ebubekir! Üçüncüleri Allah olan iki kişiyi sen ne sanıyorsun? Üzülme ve korkma, zira Allah muhakkak bizimle beraberdir!' (Tevbe 40).",
-    "tags": ["SEVR_MAGARASI", "HICRET", "TEVEKKUL", "SEKINE", "HZ_EBUBEKIR", "SIYER", "KORKUSUZLUK"],
-    "nafs_traps": ["PANIK_VE_KORKU", "SEBEPLERIN_TUKENDIGI_ZEHABI", "YALNIZLIK_VEHMI"],
+    "tags": ["SEVR_MAGARASI", "HICRET", "TEVEKKUL", "SEKINE", "HZ_EBUBEKIR", "SIYER", "KORKUSUZLUK", "SIYER_ORNEKLERI"],
+    "nafs_traps": ["PANIK_VE_KORKU", "SEBEPLERIN_TUKENDIGI_ZEHABI", "YALNIZLIK_VEHMI", "UMITSIZLIK_KARAMSARLIK"],
+    "is_riba_related": false
+  },
+  {
+    "id": "e9f0a1b2-3c4d-5e6f-7a8b-9c0d1e2f3a4b",
+    "source_type": "HADITH",
+    "source_title": "Sahih Müslim (Kader 34 - Kader ve Hayır Şuuru)",
+    "content": "Resûlullah (s.a.v.) buyurdu: 'Kuvvetli mümin, Allah katında zayıf müminden daha hayırlı ve sevimlidir. Bununla beraber her ikisinde de hayır vardır. Sana faydalı olan şeye hırs göster, Allah'tan yardım dile ve acizlik gösterme. Başına bir musibet gelirse: \"Eğer şöyle yapsaydım şöyle olurdu\" deme! Bilakis: \"Kaderullâhi ve mâ şâe feale\" (Bu Allah'ın kaderidir, O ne dilerse onu yapmıştır) de. Çünkü \"eğer/keşke\" sözü şeytanın ameline kapı aralar.'",
+    "tags": ["KADER_VE_KAZA_HIKMETI", "TEVEKKUL", "SABIR", "KADER", "HADITH"],
+    "nafs_traps": ["KADERE_ITIRAZ_VE_ISYAN", "GECMISIN_PISMANLIK_GIRDABI", "UMITSIZLIK_KARAMSARLIK"],
+    "is_riba_related": false
+  },
+  {
+    "id": "f0a1b2c3-4d5e-6f7a-8b9c-0d1e2f3a4b5c",
+    "source_type": "HADITH",
+    "source_title": "Sünen-i Tirmizî (Zühd 4 - Lezzetleri Bıçak Gibi Kesen Ölüm Tefekkürü)",
+    "content": "Resûlullah (s.a.v.) buyurdu: 'Bütün lezzetleri bıçak gibi kesip yok eden ölümü çokça anıp hatırlayın. Bir kul darlık ve sıkıntı anında ölümü tefekkür ederse, o darlık ona genişler ve ferahlar; genişlik ve refah anında hatırlarsa, onu şımarıklıktan ve gafletten muhafaza eder.'",
+    "tags": ["FANILIK_VE_TAZIYE", "OLUM_TEFEKKURU", "ZUHD", "AHIRET", "HADITH"],
+    "nafs_traps": ["TUL_I_EMEL_VE_GAYETSIZLIK", "DUNYALIK_KAYGI", "REHAVET_TEMBELLIK"],
+    "is_riba_related": false
+  },
+  {
+    "id": "a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+    "source_type": "HADITH",
+    "source_title": "Sahih Müslim (Fiten 118 - Ahir Zaman Fitneleri ve Amel İstikameti)",
+    "content": "Resûlullah (s.a.v.) buyurdu: 'Karanlık gecelerin zifiri karanlık parçaları gibi birbiri ardınca gelen fitneler kopmadan önce salih amellere koşun! O zaman öyle bir fitne gelir ki, insan sabah mümin olarak kalkar akşam kafir olur; akşam mümin olur sabah kafir olarak uyanır. Dinini azıcık bir dünyalık karşılığında satar.'",
+    "tags": ["FITNE_VE_AHIR_ZAMAN_AHLAKI", "ISTIKAMET", "SALIH_AMEL", "HADITH"],
+    "nafs_traps": ["GIZLI_SIRK_VE_SAHTE_SIGINAKLAR", "REHAVET_TEMBELLIK", "KOLAY_KAZANC_HIRSI"],
+    "is_riba_related": false
+  },
+  {
+    "id": "b2c3d4e5-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+    "source_type": "HADITH",
+    "source_title": "Sünen-i İbn Mâce (Tahâret 48 - Akarsu Kenarında Dahi İsraftan Men)",
+    "content": "Resûlullah (s.a.v.), Sa'd bin Ebî Vakkas'ın (r.a.) abdest alırken suyu bolca kullandığını gördü ve: 'Bu ne israftır ey Sa'd!' buyurdu. Hz. Sa'd: 'Abdestte de israf olur mu ya Resûlallah?' diye sorunca Efendimiz: 'Evet, akmakta olan bir nehrin kenarında olsan dahi israf vardır!' buyurdu.",
+    "tags": ["ISRAF_VE_IKTISAT_FIKHI", "IKTISAT", "NIMET_SUKRU", "KANAAT", "HADITH"],
+    "nafs_traps": ["CIMRILIK_VE_MAL_HIRSI", "KOLAY_KAZANC_HIRSI", "REHAVET_TEMBELLIK"],
+    "is_riba_related": false
+  },
+  {
+    "id": "c3d4e5f6-7a8b-9c0d-1e2f-3a4b5c6d7e8f",
+    "source_type": "HADITH",
+    "source_title": "Sahih Müslim (Birr 59 - Hakiki Müflis ve Kul Hakkı Mizanı)",
+    "content": "Resûlullah (s.a.v.) ashabına sordu: 'Müflis kimdir bilir misiniz?' Ashab: 'Bize göre müflis, parası ve malı kalmayan kimsedir' dediler. Resûlullah şöyle buyurdu: 'Ümmetimin gerçek müflisi; kıyamet günü namaz, oruç ve zekatla gelen, fakat şuna sövmüş, buna iftira atmış, şunun malını yemiş, bunun kanını dökmüş ve diğerini dövmüş olan kimsedir. İyiliklerinden alınıp bu hak sahiplerine verilir. Üzerindeki haklar ödenmeden sevapları biterse, onların günahları alınıp bu kimsenin üzerine yüklenir; sonra da ateşe atılır.'",
+    "tags": ["KUL_HAKKI_VE_ADALET", "ADALET", "KUL_HAKKI", "MIZAN", "HADITH"],
+    "nafs_traps": ["MINNET_VE_BASA_KAKMA", "SUI_ZAN_VE_TECESSUS", "INTIKAM_VE_HASET"],
+    "is_riba_related": false
+  },
+  {
+    "id": "d4e5f6a7-8b9c-0d1e-2f3a-4b5c6d7e8f90",
+    "source_type": "HADITH",
+    "source_title": "Sahih-i Buhârî (Edeb 76 - Gerçek Pehlivan ve Öfke Kontrolü)",
+    "content": "Resûlullah (s.a.v.) buyurdu: 'Gerçek pehlivan, güreşte hasmını yere seren kimse değildir. Asıl pehlivan, öfkelendiği ve hiddetlendiği anda kendi nefsine hakim olabilen, öfkesini yutan kimsedir.'",
+    "tags": ["OFKE_VE_AHLAK", "OFKE_KONTROLU", "NEFIS_TERBIYESI", "HILM", "HADITH"],
+    "nafs_traps": ["ANI_OFKE", "INTIKAM_VE_HASET", "GIZLI_KIBIR_HAKLILIK"],
+    "is_riba_related": false
+  },
+  {
+    "id": "e5f6a7b8-9c0d-1e2f-3a4b-5c6d7e8f9012",
+    "source_type": "HADITH",
+    "source_title": "Sünen-i Tirmizî (Rıdâ 11 - Ailede Şefkat ve En Hayırlı Mümin)",
+    "content": "Resûlullah (s.a.v.) buyurdu: 'Müminlerin iman bakımından en mükemmel olanı, ahlakı en güzel olanıdır. Sizin en hayırlınız ise, ailesine ve hanımına karşı en hayırlı, en lütufkar davrananınızdır. Ben de ailesine karşı en hayırlı olanınızım.'",
+    "tags": ["AILE_VE_SILA_I_RAHIM", "AILE_AHLAKI", "MERHAMET", "SILA_I_RAHIM", "HADITH"],
+    "nafs_traps": ["KAYITSIZLIK_VE_MERHAMETSIZLIK", "ANI_OFKE", "GIZLI_KIBIR_HAKLILIK"],
     "is_riba_related": false
   }
 ]

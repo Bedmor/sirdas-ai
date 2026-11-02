@@ -6,7 +6,7 @@ export function Features() {
   const features = [
     {
       title: "Çelik Kasa RAG Mimarisi",
-      desc: "Doğrudan Kur'an mealleri, Kütüb-i Sitte sahih hadisleri ve Halis Aydemir hoca sohbet kesitlerinden oluşan doğrulanmış manevi kütüphane. Halüsinasyon sıfırlanır.",
+      desc: "Doğrudan Kur'an mealleri, Kütüb-i Sitte sahih hadisleri ve kadim hikmet kaynaklarından oluşan doğrulanmış manevi kütüphane. Halüsinasyon sıfırlanır.",
       icon: BookOpen,
       badge: "Supabase pgvector (768d)",
     },
@@ -17,10 +17,10 @@ export function Features() {
       badge: "Kişiselleştirilmiş Hikmet",
     },
     {
-      title: "Halis Aydemir Sesli Sohbet Kesitleri",
-      desc: "Dertleşme anında sadece metin değil, Cloudflare R2 üzerinden yüksek kaliteli .ogg (libopus 32k) ses kesitleriyle kulun kalbine doğrudan seslenen teskin.",
+      title: "Sesli Tefekkür & İrfan Kesitleri",
+      desc: "Dertleşme anında sadece metin değil, yüksek kaliteli ses kesitleriyle kulun kalbine doğrudan seslenen irfani teskin.",
       icon: Volume2,
-      badge: "WhatsApp Doğrudan Ses",
+      badge: "Doğrudan Sesli Tefekkür",
     },
     {
       title: "Riba (Faiz) Kalkanı",
@@ -35,8 +35,8 @@ export function Features() {
       badge: "Alo 190 Yönlendirmesi",
     },
     {
-      title: "Askıda Sırdaş İnfak Modeli",
-      desc: "Kullanıcıdan hiçbir abonelik veya mesaj ücreti talep edilmez. Sunucu ve yapay zeka maliyetleri hayırseverlerin 'Askıda Sırdaş' infak havuzuyla karşılanır.",
+      title: "Askıda Pusula İnfak Modeli",
+      desc: "Kullanıcıdan hiçbir abonelik veya mesaj ücreti talep edilmez. Sunucu ve yapay zeka maliyetleri hayırseverlerin 'Askıda Pusula' infak havuzuyla karşılanır.",
       icon: HeartHandshake,
       badge: "Tamamen Ücretsiz & Reklamsız",
     },
@@ -90,7 +90,7 @@ export function Features() {
 
                 <div className="pt-4 mt-6 border-t border-emerald-900/40 text-[11px] text-emerald-400/60 flex items-center gap-1.5">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                  <span>Doğrulanmış Sırdaş Mimarisi</span>
+                  <span>Doğrulanmış Manevi Pusula Mimarisi</span>
                 </div>
               </div>
             );

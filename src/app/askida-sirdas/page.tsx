@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { DisclaimerBanner } from "@/components/layout/DisclaimerBanner";
@@ -16,8 +16,12 @@ import {
 import { PoolCounter } from "@/components/donation/pool-counter";
 import { DonationBox, DonationFormData } from "@/components/donation/donation-box";
 
-export default function AskidaSirdasPage() {
+function AskidaSirdasContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialAmountParam = searchParams.get("amount");
+  const initialAmount = initialAmountParam ? Number(initialAmountParam) : undefined;
+
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [checkoutModalOpen, setCheckoutModalOpen] = useState<boolean>(false);
   const [, setActiveProvider] = useState<"PAYTR" | "IYZICO">("PAYTR");
@@ -43,6 +47,15 @@ export default function AskidaSirdasPage() {
       const data = await res.json();
       if (data.success) {
         setCheckoutSession(data);
+        // Gerçek bir URL ise sağlayıcı ödeme sayfasına yönlendir
+        if (
+          data.paymentUrl &&
+          (data.paymentUrl.startsWith("http://") || data.paymentUrl.startsWith("https://"))
+        ) {
+          window.location.href = data.paymentUrl;
+          return;
+        }
+        // Test / simülasyon oturumu ise modalı göster
         setCheckoutModalOpen(true);
       } else {
         alert(data.error || "Ödeme başlatılamadı.");
@@ -98,62 +111,21 @@ export default function AskidaSirdasPage() {
             Mâide Suresi, 2. Âyet-i Kerime
           </span>
           <p className="text-sm text-slate-300 leading-relaxed font-light max-w-2xl mx-auto pt-2">
-            Sırdaş AI ticari bir kazanç aracı değildir. Sunucu ve yapay zeka altyapı giderleri,
+            Manevi Pusula ticari bir kazanç aracı değildir. Sunucu ve yapay zeka altyapı giderleri,
             gönüldaşların askıya bıraktığı samimi katkılarla karşılanır; böylece kederli veya darda
             olan her kardeşimiz hiçbir maddi engel olmadan dertleşebilir.
           </p>
         </section>
 
-        {/* Live Pool Counter */}
-        <section aria-label="Canlı Askı Havuzu İstatistikleri">
-          <PoolCounter />
-        </section>
+        {/* PoolCounter: Mock istatistikler ve yapay veriler tamamen kaldırıldı */}
 
         {/* Interactive Donation Box */}
         <section aria-label="Askıya Katkı Formu">
-          <DonationBox onSubmit={handleDonationSubmit} isSubmitting={isSubmitting} />
-        </section>
-
-        {/* Spiritual Assurance Section */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
-          <div className="bg-surface-container/70 p-6 rounded-2xl border border-outline-variant/40 space-y-2.5">
-            <div className="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant/50 flex items-center justify-center text-primary mb-3">
-              <i className="ph ph-hand-heart text-xl"></i>
-            </div>
-            <h3 className="font-heading text-base font-semibold text-on-surface">
-              Şeffaf ve Emanet Bilinci
-            </h3>
-            <p className="text-xs text-slate-300 leading-relaxed font-light">
-              Askıdaki her kuruş yalnızca yapay zeka token giderleri ve sunucu maliyetleri için
-              sarf edilir, hiçbir ticari kâr gayesi güdülmez.
-            </p>
-          </div>
-
-          <div className="bg-surface-container/70 p-6 rounded-2xl border border-outline-variant/40 space-y-2.5">
-            <div className="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant/50 flex items-center justify-center text-secondary mb-3">
-              <i className="ph ph-sparkle text-xl"></i>
-            </div>
-            <h3 className="font-heading text-base font-semibold text-on-surface">
-              Sadaka-i Cariye Niyeti
-            </h3>
-            <p className="text-xs text-slate-300 leading-relaxed font-light">
-              Gecenin bir yarısı derdini döken bir kulun kalbine sekine olmasına vesile olmak,
-              amellerin en faziletlilerindendir.
-            </p>
-          </div>
-
-          <div className="bg-surface-container/70 p-6 rounded-2xl border border-outline-variant/40 space-y-2.5">
-            <div className="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant/50 flex items-center justify-center text-primary mb-3">
-              <i className="ph ph-shield-check text-xl"></i>
-            </div>
-            <h3 className="font-heading text-base font-semibold text-on-surface">
-              256-bit Güvenli Ödeme
-            </h3>
-            <p className="text-xs text-slate-300 leading-relaxed font-light">
-              Tüm ödemeler BDDK lisanslı PayTR ve iyzico altyapısıyla 3D Secure korumalı olarak
-              gerçekleştirilir. Kart verileriniz saklanmaz.
-            </p>
-          </div>
+          <DonationBox
+            onSubmit={handleDonationSubmit}
+            isSubmitting={isSubmitting}
+            initialAmount={initialAmount}
+          />
         </section>
       </main>
 
@@ -205,5 +177,22 @@ export default function AskidaSirdasPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function AskidaSirdasPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-background flex items-center justify-center text-slate-300">
+          <div className="flex flex-col items-center gap-3">
+            <span className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+            <span className="text-xs font-mono">Askıda Pusula Yükleniyor...</span>
+          </div>
+        </div>
+      }
+    >
+      <AskidaSirdasContent />
+    </Suspense>
   );
 }

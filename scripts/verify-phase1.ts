@@ -1,8 +1,9 @@
+import "dotenv/config";
 import fs from "fs";
 import path from "path";
 import { execSync } from "child_process";
 
-// Set placeholder env variables for testing if not set
+// Set placeholder env variables for testing only if not set in .env
 process.env.DATABASE_URL = process.env.DATABASE_URL || "postgresql://user:pass@localhost:5432/db";
 process.env.DIRECT_URL = process.env.DIRECT_URL || "postgresql://user:pass@localhost:5432/db";
 process.env.SUPABASE_URL = process.env.SUPABASE_URL || "https://test-project.supabase.co";
@@ -62,7 +63,10 @@ async function runTests() {
   assert(schemaContent.includes("model KnowledgeChunk"), "KnowledgeChunk model defined");
   assert(schemaContent.includes("model Message"), "Message model defined");
   assert(schemaContent.includes("model Donation"), "Donation model defined");
-  assert(schemaContent.includes("model VasDailyLog"), "VasDailyLog model defined");
+  assert(schemaContent.includes("enum NafsTrap"), "NafsTrap enum defined in Prisma schema");
+  assert(schemaContent.includes("enum RagCategory"), "RagCategory enum defined in Prisma schema");
+  assert(schemaContent.includes("enum TonePreference"), "TonePreference enum defined in Prisma schema");
+  assert(schemaContent.includes("enum SpiritualStage"), "SpiritualStage enum defined in Prisma schema");
   assert(schemaContent.includes("waMessageId"), "waMessageId field in Message model");
   assert(schemaContent.includes("@unique"), "waMessageId is @unique (retry storm lock)");
   assert(schemaContent.includes('Unsupported("vector(768)")?'), "vector(768) embedding defined in KnowledgeChunk");
@@ -102,14 +106,21 @@ async function runTests() {
   assert(supabase !== undefined, "Supabase client successfully imported");
   assert(typeof matchKnowledgeChunks === "function", "matchKnowledgeChunks helper function exported");
 
-  // Test matchKnowledgeChunks graceful error handling with invalid stub credentials
+  // Test matchKnowledgeChunks against real Supabase RPC (or stub if offline)
   const rpcResult = await matchKnowledgeChunks({
     query_embedding: JSON.stringify(new Array(768).fill(0.01)),
-    match_threshold: 0.5,
+    match_threshold: 0.1,
     match_count: 4,
-    force_riba: false,
+    force_riba: true,
   });
-  assert(rpcResult.error !== null, "matchKnowledgeChunks gracefully handles offline/stub Supabase connection");
+  if (process.env.SUPABASE_URL && !process.env.SUPABASE_URL.includes("test-project")) {
+    assert(
+      rpcResult.error === null && Array.isArray(rpcResult.data),
+      `matchKnowledgeChunks live Supabase RPC succeeded (${rpcResult.data?.length ?? 0} chunks returned)`
+    );
+  } else {
+    assert(rpcResult.error !== null, "matchKnowledgeChunks gracefully handles offline/stub Supabase connection");
+  }
 
   // Test 5: Storage Client (Cloudflare R2)
   console.log("\n[5] Checking Storage Client (Cloudflare R2)...");
@@ -132,15 +143,21 @@ async function runTests() {
   assert(typeof deleteAudioSnippet === "function", "deleteAudioSnippet exported");
   assert(typeof checkR2Connection === "function", "checkR2Connection exported");
 
+  if (process.env.R2_ACCESS_KEY_ID && process.env.R2_ACCESS_KEY_ID !== "test-key") {
+    const r2Status = await checkR2Connection();
+    assert(r2Status.ok === true, `Live Cloudflare R2 connection verified (${r2Status.bucket}: ${r2Status.message})`);
+  }
+
+  const originalPublicBaseUrl = process.env.R2_PUBLIC_BASE_URL;
   const sampleUrl = getPublicAudioUrl("halis_aydemir/sohbet_1.ogg");
-  const expectedPrefix = (process.env.R2_PUBLIC_BASE_URL || "https://media.sirdas.ai").replace(/\/+$/, "");
+  const expectedPrefix = (originalPublicBaseUrl || "https://media.sirdas.ai").replace(/\/+$/, "");
   assert(sampleUrl.startsWith(`${expectedPrefix}/halis_aydemir/sohbet_1.ogg`) || sampleUrl.includes("halis_aydemir/sohbet_1.ogg"), `getPublicAudioUrl generates correct URL: ${sampleUrl}`);
 
   // Test dynamic config override
   process.env.R2_PUBLIC_BASE_URL = "https://custom-cdn.sirdas.ai/";
   const overriddenUrl = getPublicAudioUrl("test.ogg");
   assert(overriddenUrl === "https://custom-cdn.sirdas.ai/test.ogg", "getR2Config dynamically reflects runtime env changes without duplicate slashes");
-  process.env.R2_PUBLIC_BASE_URL = "https://media.sirdas.ai";
+  process.env.R2_PUBLIC_BASE_URL = originalPublicBaseUrl || "https://media.sirdas.ai";
 
   // Test 6: Deep Integration Test (Real PostgreSQL + pgvector Docker verification)
   console.log("\n[6] Checking Deep Integration with PostgreSQL + pgvector...");

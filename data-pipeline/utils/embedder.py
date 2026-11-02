@@ -45,6 +45,10 @@ def _get_google_embedding(text: str) -> Optional[List[float]]:
                 contents=text,
                 config={"output_dimensionality": EMBEDDING_DIMENSION},
             )
+            if hasattr(res, "embeddings") and res.embeddings and hasattr(res.embeddings[0], "values"):
+                vec = list(res.embeddings[0].values)
+                if len(vec) == EMBEDDING_DIMENSION:
+                    return vec
             if hasattr(res, "embedding") and hasattr(res.embedding, "values"):
                 vec = list(res.embedding.values)
                 if len(vec) == EMBEDDING_DIMENSION:
@@ -58,11 +62,12 @@ def _get_google_embedding(text: str) -> Optional[List[float]]:
     try:
         url = (
             f"https://generativelanguage.googleapis.com/v1beta/models/"
-            f"text-embedding-004:embedContent?key={config.GEMINI_API_KEY}"
+            f"gemini-embedding-001:embedContent?key={config.GEMINI_API_KEY}"
         )
         payload: Dict[str, Any] = {
-            "model": "models/text-embedding-004",
+            "model": "models/gemini-embedding-001",
             "content": {"parts": [{"text": text}]},
+            "outputDimensionality": EMBEDDING_DIMENSION,
         }
         resp = requests.post(url, json=payload, timeout=10)
         if resp.status_code == 200:
@@ -168,8 +173,31 @@ def get_embedding_768d(text: str) -> List[float]:
 
 def get_embeddings_batch(texts: List[str]) -> List[List[float]]:
     """
-    Generates embeddings for a batch of texts.
+    Generates 768-dimensional embeddings for a batch of texts in a single call.
     """
+    if not texts:
+        return []
+
+    # Try high-throughput batch embed via Google GenAI client
+    if config.GEMINI_API_KEY:
+        try:
+            client = config.get_gemini_client()
+            res = client.models.embed_content(
+                model="gemini-embedding-001",
+                contents=texts,
+                config={"output_dimensionality": EMBEDDING_DIMENSION},
+            )
+            if hasattr(res, "embeddings") and len(res.embeddings) == len(texts):
+                vectors = []
+                for e in res.embeddings:
+                    vec = list(e.values)
+                    if len(vec) == EMBEDDING_DIMENSION:
+                        vectors.append(vec)
+                if len(vectors) == len(texts):
+                    return vectors
+        except Exception as e:
+            logger.debug("Native Google batch embedding failed, falling back to sequential: %s", e)
+
     results: List[List[float]] = []
     for t in texts:
         results.append(get_embedding_768d(t))

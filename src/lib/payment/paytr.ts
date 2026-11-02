@@ -35,6 +35,10 @@ export function getPayTrConfig() {
   };
 }
 
+function isPlaceholderCred(val: string): boolean {
+  return !val || val.startsWith("your-") || val.includes("placeholder");
+}
+
 /**
  * Create PayTR iFrame Token
  * Standard PayTR hash: HMAC SHA-256 with merchant_key
@@ -47,8 +51,12 @@ export async function createPayTrToken(params: PayTrCheckoutParams): Promise<{
 }> {
   const { merchantId, merchantKey, merchantSalt } = getPayTrConfig();
 
-  // If live credentials are not set, return simulated secure token
-  if (!merchantId || !merchantKey || !merchantSalt) {
+  // If live credentials are not set or are template placeholders, return simulated secure token
+  if (
+    isPlaceholderCred(merchantId) ||
+    isPlaceholderCred(merchantKey) ||
+    isPlaceholderCred(merchantSalt)
+  ) {
     const simToken = `sim_paytr_${params.merchantOid}_${Date.now()}`;
     return {
       status: "success",
@@ -60,7 +68,7 @@ export async function createPayTrToken(params: PayTrCheckoutParams): Promise<{
   try {
     const paymentAmountKurus = Math.round(params.paymentAmount * 100);
     const userBasketStr = JSON.stringify(
-      params.userBasket || [["Askıda Sırdaş İnfak Havuzu", String(params.paymentAmount), 1]]
+      params.userBasket || [["Askıda Pusula İnfak Havuzu", String(params.paymentAmount), 1]]
     );
     const userBasketBase64 = Buffer.from(userBasketStr).toString("base64");
     const userIp = params.userIp || "127.0.0.1";
@@ -140,8 +148,8 @@ export function verifyPayTrHash(payload: PayTrNotificationPayload): {
 
   const normalizedStatus = status === "success" ? "SUCCESS" : "FAILED";
 
-  // If credentials are fully configured, require hash and verify signature
-  if (merchantKey && merchantSalt) {
+  // If credentials are fully configured (and not placeholders), require hash and verify signature
+  if (!isPlaceholderCred(merchantKey) && !isPlaceholderCred(merchantSalt)) {
     if (!hash) {
       return {
         isValid: false,

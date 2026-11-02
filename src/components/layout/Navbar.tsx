@@ -6,19 +6,16 @@ import Image from "next/image";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const waNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "+905550200605";
-  const cleanWaNumber = waNumber.replace(/[^0-9]/g, "");
-  const waUrl = `https://wa.me/${cleanWaNumber}?text=Selamun%20Aleykum`;
 
   return (
     <header
-      className="left-0 w-full z-40 bg-[#080c0a]/90 backdrop-blur-md border-b border-outline-variant/40 sticky top-0"
+      className="left-0 w-full z-40 bg-[rgb(14_34_36_/_0.9)] backdrop-blur-xs border-b border-outline-variant/40 sticky top-0"
       role="banner"
     >
       <div className="h-20 max-w-[1200px] mx-auto px-6 flex items-center justify-between gap-4">
         {/* Brand Link */}
         <Link
-          aria-label="Sırdaş AI Ana Sayfa"
+          aria-label="Manevi Pusula Ana Sayfa"
           className="flex items-center gap-3 rounded-lg focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
           href="/"
         >
@@ -28,7 +25,7 @@ export function Navbar() {
           >
             <Image
               src="/icon.png"
-              alt="Sırdaş AI Logosu"
+              alt="Manevi Pusula Logosu"
               width={40}
               height={40}
               priority
@@ -37,7 +34,7 @@ export function Navbar() {
           </div>
           <div className="flex flex-col text-left">
             <span className="font-heading text-xl font-bold tracking-wide text-on-surface leading-none">
-              Sırdaş AI
+              Manevi Pusula
             </span>
             <span className="text-[11px] tracking-widest text-slate-300 uppercase mt-1">
               Manevi Tefekkür &amp; Rehberlik
@@ -49,27 +46,27 @@ export function Navbar() {
         <nav aria-label="Ana Gezinti" className="hidden lg:flex items-center gap-8">
           <Link
             className="text-sm text-primary hover:text-amber-300 font-medium transition-colors py-1 px-2 rounded-md focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
-            href="/#simdi-dene"
+            href="/"
           >
-            Şimdi Dene
+            Tefekkür Odası
           </Link>
           <Link
             className="text-sm text-slate-300 hover:text-primary transition-colors py-1 px-2 rounded-md focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
-            href="/#sohbet-ornekleri"
+            href="/tanitim#sohbet-ornekleri"
           >
-            Tefekkür Odaları
+            Örnek Senaryolar
           </Link>
           <Link
             className="text-sm text-slate-300 hover:text-primary transition-colors py-1 px-2 rounded-md focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
             href="/askida-sirdas"
           >
-            Askıda Sırdaş
+            Askıda Pusula
           </Link>
           <Link
             className="text-sm text-slate-300 hover:text-primary transition-colors py-1 px-2 rounded-md focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
-            href="/#gayemiz"
+            href="/tanitim#gayemiz"
           >
-            Gayemiz
+            Vizyon &amp; Misyon
           </Link>
           <Link
             className="text-sm text-slate-300 hover:text-primary transition-colors py-1 px-2 rounded-md focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
@@ -77,27 +74,19 @@ export function Navbar() {
           >
             Sınırlar &amp; Beyan
           </Link>
-          <Link
-            className="text-sm text-slate-300 hover:text-primary transition-colors py-1 px-2 rounded-md focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
-            href="/admin"
-          >
-            Yönetim
-          </Link>
         </nav>
 
-        {/* WhatsApp Button & Mobile Toggle */}
+        {/* Direct Chat Button & Mobile Toggle */}
         <div className="flex items-center gap-3">
-          <a
-            aria-label="WhatsApp üzerinden Sırdaş AI ile sohbete başla (Yeni sekmede açılır)"
+          <Link
+            aria-label="Manevi Pusula ile doğrudan sohbete başla"
             className="inline-flex items-center gap-2 bg-[#12231b] hover:bg-[#183125] text-secondary border border-secondary/30 px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
-            href={waUrl}
-            rel="noopener noreferrer"
-            target="_blank"
+            href="/"
           >
-            <i aria-hidden="true" className="ph ph-whatsapp-logo text-base"></i>
-            <span className="hidden sm:inline">WhatsApp&apos;ta Başla</span>
-            <span className="sm:hidden">WhatsApp</span>
-          </a>
+            <i aria-hidden="true" className="ph ph-chat-circle-dots text-base"></i>
+            <span className="hidden sm:inline">Sohbete Başla</span>
+            <span className="sm:hidden">Sohbet</span>
+          </Link>
 
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -112,34 +101,34 @@ export function Navbar() {
 
       {/* Mobile Dropdown */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-outline-variant/40 bg-[#080c0a]/95 backdrop-blur-xl px-6 pt-4 pb-6 space-y-3">
+        <div className="lg:hidden border-t border-outline-variant/40 bg-background/95 backdrop-blur-xl px-6 pt-4 pb-6 space-y-3">
           <Link
-            href="/#simdi-dene"
+            href="/"
             onClick={() => setMobileMenuOpen(false)}
             className="block px-3 py-2 rounded-md text-sm font-medium text-slate-200 hover:text-primary hover:bg-surface-container"
           >
-            Şimdi Dene
+            Tefekkür Odası
           </Link>
           <Link
-            href="/#sohbet-ornekleri"
+            href="/tanitim#sohbet-ornekleri"
             onClick={() => setMobileMenuOpen(false)}
             className="block px-3 py-2 rounded-md text-sm font-medium text-slate-200 hover:text-primary hover:bg-surface-container"
           >
-            Tefekkür Odaları
+            Örnek Senaryolar
           </Link>
           <Link
             href="/askida-sirdas"
             onClick={() => setMobileMenuOpen(false)}
             className="block px-3 py-2 rounded-md text-sm font-medium text-slate-200 hover:text-primary hover:bg-surface-container"
           >
-            Askıda Sırdaş
+            Askıda Pusula
           </Link>
           <Link
-            href="/#gayemiz"
+            href="/tanitim#gayemiz"
             onClick={() => setMobileMenuOpen(false)}
             className="block px-3 py-2 rounded-md text-sm font-medium text-slate-200 hover:text-primary hover:bg-surface-container"
           >
-            Gayemiz
+            Vizyon &amp; Misyon
           </Link>
           <Link
             href="/sorumluluk-reddi"
@@ -155,24 +144,16 @@ export function Navbar() {
           >
             Gizlilik Politikası (KVKK)
           </Link>
-          <Link
-            href="/admin"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 rounded-md text-sm font-medium text-slate-200 hover:text-primary hover:bg-surface-container"
-          >
-            Yönetim Konsolu
-          </Link>
 
           <div className="pt-2">
-            <a
-              href={waUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/"
+              onClick={() => setMobileMenuOpen(false)}
               className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-full bg-secondary-container hover:bg-[#117a51] text-white font-semibold text-xs shadow transition-all"
             >
-              <i aria-hidden="true" className="ph ph-whatsapp-logo text-base"></i>
-              <span>WhatsApp ile Dertleş</span>
-            </a>
+              <i aria-hidden="true" className="ph ph-chat-circle-dots text-base"></i>
+              <span>Manevi Pusula ile Dertleş</span>
+            </Link>
           </div>
         </div>
       )}

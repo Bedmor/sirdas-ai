@@ -10,8 +10,7 @@ import {
   Cpu,
   Database,
   Radio,
-  FileCheck2,
-  TrendingUp,
+  ShieldCheck,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,11 +25,6 @@ interface AdminStats {
     poolBalance: number;
     totalCount: number;
     sponsoredMessagesCount: number;
-  };
-  vas: {
-    incomingCount: number;
-    outgoingCount: number;
-    estimatedMinutes: number;
   };
   knowledge: { totalChunks: number };
   recentMessages: Array<{
@@ -102,8 +96,8 @@ export default function AdminOverviewPage() {
             Sistem Genel Bakış &amp; Canlı Metrikler
           </h1>
           <p className="text-xs text-muted-foreground max-w-2xl">
-            Sırdaş AI bilişsel çekirdeği (Jev 1.14 + Gemini 2.5 Flash), GSM operatör VAS hacmi ve
-            Askıda Sırdaş infak havuzunun anlık durumu.
+            Manevi Pusula bilişsel çekirdeği (Jev 1.14 + Gemini 2.5 Flash), Çelik Kasa RAG mimarisi ve
+            Askıda Pusula infak havuzunun anlık durumu.
           </p>
         </div>
 
@@ -165,7 +159,7 @@ export default function AdminOverviewPage() {
                   Son İnfak Hareketleri
                 </h2>
                 <p className="text-xs text-muted-foreground">
-                  Askıda Sırdaş havuzuna yapılan manevi destekler.
+                  Askıda Pusula havuzuna yapılan manevi destekler.
                 </p>
               </div>
               <Link href="/askida-sirdas">
@@ -282,23 +276,23 @@ export default function AdminOverviewPage() {
             Cloudflare R2 (0 Egress)
           </div>
           <div className="text-[11px] text-muted-foreground leading-relaxed">
-            libopus 32k .ogg WhatsApp Formatı (Halis Aydemir Tefekkür)
+            libopus 32k .ogg Yüksek Kalite Ses Formatı
           </div>
         </div>
 
         <div className="space-y-2 p-3 rounded-xl bg-emerald-950/20 border border-emerald-900/40">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
-              <FileCheck2 className="h-3.5 w-3.5" />
-              Operatör VAS Uyumu
+              <ShieldCheck className="h-3.5 w-3.5" />
+              Manevi Süzgeç &amp; Kalkan
             </span>
             <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
           </div>
           <div className="text-sm font-bold text-foreground">
-            vas_daily_logs Tablosu
+            5 Sarsılmaz Süzgeç Denetimi
           </div>
           <div className="text-[11px] text-muted-foreground leading-relaxed">
-            Günlük Mesaj/Eşdeğer Dakika İhracı (RFC 4180 CSV &amp; JSON)
+            Fetva Engeli (Alo 190), Riba Kalkanı ve Kriz Emniyet Hattı (112)
           </div>
         </div>
       </div>

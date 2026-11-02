@@ -57,9 +57,9 @@ export function MetricCards({ metrics, loading = false }: MetricCardsProps) {
         <div className="mt-2 pt-2 border-t border-emerald-950/60 flex items-center justify-between text-[11px] text-muted-foreground">
           <span className="flex items-center gap-1.5 text-teal-300 font-medium">
             <span className="h-1.5 w-1.5 rounded-full bg-teal-400" />
-            Canlı WhatsApp hattı
+            Canlı Dertleşme Ağı
           </span>
-          <span className="text-[10px] text-muted-foreground/70 font-mono">wa.me</span>
+          <span className="text-[10px] text-muted-foreground/70 font-mono">Web &amp; Mobil</span>
         </div>
       </div>
 
@@ -80,7 +80,7 @@ export function MetricCards({ metrics, loading = false }: MetricCardsProps) {
           <span className="text-sky-300/90 font-medium">
             {loading ? "..." : metrics.totalMessages.toLocaleString("tr-TR")} toplam
           </span>
-          <span className="text-[10px] text-muted-foreground/70 font-mono">VAS hacim</span>
+          <span className="text-[10px] text-muted-foreground/70 font-mono">Toplam hacim</span>
         </div>
       </div>
 

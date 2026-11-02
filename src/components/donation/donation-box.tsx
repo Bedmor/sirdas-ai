@@ -13,20 +13,45 @@ export interface DonationFormData {
 interface DonationBoxProps {
   onSubmit: (data: DonationFormData) => Promise<void>;
   isSubmitting?: boolean;
+  initialAmount?: number;
 }
 
-export function DonationBox({ onSubmit, isSubmitting = false }: DonationBoxProps) {
-  const [selectedAmount, setSelectedAmount] = useState<number>(100);
-  const [customAmount, setCustomAmount] = useState<string>("");
-  const [isCustom, setIsCustom] = useState<boolean>(false);
+export function DonationBox({
+  onSubmit,
+  isSubmitting = false,
+  initialAmount,
+}: DonationBoxProps) {
+  const isPreset = initialAmount && PRESET_AMOUNTS.includes(initialAmount);
+  const [selectedAmount, setSelectedAmount] = useState<number>(
+    isPreset ? initialAmount : 100
+  );
+  const [customAmount, setCustomAmount] = useState<string>(
+    initialAmount && !isPreset ? String(initialAmount) : ""
+  );
+  const [isCustom, setIsCustom] = useState<boolean>(
+    Boolean(initialAmount && !isPreset)
+  );
 
   const [donorName, setDonorName] = useState<string>("");
   const [donorPhone, setDonorPhone] = useState<string>("");
   const [isAnonymous, setIsAnonymous] = useState<boolean>(false);
   const [paymentProvider, setPaymentProvider] = useState<"PAYTR" | "IYZICO">("PAYTR");
 
+  React.useEffect(() => {
+    if (initialAmount) {
+      if (PRESET_AMOUNTS.includes(initialAmount)) {
+        setSelectedAmount(initialAmount);
+        setIsCustom(false);
+        setCustomAmount("");
+      } else {
+        setIsCustom(true);
+        setCustomAmount(String(initialAmount));
+      }
+    }
+  }, [initialAmount]);
+
   const currentAmount = isCustom ? Number(customAmount) || 0 : selectedAmount;
-  const sponsoredMessagesEst = Math.round(currentAmount * 2);
+  const sponsoredMessagesEst = Math.round(currentAmount * 100).toLocaleString("tr-TR");
 
   const handleSelectPreset = (amount: number) => {
     setSelectedAmount(amount);
@@ -65,7 +90,7 @@ export function DonationBox({ onSubmit, isSubmitting = false }: DonationBoxProps
 
       <div className="space-y-2 text-center sm:text-left">
         <h2 className="text-2xl sm:text-3xl font-heading font-semibold text-on-surface tracking-tight">
-          Bir Kardeşinizin Sırdaşı Olun
+          Bir Kardeşinize Manevi Pusula Olun
         </h2>
         <p className="text-sm text-slate-300 font-light leading-relaxed">
           İstediğiniz tutarı seçerek veya serbest bir miktar belirleyerek askı havuzuna katkıda
@@ -95,7 +120,7 @@ export function DonationBox({ onSubmit, isSubmitting = false }: DonationBoxProps
                   }`}
                 >
                   <span className="text-base font-bold text-primary block">{amt} ₺</span>
-                  <span className="text-[10px] text-slate-300 font-medium">~{amt * 2} mesaj</span>
+                  <span className="text-[10px] text-slate-300 font-medium">~{(amt * 100).toLocaleString("tr-TR")} dertleşme</span>
                 </button>
               );
             })}

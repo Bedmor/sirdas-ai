@@ -44,14 +44,18 @@ export async function POST(request: NextRequest) {
 
       const merchantOid = String(body.merchant_oid || "");
       const donationStatus = verification.status;
+      const isUuid = (val: string) =>
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
 
       try {
+        const orConditions: any[] = [{ providerTransactionId: merchantOid }];
+        if (isUuid(merchantOid)) {
+          orConditions.push({ id: merchantOid });
+        }
+
         await prisma.donation.updateMany({
           where: {
-            OR: [
-              { id: merchantOid },
-              { providerTransactionId: merchantOid },
-            ],
+            OR: orConditions,
           },
           data: {
             status: donationStatus,
@@ -76,14 +80,19 @@ export async function POST(request: NextRequest) {
 
       const paymentId = verification.paymentId;
       const donationStatus = verification.status;
+      const isUuid = (val: string) =>
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
 
       try {
+        const orConditions: any[] = [{ providerTransactionId: paymentId }];
+        const basketId = String(body.basketId || "");
+        if (isUuid(basketId)) {
+          orConditions.push({ id: basketId });
+        }
+
         await prisma.donation.updateMany({
           where: {
-            OR: [
-              { providerTransactionId: paymentId },
-              { id: String(body.basketId || "") },
-            ],
+            OR: orConditions,
           },
           data: {
             status: donationStatus,
@@ -97,18 +106,44 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ status: "success", paymentId });
     }
 
-    // Generic webhook test or manual IPN
+    // Generic webhook test or manual IPN (only allowed in development / testing environments)
     const { donationId, status, transactionId } = body;
     if (donationId && status) {
+      const isProduction = process.env.NODE_ENV === "production";
+      const webhookSecret = request.headers.get("x-webhook-secret");
+      const expectedSecret = process.env.PAYMENT_WEBHOOK_SECRET || process.env.META_APP_SECRET;
+
+      // In production, reject unauthenticated generic state changes
+      if (isProduction && (!webhookSecret || webhookSecret !== expectedSecret)) {
+        return NextResponse.json(
+          { success: false, error: "Unauthorized IPN invocation" },
+          { status: 401 }
+        );
+      }
+
       const updatedStatus = String(status).toUpperCase() === "SUCCESS" ? "SUCCESS" : "FAILED";
+      const idStr = String(donationId);
+      const isUuid = (val: string) =>
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
+
       try {
-        await prisma.donation.update({
-          where: { id: String(donationId) },
-          data: {
-            status: updatedStatus,
-            providerTransactionId: String(transactionId || `tx_${Date.now()}`),
-          },
-        });
+        if (isUuid(idStr)) {
+          await prisma.donation.update({
+            where: { id: idStr },
+            data: {
+              status: updatedStatus,
+              providerTransactionId: String(transactionId || `tx_${Date.now()}`),
+            },
+          });
+        } else {
+          await prisma.donation.updateMany({
+            where: { providerTransactionId: idStr },
+            data: {
+              status: updatedStatus,
+              providerTransactionId: String(transactionId || `tx_${Date.now()}`),
+            },
+          });
+        }
       } catch (e) {
         console.warn("Generic IPN update notice:", e);
       }

@@ -7,7 +7,7 @@
 
 @layer base {
   :root {
-    --background: 40 20% 98%;
+    --background: #e4eff0;
     --foreground: 220 20% 12%;
 
     --card: 0 0% 100%;
@@ -47,46 +47,46 @@
   }
 
   .dark {
-    /* Spiritual Charcoal / Black ground (#090d0b / 224 30% 8%) */
-    --background: 224 30% 8%;
-    /* Crisply readable luminous off-white/emerald tint (#f0fdf4) */
-    --foreground: 144 40% 96%;
+    /* Deep dark obsidian ground (#040F0F) */
+    --background: 180 58% 3.7%;
+    /* Crisply readable soft luminous bone-white (#e1e9e8) */
+    --foreground: 173 14% 90%;
 
-    /* Deep contemplative card ground (#0d1411) */
-    --card: 153 22% 6.8%;
-    --card-foreground: 144 40% 96%;
+    /* Dark obsidian teal clock-dial card ground (#0a1c1e) */
+    --card: 185 50% 8%;
+    --card-foreground: 173 14% 90%;
 
-    --popover: 153 22% 6.8%;
-    --popover-foreground: 144 40% 96%;
+    --popover: 185 50% 8%;
+    --popover-foreground: 173 14% 90%;
 
-    /* Deep Emerald (#064e3b & #059669) */
-    --primary: 160 84% 24%;
-    --primary-foreground: 0 0% 100%;
+    /* Antique Champagne Gold (#cca762) */
+    --primary: 40 52% 59%;
+    --primary-foreground: 40 64% 7%;
 
-    /* Matte Gold Leaf (#f59e0b / #d97706) */
-    --secondary: 42 70% 50%;
-    --secondary-foreground: 150 20% 4.5%;
+    /* Serene Ethereal Teal (#459b95) */
+    --secondary: 176 38% 44%;
+    --secondary-foreground: 175 75% 6%;
 
-    --muted: 152 24% 12%;
-    /* Muted text passing WCAG AA (>= 4.5:1 against #090d0b) */
-    --muted-foreground: 150 14% 68%;
+    --muted: 185 44% 10%;
+    /* Muted text (#8b9ea0) */
+    --muted-foreground: 186 10% 59%;
 
-    --accent: 160 40% 14%;
-    --accent-foreground: 150 75% 75%;
+    --accent: 185 40% 13%;
+    --accent-foreground: 40 52% 59%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    /* Micro borders with subtle emerald tint (#192e24) */
-    --border: 153 28% 15%;
-    --input: 153 28% 15%;
-    --ring: 40 92% 50%;
+    /* Micro borders matching dial rim tones (#1d3336) */
+    --border: 188 30% 16%;
+    --input: 188 30% 16%;
+    --ring: 40 52% 59%;
 
-    --chart-1: 160 70% 45%;
-    --chart-2: 40 92% 50%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --chart-1: 40 52% 59%;
+    --chart-2: 176 38% 44%;
+    --chart-3: 35 45% 40%;
+    --chart-4: 180 35% 50%;
+    --chart-5: 40 30% 45%;
   }
 }
 
@@ -101,8 +101,8 @@
 
   /* Browser Surfaces Craft */
   ::selection {
-    background-color: rgba(217, 119, 6, 0.3);
-    color: #fef08a;
+    background-color: rgba(204, 167, 98, 0.28);
+    color: #f7eed8;
   }
 
   ::-webkit-scrollbar {
@@ -110,15 +110,15 @@
     height: 8px;
   }
   ::-webkit-scrollbar-track {
-    background: #090d0b;
+    background: #040F0F;
   }
   ::-webkit-scrollbar-thumb {
-    background: #192e24;
+    background: #1d3336;
     border-radius: 9999px;
-    border: 2px solid #090d0b;
+    border: 2px solid #040F0F;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #254b3a;
+    background: #2a484c;
   }
 }
 
@@ -167,12 +167,12 @@
 
   /* Gold-Leaf Micro Border */
   .border-gold-leaf {
-    border: 1px solid rgba(217, 119, 6, 0.28);
-    box-shadow: 0 0 15px -3px rgba(217, 119, 6, 0.08);
+    border: 1px solid rgba(204, 167, 98, 0.35);
+    box-shadow: 0 0 15px -3px rgba(204, 167, 98, 0.12);
   }
   .border-gold-leaf:hover {
-    border-color: rgba(245, 158, 11, 0.55);
-    box-shadow: 0 0 25px -2px rgba(245, 158, 11, 0.18);
+    border-color: rgba(222, 194, 136, 0.65);
+    box-shadow: 0 0 25px -2px rgba(204, 167, 98, 0.22);
   }
 }
 
@@ -219,9 +219,11 @@
 
 /* Subtle geometric Selçuklu girih pattern overlay */
 .spiritual-bg-pattern {
-  background-image: radial-gradient(rgba(226, 184, 135, 0.04) 1px, transparent 1px), radial-gradient(rgba(62, 207, 142, 0.03) 1px, transparent 1px);
-  background-size: 36px 36px;
-  background-position: 0 0, 18px 18px;
+  background-color: #040F0F;
+  background-image: url("/islamic-pattern.png");
+  background-repeat: repeat;
+  background-size: 120px 120px;
+  background-position: 0 0;
 }
 
 /* Skip Link for Keyboard Accessibility */

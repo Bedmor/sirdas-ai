@@ -460,27 +460,41 @@ def enrich_chunk_metadata(
 
     # Detect Tevekkül & Rızık
     if any(k in content_lower for k in ["tevekkül", "teslimiyet", "kadir-i"]):
-        tags.append("TEVEKKUL")
+        tags.extend(["TEVEKKUL", "TEVEKKUL_VE_MURAKABE"])
     if any(k in content_lower for k in ["rızık", "kefalet", "sebepler"]):
-        tags.append("RIZIK")
+        tags.extend(["RIZIK", "RIZIK_VE_TICARET"])
     if "sebepler" in content_lower:
-        nafs_traps.append("SEBEPLERI_PUTLASTIRMA")
+        nafs_traps.extend(["SEBEPLERI_PUTLASTIRMA", "ZAHIRE_ALDANMA_VE_SEBEP_PERESTLIK"])
 
-    # Detect Murakabe
-    if any(k in content_lower for k in ["murakabe", "nazargâh", "görüyor", "farkındalık"]):
-        tags.append("MURAKABE")
+    # Detect Murakabe & Kalp Amelleri
+    if any(k in content_lower for k in ["murakabe", "nazargâh", "görüyor", "farkındalık", "ihlas", "huşu"]):
+        tags.extend(["MURAKABE", "KALP_AMELLELI_VE_IHLAS"])
 
     # Detect Talâk 2-3 & Ümit
     if any(k in content_lower for k in ["talâk", "talak", "çıkış yolu", "ümit"]):
         tags.extend(["TALAK_2_3", "UMIT"])
 
-    # Detect İmtihan & Sabır
-    if any(k in content_lower for k in ["imtihan", "sabır", "meşakkat"]):
-        tags.extend(["IMTIHAN", "SABIR"])
+    # Detect İmtihan, Kader & Sabır
+    if any(k in content_lower for k in ["imtihan", "sabır", "meşakkat", "kader"]):
+        tags.extend(["IMTIHAN", "SABIR", "KADER_VE_KAZA_HIKMETI"])
+
+    # Detect Dua & İltica
+    if any(k in content_lower for k in ["dua", "seher", "iltica", "secde"]):
+        tags.append("DUA_VE_ILCA_USULU")
+
+    # Detect Tevbe & İnabe
+    if any(k in content_lower for k in ["tövbe", "tevbe", "mağfiret"]):
+        tags.append("TEVBE_VE_INABE")
+        nafs_traps.append("GECMISIN_PISMANLIK_GIRDABI")
+
+    # Detect Fanilik & Ölüm Tefekkürü
+    if any(k in content_lower for k in ["ölüm", "fani", "ahiret", "kabir"]):
+        tags.append("FANILIK_VE_TAZIYE")
+        nafs_traps.append("TUL_I_EMEL_VE_GAYETSIZLIK")
 
     # Detect Siyer & Sahabe
-    if any(k in content_lower for k in ["siyer", "sahabe", "ashab", "sünnet"]):
-        tags.extend(["SIYER", "ASHAB"])
+    if any(k in content_lower for k in ["siyer", "sahabe", "ashab", "sünnet", "taif", "uhud", "hendek"]):
+        tags.extend(["SIYER", "ASHAB", "SIYERDE_DARLIK_DONEMLERI"])
 
     # Remove duplicates preserving order
     dedup_tags: List[str] = []

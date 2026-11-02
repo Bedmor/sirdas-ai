@@ -21,13 +21,6 @@ export default function AdminLayout({
       badge: "Canlı",
     },
     {
-      name: "Operatör VAS Raporları",
-      href: "/admin/vas-reports",
-      icon: "ph-chart-bar",
-      active: pathname.startsWith("/admin/vas-reports"),
-      badge: "GSM",
-    },
-    {
       name: "Denetim Günlüğü (Audit)",
       href: "/admin/audit-logs",
       icon: "ph-shield-check",
@@ -46,7 +39,7 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen flex flex-col bg-background font-body text-on-surface antialiased selection:bg-secondary-container selection:text-on-secondary-container spiritual-bg-pattern relative overflow-x-hidden">
       {/* Top Admin Header */}
-      <header className="sticky top-0 z-40 w-full border-b border-outline-variant/40 bg-[#080c0a]/90 backdrop-blur-xl transition-all shadow-lg">
+      <header className="sticky top-0 z-40 w-full border-b border-outline-variant/40 bg-[rgb(14_34_36_/_0.9)] backdrop-blur-xs transition-all shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between gap-4">
           {/* Left: Brand & Return */}
           <div className="flex items-center gap-3 sm:gap-4">
@@ -65,7 +58,7 @@ export default function AdminLayout({
               <div className="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant/60 flex items-center justify-center shadow-inner overflow-hidden flex-shrink-0">
                 <Image
                   src="/icon.png"
-                  alt="Sırdaş AI Logosu"
+                  alt="Manevi Pusula Logosu"
                   width={32}
                   height={32}
                   priority
@@ -75,7 +68,7 @@ export default function AdminLayout({
               <div className="flex flex-col">
                 <div className="flex items-center gap-2">
                   <span className="font-heading font-bold text-sm tracking-wide text-on-surface">
-                    Sırdaş AI
+                    Manevi Pusula
                   </span>
                   <span className="text-[10px] font-mono text-primary px-1.5 py-0.5 rounded-full bg-surface-container border border-primary/30 font-medium">
                     v2.5
@@ -157,7 +150,7 @@ export default function AdminLayout({
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-secondary"></span>
-            <span>Sırdaş AI Bilişsel Denetim Ağı &bull; 5 Manevi Süzgeç Koruması</span>
+            <span>Manevi Pusula Bilişsel Denetim Ağı &bull; 5 Manevi Süzgeç Koruması</span>
           </div>
           <div className="font-mono text-[10px] text-slate-400">
             Node: tr-ist-edge-01 &bull; pgvector: 768d &bull; Cloudflare R2: sirdas-ai

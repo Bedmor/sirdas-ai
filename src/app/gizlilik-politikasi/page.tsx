@@ -5,9 +5,9 @@ import { Footer } from "@/components/layout/Footer";
 import { DisclaimerBanner } from "@/components/layout/DisclaimerBanner";
 
 export const metadata: Metadata = {
-  title: "Gizlilik Politikası ve KVKK Aydınlatma Metni | Sırdaş AI",
+  title: "Gizlilik Politikası ve KVKK Aydınlatma Metni | Manevi Pusula",
   description:
-    "6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) ve Meta Business standartlarına uygun Sırdaş AI gizlilik ve veri güvenliği beyanı.",
+    "6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) ve Meta Business standartlarına uygun Manevi Pusula gizlilik ve veri güvenliği beyanı.",
 };
 
 export default function PrivacyPolicyPage() {
@@ -40,7 +40,7 @@ export default function PrivacyPolicyPage() {
               <strong className="text-on-surface block text-sm font-semibold mb-1">
                 Emanet ve Mahremiyet İlkesi:
               </strong>
-              Sırdaş AI, kullanıcıların manevi sırlarını ve dertleşmelerini İslami emanet şuuruyla
+              Manevi Pusula, kullanıcıların manevi sırlarını ve dertleşmelerini İslami emanet şuuruyla
               korur. Mesajlarınız kesinlikle ticari reklam hedeflemesinde kullanılmaz, üçüncü
               şahıslara veya veri simsarlarına satılmaz.
             </div>
@@ -55,7 +55,7 @@ export default function PrivacyPolicyPage() {
               </h2>
               <p className="text-sm text-slate-300 font-light leading-relaxed">
                 6698 sayılı Kişisel Verilerin Korunması Kanunu (&ldquo;KVKK&rdquo;) uyarınca,
-                Sırdaş AI Platformu (&ldquo;Sırdaş AI&rdquo; veya &ldquo;Platform&rdquo;) olarak,
+                Manevi Pusula Platformu (&ldquo;Manevi Pusula&rdquo; veya &ldquo;Platform&rdquo;) olarak,
                 hizmetlerimizden yararlanan kullanıcılarımızın kişisel verilerinin güvenliğine,
                 mahremiyetine ve mevzuata uygun işlenmesine en üst derecede ehemmiyet vermekteyiz.
               </p>
@@ -67,18 +67,18 @@ export default function PrivacyPolicyPage() {
                 <span>2. İşlenen Kişisel Veri Kategorileri</span>
               </h2>
               <p className="text-sm text-slate-300 font-light leading-relaxed">
-                Platform üzerinden sunulan Meta WhatsApp Cloud API tabanlı manevi rehberlik
+                Platform üzerinden sunulan Web Sitesi ve Mobil Uygulama tabanlı manevi rehberlik
                 hizmeti kapsamında aşağıdaki veriler işlenmektedir:
               </p>
               <ul className="list-disc pl-5 space-y-2 text-sm text-slate-300 font-light">
                 <li>
-                  <strong className="text-on-surface">İletişim Verileri:</strong> WhatsApp telefon
-                  numarası (`phoneNumber`) ve Meta Graph API tarafından sağlanan kullanıcı rumuzu.
+                  <strong className="text-on-surface">Oturum ve İstemci Verileri:</strong> Web ve mobil
+                  oturumlarında anonim istemci kimliği (`clientId`) ve isteğe bağlı kullanıcı hesap bilgileri.
                 </li>
                 <li>
                   <strong className="text-on-surface">Sohbet ve İçerik Verileri:</strong>{" "}
-                  Kullanıcının dertleşme esnasında WhatsApp üzerinden ilettiği metin mesajları ve
-                  sisteme ait cevap kayıtları.
+                  Kullanıcının dertleşme esnasında web sitesi veya mobil uygulama üzerinden ilettiği metin mesajları ve
+                  sisteme ait tefekkür cevap kayıtları.
                 </li>
                 <li>
                   <strong className="text-on-surface">4 Bloklu Dijital İkiz Künyesi:</strong>{" "}
@@ -87,14 +87,13 @@ export default function PrivacyPolicyPage() {
                 </li>
                 <li>
                   <strong className="text-on-surface">Bağış ve İnfak Verileri:</strong> &ldquo;Askıda
-                  Sırdaş&rdquo; havuzuna infak yapılması durumunda isim (tercihen anonim), tutar,
+                  Pusula&rdquo; havuzuna infak yapılması durumunda isim (tercihen anonim), tutar,
                   ödeme sağlayıcı (PayTR/iyzico) işlem referansı. Kredi kartı bilgileri asla
                   sunucularımızda saklanmaz.
                 </li>
                 <li>
-                  <strong className="text-on-surface">Teknik ve Denetim Verileri:</strong> Meta
-                  Webhook <code className="text-primary font-mono text-xs">waMessageId</code>{" "}
-                  tekil kimlikleri (mükerrer retry storm mesajlarını önleme amacıyla), Jev System 1
+                  <strong className="text-on-surface">Teknik ve Denetim Verileri:</strong> İstemci
+                  oturum tekil kimlikleri (mükerrer retry storm mesajlarını önleme ve güvenli oturum yönetimi amacıyla), Jev System 1
                   karar skorları ve Gemini denetim logları.
                 </li>
               </ul>
@@ -111,8 +110,8 @@ export default function PrivacyPolicyPage() {
               <p className="text-sm text-slate-300 font-light leading-relaxed">
                 Kişisel verileriniz, PostgreSQL Supabase pgvector altyapısında şifreli olarak ve
                 Cloudflare kurumsal güvenlik kalkanı altında muhafaza edilir. Kullanıcı dilediği an
-                WhatsApp üzerinden &ldquo;Hafızamı Sıfırla&rdquo; komutu vererek kendi profil
-                kayıtlarını sildirebilir.
+                arayüz üzerinden &ldquo;Hafızamı Sıfırla&rdquo; veya &ldquo;Sohbeti Temizle&rdquo; komutu vererek kendi profil
+                ve mesaj kayıtlarını kalıcı olarak silebilir.
               </p>
             </section>
           </article>

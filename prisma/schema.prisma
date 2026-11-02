@@ -28,6 +28,80 @@ enum MessageRole {
   SYSTEM
 }
 
+enum NafsTrap {
+  // Temel Tuzaklar
+  FAKIRLIK_KORKUSU_VESVESESI
+  FAIRLIK_KORKUSU_VESVESESI
+  GIZLI_KIBIR_HAKLILIK
+  UMITSIZLIK_KARAMSARLIK
+  INTIKAM_VE_HASET
+  ELALEM_NE_DER_RIYA
+  REHAVET_TEMBELLIK
+
+  // A. İlahi Adalet & Kader Çatışmaları
+  KADERE_ITIRAZ_VE_ISYAN
+  ACELECI_TALEPLER_VE_ISTIACAL
+  ZAHIRE_ALDANMA_VE_SEBEP_PERESTLIK
+
+  // B. Nefsin Gizli Putları & Benlik İllüzyonları
+  UCUB_VE_AMELINE_GUVENME
+  KONTROL_YANILSAMASI_VE_MUKEMMELIYETCILIK
+  GIZLI_SIRK_VE_SAHTE_SIGINAKLAR
+
+  // C. İkili İlişkiler & Sosyal Nefis
+  SUI_ZAN_VE_TECESSUS
+  MINNET_VE_BASA_KAKMA
+  KAYITSIZLIK_VE_MERHAMETSIZLIK
+
+  // D. İmtihan Karşısındaki Ruh Halleri
+  GECMISIN_PISMANLIK_GIRDABI
+  TUL_I_EMEL_VE_GAYETSIZLIK
+  VESVESE_VE_GUSUL_ABDEST_EVHAMI
+
+  // Ek Manevi Zafiyetler
+  KOLAY_KAZANC_HIRSI
+  CIMRILIK_VE_MAL_HIRSI
+  HAYIR_DIYEMEME_ZAAFI
+}
+
+enum RagCategory {
+  // Mevcut 7 Temel Alan
+  RIZIK_VE_TICARET
+  SABIR_VE_MUSIBET
+  OFKE_VE_AHLAK
+  AILE_VE_SILA_I_RAHIM
+  KUL_HAKKI_VE_ADALET
+  TEVEKKUL_VE_MURAKABE
+  SIYER_ORNEKLERI
+
+  // Yeni Odak Alanları
+  KADER_VE_KAZA_HIKMETI
+  DUA_VE_ILCA_USULU
+  TEVBE_VE_INABE
+  KALP_AMELLELI_VE_IHLAS
+  KALP_AMELLERI_VE_IHLAS
+  FANILIK_VE_TAZIYE
+  FITNE_VE_AHIR_ZAMAN_AHLAKI
+  ISRAF_VE_IKTISAT_FIKHI
+  SIYERDE_DARLIK_DONEMLERI
+}
+
+enum TonePreference {
+  SEFKATLI_TESKIN
+  DIRILIS_VE_GAYRET
+  NET_VE_MUALLIM
+  HIKMETLI_SUKUT
+  TAVIZSIZ_MUALLIM
+}
+
+enum SpiritualStage {
+  ARAYIS_VE_BASLANGIC
+  DARLIK_VE_BUNALIM
+  DERINLESMIS_SALIK
+  ISTIKAMET_VE_INSA
+  MUHASEBE_VE_TEVBE
+}
+
 model User {
   id                  String       @id @default(uuid()) @db.Uuid
   phoneNumber         String       @unique @map("phone_number")
@@ -39,7 +113,8 @@ model User {
   //   "roles": ["EVLI", "IKI_COCUK", "ESNAF", "HASTA_BAKIMI"],
   //   "spiritual_trials": ["RIZIK_KAYGISI", "ANI_OFKE", "ELALEM_NE_DER"],
   //   "biological_energy": ["SABAH_ZOR_UYANMA", "KRONIK_YORGUNLUK"],
-  //   "tone_preference": "SEFKATLI_TESKIN" | "TAVIZSIZ_MUALLIM"
+  //   "tone_preference": "SEFKATLI_TESKIN" | "DIRILIS_VE_GAYRET" | "NET_VE_MUALLIM" | "HIKMETLI_SUKUT" | "TAVIZSIZ_MUALLIM",
+  //   "spiritual_stage": "ARAYIS_VE_BASLANGIC" | "DARLIK_VE_BUNALIM" | "DERINLESMIS_SALIK" | "ISTIKAMET_VE_INSA" | "MUHASEBE_VE_TEVBE"
   // }
   profileMetadata     Json         @default("{}") @map("profile_metadata")
 
@@ -47,7 +122,6 @@ model User {
   lastActiveAt        DateTime     @default(now()) @map("last_active_at")
 
   messages            Message[]
-  vasLogs             VasDailyLog[]
 
   @@index([phoneNumber])
   @@map("users")
@@ -96,7 +170,7 @@ model Message {
   // Jev (System 1) Karar Metadata'sı
   // {
   //   "noul": { "is_fatwa": 0.05, "is_riba": 0.85, "needs_audio": 0.90 },
-  //   "choice": { "nafs_trap": "FAIRLIK_KORKUSU_VESVESESI", "rag_category": "RIZIK_VE_TICARET" },
+  //   "choice": { "nafs_trap": "FAKIRLIK_KORKUSU_VESVESESI", "rag_category": "RIZIK_VE_TICARET", "tone_preference": "SEFKATLI_TESKIN", "spiritual_stage": "DARLIK_VE_BUNALIM" },
   //   "score": { "distress_level": 7 }
   // }
   jevMetadata     Json?       @map("jev_metadata")
@@ -136,18 +210,4 @@ model Donation {
 
   @@index([status, createdAt])
   @@map("donations")
-}
-
-model VasDailyLog {
-  id               String   @id @default(uuid()) @db.Uuid
-  userId           String   @map("user_id") @db.Uuid
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  logDate          DateTime @db.Date @map("log_date")
-  incomingCount    Int      @default(0) @map("incoming_count")
-  outgoingCount    Int      @default(0) @map("outgoing_count")
-  estimatedMinutes Float    @default(0) @map("estimated_minutes") // Operatör dakika eşdeğeri
-
-  @@unique([userId, logDate])
-  @@index([logDate])
-  @@map("vas_daily_logs")
 }

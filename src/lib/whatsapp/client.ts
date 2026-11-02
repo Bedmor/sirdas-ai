@@ -13,7 +13,13 @@ export class WhatsAppClient {
     return (
       !this.accessToken ||
       this.accessToken === "mock_meta_access_token" ||
-      this.phoneNumberId === "mock_phone_number_id"
+      this.accessToken === "EAA..." ||
+      this.accessToken.includes("...") ||
+      this.accessToken.startsWith("your-") ||
+      !this.phoneNumberId ||
+      this.phoneNumberId === "mock_phone_number_id" ||
+      this.phoneNumberId === "100012345678901" ||
+      this.phoneNumberId.startsWith("your-")
     );
   }
 
@@ -40,6 +46,56 @@ export class WhatsAppClient {
     }
   }
 
+  async sendTypingIndicator(to: string, messageId?: string): Promise<boolean> {
+    if (this.isMockMode()) {
+      return true;
+    }
+
+    try {
+      const effectiveMessageId = messageId || (to.startsWith("wamid.") ? to : undefined);
+
+      let payload: Record<string, unknown>;
+      if (effectiveMessageId) {
+        payload = {
+          messaging_product: "whatsapp",
+          status: "read",
+          message_id: effectiveMessageId,
+          typing_indicator: {
+            type: "text"
+          }
+        };
+      } else {
+        payload = {
+          messaging_product: "whatsapp",
+          recipient_type: "individual",
+          to,
+          status: "processing",
+          sender_action: "typing"
+        };
+      }
+
+      const res = await fetch(`${this.baseUrl}/${this.phoneNumberId}/messages`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        console.warn(`[WhatsApp sendTypingIndicator Error HTTP ${res.status}]`, errorData);
+        return false;
+      }
+
+      return true;
+    } catch (err) {
+      console.warn("[WhatsApp sendTypingIndicator Warning]", err);
+      return false;
+    }
+  }
+
   async sendTextMessage(to: string, text: string): Promise<string> {
     if (this.isMockMode()) {
       return `wamid.mock_text_${Date.now()}`;
@@ -61,6 +117,9 @@ export class WhatsAppClient {
     });
 
     const data = await res.json();
+    if (!res.ok) {
+      console.warn(`[WhatsApp sendTextMessage Error HTTP ${res.status}]`, data);
+    }
     return data.messages?.[0]?.id || `wamid.sent_${Date.now()}`;
   }
 
@@ -85,6 +144,9 @@ export class WhatsAppClient {
     });
 
     const data = await res.json();
+    if (!res.ok) {
+      console.warn(`[WhatsApp sendAudioMessage Error HTTP ${res.status}]`, data);
+    }
     return data.messages?.[0]?.id || `wamid.sent_audio_${Date.now()}`;
   }
 }

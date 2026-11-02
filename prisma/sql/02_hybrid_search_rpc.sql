@@ -18,7 +18,7 @@ END $$;
 
 CREATE OR REPLACE FUNCTION match_knowledge_chunks(
     query_embedding vector(768),
-    match_threshold float DEFAULT 0.50,
+    match_threshold float DEFAULT 0.30,
     match_count int DEFAULT 4,
     filter_category text DEFAULT NULL,
     filter_nafs text DEFAULT NULL,
@@ -85,8 +85,10 @@ BEGIN
         FROM public.knowledge_chunks kc
         WHERE kc.source_type = 'QURAN'
           AND kc.embedding <=> query_embedding <= (1 - match_threshold)
-          AND (filter_category IS NULL OR filter_category = ANY(kc.tags))
-        ORDER BY kc.embedding <=> query_embedding ASC
+        ORDER BY 
+          (CASE WHEN filter_category IS NOT NULL AND filter_category = ANY(kc.tags) THEN 0 ELSE 1 END) ASC,
+          (CASE WHEN filter_nafs IS NOT NULL AND filter_nafs = ANY(kc.nafs_traps) THEN 0 ELSE 1 END) ASC,
+          kc.embedding <=> query_embedding ASC
         LIMIT 1
     ),
     -- 3. Kaynak Dengesi Garantisi: En uygun Sahih Hadis / Siyer Örneği
@@ -108,8 +110,10 @@ BEGIN
         FROM public.knowledge_chunks kc
         WHERE kc.source_type IN ('HADITH', 'SIYER')
           AND kc.embedding <=> query_embedding <= (1 - match_threshold)
-          AND (filter_category IS NULL OR filter_category = ANY(kc.tags))
-        ORDER BY kc.embedding <=> query_embedding ASC
+        ORDER BY 
+          (CASE WHEN filter_category IS NOT NULL AND filter_category = ANY(kc.tags) THEN 0 ELSE 1 END) ASC,
+          (CASE WHEN filter_nafs IS NOT NULL AND filter_nafs = ANY(kc.nafs_traps) THEN 0 ELSE 1 END) ASC,
+          kc.embedding <=> query_embedding ASC
         LIMIT 1
     ),
     -- 4. Kaynak Dengesi Garantisi: En uygun Halis Aydemir Sesli Sohbet Parçası
@@ -131,8 +135,10 @@ BEGIN
         FROM public.knowledge_chunks kc
         WHERE kc.source_type = 'HALIS_AYDEMIR'
           AND kc.embedding <=> query_embedding <= (1 - match_threshold)
-          AND (filter_category IS NULL OR filter_category = ANY(kc.tags))
-        ORDER BY kc.embedding <=> query_embedding ASC
+        ORDER BY 
+          (CASE WHEN filter_category IS NOT NULL AND filter_category = ANY(kc.tags) THEN 0 ELSE 1 END) ASC,
+          (CASE WHEN filter_nafs IS NOT NULL AND filter_nafs = ANY(kc.nafs_traps) THEN 0 ELSE 1 END) ASC,
+          kc.embedding <=> query_embedding ASC
         LIMIT 1
     ),
     -- 5. Genel Hibrit Benzerlik Adayları (Kalan kontenjanı en yakın parçalarla doldurur)

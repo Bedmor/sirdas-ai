@@ -22,7 +22,7 @@ if str(PIPELINE_ROOT) not in sys.path:
     sys.path.insert(0, str(PIPELINE_ROOT))
 
 import config
-from utils.embedder import get_embedding_768d, EMBEDDING_DIMENSION
+from utils.embedder import get_embedding_768d, get_embeddings_batch, EMBEDDING_DIMENSION
 
 logging.basicConfig(
     level=logging.INFO,
@@ -90,6 +90,37 @@ def enrich_jev_primitives(
     if any(k in content_lower for k in ["sadaka", "infak", "eksiltmez"]):
         if "INFAK" not in enriched_tags:
             enriched_tags.append("INFAK")
+        if "ISRAF_VE_IKTISAT_FIKHI" not in enriched_tags:
+            enriched_tags.append("ISRAF_VE_IKTISAT_FIKHI")
+
+    # Detect Kader & Kaza Hikmeti
+    if any(k in content_lower for k in ["kader", "hızır", "musibet", "kefaret", "hayır"]):
+        if "KADER_VE_KAZA_HIKMETI" not in enriched_tags:
+            enriched_tags.append("KADER_VE_KAZA_HIKMETI")
+        if "KADERE_ITIRAZ_VE_ISYAN" not in enriched_traps and ("isyan" in content_lower or "sitem" in content_lower):
+            enriched_traps.append("KADERE_ITIRAZ_VE_ISYAN")
+
+    # Detect Dua & İltica Usulü
+    if any(k in content_lower for k in ["dua", "seher", "iltica", "icabet", "secde"]):
+        if "DUA_VE_ILCA_USULU" not in enriched_tags:
+            enriched_tags.append("DUA_VE_ILCA_USULU")
+
+    # Detect Tevbe & İnabe
+    if any(k in content_lower for k in ["tövbe", "tevbe", "zümer 53", "mağfiret", "ümit kesmeyin"]):
+        if "TEVBE_VE_INABE" not in enriched_tags:
+            enriched_tags.append("TEVBE_VE_INABE")
+        if "GECMISIN_PISMANLIK_GIRDABI" not in enriched_traps:
+            enriched_traps.append("GECMISIN_PISMANLIK_GIRDABI")
+
+    # Detect Kalp Amelleri & İhlas
+    if any(k in content_lower for k in ["ihlas", "huşu", "murakabe", "niyet", "hased", "kin"]):
+        if "KALP_AMELLELI_VE_IHLAS" not in enriched_tags:
+            enriched_tags.append("KALP_AMELLELI_VE_IHLAS")
+
+    # Detect Siyerde Darlık Dönemleri
+    if any(k in content_lower for k in ["taif", "uhud", "hendek", "boykot"]):
+        if "SIYERDE_DARLIK_DONEMLERI" not in enriched_tags:
+            enriched_tags.append("SIYERDE_DARLIK_DONEMLERI")
 
     return {
         "tags": enriched_tags,
@@ -100,7 +131,10 @@ def enrich_jev_primitives(
 
 def load_thematic_corpus(file_path: Path) -> List[Dict[str, Any]]:
     """
-    Loads and validates thematic text corpus from JSON file.
+    Loads and validates thematic text corpus or Quran passages from JSON file.
+    Supports:
+    - JSON array of records (e.g. thematic_texts.json, quran_semantic_passages.json)
+    - Full Quran corpus dict with 'surahs' key (quran_full_corpus.json)
     """
     if not file_path.exists():
         raise FileNotFoundError(f"Corpus file not found: {file_path}")
@@ -108,8 +142,13 @@ def load_thematic_corpus(file_path: Path) -> List[Dict[str, Any]]:
     with open(file_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
+    if isinstance(data, dict) and "surahs" in data:
+        # Full Quran corpus dict: build semantic passages on the fly
+        from fetch_quran_corpus import build_semantic_passages
+        data = build_semantic_passages(data)
+
     if not isinstance(data, list):
-        raise ValueError(f"Corpus must be a JSON array of records, got {type(data)}")
+        raise ValueError(f"Corpus must be a JSON array of records or contain 'surahs', got {type(data)}")
 
     validated_records = []
     for idx, item in enumerate(data):
@@ -117,8 +156,8 @@ def load_thematic_corpus(file_path: Path) -> List[Dict[str, Any]]:
             logger.warning("Skipping non-dict item at index %d", idx)
             continue
 
-        source_type = (item.get("source_type") or "").upper().strip()
-        source_title = (item.get("source_title") or "").strip()
+        source_type = (item.get("source_type") or item.get("category") or "").upper().strip()
+        source_title = (item.get("source_title") or item.get("title") or "").strip()
         content = (item.get("content") or "").strip()
 
         if not source_title or not content:
@@ -161,6 +200,7 @@ def load_thematic_corpus(file_path: Path) -> List[Dict[str, Any]]:
 
 def ingest_texts(
     data_file: Optional[Path] = None,
+    source: str = "thematic",
     dry_run: bool = False,
     batch_size: int = 5,
     category: Optional[str] = None,
@@ -170,7 +210,8 @@ def ingest_texts(
     Main execution routine for text knowledge ingestion pipeline.
 
     Args:
-        data_file: Path to JSON corpus file.
+        data_file: Optional explicit path to JSON corpus file.
+        source: Corpus source selection ('thematic', 'quran', 'all'). Defaults to 'thematic'.
         dry_run: If True, computes embeddings and validates schema without DB writes.
         batch_size: Number of records per embedding/upsert batch.
         category: Filter by source_type (e.g. 'QURAN', 'HADITH', 'DUA', 'SIYER', 'ALL').
@@ -179,13 +220,36 @@ def ingest_texts(
     Returns:
         Summary dict containing counts and status.
     """
-    if data_file is None:
-        data_file = PIPELINE_ROOT / "data" / "thematic_texts.json"
+    thematic_path = PIPELINE_ROOT / "data" / "thematic_texts.json"
+    passages_path = PIPELINE_ROOT / "data" / "quran_semantic_passages.json"
+    corpus_path = PIPELINE_ROOT / "data" / "quran_full_corpus.json"
 
     logger.info("Starting Text Ingestion Pipeline")
-    logger.info("Config: dry_run=%s, batch_size=%d, category=%s, data_file=%s", dry_run, batch_size, category, data_file)
+    logger.info(
+        "Config: dry_run=%s, batch_size=%d, category=%s, source=%s, data_file=%s",
+        dry_run, batch_size, category, source, data_file,
+    )
 
-    records = load_thematic_corpus(data_file)
+    if data_file is not None:
+        records = load_thematic_corpus(data_file)
+    elif source == "quran":
+        target = passages_path if passages_path.exists() else corpus_path
+        records = load_thematic_corpus(target)
+    elif source == "all":
+        thematic_records = load_thematic_corpus(thematic_path) if thematic_path.exists() else []
+        target = passages_path if passages_path.exists() else corpus_path
+        quran_records = load_thematic_corpus(target) if target.exists() else []
+        seen_ids = set()
+        seen_titles = set()
+        records = []
+        for r in thematic_records + quran_records:
+            if r["id"] in seen_ids or r["source_title"] in seen_titles:
+                continue
+            seen_ids.add(r["id"])
+            seen_titles.add(r["source_title"])
+            records.append(r)
+    else:  # source == "thematic"
+        records = load_thematic_corpus(thematic_path)
 
     # Filter by category if specified
     if category and category.upper() != "ALL":
@@ -230,9 +294,10 @@ def ingest_texts(
         logger.info("Processing batch %d-%d of %d...", i + 1, min(i + batch_size, total_count), total_count)
 
         payload_batch = []
-        for item in batch:
-            # Generate 768d vector embedding
-            embedding_vector = get_embedding_768d(item["content"])
+        batch_texts = [item["content"] for item in batch]
+        batch_vectors = get_embeddings_batch(batch_texts)
+
+        for item, embedding_vector in zip(batch, batch_vectors):
             if len(embedding_vector) != EMBEDDING_DIMENSION:
                 raise ValueError(
                     f"Invalid embedding dimension {len(embedding_vector)} for '{item['source_title']}', expected {EMBEDDING_DIMENSION}"
@@ -315,6 +380,13 @@ def main():
         help="Filter corpus by source_type (ALL, QURAN, HADITH, DUA, SIYER).",
     )
     parser.add_argument(
+        "--source",
+        type=str,
+        default="thematic",
+        choices=["thematic", "quran", "all"],
+        help="Corpus source to ingest: thematic (default 21 records), quran (114 surahs), or all.",
+    )
+    parser.add_argument(
         "--data-file",
         type=str,
         default=None,
@@ -334,6 +406,7 @@ def main():
     try:
         summary = ingest_texts(
             data_file=custom_file,
+            source=args.source,
             dry_run=args.dry_run,
             batch_size=args.batch_size,
             category=args.category,

@@ -4,9 +4,6 @@ import Image from "next/image";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
-  const waNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "+905550200605";
-  const cleanWaNumber = waNumber.replace(/[^0-9]/g, "");
-  const waUrl = `https://wa.me/${cleanWaNumber}?text=Selamun%20Aleykum`;
 
   return (
     <footer
@@ -21,29 +18,27 @@ export function Footer() {
               <div className="w-6 h-6 rounded-full bg-surface-container-high border border-outline-variant/60 flex items-center justify-center shadow-inner overflow-hidden flex-shrink-0">
                 <Image
                   src="/icon.png"
-                  alt="Sırdaş AI Logosu"
+                  alt="Manevi Pusula Logosu"
                   width={24}
                   height={24}
                   className="w-full h-full object-cover"
                 />
               </div>
-              <span className="font-heading text-xl font-bold text-primary">Sırdaş AI</span>
+              <span className="font-heading text-xl font-bold text-primary">Manevi Pusula</span>
               <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-secondary"></span>
             </div>
             <p className="text-xs text-slate-300 max-w-sm leading-relaxed" lang="tr">
               Kadim İslami hikmet ile güncel yapay zekayı birleştiren; yargılamayan, dinleyen,
-              sekinet veren mahrem bir manevi sığınak.
+              huzur ve ferahlık veren mahrem bir manevi sığınak.
             </p>
             <div className="pt-2">
-              <a
-                href={waUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/"
                 className="inline-flex items-center gap-2 text-xs font-semibold text-secondary hover:text-emerald-300 transition-colors"
               >
-                <i aria-hidden="true" className="ph ph-whatsapp-logo text-base"></i>
-                <span>WhatsApp ile Doğrudan Bağlan</span>
-              </a>
+                <i aria-hidden="true" className="ph ph-chat-circle-dots text-base"></i>
+                <span>Tefekkür Odasına Doğrudan Bağlan</span>
+              </Link>
             </div>
           </div>
 
@@ -53,7 +48,7 @@ export function Footer() {
               Manevi Çerçeve &amp; Sınırlar
             </span>
             <p className="text-xs text-slate-300 leading-relaxed" lang="tr">
-              Sırdaş AI bir fetva makamı veya tıbbi tedavi mercii değildir. Fıkhi meselelerde
+              Manevi Pusula bir fetva makamı veya tıbbi tedavi mercii değildir. Fıkhi meselelerde
               Diyanet İşleri Başkanlığı&apos;nın resmi fetva hattı (Alo 190), acil durumlarda 112
               Acil Çağrı servisleri esastır.
             </p>
@@ -82,17 +77,17 @@ export function Footer() {
               <li>
                 <Link
                   className="hover:text-on-surface transition-colors rounded focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none"
-                  href="/#sohbet-alani"
+                  href="/"
                 >
-                  WhatsApp Arayüzü
+                  Manevi Pusula Sohbet Arayüzü
                 </Link>
               </li>
               <li>
                 <Link
                   className="hover:text-on-surface transition-colors rounded focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none"
-                  href="/#sohbet-ornekleri"
+                  href="/tanitim"
                 >
-                  Tefekkür Senaryoları
+                  Tanıtım &amp; Vitrin
                 </Link>
               </li>
               <li>
@@ -100,23 +95,15 @@ export function Footer() {
                   className="hover:text-on-surface transition-colors rounded focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none"
                   href="/askida-sirdas"
                 >
-                  Askıda Sırdaş
+                  Askıda Pusula
                 </Link>
               </li>
               <li>
                 <Link
                   className="hover:text-on-surface transition-colors rounded focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none"
-                  href="/#gayemiz"
+                  href="/tanitim#gayemiz"
                 >
-                  Gayemiz
-                </Link>
-              </li>
-              <li>
-                <Link
-                  className="hover:text-on-surface transition-colors rounded focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none text-primary/80"
-                  href="/admin"
-                >
-                  Yönetim Konsolu
+                  Vizyon &amp; Misyon
                 </Link>
               </li>
             </ul>
@@ -125,15 +112,7 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-6 border-t border-outline-variant/20 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-300">
-          <p>© {currentYear} Sırdaş AI. Gönüllere sekinet niyetiyle hazırlanmıştır.</p>
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1.5">
-              <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-secondary"></span>
-              Sekinet Hali Aktif
-            </span>
-            <span aria-hidden="true">•</span>
-            <span>Seher &amp; Gece Tefekkürü</span>
-          </div>
+          <p>© {currentYear} Manevi Pusula. Tüm hakları saklıdır.</p>
         </div>
       </div>
     </footer>

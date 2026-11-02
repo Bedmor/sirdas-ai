@@ -81,8 +81,8 @@ export async function createIyzicoCheckoutSession(params: IyzicoCheckoutParams):
       },
       basketItems: [
         {
-          id: "ASKIDA_SIRDAŞ_FON",
-          name: "Askıda Sırdaş İnfak Havuzu",
+          id: "ASKIDA_PUSULA_FON",
+          name: "Askıda Pusula İnfak Havuzu",
           category1: "İnfak & Bağış",
           itemType: "VIRTUAL",
           price: params.paidPrice.toFixed(2),

@@ -6,7 +6,7 @@
  *   - Tier 1: Feature Coverage (UI, Donation, Admin, Audio Cutter, R2 Uploader, Text Ingestion, YouTube Chunking)
  *   - Tier 2: Boundary & Corner Cases (Donation, Audio, Chunking, Config, R2 MIME, WCAG AA Contrast)
  *   - Tier 3: Cross-Feature Combinations (Pairwise integration across modules)
- *   - Tier 4: Real-World Application Scenarios (End-to-end user and operator journeys)
+ *   - Tier 4: Real-World Application Scenarios (End-to-end user and spiritual guardrail journeys)
  *
  * Usage:
  *   npx tsx scripts/e2e-runner.ts
@@ -44,7 +44,6 @@ import "../tests/e2e/tier3-cross-features/webhook-to-audit-log.test";
 // Import Tier 4 Suites
 import "../tests/e2e/tier4-application-scenarios/user-infak-journey.test";
 import "../tests/e2e/tier4-application-scenarios/celik-kasa-pipeline-journey.test";
-import "../tests/e2e/tier4-application-scenarios/admin-vas-reconciliation-journey.test";
 import "../tests/e2e/tier4-application-scenarios/spiritual-safeguards-journey.test";
 
 // Parse CLI Flags

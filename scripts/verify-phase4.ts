@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { NextRequest } from "next/server";
 import crypto from "crypto";
 
@@ -79,6 +80,12 @@ async function runTests() {
   await wa.markAsRead("wamid_test_12345");
   assert(true, "markAsRead executes cleanly without error");
 
+  const typingSuccessWithId = await wa.sendTypingIndicator(testPhone, "wamid_test_12345");
+  assert(typingSuccessWithId === true, "sendTypingIndicator with messageId executes cleanly and returns true");
+
+  const typingSuccessPhoneOnly = await wa.sendTypingIndicator(testPhone);
+  assert(typingSuccessPhoneOnly === true, "sendTypingIndicator with phone number executes cleanly and returns true");
+
   // 4. Onboarding NLP Text Parsers
   console.log("\n[4] Testing Onboarding NLP Text Parsers with Complex Phrasings...");
   
@@ -108,6 +115,7 @@ async function runTests() {
 
   // 5. 4-Stage Digital Twin State Machine
   console.log("\n[5] Testing 4-Stage Digital Twin State Machine (Live User Flow)...");
+  const runId = Date.now();
   const onboardingPhone = `+90555123${Math.floor(1000 + Math.random() * 9000)}`;
 
   // Step 0: User creates on initial message
@@ -122,31 +130,31 @@ async function runTests() {
   assert(obUser.onboardingStep === 1 && obUser.onboardingCompleted === false, "New user starts at onboardingStep: 1");
 
   // Step 1: Greeting doesn't advance step, provides welcome
-  await handleOnboardingMessage(obUser, "Selamun Aleykum", "ob_msg_0", wa);
+  await handleOnboardingMessage(obUser, "Selamun Aleykum", `ob_msg_${runId}_0`, wa);
   obUser = (await prisma.user.findUnique({ where: { id: obUser.id } }))!;
   assert(obUser.onboardingStep === 1, "Greeting on Step 1 keeps user on Step 1 with welcoming prompt");
 
   // Step 1 -> Step 2: User provides roles
-  await handleOnboardingMessage(obUser, "Evliyim, 2 evladım var, marangoz esnafıyım", "ob_msg_1", wa);
+  await handleOnboardingMessage(obUser, "Evliyim, 2 evladım var, marangoz esnafıyım", `ob_msg_${runId}_1`, wa);
   obUser = (await prisma.user.findUnique({ where: { id: obUser.id } }))!;
   assert(obUser.onboardingStep === 2, "Providing roles advances user to onboardingStep: 2");
   const meta1 = obUser.profileMetadata as any;
   assert(meta1.roles.includes("EVLI") && meta1.roles.includes("COCUK_SAHIBI"), "Roles saved to profileMetadata");
 
   // Step 2 -> Step 3: User provides spiritual trials
-  await handleOnboardingMessage(obUser, "Rızık kaygısı ve ani öfke beni çok yoruyor", "ob_msg_2", wa);
+  await handleOnboardingMessage(obUser, "Rızık kaygısı ve ani öfke beni çok yoruyor", `ob_msg_${runId}_2`, wa);
   obUser = (await prisma.user.findUnique({ where: { id: obUser.id } }))!;
   assert(obUser.onboardingStep === 3, "Providing trials advances user to onboardingStep: 3");
   const meta2 = obUser.profileMetadata as any;
   assert(meta2.spiritual_trials.includes("RIZIK_VE_GELECEK_KAYGISI"), "Trials saved to profileMetadata");
 
   // Step 3 -> Step 4: User provides energy state
-  await handleOnboardingMessage(obUser, "Sabah zor kalkıyorum, hep halsizim", "ob_msg_3", wa);
+  await handleOnboardingMessage(obUser, "Sabah zor kalkıyorum, hep halsizim", `ob_msg_${runId}_3`, wa);
   obUser = (await prisma.user.findUnique({ where: { id: obUser.id } }))!;
   assert(obUser.onboardingStep === 4, "Providing energy state advances user to onboardingStep: 4");
 
   // Step 4 -> Complete: User chooses tone
-  await handleOnboardingMessage(obUser, "B - Tavizsiz muallim diliyle konuş", "ob_msg_4", wa);
+  await handleOnboardingMessage(obUser, "B - Tavizsiz muallim diliyle konuş", `ob_msg_${runId}_4`, wa);
   obUser = (await prisma.user.findUnique({ where: { id: obUser.id } }))!;
   assert(obUser.onboardingCompleted === true, "Selecting tone completes onboarding (onboardingCompleted: true)");
   const meta4 = obUser.profileMetadata as any;

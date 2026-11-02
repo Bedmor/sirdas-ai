@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Amiri, Titillium_Web, Plus_Jakarta_Sans } from "next/font/google";
+import { Amiri, Space_Grotesk, Roboto_Slab } from "next/font/google";
 import "./globals.css";
 
 const amiri = Amiri({
@@ -9,34 +9,36 @@ const amiri = Amiri({
   display: "swap",
 });
 
-const titilliumWeb = Titillium_Web({
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
-  weight: ["300", "400", "600", "700"],
-  variable: "--font-titillium",
-  display: "swap",
-});
-
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
+  weight: ["300", "400", "500", "600", "700"],
   variable: "--font-sans",
   display: "swap",
 });
 
+const robotoSlab = Roboto_Slab({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-heading",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "Sırdaş AI - Manevi Tefekkür & Rehberlik",
+  title: "Manevi Pusula - Manevi Tefekkür & Rehberlik",
   description:
     "Kur'an-ı Kerim, Sahih Sünnet ve kadim hikmet rehberliğinde; keder, rızık darlığı ve gelecek endişelerinde ilahi rızayı ve sükûneti arayanlara samimi bir dertleşme ve tefekkür alanı.",
   keywords: [
-    "Sırdaş AI",
+    "Manevi Pusula",
     "Manevi Rehber",
-    "Halis Aydemir",
     "İslami Rehberlik",
     "Tevekkül",
-    "WhatsApp Bot",
+    "Tefekkür",
   ],
   icons: {
-    icon: [],
+    icon: [
+      { url: "/icon.png", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
     shortcut: "/icon.png",
     apple: "/icon.png",
   },
@@ -55,7 +57,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body
-        className={`${amiri.variable} ${titilliumWeb.variable} ${plusJakarta.variable} bg-background font-body text-on-surface antialiased min-h-screen selection:bg-secondary-container selection:text-on-secondary-container spiritual-bg-pattern`}
+        className={`${amiri.variable} ${spaceGrotesk.variable} ${robotoSlab.variable} bg-background font-body text-on-surface antialiased min-h-screen selection:bg-secondary-container selection:text-on-secondary-container spiritual-bg-pattern`}
       >
         {children}
       </body>

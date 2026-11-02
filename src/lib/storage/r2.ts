@@ -1,3 +1,4 @@
+import "dotenv/config";
 import {
   S3Client,
   PutObjectCommand,
@@ -6,6 +7,24 @@ import {
   ListObjectsV2Command,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+
+/**
+ * Sanitize R2 S3 endpoint URL by stripping any accidental trailing bucket path
+ * (e.g. https://<account>.r2.cloudflarestorage.com/sirdas-ai -> https://<account>.r2.cloudflarestorage.com)
+ */
+export function sanitizeR2Endpoint(rawEndpoint: string, bucketName: string): string {
+  const clean = (rawEndpoint || "").trim().replace(/\/+$/, "");
+  if (!clean) return "";
+  try {
+    const parsed = new URL(clean);
+    return `${parsed.protocol}//${parsed.host}`;
+  } catch {
+    if (bucketName && clean.endsWith(`/${bucketName}`)) {
+      return clean.slice(0, -(bucketName.length + 1));
+    }
+    return clean;
+  }
+}
 
 /**
  * Cloudflare R2 S3-Compatible Storage Configuration
@@ -22,11 +41,12 @@ export function getR2Config() {
     process.env.R2_PUBLIC_BASE_URL || "https://media.sirdas.ai"
   ).replace(/\/+$/, "");
 
-  const endpoint =
+  const rawEndpoint =
     process.env.R2_ENDPOINT ||
     (accountId
       ? `https://${accountId}.r2.cloudflarestorage.com`
       : "https://r2.cloudflarestorage.com");
+  const endpoint = sanitizeR2Endpoint(rawEndpoint, bucketName);
 
   return {
     accountId,
@@ -79,7 +99,7 @@ export interface UploadSnippetResult {
 
 /**
  * Generate public URL for an audio file hosted on Cloudflare R2
- * Used to send .ogg audio snippets via Meta WhatsApp Cloud API
+ * Used to stream .ogg audio snippets via Web and Mobile apps
  */
 export function getPublicAudioUrl(key: string): string {
   const { publicBaseUrl } = getR2Config();

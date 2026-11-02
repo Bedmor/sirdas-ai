@@ -35,11 +35,9 @@ async function runTests() {
     "src/app/askida-sirdas/hata/page.tsx",
     "src/app/admin/layout.tsx",
     "src/app/admin/page.tsx",
-    "src/app/admin/vas-reports/page.tsx",
     "src/app/admin/audit-logs/page.tsx",
     "src/app/admin/knowledge/page.tsx",
     "src/app/api/admin/stats/route.ts",
-    "src/app/api/admin/vas-export/route.ts",
     "src/app/api/admin/knowledge/route.ts",
     "src/app/api/webhook/payment/route.ts",
     "src/app/api/donation/checkout/route.ts",
@@ -52,7 +50,6 @@ async function runTests() {
     "src/components/donation/pool-counter.tsx",
     "src/components/donation/donation-box.tsx",
     "src/components/admin/metric-cards.tsx",
-    "src/components/admin/vas-chart.tsx",
     "src/components/admin/audit-table.tsx",
     "src/lib/payment/paytr.ts",
     "src/lib/payment/iyzico.ts",
@@ -69,15 +66,18 @@ async function runTests() {
     assert(fs.existsSync(fullPath), `${file} exists`);
   }
 
-  // Test 2: Landing Page & Dark Theme
-  console.log("\n[2] Checking Landing Page & Design Requirements...");
+  // Test 2: Landing Page (/tanitim) & Root Chat Workspace (/)
+  console.log("\n[2] Checking Landing Page (/tanitim) & Root Chat Workspace (/) Requirements...");
   const layoutContent = fs.readFileSync(path.join(rootDir, "src/app/layout.tsx"), "utf-8");
   assert(layoutContent.includes('className="dark"'), "Root layout sets dark theme class by default");
 
-  const landingContent = fs.readFileSync(path.join(rootDir, "src/app/page.tsx"), "utf-8");
+  const rootPageContent = fs.readFileSync(path.join(rootDir, "src/app/page.tsx"), "utf-8");
+  assert(rootPageContent.includes("SirdasChatWorkspace"), "Root page (/) renders SirdasChatWorkspace");
+
+  const landingContent = fs.readFileSync(path.join(rootDir, "src/app/tanitim/page.tsx"), "utf-8");
   const heroContent = fs.readFileSync(path.join(rootDir, "src/components/landing/hero.tsx"), "utf-8");
   assert(heroContent.includes("Gönül Yaralarına"), "Landing page hero contains primary headline");
-  assert(landingContent.includes("wa.me"), "Landing page contains direct WhatsApp CTA link");
+  assert(landingContent.includes("Manevi Pusula ile Dertleş") || landingContent.includes("Sırdaş ile Dertleş"), "Landing page contains direct in-app chat CTA link");
   assert(landingContent.includes("Hero"), "Landing page imports modular Hero component");
   assert(landingContent.includes("Manifesto"), "Landing page imports modular Manifesto component");
   assert(landingContent.includes("Features"), "Landing page imports modular Features component");
@@ -96,8 +96,8 @@ async function runTests() {
   console.log("\n[3] Checking Legal & Religious Disclaimer Pages...");
   const privacyContent = fs.readFileSync(path.join(rootDir, "src/app/gizlilik-politikasi/page.tsx"), "utf-8");
   assert(privacyContent.includes("KVKK"), "Privacy policy complies with KVKK");
-  assert(privacyContent.includes("waMessageId"), "Privacy policy details retry storm / idempotency tracking");
-  assert(privacyContent.includes("Meta WhatsApp Cloud API"), "Privacy policy mentions Meta API");
+  assert(privacyContent.includes("retry storm") || privacyContent.includes("waMessageId"), "Privacy policy details retry storm / idempotency tracking");
+  assert(privacyContent.includes("Web Sitesi ve Mobil Uygulama") || privacyContent.includes("Meta WhatsApp Cloud API"), "Privacy policy mentions supported platforms");
 
   const disclaimerContent = fs.readFileSync(path.join(rootDir, "src/app/sorumluluk-reddi/page.tsx"), "utf-8");
   assert(disclaimerContent.includes("Alo 190"), "Disclaimer highlights Diyanet Alo 190 Fetva Hattı");
@@ -127,9 +127,6 @@ async function runTests() {
   assert(auditLogsContent.includes("Kriz / Distress Skoru"), "Audit logs toolbar contains Distress Score selector");
   assert(auditLogsContent.includes("Kriz:"), "Audit logs display tiered distress indicator badge");
 
-  const vasReportsContent = fs.readFileSync(path.join(rootDir, "src/app/admin/vas-reports/page.tsx"), "utf-8");
-  assert(vasReportsContent.includes("VasChart"), "VAS reports page renders VasChart visual component");
-
   // Test 6: API Route - Admin Stats
   console.log("\n[6] Testing /api/admin/stats Route Handler...");
   const statsRoute = await import("../src/app/api/admin/stats/route");
@@ -141,7 +138,6 @@ async function runTests() {
   assert(statsJson.data.conversations !== undefined, "stats data includes active conversations");
   assert(statsJson.data.messages !== undefined, "stats data includes messages");
   assert(statsJson.data.donations !== undefined, "stats data includes donations pool");
-  assert(statsJson.data.vas !== undefined, "stats data includes VAS metrics");
   assert(statsJson.data.knowledge !== undefined, "stats data includes knowledge metrics");
 
   // Test 7: API Route - Knowledge Chunks
@@ -154,30 +150,9 @@ async function runTests() {
   assert(knowledgeJson.success === true, "Knowledge API returns success: true");
   assert(Array.isArray(knowledgeJson.data) && knowledgeJson.data.length > 0, "Knowledge API returns array of chunks");
   assert(
-    knowledgeJson.data.some((c: any) => c.sourceType === "HALIS_AYDEMIR" && c.audioUrl),
-    "Knowledge chunks include Halis Aydemir audio preview"
+    knowledgeJson.data.some((c: any) => c.sourceType === "QURAN" || c.sourceType === "HADITH" || c.sourceType === "SIYER"),
+    "Knowledge chunks include verified Quran/Hadith/Siyer sources"
   );
-
-  // Test 8: API Route - VAS Export (CSV & JSON)
-  console.log("\n[8] Testing /api/admin/vas-export Route Handler...");
-  const vasExportRoute = await import("../src/app/api/admin/vas-export/route");
-
-  // 8a: JSON format
-  const jsonReq = new NextRequest("http://localhost:3000/api/admin/vas-export?format=json");
-  const jsonRes = await vasExportRoute.GET(jsonReq);
-  assert(jsonRes.status === 200, "vas-export JSON returns 200 OK");
-  const vasData = await jsonRes.json();
-  assert(vasData.success === true, "vas-export JSON returns success: true");
-  assert(Array.isArray(vasData.data) && vasData.data.length > 0, "vas-export returns array of logs");
-
-  // 8b: CSV format
-  const csvReq = new NextRequest("http://localhost:3000/api/admin/vas-export?format=csv");
-  const csvRes = await vasExportRoute.GET(csvReq);
-  assert(csvRes.status === 200, "vas-export CSV returns 200 OK");
-  const csvHeader = csvRes.headers.get("content-type");
-  assert(csvHeader?.includes("text/csv") === true, "vas-export CSV sets text/csv Content-Type");
-  const csvBody = await csvRes.text();
-  assert(csvBody.includes("Kayit_ID") && csvBody.includes("Operator_Esdeger_Dakika"), "CSV body contains required headers");
 
   // Test 9: API Route - Donation Checkout
   console.log("\n[9] Testing /api/donation/checkout Route Handler...");
@@ -341,6 +316,7 @@ async function runTests() {
   if (failed > 0) {
     process.exit(1);
   }
+  process.exit(0);
 }
 
 runTests().catch((err) => {

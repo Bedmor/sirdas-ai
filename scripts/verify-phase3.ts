@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { NextRequest } from "next/server";
 import crypto from "crypto";
 
@@ -23,8 +24,12 @@ async function runTests() {
   console.log("[1] Testing System 1 (Jev) Reflex & Guardrail Primitives...");
   const {
     runHeuristicFallback,
+    checkViolenceAndAbuse,
+    checkCrisisAndSuicide,
     FATWA_REJECTION_MESSAGE,
-    CRISIS_EMERGENCY_MESSAGE
+    CRISIS_EMERGENCY_MESSAGE,
+    VIOLENCE_EMERGENCY_MESSAGE,
+    VICTIM_EMERGENCY_MESSAGE
   } = await import("../src/lib/ai/jev-client");
 
   // 1a: Fatwa detection
@@ -32,25 +37,47 @@ async function runTests() {
   assert(fatwaTest.is_fiqh_fatwa_request >= 0.75, "Jev detects fatwa/divorce request with >= 0.75 confidence");
   assert(fatwaTest.is_fiqh_fatwa_request === 0.88, "Fatwa confidence matches heuristic standard (0.88)");
 
+  const fatwaTest2 = runHeuristicFallback("Bunu yapmak dinen günah mı?");
+  assert(fatwaTest2.is_fiqh_fatwa_request >= 0.75, "Jev detects 'günah mı' fatwa query with >= 0.75 confidence");
+
   // 1b: Riba / debt shield detection
   const ribaTest = runHeuristicFallback("Kredi kartı borcum dağ gibi oldu, banka faizi yüzünden nefes alamıyorum.");
   assert(ribaTest.is_debt_or_riba_related >= 0.60, "Jev detects riba/debt crisis with >= 0.60 confidence");
   assert(ribaTest.rag_category === "RIZIK_VE_TICARET", "Riba crisis is routed to RIZIK_VE_TICARET category");
-  assert(ribaTest.nafs_trap === "FAIRLIK_KORKUSU_VESVESESI", "Riba crisis identifies FAIRLIK_KORKUSU_VESVESESI trap");
+  assert(ribaTest.nafs_trap === "FAKIRLIK_KORKUSU_VESVESESI", "Riba crisis identifies FAKIRLIK_KORKUSU_VESVESESI trap");
 
   // 1c: Extreme crisis detection
   const crisisTest = runHeuristicFallback("Dayanamıyorum artık, ölmek istiyorum, her şey bitti.");
   assert(crisisTest.distress_level === 10, "Extreme crisis detects distress_level = 10");
 
-  // 1d: Moderate distress
+  const suicideCheck1 = checkCrisisAndSuicide("Hayatıma son vermek istiyorum, dayanamıyorum");
+  assert(suicideCheck1 !== null && suicideCheck1.isCrisis === true, "checkCrisisAndSuicide catches 'hayatıma son vermek'");
+
+  const suicideCheck2 = checkCrisisAndSuicide("Kendimi asmak üzereyim");
+  assert(suicideCheck2 !== null && suicideCheck2.isCrisis === true, "checkCrisisAndSuicide catches 'kendimi asmak'");
+
+  // 1d: Violence and domestic abuse detection (karımı dövücem)
+  const violencePerpetrator = checkViolenceAndAbuse("karımı dövücem");
+  assert(violencePerpetrator !== null && violencePerpetrator.isViolence === true, "Domestic violence intent 'karımı dövücem' is caught by violence guardrail");
+  assert(Boolean(violencePerpetrator?.message.includes("112 Acil") && violencePerpetrator?.message.includes("183")), "Violence intent directs to 112 Acil and ALO 183");
+
+  const violenceVictim = checkViolenceAndAbuse("Kocam beni dövüyor, çok korkuyorum ne yapmalıyım?");
+  assert(violenceVictim !== null && violenceVictim.isVictim === true, "Violence victim is caught and protected");
+  assert(Boolean(violenceVictim?.message.includes("KADES") && violenceVictim?.message.includes("183")), "Victim response directs to KADES and ALO 183");
+
+  const violenceVictim2 = checkViolenceAndAbuse("Babam beni dövüyor can güvenliğim yok");
+  assert(violenceVictim2 !== null && violenceVictim2.isVictim === true, "Family abuse 'Babam beni dövüyor' is caught and protected");
+
+  // 1e: Moderate distress
   const moderateTest = runHeuristicFallback("İçimde bir darlık var, dua etmek istiyorum.");
   assert(moderateTest.distress_level === 4, "Moderate distress detects distress_level = 4");
   assert(moderateTest.is_fiqh_fatwa_request < 0.5, "Moderate prayer is not flagged as fatwa");
 
-  // 1e: Guardrail constant messages
+  // 1f: Guardrail constant messages
   assert(FATWA_REJECTION_MESSAGE.includes("fetva makamı değilim"), "Fatwa rejection contains disclaimer");
   assert(FATWA_REJECTION_MESSAGE.includes("Alo 190"), "Fatwa rejection directs to Diyanet Alo 190");
   assert(CRISIS_EMERGENCY_MESSAGE.includes("112 Acil"), "Crisis message directs to 112 Acil");
+  assert(VIOLENCE_EMERGENCY_MESSAGE.includes("183"), "Violence emergency message directs to ALO 183");
 
   // 2. System Constitution
   console.log("\n[2] Testing Sırdaş AI System Constitution...");
@@ -267,12 +294,10 @@ async function runTests() {
   assert(dbUserMsg !== null, "User message is recorded in database with unique waMessageId");
   assert(dbUserMsg?.role === "USER", "User message role is USER");
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const vasLog = await prisma.vasDailyLog.findFirst({
-    where: { logDate: today }
-  });
-  assert(vasLog !== null && vasLog.incomingCount >= 1, "Operatör VAS daily log is atomically incremented");
+  // Verify expanded NafsTrap & RagCategory heuristics
+  const kaderTest = runHeuristicFallback("Neden hep benim başıma geliyor, kaderime isyan etmek üzereyim.");
+  assert(kaderTest.nafs_trap === "KADERE_ITIRAZ_VE_ISYAN", "Kader query identifies KADERE_ITIRAZ_VE_ISYAN trap");
+  assert(kaderTest.rag_category === "KADER_VE_KAZA_HIKMETI", "Kader query routes to KADER_VE_KAZA_HIKMETI category");
 
   // 9. WhatsApp Webhook API Route Handler
   console.log("\n[9] Testing /api/webhook/whatsapp Route Handler...");
@@ -341,6 +366,7 @@ async function runTests() {
   if (failed > 0) {
     process.exit(1);
   }
+  process.exit(0);
 }
 
 runTests().catch(err => {

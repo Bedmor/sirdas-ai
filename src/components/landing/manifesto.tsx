@@ -62,7 +62,7 @@ export function Manifesto() {
           Her Cevabı Kuşatan 5 Sarsılmaz Manevi Süzgeç
         </h2>
         <p className="text-base sm:text-lg text-emerald-100/75 leading-relaxed font-light">
-          Sırdaş AI bir kelime üretmeden önce sistem anayasasındaki bu 5
+          Manevi Pusula bir kelime üretmeden önce sistem anayasasındaki bu 5
           süzgeçten geçer. Cevabında nefsin kurnazlığına, ümitsizliğe veya
           dünyevi çıkar hırsına asla yer vermez.
         </p>

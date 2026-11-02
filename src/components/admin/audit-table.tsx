@@ -63,7 +63,7 @@ export function AuditTable({ records, loading = false }: AuditTableProps) {
                     : "bg-emerald-950 text-emerald-300 border border-emerald-800/50"
                 }`}
               >
-                {msg.role === "USER" ? "Kullanıcı" : "Sırdaş AI"}
+                {msg.role === "USER" ? "Kullanıcı" : "Manevi Pusula"}
               </Badge>
               {msg.audioSent && (
                 <Badge

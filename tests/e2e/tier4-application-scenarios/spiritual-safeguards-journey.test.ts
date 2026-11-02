@@ -62,4 +62,83 @@ describe("Tier 4: Real-World Scenario — End-to-End Spiritual Guardrails", { ti
       expect(disclaimerContent).toContain(num);
     }
   });
+
+  it("T4-SCN.8: Diversified NafsTrap, RagCategory, TonePreference, and SpiritualStage enums are active in System 1", async () => {
+    const {
+      NAFS_TRAP_CRITERIA,
+      RAG_CATEGORY_CRITERIA,
+      TONE_PREFERENCE_CRITERIA,
+      SPIRITUAL_STAGE_CRITERIA,
+      runHeuristicFallback,
+    } = await import("@/lib/ai/jev-client");
+
+    expect(NAFS_TRAP_CRITERIA.KADERE_ITIRAZ_VE_ISYAN).toBeDefined();
+    expect(NAFS_TRAP_CRITERIA.ACELECI_TALEPLER_VE_ISTIACAL).toBeDefined();
+    expect(NAFS_TRAP_CRITERIA.ZAHIRE_ALDANMA_VE_SEBEP_PERESTLIK).toBeDefined();
+    expect(NAFS_TRAP_CRITERIA.UCUB_VE_AMELINE_GUVENME).toBeDefined();
+    expect(NAFS_TRAP_CRITERIA.KONTROL_YANILSAMASI_VE_MUKEMMELIYETCILIK).toBeDefined();
+    expect(NAFS_TRAP_CRITERIA.GIZLI_SIRK_VE_SAHTE_SIGINAKLAR).toBeDefined();
+    expect(NAFS_TRAP_CRITERIA.SUI_ZAN_VE_TECESSUS).toBeDefined();
+    expect(NAFS_TRAP_CRITERIA.MINNET_VE_BASA_KAKMA).toBeDefined();
+    expect(NAFS_TRAP_CRITERIA.KAYITSIZLIK_VE_MERHAMETSIZLIK).toBeDefined();
+    expect(NAFS_TRAP_CRITERIA.GECMISIN_PISMANLIK_GIRDABI).toBeDefined();
+    expect(NAFS_TRAP_CRITERIA.TUL_I_EMEL_VE_GAYETSIZLIK).toBeDefined();
+    expect(NAFS_TRAP_CRITERIA.VESVESE_VE_GUSUL_ABDEST_EVHAMI).toBeDefined();
+
+    expect(RAG_CATEGORY_CRITERIA.KADER_VE_KAZA_HIKMETI).toBeDefined();
+    expect(RAG_CATEGORY_CRITERIA.DUA_VE_ILCA_USULU).toBeDefined();
+    expect(RAG_CATEGORY_CRITERIA.TEVBE_VE_INABE).toBeDefined();
+    expect(RAG_CATEGORY_CRITERIA.KALP_AMELLELI_VE_IHLAS).toBeDefined();
+    expect(RAG_CATEGORY_CRITERIA.FANILIK_VE_TAZIYE).toBeDefined();
+    expect(RAG_CATEGORY_CRITERIA.FITNE_VE_AHIR_ZAMAN_AHLAKI).toBeDefined();
+    expect(RAG_CATEGORY_CRITERIA.ISRAF_VE_IKTISAT_FIKHI).toBeDefined();
+    expect(RAG_CATEGORY_CRITERIA.SIYERDE_DARLIK_DONEMLERI).toBeDefined();
+
+    expect(TONE_PREFERENCE_CRITERIA.SEFKATLI_TESKIN).toBeDefined();
+    expect(TONE_PREFERENCE_CRITERIA.DIRILIS_VE_GAYRET).toBeDefined();
+    expect(TONE_PREFERENCE_CRITERIA.NET_VE_MUALLIM).toBeDefined();
+    expect(TONE_PREFERENCE_CRITERIA.HIKMETLI_SUKUT).toBeDefined();
+
+    expect(SPIRITUAL_STAGE_CRITERIA.ARAYIS_VE_BASLANGIC).toBeDefined();
+    expect(SPIRITUAL_STAGE_CRITERIA.DARLIK_VE_BUNALIM).toBeDefined();
+    expect(SPIRITUAL_STAGE_CRITERIA.DERINLESMIS_SALIK).toBeDefined();
+
+    const tevbeAnalysis = runHeuristicFallback("Eski hatalarım ve geçmiş günahlarım yüzünden Allah beni affetmez diye korkuyorum.");
+    expect(tevbeAnalysis.nafs_trap).toBe("GECMISIN_PISMANLIK_GIRDABI");
+    expect(tevbeAnalysis.rag_category).toBe("TEVBE_VE_INABE");
+  });
+
+  it("T4-SCN.9: Zero-latency Crisis & Violence Guards catch full crisis/abuse spectrum without latency", async () => {
+    const {
+      checkCrisisAndSuicide,
+      checkViolenceAndAbuse,
+      runHeuristicFallback,
+    } = await import("@/lib/ai/jev-client");
+
+    // Suicide / crisis variations
+    const c1 = checkCrisisAndSuicide("Kendimi asmak üzereyim, dayanamıyorum");
+    expect(c1).toBeTruthy();
+    expect(c1?.isCrisis).toBe(true);
+
+    const c2 = checkCrisisAndSuicide("Bu gece hayatıma son vermek istiyorum");
+    expect(c2).toBeTruthy();
+    expect(c2?.isCrisis).toBe(true);
+
+    // Domestic abuse / violence variations
+    const v1 = checkViolenceAndAbuse("Babam beni dövüyor, can güvenliğim yok");
+    expect(v1).toBeTruthy();
+    expect(v1?.isVictim).toBe(true);
+
+    const v2 = checkViolenceAndAbuse("Onu pataklayacağım, döveceğim");
+    expect(v2).toBeTruthy();
+    expect(v2?.isViolence).toBe(true);
+
+    // Colloquial fatwa
+    const f1 = runHeuristicFallback("Bu yaptığım günah mı?");
+    expect(f1.is_fiqh_fatwa_request).toBeGreaterThanOrEqual(0.75);
+
+    // Debt & Riba
+    const r1 = runHeuristicFallback("Tefeciye borcum var, faiz batağına saplandım");
+    expect(r1.is_debt_or_riba_related).toBeGreaterThanOrEqual(0.60);
+  });
 });

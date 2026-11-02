@@ -1,26 +1,23 @@
 import React from "react";
 import Link from "next/link";
-import { ShieldCheck, PhoneCall, Sparkles, HeartHandshake, Compass } from "lucide-react";
+import { ShieldCheck, Smartphone, Sparkles, HeartHandshake, Compass } from "lucide-react";
 
 interface HeroProps {
-  waUrl: string;
+  waUrl?: string;
 }
 
 export function Hero({ waUrl }: HeroProps) {
-  // Direct wa.me WhatsApp integration
-  const whatsappUrl = waUrl || "https://wa.me/905550200605?text=Selamun%20Aleykum";
-
   return (
-    <section className="relative overflow-hidden pt-24 pb-28 md:pt-36 md:pb-36 bg-[#090d0b] border-b border-emerald-950/80">
-      {/* Atmospheric Emerald & Gold Radial Glow */}
+    <section className="relative overflow-hidden pt-24 pb-28 md:pt-36 md:pb-36 bg-background border-b border-outline-variant/40">
+      {/* Atmospheric Teal & Gold Radial Glow */}
       <div
         aria-hidden="true"
         className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[680px] pointer-events-none overflow-hidden"
       >
-        {/* Top radial emerald radiance */}
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[450px] bg-[radial-gradient(ellipse_at_center,_rgba(5,150,105,0.22),_rgba(4,120,87,0.08)_50%,_transparent_75%)] blur-2xl" />
-        {/* Warm amber focal light */}
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[480px] h-[280px] bg-[radial-gradient(ellipse_at_center,_rgba(217,119,6,0.14),_transparent_70%)] blur-3xl animate-aura-breathe" />
+        {/* Top radial teal radiance */}
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[450px] bg-[radial-gradient(ellipse_at_center,_rgba(69,155,149,0.18),_rgba(18,56,53,0.08)_50%,_transparent_75%)] blur-2xl" />
+        {/* Warm champagne gold focal light */}
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[480px] h-[280px] bg-[radial-gradient(ellipse_at_center,_rgba(204,167,98,0.14),_transparent_70%)] blur-3xl animate-aura-breathe" />
       </div>
 
       {/* Islamic Arch (Kemer) Vector Motif Silhouette */}
@@ -69,17 +66,17 @@ export function Hero({ waUrl }: HeroProps) {
             </span>
           </h1>
 
-          <p className="text-base sm:text-lg md:text-xl text-emerald-100/85 max-w-3xl mx-auto font-light leading-relaxed pt-2">
+          <p className="text-base sm:text-lg md:text-xl text-foreground/85 max-w-3xl mx-auto font-light leading-relaxed pt-2">
             Modern hayatın borç, öfke, rızık kaygısı ve vesvese girdaplarında;
-            fıkhi fetva vermeden, nefsin tuzaklarını deşifre eden ve Halis
-            Aydemir sohbetleri ışığında kulun kalbine sekine fısıldayan dijital
-            sırdaşınız.
+            fıkhi fetva vermeden, nefsin tuzaklarını deşifre eden ve sahih
+            kaynaklar ışığında kalbe inşirah ve sükûnet aşılayan dijital
+            manevi pusulanız.
           </p>
         </div>
 
-        {/* Action Controls */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-5 pt-2">
-          {/* Pulsating WhatsApp CTA with Multi-Layered Breathing Aura */}
+        {/* Action Controls - Web & Mobile First */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+          {/* Primary Web Chat CTA with Multi-Layered Breathing Aura */}
           <div className="relative group w-full sm:w-auto">
             {/* Pulsating Ring Layer */}
             <span
@@ -92,25 +89,32 @@ export function Hero({ waUrl }: HeroProps) {
               className="absolute -inset-0.5 rounded-2xl bg-amber-500/20 blur-[2px] animate-aura-breathe pointer-events-none"
             />
 
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/"
               className="relative w-full sm:w-auto inline-flex items-center justify-center gap-3.5 px-8 py-4 rounded-xl bg-gradient-to-r from-emerald-800 via-emerald-700 to-emerald-800 hover:from-emerald-700 hover:to-emerald-600 text-white font-semibold text-base shadow-[0_12px_32px_-4px_rgba(5,150,105,0.45)] hover:shadow-[0_16px_36px_-2px_rgba(5,150,105,0.6)] transition-all duration-200 active:scale-[0.98] border border-emerald-400/40 hover:border-amber-400/50"
             >
               <div className="relative flex items-center justify-center">
-                <PhoneCall className="h-5 w-5 text-emerald-200 shrink-0" />
+                <Compass className="h-5 w-5 text-emerald-200 shrink-0" />
                 <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-amber-400 ring-2 ring-emerald-900 animate-ping" />
               </div>
-              <span className="tracking-wide">Sırdaş ile Konuş (WhatsApp)</span>
-            </a>
+              <span className="tracking-wide">Web&apos;de Dertleşmeye Başla</span>
+            </Link>
+          </div>
+
+          {/* Mobile App Pill / Announcement */}
+          <div className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-5 py-4 rounded-xl border border-emerald-900/60 bg-[#0d1411]/80 backdrop-blur-md text-foreground font-medium text-sm shadow-sm">
+            <Smartphone className="h-4 w-4 text-primary" />
+            <span className="text-slate-300">Mobil Uygulama:</span>
+            <span className="text-amber-400 font-semibold text-xs bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30">
+              iOS &amp; Android Çok Yakında
+            </span>
           </div>
 
           <Link
             href="/sorumluluk-reddi"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl border border-emerald-900/60 bg-[#0d1411]/80 hover:bg-[#121c18] backdrop-blur-md text-foreground font-medium text-base hover:border-amber-500/40 transition-all duration-200 shadow-sm"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-4 rounded-xl border border-emerald-950/60 bg-surface-container-low/50 hover:bg-surface-container text-slate-300 hover:text-white font-medium text-sm transition-all duration-200"
           >
-            <span>Manevi Sınırlar ve Fıkhi Çerçeve</span>
+            <span>Fıkhi Sınırlar</span>
           </Link>
         </div>
 

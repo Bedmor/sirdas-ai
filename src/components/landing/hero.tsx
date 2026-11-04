@@ -2,11 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { ShieldCheck, Smartphone, Sparkles, HeartHandshake, Compass } from "lucide-react";
 
-interface HeroProps {
-  waUrl?: string;
-}
-
-export function Hero({ waUrl }: HeroProps) {
+export function Hero() {
   return (
     <section className="relative overflow-hidden pt-24 pb-28 md:pt-36 md:pb-36 bg-background border-b border-outline-variant/40">
       {/* Atmospheric Teal & Gold Radial Glow */}

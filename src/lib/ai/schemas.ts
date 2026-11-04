@@ -70,6 +70,8 @@ export const SpiritualStageEnum = z.enum([
   "MUHASEBE_VE_TEVBE",
 ]);
 
+export const IntentModeEnum = z.enum(["MANEVI_AYNA", "ILIM_VE_SIYER"]);
+
 export const EditorAuditSchema = z.object({
   murakabe_applied: z.boolean().describe("Murakabe şuuru işletildi mi?"),
   ilahi_riza_checked: z.boolean().describe("Kazan-kazan değil, İlahi rıza kriteri konuldu mu?"),
@@ -81,7 +83,8 @@ export const EditorAuditSchema = z.object({
   rag_category: z.string().optional().describe("İlgili 16+ RAG kategorisinden biri"),
   distress_level: z.number().min(0).max(10).optional().describe("0-10 arası kriz/hüzün seviyesi"),
   tone: TonePreferenceEnum.optional().describe("Uygulanan hitabet tavrı"),
-  spiritual_stage: SpiritualStageEnum.optional().describe("Kullanıcının manevi aşaması")
+  spiritual_stage: SpiritualStageEnum.optional().describe("Kullanıcının manevi aşaması"),
+  intent_mode: IntentModeEnum.optional().describe("Akıllı niyet yönlendirmesi modu (MANEVI_AYNA | ILIM_VE_SIYER)")
 });
 
 export type EditorAudit = z.infer<typeof EditorAuditSchema>;
@@ -99,9 +102,13 @@ export const SirdasOutputSchema = z.object({
   // 1. İçsel Editör Denetimi (Model cevabı yazmadan önce bu denetimi doldurmak zorundadır)
   editor_audit: EditorAuditSchema,
   // 2. Kullanıcıya Gidecek Nihai Yanıt Metni
+  reply_text: z
+    .string()
+    .optional()
+    .describe("Samimi, vakur, edebi dille yazılmış nihai yanıt (*kalın*, satır boşluklu)"),
   whatsapp_reply: z
     .string()
-    .describe("Samimi, vakur, edebi dille yazılmış nihai yanıt (*kalın*, satır boşluklu)"),
+    .describe("Geriye dönük uyumluluk yanıt alanı"),
   // 3. Sohbet Sırasında Öğrenilen Yeni Profil Bilgileri (Varsa)
   profile_updates: ProfileUpdatesSchema.optional(),
   // 4. Seçilen Halis Hoca Ses Kesiti ID'si (Varsa)

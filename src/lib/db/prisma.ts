@@ -332,6 +332,41 @@ function createResilientPrisma(client: PrismaClient): PrismaClient {
           return null;
         }
       ),
+    findMany: (args?: {
+      where?: {
+        id?: string;
+        phoneNumber?: string | { startsWith?: string };
+        lastActiveAt?: { lt?: Date };
+      };
+      take?: number;
+      include?: Record<string, unknown>;
+    }) =>
+      runWithFallback(
+        () =>
+          (client.user.findMany as (a?: unknown) => Promise<unknown[]>)(args),
+        () => {
+          const db = getInMemoryDb();
+          let list = Array.from(db.users.values());
+          if (args?.where?.phoneNumber) {
+            if (typeof args.where.phoneNumber === "string") {
+              list = list.filter(
+                (u) => u.phoneNumber === args.where?.phoneNumber
+              );
+            } else if (args.where.phoneNumber.startsWith) {
+              const prefix = args.where.phoneNumber.startsWith;
+              list = list.filter((u) => u.phoneNumber.startsWith(prefix));
+            }
+          }
+          if (args?.where?.lastActiveAt?.lt) {
+            const cutoff = args.where.lastActiveAt.lt.getTime();
+            list = list.filter((u) => u.lastActiveAt.getTime() < cutoff);
+          }
+          if (typeof args?.take === "number") {
+            list = list.slice(0, args.take);
+          }
+          return list.map((u) => attachUserInclude(u, args?.include));
+        }
+      ),
     create: (args: { data: Partial<InMemoryUser> & { phoneNumber: string } }) =>
       runWithFallback(
         () => (client.user.create as (a: unknown) => Promise<unknown>)(args),
@@ -463,6 +498,63 @@ function createResilientPrisma(client: PrismaClient): PrismaClient {
           return { ...created };
         }
       ),
+    delete: (args: { where: { id?: string; phoneNumber?: string } }) =>
+      runWithFallback(
+        () => (client.user.delete as (a: unknown) => Promise<unknown>)(args),
+        () => {
+          const db = getInMemoryDb();
+          let targetId: string | undefined;
+          if (args?.where?.id) {
+            targetId = args.where.id;
+          } else if (args?.where?.phoneNumber) {
+            for (const [id, u] of db.users.entries()) {
+              if (u.phoneNumber === args.where.phoneNumber) {
+                targetId = id;
+                break;
+              }
+            }
+          }
+          if (targetId) {
+            const user = db.users.get(targetId);
+            db.users.delete(targetId);
+            // Cascade delete messages for user
+            for (const [mId, m] of db.messages.entries()) {
+              if (m.userId === targetId) {
+                db.messages.delete(mId);
+              }
+            }
+            return user ? { ...user } : null;
+          }
+          return null;
+        }
+      ),
+    deleteMany: (args?: { where?: { id?: string; phoneNumber?: string } }) =>
+      runWithFallback(
+        () =>
+          (client.user.deleteMany as (a?: unknown) => Promise<{ count: number }>)(
+            args
+          ),
+        () => {
+          const db = getInMemoryDb();
+          let count = 0;
+          for (const [id, u] of db.users.entries()) {
+            if (args?.where?.id && u.id !== args.where.id) continue;
+            if (
+              args?.where?.phoneNumber &&
+              u.phoneNumber !== args.where.phoneNumber
+            )
+              continue;
+            db.users.delete(id);
+            for (const [mId, m] of db.messages.entries()) {
+              if (m.userId === id) {
+                db.messages.delete(mId);
+              }
+            }
+            count++;
+          }
+          return { count };
+        }
+      ),
     count: (args?: unknown) =>
       runWithFallback(
         () => (client.user.count as (a?: unknown) => Promise<number>)(args),
@@ -588,11 +680,18 @@ function createResilientPrisma(client: PrismaClient): PrismaClient {
           return { count };
         }
       ),
-    count: (args?: unknown) =>
+    count: (args?: { where?: { userId?: string } }) =>
       runWithFallback(
         () => (client.message.count as (a?: unknown) => Promise<number>)(args),
         () => {
           const db = getInMemoryDb();
+          if (args?.where?.userId) {
+            let userCount = 0;
+            for (const m of db.messages.values()) {
+              if (m.userId === args.where.userId) userCount++;
+            }
+            return userCount;
+          }
           return Math.max(db.messages.size, 142850);
         }
       ),

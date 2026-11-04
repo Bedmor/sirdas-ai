@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
-import { Amiri, Space_Grotesk, Roboto_Slab } from "next/font/google";
+import { Amiri, Noto_Naskh_Arabic, Space_Grotesk, Roboto_Slab } from "next/font/google";
 import "./globals.css";
 
 const amiri = Amiri({
-  subsets: ["latin"],
+  subsets: ["arabic", "latin"],
   weight: ["400", "700"],
   variable: "--font-amiri",
+  display: "swap",
+});
+
+const notoNaskhArabic = Noto_Naskh_Arabic({
+  subsets: ["arabic"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-noto-arabic",
   display: "swap",
 });
 
@@ -57,7 +64,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body
-        className={`${amiri.variable} ${spaceGrotesk.variable} ${robotoSlab.variable} bg-background font-body text-on-surface antialiased min-h-screen selection:bg-secondary-container selection:text-on-secondary-container spiritual-bg-pattern`}
+        className={`${amiri.variable} ${notoNaskhArabic.variable} ${spaceGrotesk.variable} ${robotoSlab.variable} bg-background font-body text-on-surface antialiased min-h-screen selection:bg-secondary-container selection:text-on-secondary-container spiritual-bg-pattern`}
       >
         {children}
       </body>

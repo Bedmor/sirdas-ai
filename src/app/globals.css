@@ -126,8 +126,16 @@
   .font-serif {
     font-family: var(--font-cinzel), var(--font-amiri), "Playfair Display", Georgia, serif;
   }
-  .font-amiri {
-    font-family: var(--font-amiri), serif;
+  .font-amiri,
+  .font-arabic,
+  .font-quran {
+    font-family: var(--font-amiri), var(--font-noto-arabic), "Amiri", "Noto Naskh Arabic", "Traditional Arabic", "Scheherazade New", serif;
+    letter-spacing: 0 !important;
+    word-spacing: normal;
+    font-feature-settings: "cv01" on, "cv02" on, "liga" on, "calt" on, "mkmk" on, "mark" on;
+    font-variant-ligatures: contextual common-ligatures;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
   .font-cinzel {
     font-family: var(--font-cinzel), serif;

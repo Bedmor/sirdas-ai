@@ -5,6 +5,8 @@ import {
   extractMeaningfulKeywords,
   searchLocalKnowledgeCorpus,
 } from "@/lib/db/local-corpus";
+import { ChatIntentMode } from "./intent-router";
+import { checkAdversarialGuardrails } from "./adversarial-guardrails";
 import {
   FATWA_REJECTION_MESSAGE,
   CRISIS_EMERGENCY_MESSAGE,
@@ -47,10 +49,12 @@ export interface UnifiedEditorAudit {
   distress_level?: number;
   tone?: string;
   spiritual_stage?: string;
+  intent_mode?: string;
 }
 
 export interface GuardrailIntercept {
-  status: "fatwa_blocked" | "crisis_redirected";
+  status: "fatwa_blocked" | "crisis_redirected" | "processed";
+  ruleId?: string;
   replyText: string;
   editorAudit: UnifiedEditorAudit;
   extraFlags: {
@@ -98,6 +102,38 @@ export function evaluateSpiritualGuardrails(
   userMessage: string,
   jevResult: JevAnalysisResult
 ): GuardrailIntercept | null {
+  // 0. Çelik Kasa Adversarial Kalkanı (18 Zorlayıcı Senaryo Ön Süzgeci)
+  const adv = checkAdversarialGuardrails(userMessage);
+  if (adv) {
+    const isCrisis = adv.status === "crisis_redirected";
+    return {
+      status: adv.status,
+      ruleId: adv.ruleId,
+      replyText: adv.replyText,
+      extraFlags: {
+        bypassed_to_violence_block: adv.ruleId === "VIOLENCE_HARM",
+        crisis_redirect: isCrisis,
+        bypassed_to_fatwa_block: adv.status === "fatwa_blocked",
+      },
+      editorAudit: {
+        murakabe_applied: true,
+        ilahi_riza_checked: true,
+        tevekkul_and_talak_hope_included: true,
+        nafs_and_vesvese_addressed: adv.auditTag,
+        siyer_example_used: adv.ruleId,
+        riba_warning_included: adv.ruleId === "RIBA_APPROVAL_GUARD",
+        nafs_trap: jevResult.nafs_trap,
+        rag_category: jevResult.rag_category,
+        distress_level: isCrisis ? 10 : jevResult.distress_level,
+        tone: isCrisis ? "SEFKATLI_TESKIN" : "NET_VE_MUALLIM",
+        spiritual_stage: isCrisis
+          ? "DARLIK_VE_BUNALIM"
+          : jevResult.spiritual_stage || "ARAYIS_VE_BASLANGIC",
+        intent_mode: adv.intentMode,
+      },
+    };
+  }
+
   const violenceCheck = checkViolenceAndAbuse(userMessage);
   if (violenceCheck) {
     return {
@@ -199,6 +235,13 @@ export function isSpiritualWisdomNeeded(
     return false;
   }
 
+  // Kısa diyalog akışları, geçişler ve şaşkınlık/tepki mesajlarında (ör: "ee sonra", "knk ne diyon", "peki sonra", "ne diyon") RAG gerekmez
+  const casualFollowups =
+    /^(ee\s*sonra|sonra\s*ne\s*oldu|peki\s*sonra|ne\s*diyon|knk(\s*ne\s*diyon)?|kanka(\s*ne\s*diyon)?|yani|nasıl\s*yani|devam\s*et|anladım|peki|tamam)[\s?!.]*$/i;
+  if (casualFollowups.test(trimmed)) {
+    return false;
+  }
+
   // Kullanıcı herhangi bir halini, derdini, duygu veya sorusunu paylaşıyorsa,
   // Kur'an-ı Kerim ve Sünnet hikmeti (RAG) daima devreye girmelidir.
   return true;
@@ -214,8 +257,9 @@ export async function retrieveCelikKasaContext(params: {
   userMessage: string;
   queryEmbedding: number[];
   jevResult: JevAnalysisResult;
+  intentMode?: ChatIntentMode;
 }): Promise<{ chunks: RagChunkContext[]; isRibaShieldActive: boolean }> {
-  const { userMessage, queryEmbedding, jevResult } = params;
+  const { userMessage, queryEmbedding, jevResult, intentMode } = params;
   const isRibaShieldActive = jevResult.is_debt_or_riba_related >= 0.6;
   let chunks: RagChunkContext[] = [];
 
@@ -224,13 +268,21 @@ export async function retrieveCelikKasaContext(params: {
     return { chunks: [], isRibaShieldActive: false };
   }
 
+  // Serbest RAG: İlim ve Siyer modunda sadece Siyer/İlim arşivini süz;
+  // Manevi dertleşme modunda ise kategoriyi zorlamayarak saf vektör benzerliğinin
+  // kullanıcının gerçek hissiyle en çok örtüşen ayet ve hadisleri getirmesini sağla.
+  const effectiveCategory =
+    intentMode === "ILIM_VE_SIYER"
+      ? "SIYER_ORNEKLERI"
+      : undefined;
+
   try {
     const rpcResponse = await matchKnowledgeChunks({
       query_embedding: queryEmbedding,
       match_threshold: 0.3,
       match_count: 4,
-      filter_category: jevResult.rag_category,
-      filter_nafs: jevResult.nafs_trap,
+      filter_category: effectiveCategory,
+      filter_nafs: undefined,
       force_riba: isRibaShieldActive,
       user_message: userMessage,
     });
@@ -255,13 +307,14 @@ export async function retrieveCelikKasaContext(params: {
   if (chunks.length === 0) {
     try {
       const keywords = extractMeaningfulKeywords(userMessage, 6);
-      const conditions: Prisma.KnowledgeChunkWhereInput[] = [
-        { tags: { has: jevResult.rag_category } },
-        { nafsTraps: { has: jevResult.nafs_trap } },
-      ];
+      const conditions: Prisma.KnowledgeChunkWhereInput[] = [];
 
       if (isRibaShieldActive) {
-        conditions.unshift({ isRibaRelated: true });
+        conditions.push({ isRibaRelated: true });
+      }
+
+      if (effectiveCategory) {
+        conditions.push({ tags: { has: effectiveCategory } });
       }
 
       if (keywords.length > 0) {
@@ -274,7 +327,7 @@ export async function retrieveCelikKasaContext(params: {
       }
 
       const dbChunks = await prisma.knowledgeChunk.findMany({
-        where: { OR: conditions },
+        where: conditions.length > 0 ? { OR: conditions } : undefined,
         take: 8,
         orderBy: isRibaShieldActive
           ? [{ isRibaRelated: "desc" }, { createdAt: "desc" }]
@@ -298,10 +351,11 @@ export async function retrieveCelikKasaContext(params: {
   // Ensure rich multi-source balance (QURAN, HADITH/SIYER/DUA, HALIS_AYDEMIR, and Bakara 275-279 when Riba Shield active)
   const localMatches = searchLocalKnowledgeCorpus({
     userMessage,
-    filterCategory: jevResult.rag_category,
-    filterNafs: jevResult.nafs_trap,
+    filterCategory: effectiveCategory ?? null,
+    filterNafs: null,
     forceRiba: isRibaShieldActive,
     matchCount: 4,
+    intentMode,
   });
 
   if (chunks.length === 0) {
@@ -313,6 +367,20 @@ export async function retrieveCelikKasaContext(params: {
       audioUrl: m.audioUrl,
     }));
   } else {
+    // If ILIM_VE_SIYER mode, guarantee a top matching Siyer chunk is present
+    if (intentMode === "ILIM_VE_SIYER") {
+      const siyerMatch = localMatches.find((m) => m.sourceType === "SIYER");
+      if (siyerMatch && !chunks.some((c) => c.id === siyerMatch.id)) {
+        chunks.unshift({
+          id: siyerMatch.id,
+          sourceType: siyerMatch.sourceType,
+          sourceTitle: siyerMatch.sourceTitle,
+          content: siyerMatch.content,
+          audioUrl: siyerMatch.audioUrl,
+        });
+      }
+    }
+
     // Guarantee Bakara 275-279 is first when Riba Shield is active
     if (isRibaShieldActive) {
       const bakaraMatch = localMatches.find(

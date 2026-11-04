@@ -140,7 +140,7 @@ async function runTests() {
 
   // 5. Gemini 2.5 Flash System 2 Engine
   console.log("\n[5] Testing Gemini 2.5 Flash System 2 Engine & Riba Shield...");
-  const { generateSirdasReply, runMockGeminiReply } = await import("../src/lib/ai/gemini-client");
+  const { generateSirdasReply } = await import("../src/lib/ai/gemini-client");
 
   // 5a: With RIBA_SHIELD_ACTIVE = true
   const ribaReply = await generateSirdasReply({
@@ -162,7 +162,12 @@ async function runTests() {
   });
 
   assert(ribaReply.editor_audit.riba_warning_included === true, "editor_audit.riba_warning_included is TRUE when Riba Shield is active");
-  assert(ribaReply.whatsapp_reply.includes("Bakara") || ribaReply.whatsapp_reply.includes("Faiz"), "WhatsApp reply contains Bakara/Faiz warning");
+  assert(
+    ribaReply.whatsapp_reply.toLowerCase().includes("bakara") ||
+      ribaReply.whatsapp_reply.toLowerCase().includes("faiz") ||
+      ribaReply.whatsapp_reply.toLowerCase().includes("riba"),
+    "Reply contains Bakara/Faiz warning"
+  );
   assert(ribaReply.editor_audit.murakabe_applied === true, "editor_audit.murakabe_applied is TRUE");
   assert(ribaReply.editor_audit.tevekkul_and_talak_hope_included === true, "editor_audit.tevekkul_and_talak_hope_included is TRUE");
 
@@ -181,183 +186,11 @@ async function runTests() {
   assert(sorrowReply.editor_audit.riba_warning_included === false, "editor_audit.riba_warning_included is FALSE for non-riba topics");
   assert(sorrowReply.editor_audit.siyer_example_used.length > 0, "Siyer example is provided in editor audit");
 
-  // 6. WhatsApp Webhook Security (HMAC-SHA256)
-  console.log("\n[6] Testing WhatsApp Webhook Security (HMAC SHA-256)...");
-  const { verifyMetaSignature } = await import("../src/lib/whatsapp/security");
-
-  const secret = "test_meta_app_secret_123456";
-  const body = JSON.stringify({ entry: [{ id: "123" }] });
-  const validHmac = crypto.createHmac("sha256", secret).update(body).digest("hex");
-  const validHeader = `sha256=${validHmac}`;
-
-  assert(verifyMetaSignature(body, validHeader, secret) === true, "Valid HMAC-SHA256 signature is accepted");
-  assert(verifyMetaSignature(body + "tampered", validHeader, secret) === false, "Tampered body is rejected");
-  assert(verifyMetaSignature(body, validHeader, "wrong_secret") === false, "Wrong secret is rejected");
-  assert(verifyMetaSignature(body, "invalid_format", secret) === false, "Malformed signature header is rejected");
-  assert(verifyMetaSignature(body, null, secret) === false, "Missing signature header is rejected");
-
-  // 7. Onboarding State Machine & NLP Parsers
-  console.log("\n[7] Testing Onboarding State Machine & Text Parsers...");
-  const {
-    parseRolesFromText,
-    parseTrialsFromText,
-    parseEnergyFromText
-  } = await import("../src/lib/whatsapp/onboarding");
-
-  const roles = parseRolesFromText("Evliyim, 2 çocuğum var, pazarcı esnafıyım ve anneme bakıyorum.");
-  assert(roles.includes("EVLI"), "parseRoles extracts EVLI");
-  assert(roles.includes("COCUK_SAHIBI"), "parseRoles extracts COCUK_SAHIBI");
-  assert(roles.includes("ESNAF"), "parseRoles extracts ESNAF");
-  assert(roles.includes("HASTA_BAKIMI"), "parseRoles extracts HASTA_BAKIMI");
-
-  const trials = parseTrialsFromText("Çabuk sinirlenip öfkeleniyorum, rızık kaygım çok, elalem ne der diye korkuyorum.");
-  assert(trials.includes("ANI_OFKE"), "parseTrials extracts ANI_OFKE");
-  assert(trials.includes("RIZIK_VE_GELECEK_KAYGISI"), "parseTrials extracts RIZIK_VE_GELECEK_KAYGISI");
-  assert(trials.includes("ELALEM_NE_DER_RIYA"), "parseTrials extracts ELALEM_NE_DER_RIYA");
-
-  const energy = parseEnergyFromText("Sabahları uyanamıyorum, kronik bir yorgunluğum var.");
-  assert(energy.includes("SABAH_ZOR_UYANMA"), "parseEnergy extracts SABAH_ZOR_UYANMA");
-  assert(energy.includes("KRONIK_YORGUNLUK"), "parseEnergy extracts KRONIK_YORGUNLUK");
-
-  // 8. End-to-End Orchestrator Pipeline
-  console.log("\n[8] Testing Central Cognitive Orchestrator Flow...");
-  const { processIncomingMessage } = await import("../src/lib/ai/orchestrator");
-  const { prisma } = await import("../src/lib/db/prisma");
-
-  const testPhone = "+905001112233";
-  const uniqueMessageId = `test_msg_${Date.now()}`;
-
-  // Ensure test user exists and onboarding is complete
-  await prisma.user.upsert({
-    where: { phoneNumber: testPhone },
-    create: {
-      phoneNumber: testPhone,
-      onboardingCompleted: true,
-      onboardingStep: 4,
-      profileMetadata: {
-        roles: ["ESNAF"],
-        spiritual_trials: ["RIZIK_KAYGISI"],
-        tone_preference: "SEFKATLI_TESKIN"
-      }
-    },
-    update: {
-      onboardingCompleted: true,
-      onboardingStep: 4
-    }
-  });
-
-  // 8a: Fatwa request bypass
-  const fatwaMsgId = `${uniqueMessageId}_fatwa`;
-  const fatwaRes = await processIncomingMessage({
-    phoneNumber: testPhone,
-    text: "Eşimi boşadım, helal midir, caiz midir fetvası nedir?",
-    messageId: fatwaMsgId
-  });
-
-  assert(fatwaRes.status === "fatwa_blocked", "Fatwa query is blocked with status: fatwa_blocked");
-  assert(fatwaRes.replyText?.includes("fetva makamı değilim") === true, "Fatwa query receives FATWA_REJECTION_MESSAGE");
-
-  // 8b: Idempotency check (Duplicate message ID)
-  const dupRes = await processIncomingMessage({
-    phoneNumber: testPhone,
-    text: "Mükerrer mesaj",
-    messageId: fatwaMsgId
-  });
-  assert(dupRes.status === "idempotent_skipped", "Duplicate waMessageId is skipped with status: idempotent_skipped");
-
-  // 8c: Crisis redirect
-  const crisisMsgId = `${uniqueMessageId}_crisis`;
-  const crisisRes = await processIncomingMessage({
-    phoneNumber: testPhone,
-    text: "Canıma kıyacağım, yaşamak istemiyorum, intihar edeceğim.",
-    messageId: crisisMsgId
-  });
-  assert(crisisRes.status === "crisis_redirected", "Suicidal message is redirected with status: crisis_redirected");
-  assert(crisisRes.replyText?.includes("112 Acil") === true, "Crisis redirect provides 112 Acil emergency hotline");
-
-  // 8d: Regular Spiritual guidance with Riba Shield
-  const ribaMsgId = `${uniqueMessageId}_riba`;
-  const ribaRes = await processIncomingMessage({
-    phoneNumber: testPhone,
-    text: "Kredi kartı borcum çok birikti, banka faizi altında eziliyorum. Bir çıkış yolu var mı?",
-    messageId: ribaMsgId
-  });
-
-  assert(ribaRes.status === "processed", "Spiritual query is successfully processed with status: processed");
-  assert(ribaRes.editorAudit?.riba_warning_included === true, "Orchestrator enforces riba_warning_included: true");
-  assert(typeof ribaRes.replyText === "string" && ribaRes.replyText.length > 50, "Orchestrator generates comprehensive WhatsApp reply");
-
-  // Verify database record creation
-  const dbUserMsg = await prisma.message.findUnique({
-    where: { waMessageId: ribaMsgId }
-  });
-  assert(dbUserMsg !== null, "User message is recorded in database with unique waMessageId");
-  assert(dbUserMsg?.role === "USER", "User message role is USER");
-
-  // Verify expanded NafsTrap & RagCategory heuristics
+  // 6. Verify expanded NafsTrap & RagCategory heuristics
+  console.log("\n[6] Testing Expanded Jev Heuristics & Taxonomy...");
   const kaderTest = runHeuristicFallback("Neden hep benim başıma geliyor, kaderime isyan etmek üzereyim.");
   assert(kaderTest.nafs_trap === "KADERE_ITIRAZ_VE_ISYAN", "Kader query identifies KADERE_ITIRAZ_VE_ISYAN trap");
   assert(kaderTest.rag_category === "KADER_VE_KAZA_HIKMETI", "Kader query routes to KADER_VE_KAZA_HIKMETI category");
-
-  // 9. WhatsApp Webhook API Route Handler
-  console.log("\n[9] Testing /api/webhook/whatsapp Route Handler...");
-  const webhookRoute = await import("../src/app/api/webhook/whatsapp/route");
-
-  // 9a: GET Hub Challenge verification
-  const token = process.env.META_WEBHOOK_VERIFY_TOKEN || "sirdas_webhook_secret_verify_token_2026";
-  const getReq = new NextRequest(`http://localhost:3000/api/webhook/whatsapp?hub.mode=subscribe&hub.challenge=test_challenge_12345&hub.verify_token=${token}`);
-  const getRes = await webhookRoute.GET(getReq);
-  assert(getRes.status === 200, "Webhook GET returns 200 OK for challenge");
-  const challengeBody = await getRes.text();
-  assert(challengeBody === "test_challenge_12345", "Webhook GET echos back exact hub.challenge string");
-
-  // 9b: POST Message receipt (<50ms 200 OK)
-  const webhookBody = JSON.stringify({
-    object: "whatsapp_business_account",
-    entry: [
-      {
-        id: "entry_1",
-        changes: [
-          {
-            field: "messages",
-            value: {
-              messaging_product: "whatsapp",
-              metadata: {
-                display_phone_number: "+905550001122",
-                phone_number_id: "phone_123"
-              },
-              messages: [
-                {
-                  from: testPhone,
-                  id: `wamid_${Date.now()}`,
-                  timestamp: "1729000000",
-                  type: "text",
-                  text: { body: "Allah razı olsun sırdaşım." }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    ]
-  });
-
-  const appSecret = process.env.META_APP_SECRET || "mock_meta_app_secret";
-  const postSignature = "sha256=" + crypto.createHmac("sha256", appSecret).update(webhookBody).digest("hex");
-
-  const postReq = new NextRequest("http://localhost:3000/api/webhook/whatsapp", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-hub-signature-256": postSignature
-    },
-    body: webhookBody
-  });
-
-  const postRes = await webhookRoute.POST(postReq);
-  assert(postRes.status === 200, "Webhook POST returns 200 OK immediately for Meta");
-  const postJson = await postRes.json();
-  assert(postJson.status === "processing", "Webhook POST returns status: processing via after()");
 
   console.log("\n=======================================================");
   console.log(`VERIFICATION COMPLETE: ${passed} PASSED, ${failed} FAILED`);

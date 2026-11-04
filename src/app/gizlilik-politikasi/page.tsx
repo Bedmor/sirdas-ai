@@ -110,9 +110,57 @@ export default function PrivacyPolicyPage() {
               <p className="text-sm text-slate-300 font-light leading-relaxed">
                 Kişisel verileriniz, PostgreSQL Supabase pgvector altyapısında şifreli olarak ve
                 Cloudflare kurumsal güvenlik kalkanı altında muhafaza edilir. Kullanıcı dilediği an
-                arayüz üzerinden &ldquo;Hafızamı Sıfırla&rdquo; veya &ldquo;Sohbeti Temizle&rdquo; komutu vererek kendi profil
-                ve mesaj kayıtlarını kalıcı olarak silebilir.
+                arayüz üzerinden &ldquo;Benlik Hafızamı Sıfırla / Tüm Verilerimi Sil&rdquo; veya chat üzerinden
+                &ldquo;Hafızamı Sıfırla&rdquo; komutu vererek kendi profil ve mesaj kayıtlarını kalıcı olarak silebilir.
               </p>
+            </section>
+
+            <section
+              id="ozel-nitelikli-veri"
+              className="bg-surface-container/60 p-6 sm:p-8 rounded-2xl border border-primary/40 space-y-5"
+            >
+              <div className="flex items-center gap-2 text-primary font-semibold text-xl">
+                <i className="ph ph-shield-star text-2xl"></i>
+                <h2>4. Hukuki Zırh: Özel Nitelikli Kişisel Veriler ve KVKK Kalkanı</h2>
+              </div>
+              <p className="text-sm text-slate-300 font-light leading-relaxed">
+                Türkiye Cumhuriyeti 6698 sayılı Kişisel Verilerin Korunması Kanunu (&ldquo;KVKK&rdquo;)
+                madde 6 hükmü uyarınca; dini inanç, felsefi kanaat, mezhep, ahlaki tutum, ruhsal ve manevi
+                hal ve ailevi bilgiler <strong className="text-on-surface">&ldquo;Özel Nitelikli Kişisel Veri&rdquo;</strong> sınıfına
+                girmektedir. Manevi Pusula, bu hassas verilerin korunmasında 3 kademeli hukuki kalkanı titizlikle uygular:
+              </p>
+
+              <div className="grid grid-cols-1 gap-4 pt-1">
+                <div className="rounded-xl border border-outline-variant/40 bg-surface-container-high/60 p-4 space-y-2">
+                  <div className="flex items-center gap-2 text-amber-300 text-sm font-semibold">
+                    <span className="w-6 h-6 rounded-full bg-amber-950/80 border border-amber-500/40 flex items-center justify-center text-xs">1</span>
+                    <span>Açık Rıza Pop-up Onayı (KVKK md. 6/2)</span>
+                  </div>
+                  <p className="text-xs text-slate-300 font-light leading-relaxed">
+                    Kullanıcı sohbeti başlatmadan önce tek tıkla onay verir: <em className="text-primary-fixed-dim font-medium">&ldquo;Size daha iyi bir manevi rehberlik sunabilmek adına, aktardığınız anonimleştirilmiş durum özetlerinin şifrelenerek hafızada tutulmasını kabul ediyorsunuz.&rdquo;</em> Bu onay, sistemin kullanıcıya özel tefekkür desteği sunması için gereken hukuki rıza zeminini teşkil eder.
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-outline-variant/40 bg-surface-container-high/60 p-4 space-y-2">
+                  <div className="flex items-center gap-2 text-emerald-300 text-sm font-semibold">
+                    <span className="w-6 h-6 rounded-full bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center text-xs">2</span>
+                    <span>Kendi İradesiyle Paylaşım ve Kimliksizleştirme İlkesi</span>
+                  </div>
+                  <p className="text-xs text-slate-300 font-light leading-relaxed">
+                    Hukuk disiplininde temel kuraldır: Kişi kendi hür iradesiyle ve anonimleştirilmiş bir ortamda durumunu anlatıyorsa ve sistem bunu kimliğiyle (ad, soyad, T.C. kimlik numarası, ikametgah, telefon rehberi) asla eşleştirmiyorsa, ortada hukuken bir veri ihlali doğmaz. Manevi Pusula Web arayüzü sıfır kimlik bilgisi (zero-PII) prensibiyle çalışır; ziyaretçiye yalnızca rastgele tekil istemci anahtarı atanır.
+                  </p>
+                </div>
+
+                <div id="unutulma-hakki" className="rounded-xl border border-outline-variant/40 bg-surface-container-high/60 p-4 space-y-2">
+                  <div className="flex items-center gap-2 text-red-300 text-sm font-semibold">
+                    <span className="w-6 h-6 rounded-full bg-red-950/80 border border-red-500/40 flex items-center justify-center text-xs">3</span>
+                    <span>Tek Tıkla Hafızamı Sil (Unutulma Hakkı - Right to be Forgotten)</span>
+                  </div>
+                  <p className="text-xs text-slate-300 font-light leading-relaxed">
+                    KVKK madde 11 ve uluslararası standartlar (GDPR md. 17) gereğince, kullanıcı sol menüde yer alan <strong className="text-red-200">&ldquo;Benlik Hafızamı Sıfırla / Tüm Verilerimi Sil&rdquo;</strong> butonuna bastığı an; arka plandaki tüm sohbet geçmişi, 4 bloklu dijital ikiz profili ve anonim JSON kaydı PostgreSQL veritabanından kalıcı ve geri döndürülemez şekilde silinir. Bu tam kullanıcı kontrolü, platformu mevzuat nezdinde kusursuz kılar.
+                  </p>
+                </div>
+              </div>
             </section>
           </article>
         </div>

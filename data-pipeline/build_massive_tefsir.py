@@ -1,0 +1,573 @@
+#!/usr/bin/env python3
+"""
+Manevi Pusula - Authentic Quranic Tafsir & Asbab al-Nuzul Corpus Generator
+Generates 50+ rich Quranic Tafsir records based on Kur'an Yolu & Elmalılı Hamdi Yazır.
+"""
+
+import json
+from pathlib import Path
+
+DATA_DIR = Path(__file__).resolve().parent / "data"
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+def generate_tefsir_corpus():
+    passages = [
+        {
+            "tefsir_id": "tefsir_001_fatiha",
+            "sure": "Fâtiha Suresi",
+            "ayet_no": "1-7",
+            "ayet_meali": "Hamd, Âlemlerin Rabbi, Rahmân, Rahîm, din gününün maliki olan Allah'a mahsustur. Yalnız Sana kulluk eder ve yalnız Senden yardım dileriz. Bizi dosdoğru yola ilet...",
+            "nuzul_sebebi_ve_tefsir": "Kur'an Yolu: Kur'an'ın özü ve 'Ümmü'l-Kitâb'ıdır. Kulun aczini, ilahi merhameti ve sadece Allah'a dayanan bir hayat felsefesini her namaz rekatında zihne nakşeder.",
+            "manevi_hikmet": "'İyyâke na'büdü ve iyyâke nesta'în' bilinci, kula hiçbir fani otoriteye boyun eğmeme özgürlüğü ve izzeti kazandırır.",
+            "tags": ["FATIHA", "TEVHID", "DUA_VE_ILCA_USULU", "ISTIANE", "TEFSIR", "QURAN"],
+            "nafs_traps": ["GIZLI_SIRK_VE_SAHTE_SIGINAKLAR", "KONTROL_YANILSAMASI_VE_MUKEMMELIYETCILIK"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_002_bakara_152",
+            "sure": "Bakara Suresi",
+            "ayet_no": "152",
+            "ayet_meali": "Öyleyse siz Beni anın ki Ben de sizi anayım! Bana şükredin ve nankörlük etmeyin!",
+            "nuzul_sebebi_ve_tefsir": "Elmalılı Tefsiri: İki taraflı bir ahittir: Kul zikir, taat ve tefekkürle Rabbi anarsa; Allah da kulunu hidayet, yardım, inşirah ve rahmetle anar.",
+            "manevi_hikmet": "Kainatın Yaratıcısı tarafından anılmak isteyen kul, dilini ve kalbini zikre alıştırmalıdır.",
+            "tags": ["BAKARA_152", "ZIKIR", "SUKUR", "SUKUNET", "TEFSIR", "QURAN"],
+            "nafs_traps": ["GAFLET", "DUNYALIK_KAYGI"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_003_bakara_155_157",
+            "sure": "Bakara Suresi",
+            "ayet_no": "155-157",
+            "ayet_meali": "Andolsun ki sizi biraz korku ve açlıkla, mallardan, canlardan ve ürünlerden eksiltmekle sınayacağız. Sabredenleri müjdele! Onlar başlarına musibet gelince: 'Biz Allah'a aidiz ve O'na döneceğiz' derler.",
+            "nuzul_sebebi_ve_tefsir": "Kur'an Yolu: İmtihan hayatın kaçınılmaz kanunudur. Musibetlerin kalıcı değil 'biraz' olduğu vurgulanarak insan iradesinin dayanabileceği bildirilmiştir. İstircâ (İnnâ lillâh...) kalbi isyandan korur.",
+            "manevi_hikmet": "Kayıp anında mülkün gerçek sahibini hatırlamak, insanı fani bağların ezici kahrından kurtarır.",
+            "tags": ["BAKARA_155_157", "SABIR_VE_MUSIBET", "ISTIRCA", "KADER_VE_KAZA_HIKMETI", "TEFSIR", "QURAN"],
+            "nafs_traps": ["KADERE_ITIRAZ_VE_ISYAN", "UMITSIZLIK_KARAMSARLIK"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_004_bakara_186",
+            "sure": "Bakara Suresi",
+            "ayet_no": "186",
+            "ayet_meali": "Kullarım Sana Beni sorarlarsa, Ben şüphesiz onlara çok yakınım! Bana dua edince dua edenin duasına karşılık veririm. O halde onlar da Benim davetime uysunlar ve Bana inansınlar...",
+            "nuzul_sebebi_ve_tefsir": "Esbâb-ı Nüzûl: Sahabeler 'Rabbimiz yakın mıdır fısıldayalım mı, uzak mıdır bağıralım mı?' diye sorduklarında inmiştir. Kul ile Allah arasında hiçbir aracıya gerek olmadığını ilan eder.",
+            "manevi_hikmet": "Yaratıcı insana şah damarından yakındır; her iç çekişi, kırık kalbi ve sessiz gözyaşını anında işitir.",
+            "tags": ["BAKARA_186", "DUA_VE_ILCA_USULU", "ILAHI_YAKINLIK", "SUKUNET", "TEFSIR", "QURAN"],
+            "nafs_traps": ["UMITSIZLIK_KARAMSARLIK", "VESVESE_VE_GUSUL_ABDEST_EVHAMI"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_005_bakara_214",
+            "sure": "Bakara Suresi",
+            "ayet_no": "214",
+            "ayet_meali": "Yoksa siz, sizden öncekilerin başına gelenler sizin başınıza gelmeden cennete gireceğinizi mi sandınız? Onlara öyle yoksulluk ve darlık dokundu, öyle sarsıldılar ki Peygamber ve müminler: 'Allah'ın yardımı ne zaman?' dediler. Dikkat edin, Allah'ın yardımı pek yakındır!",
+            "nuzul_sebebi_ve_tefsir": "Hendek Gazvesi ve darlık döneminde inmiştir. Müminlerin can ve mal ile sarsılmadan cennete erişemeyeceklerini, ancak sabrın sonunun mutlak ilahi yardım olduğunu müjdeler.",
+            "manevi_hikmet": "En koyu karanlık şafağın en yakın olduğu andır; 'Ne zaman?' feryadı yardımın eşiğinde olunduğunu gösterir.",
+            "tags": ["BAKARA_214", "SABIR_VE_MUSIBET", "SIYERDE_DARLIK_DONEMLERI", "ILAHI_YARDIM", "TEFSIR", "QURAN"],
+            "nafs_traps": ["UMITSIZLIK_KARAMSARLIK", "ACELECI_TALEPLER_VE_ISTIACAL"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_006_bakara_216",
+            "sure": "Bakara Suresi",
+            "ayet_no": "216",
+            "ayet_meali": "Olur ki hoşlanmadığınız bir şey sizin için hayırlıdır; sevdiğiniz bir şey de sizin için şerdir. Allah bilir, siz bilmezsiniz.",
+            "nuzul_sebebi_ve_tefsir": "Elmalılı Tefsiri: İnsanın idraki sınırlıdır; zahire bakıp aldanır. Nefsin acı duyduğu bir imtihan gelecekte büyük felaketleri önleyen bir kalkan olabilir.",
+            "manevi_hikmet": "Hayat planların bozulduğunda isyan etme; belki de Allah seni bilmediğin bir felaketten koruyordur.",
+            "tags": ["BAKARA_216", "KADER_VE_KAZA_HIKMETI", "RIZA", "TEVEKKUL_VE_MURAKABE", "TEFSIR", "QURAN"],
+            "nafs_traps": ["KADERE_ITIRAZ_VE_ISYAN", "ZAHIRE_ALDANMA_VE_SEBEP_PERESTLIK"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_007_bakara_255_ayetel_kursi",
+            "sure": "Bakara Suresi",
+            "ayet_no": "255",
+            "ayet_meali": "Allah... O'ndan başka hiçbir ilah yoktur. Diridir (Hayy), her şeyi ayakta tutandır (Kayyûm). O'nu ne bir uyuklama tutar ne de bir uyku. Göklerde ve yerde ne varsa O'nundur...",
+            "nuzul_sebebi_ve_tefsir": "Âyetü'l-Kürsî: Tevhidin ve ilahi hakimiyetin zirvesidir. Evrenin hiçbir an sahipsiz ve başıboş bırakılmadığını beyan eder.",
+            "manevi_hikmet": "Asla uyumayan bir Rabbin varken, aciz fanilerin tehdit ve kumpaslarından korkmak anlamsızdır.",
+            "tags": ["AYETEL_KURSI", "TEVHID", "HAYY_KAYYUM", "SUKUNET", "TEFSIR", "QURAN"],
+            "nafs_traps": ["GIZLI_SIRK_VE_SAHTE_SIGINAKLAR", "DUNYALIK_KAYGI"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_008_bakara_275_279_riba",
+            "sure": "Bakara Suresi",
+            "ayet_no": "275-279",
+            "ayet_meali": "Faiz yiyenler şeytan çarpmış gibi kalkarlar. Bu onların 'Alışveriş de faiz gibidir' demelerindendir. Allah alışverişi helal, faizi haram kıldı... Eğer faizi bırakmazsanız Allah ve Resulü tarafından açılmış bir harbi bilin! Tevbe ederseniz ana paranız sizindir...",
+            "nuzul_sebebi_ve_tefsir": "Esbâb-ı Nüzûl: Cahiliye tefecilerinin kat kat faizle insanları köleleştirmesi üzerine inmiştir. İktisadi adaleti kurmak ve faiz lobilerinin sömürüsünü bitirmek için en sert ilahi ültimatomdur.",
+            "manevi_hikmet": "Faiz sermayenin kibridir; emeği yok sayar ve darlıktaki insanı ezer. Helal kazanç ise bereketi ve dayanışmayı yeşertir.",
+            "tags": ["BAKARA_275_279_TAG", "RIBA", "HARAM", "faiz", "riba", "haram_kazanc", "borc_krizi", "RIZIK_VE_TICARET", "TEFSIR", "QURAN"],
+            "nafs_traps": ["KOLAY_KAZANC_HIRSI", "FAKIRLIK_KORKUSU_VESVESESI", "CIMRILIK_VE_MAL_HIRSI"],
+            "is_riba_related": True
+        },
+        {
+            "tefsir_id": "tefsir_009_bakara_286_amenerrasulu",
+            "sure": "Bakara Suresi",
+            "ayet_no": "286",
+            "ayet_meali": "Allah hiçbir nefse gücünün yeteceğinden fazlasını yüklemez. Kazandığı iyilik kendi lehine, kötülük aleyhinedir. 'Rabbimiz! Güç yetiremeyeceğimiz yükü bize taşıtma, bizi affet, bizi bağışla!'",
+            "nuzul_sebebi_ve_tefsir": "Bakara 284'teki 'İçinizdekini açığa vursanız da gizleseniz de Allah hesaba çeker' ayetinden ürken sahabelere ilahi bir teselli ve ferahlık olarak inmiştir.",
+            "manevi_hikmet": "Sana gelen dert ne kadar büyük olursa olsun, bil ki senin onu taşıyacak manevi bir potansiyelin vardır; Allah kuluna zulmetmez.",
+            "tags": ["BAKARA_286", "AMENERRASULU", "AFFETME", "GUC_YETIREMEYECEK_YUK", "TEFSIR", "QURAN"],
+            "nafs_traps": ["UMITSIZLIK_KARAMSARLIK", "GECMISIN_PISMANLIK_GIRDABI"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_010_ali_imran_133_135",
+            "sure": "Âl-i İmrân Suresi",
+            "ayet_no": "133-135",
+            "ayet_meali": "Rabbinizin bağışına ve takva sahipleri için hazırlanmış cennete koşun! Onlar bollukta da darlıkta da infak ederler, öfkelerini yutarlar ve insanları affederler...",
+            "nuzul_sebebi_ve_tefsir": "Kur'an Yolu: Hakiki dindarlığın sadece ibadet değil; öfke kontrolü, darlıkta bile paylaşabilme ve affedicilik gibi yüce ahlaki hasletlerle ölçüldüğünü beyan eder.",
+            "manevi_hikmet": "Öfkeyi yutmak ve affetmek zayıflık değil, cenneti kazanacak bir manevi güçtür.",
+            "tags": ["ALI_IMRAN_133_135", "OFKE_VE_AHLAK", "INFAK", "AFFETME", "TEFSIR", "QURAN"],
+            "nafs_traps": ["ANI_OFKE", "INTIKAM_VE_HASET", "CIMRILIK_VE_MAL_HIRSI"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_011_ali_imran_139",
+            "sure": "Âl-i İmrân Suresi",
+            "ayet_no": "139",
+            "ayet_meali": "Gevşemeyin, hüzne kapılmayın! Eğer gerçekten inanıyorsanız, en üstün olan sizlersiniz.",
+            "nuzul_sebebi_ve_tefsir": "Esbâb-ı Nüzûl: Uhud Gazvesi'nde 70 şehit verilip yaralı dönüldüğünde müminlerin hüznünü dağıtmak ve manevi direnci yükseltmek için inmiştir.",
+            "manevi_hikmet": "Dünyevi yenilgiler ve krizler seni çökertmesin; hakikate bağlı olan insan manen daima galiptir.",
+            "tags": ["ALI_IMRAN_139", "IZZET", "METANET", "SABIR_VE_MUSIBET", "TEFSIR", "QURAN"],
+            "nafs_traps": ["UMITSIZLIK_KARAMSARLIK", "REHAVET_TEMBELLIK"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_012_ali_imran_159",
+            "sure": "Âl-i İmrân Suresi",
+            "ayet_no": "159",
+            "ayet_meali": "Allah'ın rahmeti sayesinde sen onlara yumuşak davrandın. Eğer kaba ve katı kalpli olsaydın, şüphesiz etrafından dağılıp giderlerdi. Artık onları affet, bağışlanmalarını dile ve iş hususunda onlarla istişare et!",
+            "nuzul_sebebi_ve_tefsir": "Uhud'da emre itaat etmeyip ordunun bozulmasına sebep olan sahabelere karşı Efendimiz'in sert ve intikamcı davranmayıp şefkatle yaklaşması övülmektedir.",
+            "manevi_hikmet": "Liderlik ve ebeveynlikte kaba dil insanları kaçırır; hata yapanı affedip sürece dahil etmek kalpleri kazanır.",
+            "tags": ["ALI_IMRAN_159", "NEZAKET", "ISTISARE", "HILM", "OFKE_VE_AHLAK", "TEFSIR", "QURAN"],
+            "nafs_traps": ["GIZLI_KIBIR_HAKLILIK", "ANI_OFKE"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_013_ali_imran_173",
+            "sure": "Âl-i İmrân Suresi",
+            "ayet_no": "173",
+            "ayet_meali": "İnsanlar onlara: 'Düşman ordusu size karşı toplandı, onlardan korkun!' dediklerinde bu onların imanını artırdı ve: 'Allah bize yeter, O ne güzel vekildir!' (Hasbünallâhu ve ni'me'l-vekîl) dediler.",
+            "nuzul_sebebi_ve_tefsir": "Hamrâülesed Gazvesi'nde Ebu Süfyan'ın psikolojik harp taktiğine karşı müminlerin sarsılmaz tevekkülü üzerine inmiştir.",
+            "manevi_hikmet": "Korku pompalayan haberler ve sosyal baskılar karşısında müminin kalesi 'Hasbünallâh' zikridir.",
+            "tags": ["ALI_IMRAN_173", "HASBIYALLAH", "TEVEKKUL_VE_MURAKABE", "KORKUSUZLUK", "TEFSIR", "QURAN"],
+            "nafs_traps": ["UMITSIZLIK_KARAMSARLIK", "PANIK_VE_KORKU"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_014_nisa_28",
+            "sure": "Nisâ Suresi",
+            "ayet_no": "28",
+            "ayet_meali": "Allah sizden yükünüzü hafifletmek ister; çünkü insan zayıf yaratılmıştır.",
+            "nuzul_sebebi_ve_tefsir": "Dinin zorlaştırıcı değil, fıtri zayıflıkları gözeterek ruhsatlar ve kolaylıklar getirdiğini beyan eder.",
+            "manevi_hikmet": "İnsan zayıftır; mükemmeliyetçilik tuzağına düşmeden Yaratıcı'nın rahmet ve ruhsatlarına sığınmalıdır.",
+            "tags": ["NISA_28", "KOLAYLIK", "INSAN_ZAYIFLIGI", "TESKIN_VE_TESELLI", "TEFSIR", "QURAN"],
+            "nafs_traps": ["KONTROL_YANILSAMASI_VE_MUKEMMELIYETCILIK", "UCUB_VE_AMELINE_GUVENME"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_015_nisa_58",
+            "sure": "Nisâ Suresi",
+            "ayet_no": "58",
+            "ayet_meali": "Şüphesiz Allah size emanetleri ehline vermenizi ve insanlar arasında hükmettiğiniz zaman adaletle hükmetmenizi emreder...",
+            "nuzul_sebebi_ve_tefsir": "Mekke fethinde Kabe'nin anahtarının liyakat sahibi Osman b. Talha'ya iade edilmesi üzerine nazil olmuştur.",
+            "manevi_hikmet": "Torpil ve adam kayırma toplumu çürütür; adalet ve ehliyet İslam nizamının temel direğidir.",
+            "tags": ["NISA_58", "EMANET", "LIYAKAT", "ADALET", "KUL_HAKKI_VE_ADALET", "TEFSIR", "QURAN"],
+            "nafs_traps": ["KOLAY_KAZANC_HIRSI", "MINNET_VE_BASA_KAKMA"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_016_maide_8",
+            "sure": "Mâide Suresi",
+            "ayet_no": "8",
+            "ayet_meali": "Ey iman edenler! Allah için hakkı ayakta tutan adalet şahitleri olun! Bir topluluğa olan öfkeniz ve kininiz sizi adaletsiz davranmaya sevk etmesin! Adil olun, bu takvaya daha uygundur...",
+            "nuzul_sebebi_ve_tefsir": "Düşman bir kavme karşı dahi kin ve nefretle değil, objektif hukuk ve adaletle muamele etme zorunluluğunu koyar.",
+            "manevi_hikmet": "Hakiki adalet dostuna değil, düşmanına karşı da adil olabilmektir.",
+            "tags": ["MAIDE_8", "ADALET", "KUL_HAKKI_VE_ADALET", "OFKE_VE_AHLAK", "TEFSIR", "QURAN"],
+            "nafs_traps": ["INTIKAM_VE_HASET", "ANI_OFKE"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_017_enam_17",
+            "sure": "En'âm Suresi",
+            "ayet_no": "17",
+            "ayet_meali": "Eğer Allah sana bir darlık ve zarar dokundurursa, onu O'ndan başka giderecek yoktur. Eğer sana bir hayır dokundurursa, şüphesiz O her şeye kadirdir.",
+            "nuzul_sebebi_ve_tefsir": "Mülkün ve tasarrufun tek sahibinin Allah olduğunu, fani sebeplerin hiçbir şeyi kendi kendine çözemeyeceğini bildirir.",
+            "manevi_hikmet": "Dert nereden geldiyse deva da oradadır; şifayı fani kullarda değil Şâfî olan Allah'ta ara.",
+            "tags": ["ENAM_17", "TEVHID", "SIFA", "TEVEKKUL_VE_MURAKABE", "TEFSIR", "QURAN"],
+            "nafs_traps": ["GIZLI_SIRK_VE_SAHTE_SIGINAKLAR", "ZAHIRE_ALDANMA_VE_SEBEP_PERESTLIK"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_018_araf_199",
+            "sure": "A'râf Suresi",
+            "ayet_no": "199",
+            "ayet_meali": "Sen af yolunu tut, iyiliği emret ve cahillerden yüz çevir!",
+            "nuzul_sebebi_ve_tefsir": "Cebrail (a.s.) bu ayeti şöyle tefsir etmiştir: 'Sana gelmeyene git, seni mahrum bırakana ver, sana zulmedeni affet!'",
+            "manevi_hikmet": "Cahillerle laf yarışına girip ömür tüketme; af ile kalbini koru ve yoluna devam et.",
+            "tags": ["ARAF_199", "AF_YOLU", "HILM", "OFKE_VE_AHLAK", "TEFSIR", "QURAN"],
+            "nafs_traps": ["ANI_OFKE", "INTIKAM_VE_HASET"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_019_tevbe_40_sevr",
+            "sure": "Tevbe Suresi",
+            "ayet_no": "40",
+            "ayet_meali": "Eğer siz ona yardım etmezseniz, kafirler onu yurdundan çıkardıklarında Allah ona yardım etmişti. İkincileri olan peygamber mağarada arkadaşına: 'Üzülme, zira Allah bizimle beraberdir' diyordu. Derken Allah onun üzerine sükûnetini indirdi...",
+            "nuzul_sebebi_ve_tefsir": "Sevr Mağarası'ndaki hicret hadisesidir. Görünürde her şeyin bittiği yerde indirilen ilahi sükûneti ve yardımı tesciller.",
+            "manevi_hikmet": "Korkma ve üzülme! Üçüncüsü Allah olan iki kişiyi hiçbir fani ordu mağlup edemez.",
+            "tags": ["TEVBE_40", "SEVR_MAGARASI", "SUKUNET", "TEVEKKUL_VE_MURAKABE", "TEFSIR", "QURAN"],
+            "nafs_traps": ["PANIK_VE_KORKU", "UMITSIZLIK_KARAMSARLIK"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_020_tevbe_51",
+            "sure": "Tevbe Suresi",
+            "ayet_no": "51",
+            "ayet_meali": "De ki: Bizim başımıza ancak ve ancak Allah'ın bizim için takdir ettiği şey gelir. O bizim Mevlamızdır. Müminler yalnız Allah'a tevekkül etsinler!",
+            "nuzul_sebebi_ve_tefsir": "Münafıkların müminlerin başına gelen musibetlere sevinmesi üzerine inmiştir. Kaderin bir şer değil, hikmetli bir mevla koruması olduğunu bildirir.",
+            "manevi_hikmet": "Başına gelen her hadisenin arkasında seni terbiye eden ve seven bir Mevla vardır.",
+            "tags": ["TEVBE_51", "KADER_VE_KAZA_HIKMETI", "TEVEKKUL_VE_MURAKABE", "MEVLA", "TEFSIR", "QURAN"],
+            "nafs_traps": ["KADERE_ITIRAZ_VE_ISYAN", "DUNYALIK_KAYGI"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_021_tevbe_128_129",
+            "sure": "Tevbe Suresi",
+            "ayet_no": "128-129",
+            "ayet_meali": "Andolsun size içinizden öyle bir Peygamber geldi ki; sizin sıkıntıya düşmeniz ona pek ağır gelir. O size çok düşkündür, müminlere pek şefkatli ve merhametlidir. Yüz çevirirlerse de ki: Bana Allah yeter! O'ndan başka ilah yoktur...",
+            "nuzul_sebebi_ve_tefsir": "Tevbe Suresi'nin son iki ayetidir. Hz. Peygamber'in ümmetine karşı kalbindeki derin ızdırabı ve Hasbiyallâh zikrinin yüceliğini açıklar.",
+            "manevi_hikmet": "İnsanlar vefasızlık gösterip arkasını dönse dahi Arş'ın Sahibi olan Allah sana kafi gelir.",
+            "tags": ["TEVBE_128_129", "HASBIYALLAH", "SEFKAT", "TEVEKKUL_VE_MURAKABE", "TEFSIR", "QURAN"],
+            "nafs_traps": ["UMITSIZLIK_KARAMSARLIK", "ELALEM_NE_DER_RIYA"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_022_hud_6_rizik",
+            "sure": "Hûd Suresi",
+            "ayet_no": "6",
+            "ayet_meali": "Yeryüzünde hiçbir canlı yoktur ki, rızkı Allah'a ait olmasın. O, onun durduğu yeri de emanet bırakıldığı yeri de bilir...",
+            "nuzul_sebebi_ve_tefsir": "Karıncadan insana kadar her canlının rızkının Rezzâk-ı Mutlak tarafından taahhüt edildiğini bildirir.",
+            "manevi_hikmet": "Rızık endişesiyle harama girmek veya geleceğe dair evhama kapılmak Yaratıcı'nın kefaletine güvensizliktir.",
+            "tags": ["HUD_6", "RIZIK_VE_TICARET", "TEVEKKUL_VE_MURAKABE", "REZZAK", "TEFSIR", "QURAN"],
+            "nafs_traps": ["FAKIRLIK_KORKUSU_VESVESESI", "DUNYALIK_KAYGI"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_023_yusuf_86_yakub_huzun",
+            "sure": "Yûsuf Suresi",
+            "ayet_no": "86",
+            "ayet_meali": "Yakub dedi ki: 'Ben kederimi ve hüznümü ancak Allah'a arz ederim! Ve ben Allah tarafından sizin bilmediğiniz şeyleri bilirim.'",
+            "nuzul_sebebi_ve_tefsir": "Evlat hasretiyle gözleri ağarmış olan Hz. Yakub'un derdini fani insanlara şikayet etmeyip doğrudan Rabbine açmasıdır.",
+            "manevi_hikmet": "Derdini insanlara anlatıp sızlanmak acıyı büyütür; halini Allah'a arz etmek ise ferahlatır.",
+            "tags": ["YUSUF_86", "HUZUN_ARZI", "SABR_I_CEMIL", "SABIR_VE_MUSIBET", "TEFSIR", "QURAN"],
+            "nafs_traps": ["KADERE_ITIRAZ_VE_ISYAN", "SITEM"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_024_yusuf_87_umit",
+            "sure": "Yûsuf Suresi",
+            "ayet_no": "87",
+            "ayet_meali": "Ey oğullarım! Gidin Yûsuf ve kardeşini araştırın. Allah'ın rahmetinden ümidinizi kesmeyin! Çünkü kafirler topluluğundan başkası Allah'ın rahmetinden ümit kesmez.",
+            "nuzul_sebebi_ve_tefsir": "Onlarca yıl geçmesine rağmen kaybolan evladından ümit kesmeyen peygamber inancıdır. Yeis küfür alametidir.",
+            "manevi_hikmet": "Ne kadar zaman geçerse geçsin ve durum ne kadar imkansız görünürse görünsün asla ümitsizliğe düşme.",
+            "tags": ["YUSUF_87", "UMIT", "RAHMET", "YEIS_YASAGI", "TEFSIR", "QURAN"],
+            "nafs_traps": ["UMITSIZLIK_KARAMSARLIK", "CARESIZLIK_VEHMI"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_025_rad_28_zikir_itminan",
+            "sure": "Rad Suresi",
+            "ayet_no": "28",
+            "ayet_meali": "Onlar iman eden ve kalpleri Allah'ın zikriyle itminana erenlerdir. Bilesiniz ki kalpler ancak ve ancak Allah'ın zikriyle mutmain olur (huzur ve sükûnet bulur).",
+            "nuzul_sebebi_ve_tefsir": "Elmalılı Tefsiri: İnsan kalbi fanidir; fani dünya zevkleri kalbin ebediyet açlığını doyuramaz. Kalbin fıtri huzuru ancak Yaratıcısını anmakla mümkündür.",
+            "manevi_hikmet": "Ruhsal daralmaların ve anksiyetenin yegane ilacı kalbi Allah ile irtibata geçirmektir.",
+            "tags": ["RAD_28", "SUKUNET", "ITMINAN", "ZIKIR", "KALP_AMELLERI_VE_IHLAS", "TEFSIR", "QURAN"],
+            "nafs_traps": ["DUNYALIK_KAYGI", "TUL_I_EMEL_VE_GAYETSIZLIK"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_026_ibrahim_7_sukur_artisi",
+            "sure": "İbrâhîm Suresi",
+            "ayet_no": "7",
+            "ayet_meali": "Hatırlayın ki Rabbiniz şöyle buyurmuştu: 'Andolsun eğer şükrederseniz nimetimi mutlaka artırırım; nankörlük ederseniz bilin ki azabım pek şiddetlidir!'",
+            "nuzul_sebebi_ve_tefsir": "Şükrün sadece bir teşekkür değil, mevcut nimeti koruyan ve yenilerini çeken ilahi bir mıknatıs olduğunu bildirir.",
+            "manevi_hikmet": "Nimetin devamını isteyen şükretmeli; şikayet nimeti tüketir, şükür ise çoğaltır.",
+            "tags": ["IBRAHIM_7", "SUKUR", "NIMET_BEREKETI", "ISRAF_VE_IKTISAT_FIKHI", "TEFSIR", "QURAN"],
+            "nafs_traps": ["KADERE_ITIRAZ_VE_ISYAN", "CIMRILIK_VE_MAL_HIRSI"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_027_hicr_97_99",
+            "sure": "Hicr Suresi",
+            "ayet_no": "97-99",
+            "ayet_meali": "Andolsun onların söyledikleri şeyler yüzünden göğsünün daraldığını biliyoruz. Sen Rabbini hamd ile tesbih et, secde edenlerden ol ve sana ölüm gelinceye kadar Rabbine ibadet et!",
+            "nuzul_sebebi_ve_tefsir": "Müşriklerin hakaret ve iftiraları karşısında Efendimiz'in kalbi daraldığında inmiştir. Psikolojik daralmanın ilacı olarak tesbih ve secde emredilmiştir.",
+            "manevi_hikmet": "İnsanların kötü sözleri göğsünü daralttığında tartışmaya girme; secdeye kapan ve tesbih ile kalbini ferahlat.",
+            "tags": ["HICR_97_99", "GOGUS_DARLIGI", "SECDE", "FERAHLIK", "SUKUNET", "TEFSIR", "QURAN"],
+            "nafs_traps": ["UMITSIZLIK_KARAMSARLIK", "ANI_OFKE"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_028_isra_23_24_anne_baba",
+            "sure": "İsrâ Suresi",
+            "ayet_no": "23-24",
+            "ayet_meali": "Rabbin yalnız Kendisine kulluk etmenizi ve ana-babaya iyilikle muamele etmenizi emretti. Onlardan biri veya her ikisi senin yanında yaşlanırsa onlara 'Öf!' bile deme, onları azarlama; onlara güzel ve tatlı söz söyle!",
+            "nuzul_sebebi_ve_tefsir": "Tevhitten hemen sonra anne-baba hakkı zikredilerek yaşlılık döneminde onlara gösterilecek sabır ve şefkat mutlak bir farz kılınmıştır.",
+            "manevi_hikmet": "Yaşlanan anne-babaya tahammül göstermek cennetin anahtarıdır; bir 'öf' bile o kapıyı kapatabilir.",
+            "tags": ["ISRA_23_24", "ANNE_BABA", "OF_DEMEME", "AILE_VE_SILA_I_RAHIM", "TEFSIR", "QURAN"],
+            "nafs_traps": ["KAYITSIZLIK_VE_MERHAMETSIZLIK", "ANI_OFKE"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_029_isra_82_kuran_sifa",
+            "sure": "İsrâ Suresi",
+            "ayet_no": "82",
+            "ayet_meali": "Biz Kur'an'dan müminler için bir şifa ve bir rahmet olan şeyleri indiririz. Zalimlerin ise ancak ziyanını artırır.",
+            "nuzul_sebebi_ve_tefsir": "Kur'an'ın hem kalbi/psikolojik hastalıklara (şüphe, haset, keder) hem de toplumsal dertlere ilahi bir şifa reçetesi olduğunu beyan eder.",
+            "manevi_hikmet": "Gönül yorgunluğunun ve zihinsel buhranların en derin şifası Kur'an ayetlerinin hikmetine kulak vermektir.",
+            "tags": ["ISRA_82", "KURAN_SIFASI", "RAHMET", "SUKUNET", "TEFSIR", "QURAN"],
+            "nafs_traps": ["VESVESE_VE_GUSUL_ABDEST_EVHAMI", "UMITSIZLIK_KARAMSARLIK"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_030_kehf_10_magara_gencleri",
+            "sure": "Kehf Suresi",
+            "ayet_no": "10",
+            "ayet_meali": "O gençler mağaraya sığındıklarında: 'Rabbimiz! Bize katından bir rahmet ver ve işimizde bize bir kurtuluş ve çıkış yolu lütfeyle!' dediler.",
+            "nuzul_sebebi_ve_tefsir": "Zalim hükümdarın zulmünden inançlarını korumak için mağaraya kaçan Ashâb-ı Kehf gençlerinin samimi ilticasıdır.",
+            "manevi_hikmet": "Dünya seni köşeye sıkıştırdığında samimiyetle mağarana çekil ve Rabbinden bir çıkış yolu iste.",
+            "tags": ["KEHF_10", "ASHAB_I_KEHF", "CIKIS_YOLU", "DUA_VE_ILCA_USULU", "TEFSIR", "QURAN"],
+            "nafs_traps": ["CARESIZLIK_VEHMI", "PANIK_VE_KORKU"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_031_meryem_9_bana_pek_kolay",
+            "sure": "Meryem Suresi",
+            "ayet_no": "9",
+            "ayet_meali": "Rabbin buyurdu ki: 'Bu Bana pek kolaydır! Nitekim sen hiçbir şey değilken daha önce seni de yaratmıştım.'",
+            "nuzul_sebebi_ve_tefsir": "Yaşlı Zekeriya (a.s.) evlat müjdesi alınca şaşırdığında ilahi kudretin sebepler üstü gücünü hatırlatmak için inmiştir.",
+            "manevi_hikmet": "Senin için imkansız görünen şeyler Allah için bir 'Ol' (Kün) kelimesine bakar.",
+            "tags": ["MERYEM_9", "KUDRET", "KOLAYLIK", "TEVEKKUL_VE_MURAKABE", "TEFSIR", "QURAN"],
+            "nafs_traps": ["ZAHIRE_ALDANMA_VE_SEBEP_PERESTLIK", "UMITSIZLIK_KARAMSARLIK"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_032_taha_25_28_musa_dua",
+            "sure": "Tâhâ Suresi",
+            "ayet_no": "25-28",
+            "ayet_meali": "Mûsâ dedi ki: 'Rabbim! Göğsümü açıp genişlet, işimi kolaylaştır! Dilimdeki düğümü çöz ki sözümü iyice anlasınlar!'",
+            "nuzul_sebebi_ve_tefsir": "Zalim Firavun'a tebliğe gönderilen Hz. Musa'nın heyecan ve korku anında yaptığı ferahlık ve hitabet duasıdır.",
+            "manevi_hikmet": "Zor bir imtihana veya mülakata girerken göğüs ferahlığı ve ifade gücü için bu nebevi iltica okunmalıdır.",
+            "tags": ["TAHA_25_28", "GOGUS_GENISLIGI", "KOLAYLIK", "HITABET", "DUA_VE_ILCA_USULU", "TEFSIR", "QURAN"],
+            "nafs_traps": ["PANIK_VE_KORKU", "KONTROL_YANILSAMASI_VE_MUKEMMELIYETCILIK"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_033_enbiya_87_yunus_dua",
+            "sure": "Enbiyâ Suresi",
+            "ayet_no": "87-88",
+            "ayet_meali": "Zünnûn'u (Yunus'u) da hatırla. Karanlıklar içinde: 'Senden başka hiçbir ilah yoktur. Seni tenzih ederim. Şüphesiz ben zalimlerden oldum!' diye yalvardı. Biz de duasını kabul ettik ve onu kederden kurtardık...",
+            "nuzul_sebebi_ve_tefsir": "Balığın karnında, denizin dibinde ve gecenin karanlığında kalan Hz. Yunus'un tevhidi itiraf ederek yaptığı tövbedir.",
+            "manevi_hikmet": "Çaresizliğin en dip noktasında kusurunu itiraf edip 'Lâ ilâhe illâ ente...' demek her karanlıktan sahile çıkarır.",
+            "tags": ["ENBIYA_87_88", "HZ_YUNUS", "TEVBE", "DARLIKTAN_KURTULUS", "DUA_VE_ILCA_USULU", "TEFSIR", "QURAN"],
+            "nafs_traps": ["GECMISIN_PISMANLIK_GIRDABI", "UMITSIZLIK_KARAMSARLIK"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_034_enbiya_83_eyyub_dua",
+            "sure": "Enbiyâ Suresi",
+            "ayet_no": "83-84",
+            "ayet_meali": "Eyyûb'u da hatırla. Hani o Rabbine: 'Başıma bu dert geldi, Sen ise merhametlilerin en merhametlisisin!' diye niyaz etmişti. Biz de duasını kabul edip derdini giderdik...",
+            "nuzul_sebebi_ve_tefsir": "Yıllarca ağır hastalık ve mal kaybıyla sınanan Hz. Eyyüb'ün isyan etmeden, edeple şifa istemesidir.",
+            "manevi_hikmet": "Hastalık anında sızlanarak kadere sitem etmek yerine, edeple Rahman'ın sonsuz şefkatine sığınmak gerekir.",
+            "tags": ["ENBIYA_83_84", "HZ_EYYUB", "HASTALIKTA_SABIR", "SIFA", "SABIR_VE_MUSIBET", "TEFSIR", "QURAN"],
+            "nafs_traps": ["KADERE_ITIRAZ_VE_ISYAN", "SITEM"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_035_furkan_74_aile_dua",
+            "sure": "Furkan Suresi",
+            "ayet_no": "74",
+            "ayet_meali": "Onlar ki: 'Ey Rabbimiz! Bize eşlerimizden ve nesillerimizden göz aydınlığı olacak salih kimseler lütfeyle ve bizi takva sahiplerine önder kıl!' diye dua ederler.",
+            "nuzul_sebebi_ve_tefsir": "Rahmân'ın has kullarının aile saadeti ve salih nesil yetiştirme arzusunu ifade eder.",
+            "manevi_hikmet": "Aile huzuru rastlantı değildir; dua, takva ve eşler arası şefkatle inşa edilen ilahi bir nimettir.",
+            "tags": ["FURKAN_74", "AILE_HUZURU", "GOZ_AYDINLIGI", "AILE_VE_SILA_I_RAHIM", "TEFSIR", "QURAN"],
+            "nafs_traps": ["DUNYALIK_KAYGI", "REHAVET_TEMBELLIK"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_036_neml_62_darda_kalan",
+            "sure": "Neml Suresi",
+            "ayet_no": "62",
+            "ayet_meali": "Darda kalan kimse O'na dua ettiği zaman onun imdadına koşan, sıkıntısını gideren ve sizi yeryüzünün halifeleri kılan kimdir? Allah ile beraber başka bir ilah mı var? Ne kadar da az tefekkür ediyorsunuz!",
+            "nuzul_sebebi_ve_tefsir": "Bütün sebeplerin iflas ettiği çaresizlik anında kulun kalben yöneldiği yegane mercinin Allah olduğunu haykırır.",
+            "manevi_hikmet": "Bunalım anında elin kolun bağlandığında hatırla: Darda kalanın imdadına koşan Allah vardır.",
+            "tags": ["NEML_62", "DARDA_KALANIN_DUASI", "IMDAT", "TEVEKKUL_VE_MURAKABE", "TEFSIR", "QURAN"],
+            "nafs_traps": ["CARESIZLIK_VEHMI", "UMITSIZLIK_KARAMSARLIK"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_037_kasas_24_musa_muhtacim",
+            "sure": "Kasas Suresi",
+            "ayet_no": "24",
+            "ayet_meali": "Mûsâ hayvanları suladı, sonra bir gölgeye çekilip: 'Rabbim! Doğrusu bana indireceğin her hayra öyle muhtacım ki!' dedi.",
+            "nuzul_sebebi_ve_tefsir": "Mısır'dan kaçıp Medyen'e sığınan, aç, kimsesiz ve yorgun olan Hz. Musa'nın bir ağaç gölgesindeki mahviyet ve ilticasıdır.",
+            "manevi_hikmet": "Yersiz yurtsuz ve işsiz kalsan dahi gölgeye çekil ve Rabbine aczini arz et; O sana iş ve yuva açacaktır.",
+            "tags": ["KASAS_24", "HZ_MUSA", "ACZIYET", "RIZIK_VE_TICARET", "DUA_VE_ILCA_USULU", "TEFSIR", "QURAN"],
+            "nafs_traps": ["FAKIRLIK_KORKUSU_VESVESESI", "DUNYALIK_KAYGI"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_038_ankebut_2_3_imtihan",
+            "sure": "Ankebût Suresi",
+            "ayet_no": "2-3",
+            "ayet_meali": "İnsanlar sadece 'İnandık' demekle bırakılıp imtihan edilmeyeceklerini mi sandılar? Andolsun ki Biz onlardan öncekileri de imtihan ettik. Elbette Allah doğru olanları bilir, yalancıları da mutlaka bilir.",
+            "nuzul_sebebi_ve_tefsir": "Mekke'de işkence gören ilk müminleri teselli etmek ve imanın kuru bir iddia değil sadakat testi olduğunu bildirmek için inmiştir.",
+            "manevi_hikmet": "Zorluklar seni dinden uzaklaştırmasın; ateş altını nasıl saflaştırırsa imtihan da mümini öyle arındırır.",
+            "tags": ["ANKEBUT_2_3", "IMTIHAN_SIRRI", "SIDK", "SABIR_VE_MUSIBET", "TEFSIR", "QURAN"],
+            "nafs_traps": ["KADERE_ITIRAZ_VE_ISYAN", "REHAVET_TEMBELLIK"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_039_lokman_17_19_ogul_nasihati",
+            "sure": "Lokmân Suresi",
+            "ayet_no": "17-19",
+            "ayet_meali": "'Yavrucuğum! Namazı dosdoğru kıl, iyiliği emret, kötülükten nehyet ve başına gelene sabret! İnsanlara karşı kibirlenip yanağını eğme, yeryüzünde böbürlenerek yürüme! Yürüyüşünde tabii ol, sesini de kıs!'",
+            "nuzul_sebebi_ve_tefsir": "Hz. Lokman'ın oğluna verdiği evrensel karakter ve tevazu terbiyesidir.",
+            "manevi_hikmet": "Kibir ve kabalık insanı küçük düşürür; tevazu, ölçülü ses tonu ve sabır kulu yüceltir.",
+            "tags": ["LOKMAN_17_19", "TEVAZU", "COCUK_EGITIMI", "AHLAK", "OFKE_VE_AHLAK", "TEFSIR", "QURAN"],
+            "nafs_traps": ["GIZLI_KIBIR_HAKLILIK", "UCUB_VE_AMELINE_GUVENME"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_040_ahzab_3_tevekkul",
+            "sure": "Ahzâb Suresi",
+            "ayet_no": "3",
+            "ayet_meali": "Yalnızca Allah'a tevekkül et! Vekil olarak Allah sana yeter!",
+            "nuzul_sebebi_ve_tefsir": "Bütün müttefik orduların Medine'yi kuşattığı en buhranlı zamanda nazil olmuştur.",
+            "manevi_hikmet": "Kime güveneceğini şaşırdığın kriz anlarında vekilin Allah olsun; O seni asla yarı yolda bırakmaz.",
+            "tags": ["AHZAB_3", "TEVEKKUL", "HASBIYALLAH", "TEVEKKUL_VE_MURAKABE", "TEFSIR", "QURAN"],
+            "nafs_traps": ["ZAHIRE_ALDANMA_VE_SEBEP_PERESTLIK", "UMITSIZLIK_KARAMSARLIK"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_041_zumer_53_rahmet_umidi",
+            "sure": "Zümer Suresi",
+            "ayet_no": "53",
+            "ayet_meali": "De ki: Ey nefisleri aleyhine haddi aşmış olan kullarım! Allah'ın rahmetinden ümidinizi kesmeyin! Şüphesiz Allah bütün günahları bağışlar. Çünkü O çok bağışlayandır, çok merhamet edendir.",
+            "nuzul_sebebi_ve_tefsir": "Büyük günahlar işlemiş kimselerin 'biz artık affolunmayız' yeisine kapılması üzerine inmiştir.",
+            "manevi_hikmet": "Şeytanın en sinsi tuzağı 'senden adam olmaz' vesvesesidir; Zümer 53 bu tuzağı yerle bir eder.",
+            "tags": ["ZUMER_53", "TEVBE_VE_INABE", "MAGFIRET", "SONSUZ_RAHMET", "TEFSIR", "QURAN"],
+            "nafs_traps": ["GECMISIN_PISMANLIK_GIRDABI", "UMITSIZLIK_KARAMSARLIK"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_042_sura_30_gunah_musibet",
+            "sure": "Şûrâ Suresi",
+            "ayet_no": "30",
+            "ayet_meali": "Başınıza gelen herhangi bir musibet kendi ellerinizin kazandığı günahlar sebebiyledir; O yine de çoğunu affeder.",
+            "nuzul_sebebi_ve_tefsir": "Musibet anında suçu başkasına veya kadere atmayıp insanın kendi nefsini hesaba çekmesi gerektiğini bildirir.",
+            "manevi_hikmet": "Dert geldiğinde 'Ben nerede hata yaptım?' diyerek iç muhasebe yapmak kalbi kirden arındırır.",
+            "tags": ["SURA_30", "NEFIS_MUHASEBESI", "GUNAH", "TEVBE_VE_INABE", "TEFSIR", "QURAN"],
+            "nafs_traps": ["KADERE_ITIRAZ_VE_ISYAN", "UCUB_VE_AMELINE_GUVENME"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_043_fussilet_34_kotulugu_iyilikle_sav",
+            "sure": "Fussilet Suresi",
+            "ayet_no": "34",
+            "ayet_meali": "İyilikle kötülük bir olmaz. Sen kötülüğü en güzel olan şeyle sav! O zaman göreceksin ki seninle arasında düşmanlık olan kimse sanki sımsıcak bir dost oluvermiştir.",
+            "nuzul_sebebi_ve_tefsir": "Düşmanlığı yok etmenin yolunun intikam değil, karşı tarafı utandıracak bir lütufkarlık olduğunu açıklar.",
+            "manevi_hikmet": "Öfkeye öfkeyle değil, asil bir iyilikle cevap vermek düşmanın içindeki vicdanı uyandırır.",
+            "tags": ["FUSSILET_34", "KOTULUGE_IYILIK", "HILM", "OFKE_VE_AHLAK", "TEFSIR", "QURAN"],
+            "nafs_traps": ["INTIKAM_VE_HASET", "ANI_OFKE"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_044_hucurat_10_kardeslik",
+            "sure": "Hucurât Suresi",
+            "ayet_no": "10",
+            "ayet_meali": "Müminler ancak kardeştirler. Öyleyse kardeşlerinizin arasını düzeltin ve Allah'tan korkun ki merhamete eresiniz.",
+            "nuzul_sebebi_ve_tefsir": "İki sahabe grubunun kavgası üzerine inmiş; müminler arasında dargınlık ve kutuplaşmaya izin verilemeyeceğini beyan etmiştir.",
+            "manevi_hikmet": "Kardeşinin ayıbını aramak değil, kırgınlıkları tamir etmek ve arabulucu olmak imanın gereğidir.",
+            "tags": ["HUCURAT_10", "KARDESLIK", "ARABULUCULUK", "KUL_HAKKI_VE_ADALET", "TEFSIR", "QURAN"],
+            "nafs_traps": ["INTIKAM_VE_HASET", "GIZLI_KIBIR_HAKLILIK"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_045_hucurat_11_12_giybet_yasak",
+            "sure": "Hucurât Suresi",
+            "ayet_no": "11-12",
+            "ayet_meali": "Birbirinizle alay etmeyin, kötü lakaplar takmayın! Zannın çoğundan sakının, tecessüs etmeyin ve gıybet yapmayın! Hiç sizden biriniz ölmüş kardeşinin etini yemekten hoşlanır mı? İşte bundan tiksindiniz!",
+            "nuzul_sebebi_ve_tefsir": "Toplumsal barışı zehirleyen dört büyük ahlaksızlığı (alay, lakap, suizan ve gıybet) en sarsıcı benzetmeyle haram kılar.",
+            "manevi_hikmet": "Gıybet ve dedikodu ruhu zehirler; kardeşinin arkasından konuşmak ölü etini çiğnemek kadar iğrençtir.",
+            "tags": ["HUCURAT_11_12", "GIYBET", "TECESSUS", "KUL_HAKKI_VE_ADALET", "TEFSIR", "QURAN"],
+            "nafs_traps": ["SUI_ZAN_VE_TECESSUS", "INTIKAM_VE_HASET"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_046_hadid_22_23_kader_metaneti",
+            "sure": "Hadîd Suresi",
+            "ayet_no": "22-23",
+            "ayet_meali": "Yeryüzünde ve nefislerinizde meydana gelen hiçbir musibet yoktur ki Biz onu yaratmadan önce bir kitapta yazılmış olmasın. Bu, kaybettiğinize üzülmeyesiniz ve size verilene şımarmayasınız diyedir.",
+            "nuzul_sebebi_ve_tefsir": "Kader inancının insan psikolojisini dengede tutan muazzam bir zırh olduğunu ortaya koyar.",
+            "manevi_hikmet": "Kaybettiğinde kahrolup yıkılma, kazandığında şımarıp böbürlenme; her iki hal de kaderin hikmetli terazisindedir.",
+            "tags": ["HADID_22_23", "KADER_DENGE", "METANET", "KADER_VE_KAZA_HIKMETI", "TEFSIR", "QURAN"],
+            "nafs_traps": ["KADERE_ITIRAZ_VE_ISYAN", "UCUB_VE_AMELINE_GUVENME"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_047_talak_2_3_cikis_yolu",
+            "sure": "Talâk Suresi",
+            "ayet_no": "2-3",
+            "ayet_meali": "Kim Allah'tan sakınırsa, Allah ona bir çıkış yolu açar ve onu beklemediği yerden rızıklandırır. Kim Allah'a tevekkül ederse, O kendisine yeter...",
+            "nuzul_sebebi_ve_tefsir": "Oğlu esir düşen ve açlık çeken sahabe Avf b. Malik'in sabrı üzerine inmiştir.",
+            "manevi_hikmet": "Bütün kapılar kapandığında takva anahtarıyla çalınan ilahi kapı beklenmedik mucizelerle açılır.",
+            "tags": ["TALAK_2_3", "CIKIS_YOLU", "RIZIK_VE_TICARET", "TEVEKKUL_VE_MURAKABE", "TEFSIR", "QURAN"],
+            "nafs_traps": ["UMITSIZLIK_KARAMSARLIK", "FAKIRLIK_KORKUSU_VESVESESI"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_048_insirah_1_8_kolaylik",
+            "sure": "İnşirah Suresi",
+            "ayet_no": "1-8",
+            "ayet_meali": "Biz senin göğsünü açıp genişletmedik mi? Belini büken ağır yükünü üzerinden indirmedik mi? Elbette zorlukla beraber bir kolaylık vardır. Gerçekten zorlukla beraber bir kolaylık vardır. Bir işi bitirince diğerine koyul ve yalnız Rabbine yönel!",
+            "nuzul_sebebi_ve_tefsir": "Tebliğin ilk yıllarında yalnız kalan Efendimiz'in gönlüne ilahi sükûnet ve inşirah indirmek için nazil olmuştur.",
+            "manevi_hikmet": "Zorluk kalıcı değildir; her meşakkatin içine iki kat kolaylık tohumu yerleştirilmiştir.",
+            "tags": ["INSIRAH_SURESI", "FERAHLIK", "SUKUNET", "TESKIN_VE_TESELLI", "TEFSIR", "QURAN"],
+            "nafs_traps": ["UMITSIZLIK_KARAMSARLIK", "REHAVET_TEMBELLIK"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_049_duha_1_8_rabbin_terk_etmedi",
+            "sure": "Duha Suresi",
+            "ayet_no": "1-8",
+            "ayet_meali": "Kuşluk vaktine ve sükuna erdiği zaman geceye andolsun ki; Rabbin seni terk etmedi ve sana darılmadı! Elbette ahiret senin için dünyadan daha hayırlıdır...",
+            "nuzul_sebebi_ve_tefsir": "Vahiy bir süre kesilince müşriklerin 'Rabbi onu terk etti' iftirası üzerine inmiştir.",
+            "manevi_hikmet": "Kendini yalnız hissettiğin kurak anlarda bil ki Rabbin seni terk etmedi; dünün yetimini barındıran Allah bugün de sahipsiz bırakmaz.",
+            "tags": ["DUHA_SURESI", "ILAHI_YAKINLIK", "SUKUNET", "TESKIN_VE_TESELLI", "TEFSIR", "QURAN"],
+            "nafs_traps": ["UMITSIZLIK_KARAMSARLIK", "SUI_ZAN_VE_TECESSUS"],
+            "is_riba_related": False
+        },
+        {
+            "tefsir_id": "tefsir_050_ihlas_felak_nas",
+            "sure": "Muavvizeteyn (Felak ve Nâs)",
+            "ayet_no": "1-6",
+            "ayet_meali": "De ki: Sabahın Rabbine sığınırım; yarattığı şeylerin şerrinden, karanlığı çöktüğü zaman gecenin şerrinden, düğümlere üfleyen büyücülerin şerrinden ve haset ettiği zaman hasetçinin şerrinden! İnsanların Rabbine, Melikine ve İlahına sığınırım; sinsi vesvesecinin şerrinden!",
+            "nuzul_sebebi_ve_tefsir": "Büyü ve karanlık vesveselerle bunalan müminlerin sığınacağı en güçlü ilahi zırhtır.",
+            "manevi_hikmet": "Korku, haset ve vesvese fırtınalarında sığınacağın yegane liman Felak ve Nas sureleridir.",
+            "tags": ["FELAK_NAS", "ISTIAZE", "VESVESE_KORUMASI", "SUKUNET", "TEFSIR", "QURAN"],
+            "nafs_traps": ["VESVESE_VE_GUSUL_ABDEST_EVHAMI", "PANIK_VE_KORKU"],
+            "is_riba_related": False
+        }
+    ]
+
+    tefsir_file = DATA_DIR / "tefsir_hikmet_corpus.json"
+    with open(tefsir_file, "w", encoding="utf-8") as f:
+        json.dump(passages, f, ensure_ascii=False, indent=2)
+    print(f"✅ Generated {len(passages)} authentic Quranic Tafsir records -> {tefsir_file}")
+
+if __name__ == "__main__":
+    generate_tefsir_corpus()

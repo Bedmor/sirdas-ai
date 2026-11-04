@@ -155,6 +155,24 @@ export default function DisclaimerPage() {
                 sorumlu tutulamaz.
               </p>
             </section>
+
+            <section className="bg-surface-container/60 p-6 sm:p-8 rounded-2xl border border-secondary/40 space-y-3">
+              <h2 className="text-xl font-heading font-semibold text-on-surface flex items-center gap-2">
+                <i className="ph ph-shield-check text-secondary text-xl"></i>
+                <span>4. KVKK Kalkanı, Kendi İradesiyle Paylaşım ve Unutulma Hakkı</span>
+              </h2>
+              <p className="text-sm text-slate-300 font-light leading-relaxed">
+                6698 sayılı KVKK md. 6 uyarınca dini inanç ve manevi durumlar özel nitelikli kişisel veridir.
+                Kullanıcı bu platformu kullanmadan önce tek tıkla açık rıza onayını vermekte; paylaşımlarını
+                tamamen kendi hür iradesiyle ve anonim olarak iletmektedir. Sistem bu kayıtları kimlik bilgileriyle
+                asla eşleştirmez. Kullanıcı dilediği vakit tek tıkla &ldquo;Benlik Hafızamı Sıfırla / Tüm Verilerimi Sil&rdquo;
+                butonuna basarak unutulma hakkını icra edebilir. Ayrıntılar için{" "}
+                <a href="/gizlilik-politikasi#ozel-nitelikli-veri" className="text-primary underline hover:text-amber-300">
+                  Gizlilik Politikası ve KVKK Metnini
+                </a>{" "}
+                inceleyebilirsiniz.
+              </p>
+            </section>
           </article>
         </div>
       </main>

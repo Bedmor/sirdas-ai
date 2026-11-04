@@ -375,6 +375,81 @@ const CORE_SEED_CHUNKS: LocalKnowledgeChunk[] = [
     audioUrl: null,
     createdAt: new Date("2026-01-01T00:06:00Z"),
   },
+  {
+    id: "chunk-hadith-pehlivan",
+    sourceType: "HADITH",
+    sourceTitle: "Sahih Buhârî (Edeb 76) — Öfke ve Hilm Ahlakı",
+    content:
+      "Resûlullah (s.a.v.) buyurdu: 'Gerçek pehlivan güreşte rakibini yere seren kimse değildir. Asıl pehlivan, öfkelendiğinde nefsine hakim olabilen kimsedir.'",
+    tags: ["OFKE_VE_AHLAK", "hilm", "sabir", "pehlivan", "nefis_terbiyesi"],
+    nafsTraps: ["INTIKAM_VE_HASET", "GIZLI_KIBIR_HAKLILIK"],
+    isRibaRelated: false,
+    youtubeId: null,
+    startSec: null,
+    endSec: null,
+    audioUrl: null,
+    createdAt: new Date("2026-01-01T00:07:00Z"),
+  },
+  {
+    id: "chunk-quran-duha",
+    sourceType: "QURAN",
+    sourceTitle: "Duhâ Suresi 3-5",
+    content:
+      "Rabbin seni terk etmedi ve sana darılmadı. Muhakkak ki ahiret senin için dünyadan daha hayırlıdır. İleride Rabbin sana öyle nimetler verecek ki sen de hoşnut olacaksın.",
+    tags: ["DUHA", "TESKIN_VE_TESELLI", "SABIR_VE_MUSIBET", "DUA_VE_ILCA_USULU"],
+    nafsTraps: ["UMITSIZLIK_KARAMSARLIK", "ACELECI_TALEPLER_VE_ISTIACAL"],
+    isRibaRelated: false,
+    youtubeId: null,
+    startSec: null,
+    endSec: null,
+    audioUrl: null,
+    createdAt: new Date("2026-01-01T00:08:00Z"),
+  },
+  {
+    id: "chunk-hadith-tayyib",
+    sourceType: "HADITH",
+    sourceTitle: "Sahih Müslim (Zekât 65) — Helal ve Tayyib Rızık",
+    content:
+      "Resûlullah (s.a.v.) buyurdu: 'Ey insanlar! Şüphesiz Allah Teâlâ tayyibtir (tertemizdir ve her türlü noksanlıktan münezzehtir), ancak temiz ve helal olanı kabul eder.'",
+    tags: ["RIZIK_VE_TICARET", "helal", "tayyib", "infaq", "sadaka"],
+    nafsTraps: ["KOLAY_KAZANC_HIRSI", "CIMRILIK_VE_MAL_HIRSI"],
+    isRibaRelated: false,
+    youtubeId: null,
+    startSec: null,
+    endSec: null,
+    audioUrl: null,
+    createdAt: new Date("2026-01-01T00:09:00Z"),
+  },
+  {
+    id: "chunk-quran-bakara-155",
+    sourceType: "QURAN",
+    sourceTitle: "Bakara Suresi 155-156 — Dünya İmtihan Sırrı",
+    content:
+      "Andolsun ki sizi biraz korku ve açlıkla; mallardan, canlardan ve ürünlerden eksiltmekle sınayacağız. Sabredenleri müjdele! Onlar ki bir musibete uğradıklarında 'Biz şüphesiz Allah'a aidiz ve muhakkak O'na döneceğiz' derler.",
+    tags: ["KADER_VE_KAZA_HIKMETI", "SABIR_VE_MUSIBET", "TESKIN_VE_TESELLI"],
+    nafsTraps: ["KADERE_ITIRAZ_VE_ISYAN", "UMITSIZLIK_KARAMSARLIK"],
+    isRibaRelated: false,
+    youtubeId: null,
+    startSec: null,
+    endSec: null,
+    audioUrl: null,
+    createdAt: new Date("2026-01-01T00:10:00Z"),
+  },
+  {
+    id: "chunk-quran-muavvizeteyn",
+    sourceType: "QURAN",
+    sourceTitle: "Felak ve Nâs Sureleri (Muavvizeteyn)",
+    content:
+      "De ki: Yarattığı şeylerin şerrinden, karanlığı çöktüğü zaman gecenin şerrinden, düğümlere üfürenlerin şerrinden ve haset ettiği vakit hasetçinin şerrinden sabahın Rabbine sığınırım... İnsanların kalplerine vesvese sokan sinsi vesvesecinin şerrinden insanların Rabbine, insanların Melik'ine, insanların İlahı'na sığınırım.",
+    tags: ["TEVEKKUL_VE_MURAKABE", "DUA_VE_ILCA_USULU", "felak", "nas", "siginma"],
+    nafsTraps: ["VESVESE_VE_GUSUL_ABDEST_EVHAMI", "ZAHIRE_ALDANMA_VE_SEBEP_PERESTLIK"],
+    isRibaRelated: false,
+    youtubeId: null,
+    startSec: null,
+    endSec: null,
+    audioUrl: null,
+    createdAt: new Date("2026-01-01T00:11:00Z"),
+  },
 ];
 
 let cachedCorpus: LocalKnowledgeChunk[] | null = null;
@@ -449,9 +524,14 @@ function enrichTagsAndTraps(raw: {
     tags.add("SABIR_VE_MUSIBET");
     traps.add("KADERE_ITIRAZ_VE_ISYAN");
   }
-  if (/taif|uhud|sevr|hicret|tebük/.test(text)) {
+  if (/taif|uhud|sevr|hicret|tebük|hendek|boykot|hudeybiye|akabe|bedir|ifk|siyer/.test(text)) {
     tags.add("SIYER_ORNEKLERI");
     tags.add("SIYERDE_DARLIK_DONEMLERI");
+  }
+  if (/vefasızlık|vefasizlik|dışlanma|dislanma|yalnızlık|yalnizlik|tükenmişlik|tukenmislik/.test(text)) {
+    tags.add("TESKIN_VE_TESELLI");
+    tags.add("SABIR_VE_MUSIBET");
+    traps.add("UMITSIZLIK_KARAMSARLIK");
   }
 
   return {
@@ -468,63 +548,143 @@ export function getLocalKnowledgeCorpus(): LocalKnowledgeChunk[] {
     byId.set(chunk.id, chunk);
   }
 
-  try {
-    const thematicPath = path.join(
-      process.cwd(),
-      "data-pipeline/data/thematic_texts.json"
-    );
-    if (fs.existsSync(thematicPath)) {
-      const rawJson = JSON.parse(fs.readFileSync(thematicPath, "utf-8"));
-      if (Array.isArray(rawJson)) {
-        rawJson.forEach((item: Record<string, unknown>, idx: number) => {
-          const id = String(item.id || `thematic-${idx}`);
-          const sourceType = String(
-            item.source_type || item.sourceType || "QURAN"
-          ) as LocalSourceType;
-          const sourceTitle = String(
-            item.source_title || item.sourceTitle || "Kaynak"
-          );
-          const content = String(item.content || "");
-          const isRibaRelated = Boolean(
-            item.is_riba_related ?? item.isRibaRelated ?? false
-          );
-          const rawTags = Array.isArray(item.tags)
-            ? item.tags.map(String)
+  const dataFiles = [
+    "thematic_texts.json",
+    "hadith_kutub_sitte.json",
+    "siyer_kriz_matrisi.json",
+    "tefsir_hikmet_corpus.json",
+  ];
+
+  for (const fileName of dataFiles) {
+    try {
+      const filePath = path.join(process.cwd(), "data-pipeline/data", fileName);
+      if (!fs.existsSync(filePath)) continue;
+
+      const rawJson = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+      if (!Array.isArray(rawJson)) continue;
+
+      rawJson.forEach((item: Record<string, unknown>, idx: number) => {
+        // Normalize source_type
+        let sourceType: LocalSourceType = "QURAN";
+        const rawSourceType = String(
+          item.source_type || item.sourceType || item.category || ""
+        )
+          .toUpperCase()
+          .trim();
+        if (
+          rawSourceType === "HADITH" ||
+          rawSourceType === "SIYER" ||
+          rawSourceType === "DUA" ||
+          rawSourceType === "QURAN" ||
+          rawSourceType === "HALIS_AYDEMIR"
+        ) {
+          sourceType = rawSourceType as LocalSourceType;
+        } else if ("siyer_id" in item || "olay_adi" in item) {
+          sourceType = "SIYER";
+        } else if ("tefsir_id" in item || "sure" in item) {
+          sourceType = "QURAN";
+        } else if ("hadis_id" in item || "kaynak" in item) {
+          sourceType = "HADITH";
+        }
+
+        // Normalize source_title
+        let sourceTitle = String(
+          item.source_title || item.sourceTitle || item.title || ""
+        ).trim();
+        if (!sourceTitle) {
+          if ("siyer_id" in item || "olay_adi" in item) {
+            const donemStr = item.donem ? ` (${item.donem})` : "";
+            sourceTitle = `Siyer-i Nebî: ${item.olay_adi || "Olay"}${donemStr}`;
+          } else if ("tefsir_id" in item || "sure" in item) {
+            const ayetStr = item.ayet_no ? ` ${item.ayet_no}` : "";
+            sourceTitle = `${item.sure || "Sure"}${ayetStr} - Tefsir ve Hikmet`;
+          } else if ("hadis_id" in item || "kaynak" in item) {
+            const babStr = item.bab_no ? ` - Bab ${item.bab_no}` : "";
+            const bolumStr = item.kitap_bolumu ? ` (${item.kitap_bolumu})` : "";
+            sourceTitle = `${item.kaynak || "Hadis"}${bolumStr}${babStr}`;
+          } else {
+            sourceTitle = `Kaynak-${fileName}-${idx}`;
+          }
+        }
+
+        // Normalize content
+        let content = String(item.content || "").trim();
+        if (!content) {
+          if ("turkce_meal" in item) {
+            const kaynakInfo = item.kaynak
+              ? ` [Kaynak: ${item.kaynak}, Derece: ${item.sahihlik_derecesi || "Sahih"}]`
+              : "";
+            content = `Resûlullah (s.a.v.) buyurdu: "${item.turkce_meal}"${kaynakInfo}`;
+          } else if ("ozet_metin" in item) {
+            const hikmetPart = item.manevi_hikmet
+              ? `\n\nManevi Hikmet ve Çözüm: ${item.manevi_hikmet}`
+              : "";
+            content = `${item.ozet_metin}${hikmetPart}`;
+          } else if ("ayet_meali" in item) {
+            const tefsirPart = item.nuzul_sebebi_ve_tefsir
+              ? `\n\nNüzul Sebebi ve Tefsir Hikmeti: ${item.nuzul_sebebi_ve_tefsir}`
+              : "";
+            const hikmetPart = item.manevi_hikmet
+              ? `\n\nManevi Hikmet: ${item.manevi_hikmet}`
+              : "";
+            content = `Ayet-i Kerime: "${item.ayet_meali}"${tefsirPart}${hikmetPart}`;
+          }
+        }
+
+        if (!sourceTitle || !content) return;
+
+        const id = String(
+          item.id ||
+            item.hadis_id ||
+            item.siyer_id ||
+            item.tefsir_id ||
+            `${fileName}-${idx}`
+        );
+        const isRibaRelated = Boolean(
+          item.is_riba_related ?? item.isRibaRelated ?? false
+        );
+
+        const rawTags = Array.isArray(item.tags) ? item.tags.map(String) : [];
+        if (Array.isArray(item.kategori_etiketleri)) {
+          item.kategori_etiketleri.forEach((k) => rawTags.push(String(k)));
+        }
+        if (Array.isArray(item.duygu_ve_kriz_etiketleri)) {
+          item.duygu_ve_kriz_etiketleri.forEach((d) => rawTags.push(String(d)));
+        }
+
+        const rawTraps = Array.isArray(item.nafs_traps)
+          ? item.nafs_traps.map(String)
+          : Array.isArray(item.nafsTraps)
+            ? item.nafsTraps.map(String)
             : [];
-          const rawTraps = Array.isArray(item.nafs_traps)
-            ? item.nafs_traps.map(String)
-            : Array.isArray(item.nafsTraps)
-              ? item.nafsTraps.map(String)
-              : [];
 
-          const enriched = enrichTagsAndTraps({
-            sourceTitle,
-            content,
-            tags: rawTags,
-            nafsTraps: rawTraps,
-            isRibaRelated,
-          });
-
-          byId.set(id, {
-            id,
-            sourceType,
-            sourceTitle,
-            content,
-            tags: enriched.tags,
-            nafsTraps: enriched.nafsTraps,
-            isRibaRelated,
-            youtubeId: item.youtube_id ? String(item.youtube_id) : null,
-            startSec:
-              typeof item.start_sec === "number" ? item.start_sec : null,
-            endSec: typeof item.end_sec === "number" ? item.end_sec : null,
-            audioUrl: item.audio_url ? String(item.audio_url) : null,
-            createdAt: new Date(Date.now() - idx * 60_000),
-          });
+        const enriched = enrichTagsAndTraps({
+          sourceTitle,
+          content,
+          tags: rawTags,
+          nafsTraps: rawTraps,
+          isRibaRelated,
         });
-      }
+
+        byId.set(id, {
+          id,
+          sourceType,
+          sourceTitle,
+          content,
+          tags: enriched.tags,
+          nafsTraps: enriched.nafsTraps,
+          isRibaRelated,
+          youtubeId: item.youtube_id ? String(item.youtube_id) : null,
+          startSec:
+            typeof item.start_sec === "number" ? item.start_sec : null,
+          endSec: typeof item.end_sec === "number" ? item.end_sec : null,
+          audioUrl: item.audio_url ? String(item.audio_url) : null,
+          createdAt: new Date(Date.now() - idx * 60_000),
+        });
+      });
+    } catch {
+      // Continue with remaining files if one fails
     }
-  } catch {
-    // Continue with CORE_SEED_CHUNKS if file read fails
   }
 
   cachedCorpus = Array.from(byId.values());
@@ -537,6 +697,7 @@ export interface HybridSearchInput {
   filterNafs?: string | null;
   forceRiba?: boolean;
   matchCount?: number;
+  intentMode?: "MANEVI_AYNA" | "ILIM_VE_SIYER";
 }
 
 export function scoreChunkRelevance(
@@ -545,6 +706,14 @@ export function scoreChunkRelevance(
   keywords: string[]
 ): number {
   let score = 0.35; // Base semantic score
+
+  if (input.intentMode === "ILIM_VE_SIYER") {
+    if (chunk.sourceType === "SIYER") {
+      score += 0.25;
+    } else if (chunk.sourceType === "HADITH") {
+      score += 0.15;
+    }
+  }
 
   if (input.forceRiba && chunk.isRibaRelated) {
     score += 0.45;
@@ -576,9 +745,25 @@ export function scoreChunkRelevance(
 
   if (keywords.length > 0) {
     const haystack = `${chunk.sourceTitle} ${chunk.content} ${chunk.tags.join(" ")}`.toLowerCase();
+    const normalizedHaystack = haystack
+      .replace(/ğ/g, "g")
+      .replace(/ü/g, "u")
+      .replace(/ş/g, "s")
+      .replace(/ı/g, "i")
+      .replace(/ö/g, "o")
+      .replace(/ç/g, "c");
+
     let matchedCount = 0;
     for (const kw of keywords) {
-      if (haystack.includes(kw)) {
+      const normalizedKw = kw
+        .replace(/ğ/g, "g")
+        .replace(/ü/g, "u")
+        .replace(/ş/g, "s")
+        .replace(/ı/g, "i")
+        .replace(/ö/g, "o")
+        .replace(/ç/g, "c");
+
+      if (haystack.includes(kw) || normalizedHaystack.includes(normalizedKw)) {
         matchedCount++;
       }
     }
@@ -645,9 +830,22 @@ export function searchLocalKnowledgeCorpus(
     }
   }
 
+  // 1.5 If ILIM_VE_SIYER mode, prioritize best Siyer passage first
+  if (input.intentMode === "ILIM_VE_SIYER") {
+    const bestSiyer = scored
+      .filter((c) => c.sourceType === "SIYER" && !isAlreadyUsed(c))
+      .sort((a, b) => b.similarity - a.similarity)[0];
+    pushUnique(bestSiyer);
+  }
+
   // 2. Best QURAN passage
   const bestQuran = scored
-    .filter((c) => c.sourceType === "QURAN" && !isAlreadyUsed(c))
+    .filter(
+      (c) =>
+        c.sourceType === "QURAN" &&
+        !isAlreadyUsed(c) &&
+        (!c.isRibaRelated || forceRiba)
+    )
     .sort((a, b) => b.similarity - a.similarity)[0];
   pushUnique(bestQuran);
 
@@ -658,7 +856,8 @@ export function searchLocalKnowledgeCorpus(
         (c.sourceType === "HADITH" ||
           c.sourceType === "SIYER" ||
           c.sourceType === "DUA") &&
-        !isAlreadyUsed(c)
+        !isAlreadyUsed(c) &&
+        (!c.isRibaRelated || forceRiba)
     )
     .sort((a, b) => b.similarity - a.similarity)[0];
   pushUnique(bestHadithSiyer);
@@ -666,7 +865,7 @@ export function searchLocalKnowledgeCorpus(
   // 4. Fill remaining slots with highest-scoring general matches
   const limit = matchCount + (forceRiba ? 2 : 0);
   const remaining = scored
-    .filter((c) => !isAlreadyUsed(c))
+    .filter((c) => !isAlreadyUsed(c) && (!c.isRibaRelated || forceRiba))
     .sort((a, b) => b.similarity - a.similarity);
 
   for (const cand of remaining) {

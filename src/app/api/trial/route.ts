@@ -14,6 +14,7 @@ import {
   persistConversationTurn,
   UnifiedEditorAudit,
 } from "@/lib/ai/rag-pipeline";
+import { sanitizeIncomingUserMessage } from "@/lib/ai/pii-anonymizer";
 import {
   TRIAL_COOKIE_NAME,
   inMemoryUsedFingerprints,
@@ -229,6 +230,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // PII & Dolaylı Kimlik Süzgeci
+    const anonymization = sanitizeIncomingUserMessage(rawMessage);
+    const safeMessage = anonymization.sanitizedText;
+
     const signedToken = createSignedTrialToken(fp);
     const acceptHeader = req.headers.get("accept") || "";
     const userAgent = req.headers.get("user-agent") || "";
@@ -257,11 +262,11 @@ export async function POST(req: NextRequest) {
 
           try {
             jevResult = await analyzeWithJev({
-              userMessage: rawMessage,
+              userMessage: safeMessage,
               userContextSnippet: JSON.stringify({ source: "web_landing_trial" }),
             });
 
-            const intercept = evaluateSpiritualGuardrails(rawMessage, jevResult);
+            const intercept = evaluateSpiritualGuardrails(safeMessage, jevResult);
 
             if (intercept) {
               statusType = intercept.status;
@@ -281,10 +286,10 @@ export async function POST(req: NextRequest) {
             } else {
               const queryEmbedding = isRemoteDbOffline()
                 ? new Array(768).fill(0)
-                : await generateEmbedding(rawMessage);
+                : await generateEmbedding(safeMessage);
               const { chunks, isRibaShieldActive } =
                 await retrieveCelikKasaContext({
-                  userMessage: rawMessage,
+                  userMessage: safeMessage,
                   queryEmbedding,
                   jevResult,
                 });
@@ -300,7 +305,7 @@ export async function POST(req: NextRequest) {
                   : jevResult.spiritual_stage || "ARAYIS_VE_BASLANGIC";
 
               const streamGenerator = generateSirdasReplyStream({
-                userMessage: rawMessage,
+                userMessage: safeMessage,
                 userProfile: {
                   roles: ["MISAFIR_KULLANICI"],
                   spiritual_trials: [jevResult.nafs_trap],
@@ -402,7 +407,7 @@ export async function POST(req: NextRequest) {
                 trialPhoneKey,
                 fingerprint: fp,
                 isDev,
-                rawMessage,
+                rawMessage: safeMessage,
                 replyText: accumulatedReply,
                 jevResult,
                 editorAudit: editorAudit || {},
@@ -421,7 +426,7 @@ export async function POST(req: NextRequest) {
               used: !isDev,
               isDev,
               trial: {
-                userMessage: rawMessage,
+                userMessage: safeMessage,
                 replyText: accumulatedReply,
                 jevResult,
                 editorAudit,
@@ -463,11 +468,11 @@ export async function POST(req: NextRequest) {
 
     // --- NON-STREAMING JSON PATH ---
     const jevResult = await analyzeWithJev({
-      userMessage: rawMessage,
+      userMessage: safeMessage,
       userContextSnippet: JSON.stringify({ source: "web_landing_trial" }),
     });
 
-    const intercept = evaluateSpiritualGuardrails(rawMessage, jevResult);
+    const intercept = evaluateSpiritualGuardrails(safeMessage, jevResult);
 
     let replyText = "";
     let editorAudit: UnifiedEditorAudit | Record<string, unknown>;
@@ -485,9 +490,9 @@ export async function POST(req: NextRequest) {
     } else {
       const queryEmbedding = isRemoteDbOffline()
         ? new Array(768).fill(0)
-        : await generateEmbedding(rawMessage);
+        : await generateEmbedding(safeMessage);
       const { chunks, isRibaShieldActive } = await retrieveCelikKasaContext({
-        userMessage: rawMessage,
+        userMessage: safeMessage,
         queryEmbedding,
         jevResult,
       });
@@ -503,7 +508,7 @@ export async function POST(req: NextRequest) {
           : jevResult.spiritual_stage || "ARAYIS_VE_BASLANGIC";
 
       const sirdasReply = await generateSirdasReply({
-        userMessage: rawMessage,
+        userMessage: safeMessage,
         userProfile: {
           roles: ["MISAFIR_KULLANICI"],
           spiritual_trials: [jevResult.nafs_trap],
@@ -519,7 +524,7 @@ export async function POST(req: NextRequest) {
         ragChunks: chunks,
       });
 
-      replyText = sirdasReply.whatsapp_reply;
+      replyText = sirdasReply.reply_text || sirdasReply.whatsapp_reply || "";
       editorAudit = sirdasReply.editor_audit;
 
       if (sirdasReply.selected_audio_chunk_id) {
@@ -537,7 +542,7 @@ export async function POST(req: NextRequest) {
         trialPhoneKey,
         fingerprint: fp,
         isDev,
-        rawMessage,
+        rawMessage: safeMessage,
         replyText,
         jevResult,
         editorAudit,
@@ -559,7 +564,7 @@ export async function POST(req: NextRequest) {
       remaining: isDev ? 999 : 0,
       isDev,
       trial: {
-        userMessage: rawMessage,
+        userMessage: safeMessage,
         replyText,
         jevResult,
         editorAudit,

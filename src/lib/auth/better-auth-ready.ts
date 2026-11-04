@@ -110,3 +110,102 @@ export async function linkAnonymousSirdasHistoryToUser(params: {
     return { migratedThreads: 0 };
   }
 }
+
+/**
+ * KVKK Unutulma Hakkı (Right to be Forgotten):
+ * Permanently deletes all messages, JSON profile metadata, and the user record
+ * for an anonymous visitor or authenticated actor.
+ */
+export async function purgeSirdasActorData(
+  clientId: string
+): Promise<{ deleted: boolean; messagesCount?: number }> {
+  const userKey = `web_chat_${clientId}`;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { phoneNumber: userKey },
+    });
+
+    if (!user) {
+      return { deleted: true, messagesCount: 0 };
+    }
+
+    const deleteMessagesResult = await prisma.message.deleteMany({
+      where: { userId: user.id },
+    });
+
+    await prisma.user.delete({
+      where: { id: user.id },
+    });
+
+    return {
+      deleted: true,
+      messagesCount: deleteMessagesResult.count,
+    };
+  } catch (err) {
+    console.warn("[purgeSirdasActorData Warning - attempting fallback]", err);
+
+    // Fallback: clear messages and reset profile metadata if full user deletion meets constraints
+    try {
+      const user = await prisma.user.findUnique({
+        where: { phoneNumber: userKey },
+      });
+
+      if (user) {
+        await prisma.message.deleteMany({
+          where: { userId: user.id },
+        });
+
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            profileMetadata: {},
+            onboardingStep: 1,
+            onboardingCompleted: false,
+          },
+        });
+      }
+
+      return { deleted: true };
+    } catch (fallbackErr) {
+      console.error("[purgeSirdasActorData Fallback Error]", fallbackErr);
+      return { deleted: false };
+    }
+  }
+}
+
+/**
+ * Zaman Ayarlı Kendini İmhâ (TTL - Time To Live):
+ * Belirlenen süre (varsayılan 24 saat) boyunca güncellenmeyen anonim web oturumlarını
+ * ve mesaj kayıtlarını arka planda otomatik olarak imha eder.
+ */
+export async function purgeExpiredSirdasRecords(
+  ttlHours: number = 24
+): Promise<{ purgedCount: number }> {
+  if (ttlHours <= 0) return { purgedCount: 0 };
+  const cutoffDate = new Date(Date.now() - ttlHours * 60 * 60 * 1000);
+
+  try {
+    const expiredUsers = await prisma.user.findMany({
+      where: {
+        phoneNumber: { startsWith: "web_chat_" },
+        lastActiveAt: { lt: cutoffDate },
+      },
+      take: 100,
+    });
+
+    let totalDeleted = 0;
+    for (const u of expiredUsers) {
+      const res = await prisma.message.deleteMany({
+        where: { userId: u.id },
+      });
+      totalDeleted += res.count;
+      await prisma.user.delete({ where: { id: u.id } }).catch(() => {});
+    }
+
+    return { purgedCount: totalDeleted };
+  } catch (err) {
+    console.warn("[purgeExpiredSirdasRecords Warning]", err);
+    return { purgedCount: 0 };
+  }
+}

@@ -89,7 +89,7 @@ export async function generateEmbedding(text: string): Promise<number[]> {
       contents: cleanText,
       config: {
         outputDimensionality: 768,
-        abortSignal: AbortSignal.timeout(2500),
+        abortSignal: AbortSignal.timeout(6000),
       },
     });
 

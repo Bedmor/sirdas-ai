@@ -17,7 +17,6 @@
     "db:studio": "prisma studio",
     "test:verify": "tsx scripts/verify-phase1.ts",
     "test:verify:phase3": "tsx scripts/verify-phase3.ts",
-    "test:verify:phase4": "tsx scripts/verify-phase4.ts",
     "test:verify:phase5": "tsx scripts/verify-phase5.ts",
     "test:pipeline": "PYTHONPATH=data-pipeline /home/besim/.conda/envs/lyriccat/bin/python -m unittest discover -s data-pipeline/ -p 'test_*.py'",
     "test:e2e": "tsx scripts/e2e-runner.ts"

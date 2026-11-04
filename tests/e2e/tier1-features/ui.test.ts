@@ -40,11 +40,11 @@ describe("Tier 1: Feature Coverage — UI & Visual Transformation", { tier: 1, f
     expect(heroContent).toContain("Manevi Ayna");
   });
 
-  it("T1-UI.4: Live WhatsApp CTA provides direct wa.me link with pulsing effect and active scale", () => {
+  it("T1-UI.4: Live Web Chat CTA provides direct interaction with pulsing effect and active scale", () => {
     const heroPath = path.join(rootDir, "src/components/landing/hero.tsx");
     const heroContent = fs.readFileSync(heroPath, "utf-8");
 
-    expect(heroContent).toContain("wa.me");
+    expect(heroContent).toContain("Dertleşmeye Başla");
     expect(heroContent).toContain("active:scale-[0.98]");
     expect(heroContent).toContain("animate-ping");
   });

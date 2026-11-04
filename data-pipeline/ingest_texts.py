@@ -156,9 +156,47 @@ def load_thematic_corpus(file_path: Path) -> List[Dict[str, Any]]:
             logger.warning("Skipping non-dict item at index %d", idx)
             continue
 
+        # 1. Normalize source_type
         source_type = (item.get("source_type") or item.get("category") or "").upper().strip()
+        if not source_type:
+            if "siyer_id" in item or "olay_adi" in item:
+                source_type = "SIYER"
+            elif "tefsir_id" in item or "sure" in item:
+                source_type = "QURAN"
+            elif "hadis_id" in item or "kaynak" in item:
+                source_type = "HADITH"
+            else:
+                source_type = "QURAN"
+
+        # 2. Normalize source_title
         source_title = (item.get("source_title") or item.get("title") or "").strip()
+        if not source_title:
+            if "siyer_id" in item or "olay_adi" in item:
+                donem_str = f" ({item['donem']})" if item.get("donem") else ""
+                source_title = f"Siyer-i Nebî: {item.get('olay_adi', 'Olay')}{donem_str}"
+            elif "tefsir_id" in item or "sure" in item:
+                ayet_str = f" {item['ayet_no']}" if item.get("ayet_no") else ""
+                source_title = f"{item.get('sure', 'Sure')}{ayet_str} - Tefsir ve Hikmet"
+            elif "hadis_id" in item or "kaynak" in item:
+                bab_str = f" - Bab {item['bab_no']}" if item.get("bab_no") else ""
+                bolum_str = f" ({item['kitap_bolumu']})" if item.get("kitap_bolumu") else ""
+                source_title = f"{item.get('kaynak', 'Hadis')}{bolum_str}{bab_str}"
+            else:
+                source_title = f"Kaynak-{idx}"
+
+        # 3. Normalize content
         content = (item.get("content") or "").strip()
+        if not content:
+            if "turkce_meal" in item:
+                kaynak_info = f" [Kaynak: {item.get('kaynak', '')}, Derece: {item.get('sahihlik_derecesi', 'Sahih')}]" if item.get("kaynak") else ""
+                content = f"Resûlullah (s.a.v.) buyurdu: \"{item.get('turkce_meal', '')}\"{kaynak_info}"
+            elif "ozet_metin" in item:
+                hikmet_part = f"\n\nManevi Hikmet ve Çözüm: {item['manevi_hikmet']}" if item.get("manevi_hikmet") else ""
+                content = f"{item.get('ozet_metin', '')}{hikmet_part}"
+            elif "ayet_meali" in item:
+                tefsir_part = f"\n\nNüzul Sebebi ve Tefsir Hikmeti: {item['nuzul_sebebi_ve_tefsir']}" if item.get("nuzul_sebebi_ve_tefsir") else ""
+                hikmet_part = f"\n\nManevi Hikmet: {item['manevi_hikmet']}" if item.get("manevi_hikmet") else ""
+                content = f"Ayet-i Kerime: \"{item.get('ayet_meali', '')}\"{tefsir_part}{hikmet_part}"
 
         if not source_title or not content:
             logger.warning("Skipping entry with empty title or content at index %d", idx)
@@ -168,13 +206,29 @@ def load_thematic_corpus(file_path: Path) -> List[Dict[str, Any]]:
             logger.warning("Unknown source_type '%s' for '%s', skipping", source_type, source_title)
             continue
 
-        record_id = item.get("id")
-        if not record_id:
-            # Deterministic UUID generation
+        # 4. Normalize record_id as valid UUID
+        raw_id = item.get("id") or item.get("hadis_id") or item.get("siyer_id") or item.get("tefsir_id")
+        record_id = None
+        if raw_id:
+            try:
+                uuid_obj = uuid.UUID(str(raw_id))
+                record_id = str(uuid_obj)
+            except ValueError:
+                record_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"sirdas-ai:{source_type}:{raw_id}"))
+        else:
             record_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, f"sirdas-ai:{source_type}:{source_title}"))
 
-        tags = item.get("tags") or []
-        nafs_traps = item.get("nafs_traps") or []
+        tags = list(item.get("tags") or [])
+        if item.get("kategori_etiketleri"):
+            for k in item["kategori_etiketleri"]:
+                if k not in tags:
+                    tags.append(k)
+        if item.get("duygu_ve_kriz_etiketleri"):
+            for d in item["duygu_ve_kriz_etiketleri"]:
+                if d not in tags:
+                    tags.append(d)
+
+        nafs_traps = list(item.get("nafs_traps") or [])
         is_riba = bool(item.get("is_riba_related", False))
 
         # Enrich with Jev primitives and validate mandatory tags
@@ -221,6 +275,9 @@ def ingest_texts(
         Summary dict containing counts and status.
     """
     thematic_path = PIPELINE_ROOT / "data" / "thematic_texts.json"
+    hadith_path = PIPELINE_ROOT / "data" / "hadith_kutub_sitte.json"
+    siyer_path = PIPELINE_ROOT / "data" / "siyer_kriz_matrisi.json"
+    tefsir_path = PIPELINE_ROOT / "data" / "tefsir_hikmet_corpus.json"
     passages_path = PIPELINE_ROOT / "data" / "quran_semantic_passages.json"
     corpus_path = PIPELINE_ROOT / "data" / "quran_full_corpus.json"
 
@@ -232,17 +289,28 @@ def ingest_texts(
 
     if data_file is not None:
         records = load_thematic_corpus(data_file)
+    elif source == "hadith":
+        records = load_thematic_corpus(hadith_path)
+    elif source == "siyer":
+        records = load_thematic_corpus(siyer_path)
+    elif source == "tefsir":
+        records = load_thematic_corpus(tefsir_path)
     elif source == "quran":
         target = passages_path if passages_path.exists() else corpus_path
         records = load_thematic_corpus(target)
     elif source == "all":
-        thematic_records = load_thematic_corpus(thematic_path) if thematic_path.exists() else []
+        sources_to_load = [thematic_path, hadith_path, siyer_path, tefsir_path]
+        all_raw_records = []
+        for p in sources_to_load:
+            if p.exists():
+                all_raw_records.extend(load_thematic_corpus(p))
         target = passages_path if passages_path.exists() else corpus_path
-        quran_records = load_thematic_corpus(target) if target.exists() else []
+        if target.exists():
+            all_raw_records.extend(load_thematic_corpus(target))
         seen_ids = set()
         seen_titles = set()
         records = []
-        for r in thematic_records + quran_records:
+        for r in all_raw_records:
             if r["id"] in seen_ids or r["source_title"] in seen_titles:
                 continue
             seen_ids.add(r["id"])
@@ -383,8 +451,8 @@ def main():
         "--source",
         type=str,
         default="thematic",
-        choices=["thematic", "quran", "all"],
-        help="Corpus source to ingest: thematic (default 21 records), quran (114 surahs), or all.",
+        choices=["thematic", "quran", "hadith", "siyer", "tefsir", "all"],
+        help="Corpus source to ingest: thematic, quran, hadith, siyer, tefsir, or all.",
     )
     parser.add_argument(
         "--data-file",

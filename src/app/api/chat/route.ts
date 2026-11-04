@@ -15,8 +15,13 @@ import {
   retrieveCelikKasaContext,
   UnifiedEditorAudit,
 } from "@/lib/ai/rag-pipeline";
+import { dispatchBackgroundTriage } from "@/lib/ai/semantic-triage";
+import { detectChatIntent, ChatIntentMode } from "@/lib/ai/intent-router";
+import { sanitizeIncomingUserMessage } from "@/lib/ai/pii-anonymizer";
 import {
   resolveSirdasChatActor,
+  purgeSirdasActorData,
+  purgeExpiredSirdasRecords,
   SIRDAS_CLIENT_COOKIE,
 } from "@/lib/auth/better-auth-ready";
 
@@ -26,6 +31,8 @@ export interface ChatSourceMeta {
   id: string;
   sourceType: string;
   sourceTitle: string;
+  content?: string;
+  audioUrl?: string | null;
 }
 
 async function persistChatTurn(params: {
@@ -83,7 +90,7 @@ async function persistChatTurn(params: {
     },
   });
 
-  await prisma.message.create({
+  const assistantMsg = await prisma.message.create({
     data: {
       userId: user.id,
       role: "ASSISTANT",
@@ -99,6 +106,22 @@ async function persistChatTurn(params: {
       audioUrlSent,
     },
   });
+
+  // Asenkron derin semantik triyaj:
+  // Kullanıcının yanıtı teslim edildi (0ms gecikme etkisi), arka planda
+  // gemini-3.5-flash-lite ile zengin profil analizi ve teşhis raporlaması yapılır.
+  if (
+    rawMessage &&
+    !extraFlags?.bypassed_to_fatwa_block &&
+    !extraFlags?.crisis_redirect &&
+    !extraFlags?.bypassed_to_violence_block
+  ) {
+    dispatchBackgroundTriage({
+      userKey,
+      assistantMessageId: assistantMsg.id,
+      userMessage: rawMessage,
+    });
+  }
 }
 
 /**
@@ -110,6 +133,13 @@ export async function GET(req: NextRequest) {
     const actor = resolveSirdasChatActor(req);
     const conversationId = req.nextUrl.searchParams.get("conversationId");
     const userKey = `web_chat_${actor.clientId}`;
+
+    // 3. Zaman Ayarlı Kendini İmhâ (TTL): Arka planda vadesi dolan kayıtları süpür
+    const ttlParam = req.nextUrl.searchParams.get("ttlHours");
+    const ttlHours = ttlParam !== null ? Math.max(0, Number(ttlParam)) : 24;
+    if (ttlHours > 0) {
+      purgeExpiredSirdasRecords(ttlHours).catch(() => {});
+    }
 
     const existingUser = await prisma.user.findUnique({
       where: { phoneNumber: userKey },
@@ -169,6 +199,21 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
+
+    // 1. Sayfayı/Uygulamayı Kapattığı An (Browser Close Event - Beacon Purge)
+    const action = req.nextUrl.searchParams.get("action");
+    if (action === "purge" || body.action === "purge") {
+      const actor = resolveSirdasChatActor(req, body.clientId);
+      const purgeResult = await purgeSirdasActorData(actor.clientId);
+      const res = NextResponse.json({
+        success: purgeResult.deleted,
+        message: "Oturum sonlandırıldı, benlik hafızası milisaniyeler içinde imha edildi.",
+        purged: true,
+      });
+      res.cookies.delete(SIRDAS_CLIENT_COOKIE);
+      return res;
+    }
+
     const rawMessage =
       typeof body.message === "string" ? body.message.trim() : "";
 
@@ -193,12 +238,40 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // PII & Dolaylı Kimlik Maskeleme Süzgeci
+    const anonymization = sanitizeIncomingUserMessage(rawMessage);
+    const safeMessage = anonymization.sanitizedText;
+
     const actor = resolveSirdasChatActor(req, body.clientId);
     const conversationId =
       typeof body.conversationId === "string" && body.conversationId.trim()
         ? body.conversationId.trim()
         : crypto.randomUUID();
     const userKey = `web_chat_${actor.clientId}`;
+
+    // KVKK Unutulma Hakkı Chat Komutu Kontrolü ("Hafızamı Sıfırla" / "Tüm Verilerimi Sil")
+    const lowerMessage = rawMessage.toLowerCase().trim();
+    const isResetCommand =
+      /^(haf[ıi]zam[ıi]\s*s[ıi]f[ıi]rla|haf[ıi]zam[ıi]\s*sil|verilerimi\s*sil|t[üu]m\s*verilerimi\s*sil|benlik\s*haf[ıi]zam[ıi]\s*s[ıi]f[ıi]rla|unutulma\s*hakk[ıi])$/i.test(
+        lowerMessage
+      );
+
+    if (isResetCommand) {
+      await purgeSirdasActorData(actor.clientId);
+      const resetReply =
+        "KVKK Unutulma Hakkı kapsamında talebinizle geçmiş tüm sohbet kayıtlarınız, 4 bloklu dijital künyeniz ve benlik hafızanız (JSON kaydı) kalıcı olarak silindi aziz kardeşim. Dilediğiniz vakit yeni bir tefekkür yolculuğu başlatabilirsiniz.";
+
+      return NextResponse.json({
+        success: true,
+        status: "processed",
+        conversationId,
+        clientId: actor.clientId,
+        replyText: resetReply,
+        sources: [],
+        audioUrl: null,
+        purged: true,
+      });
+    }
 
     const rawHistory = Array.isArray(body.history) ? body.history : [];
     let conversationHistory: ConversationHistoryTurn[] = rawHistory
@@ -258,15 +331,25 @@ export async function POST(req: NextRequest) {
 
           try {
             jevResult = await analyzeWithJev({
-              userMessage: rawMessage,
+              userMessage: safeMessage,
               userContextSnippet: JSON.stringify({
                 source: "web_sirdas_chat",
                 recentTurnsCount: conversationHistory.length,
               }),
             });
 
+            // Akıllı Niyet Yönlendirmesi (Intent Routing)
+            const intentResult = detectChatIntent(safeMessage, jevResult);
+            const intentMode = intentResult.mode;
+
+            if (intentMode === "ILIM_VE_SIYER") {
+              jevResult.rag_category = "SIYER_ORNEKLERI";
+              jevResult.recommended_tone = "NET_VE_MUALLIM";
+              jevResult.distress_level = Math.min(jevResult.distress_level, 3);
+            }
+
             const intercept = evaluateSpiritualGuardrails(
-              rawMessage,
+              safeMessage,
               jevResult
             );
 
@@ -274,20 +357,25 @@ export async function POST(req: NextRequest) {
               statusType = intercept.status;
               editorAudit = intercept.editorAudit;
               extraFlags = intercept.extraFlags;
-              sources = [
-                {
-                  id: "guardrail-boundary",
-                  sourceType: "SIYER",
-                  sourceTitle:
-                    intercept.status === "fatwa_blocked"
-                      ? "Ehl-i Zikir & Alo 190 Fetva Usulü"
-                      : "Can Emniyeti & 112 Acil Destek",
-                },
-              ];
+              if (intercept.ruleId === "CONVERSATIONAL_CLOSING_THANKS") {
+                sources = [];
+              } else {
+                sources = [
+                  {
+                    id: "guardrail-boundary",
+                    sourceType: "SIYER",
+                    sourceTitle:
+                      intercept.status === "fatwa_blocked"
+                        ? "Ehl-i Zikir & Alo 190 Fetva Usulü"
+                        : "Can Emniyeti & 112 Acil Destek",
+                  },
+                ];
+              }
 
               const metaFrame = `event: meta\ndata: ${JSON.stringify({
                 conversationId,
                 status: statusType,
+                intentMode,
                 jevResult,
                 sources,
               })}\n\n`;
@@ -307,12 +395,13 @@ export async function POST(req: NextRequest) {
             } else {
               const queryEmbedding = isRemoteDbOffline()
                 ? new Array(768).fill(0)
-                : await generateEmbedding(rawMessage);
+                : await generateEmbedding(safeMessage);
               const { chunks, isRibaShieldActive } =
                 await retrieveCelikKasaContext({
-                  userMessage: rawMessage,
+                  userMessage: safeMessage,
                   queryEmbedding,
                   jevResult,
+                  intentMode,
                 });
 
               ragChunkIds = chunks.map((c) => c.id);
@@ -320,11 +409,14 @@ export async function POST(req: NextRequest) {
                 id: c.id,
                 sourceType: c.sourceType,
                 sourceTitle: c.sourceTitle,
+                content: c.content,
+                audioUrl: c.audioUrl ?? null,
               }));
 
               const metaFrame = `event: meta\ndata: ${JSON.stringify({
                 conversationId,
                 status: statusType,
+                intentMode,
                 jevResult,
                 sources,
               })}\n\n`;
@@ -340,7 +432,7 @@ export async function POST(req: NextRequest) {
                   : jevResult.spiritual_stage || "ARAYIS_VE_BASLANGIC";
 
               const streamGenerator = generateSirdasReplyStream({
-                userMessage: rawMessage,
+                userMessage: safeMessage,
                 userProfile: {
                   roles: ["WEB_KULLANICI"],
                   spiritual_trials: [jevResult.nafs_trap],
@@ -355,6 +447,7 @@ export async function POST(req: NextRequest) {
                 ragCategory: jevResult.rag_category,
                 ragChunks: chunks,
                 conversationHistory,
+                intentMode,
               });
 
               let streamFinalResult: StreamReplyResult | null = null;
@@ -404,7 +497,7 @@ export async function POST(req: NextRequest) {
               await persistChatTurn({
                 userKey,
                 conversationId,
-                rawMessage,
+                rawMessage: safeMessage,
                 replyText: accumulatedReply,
                 jevResult,
                 editorAudit: editorAudit || {},
@@ -422,6 +515,7 @@ export async function POST(req: NextRequest) {
               conversationId,
               clientId: actor.clientId,
               replyText: accumulatedReply,
+              intentMode,
               jevResult,
               editorAudit,
               sources,
@@ -468,14 +562,24 @@ export async function POST(req: NextRequest) {
 
     // Non-streaming JSON mode
     const jevResult = await analyzeWithJev({
-      userMessage: rawMessage,
+      userMessage: safeMessage,
       userContextSnippet: JSON.stringify({
         source: "web_sirdas_chat",
         recentTurnsCount: conversationHistory.length,
       }),
     });
 
-    const intercept = evaluateSpiritualGuardrails(rawMessage, jevResult);
+    // Akıllı Niyet Yönlendirmesi (Intent Routing)
+    const intentResult = detectChatIntent(safeMessage, jevResult);
+    const intentMode = intentResult.mode;
+
+    if (intentMode === "ILIM_VE_SIYER") {
+      jevResult.rag_category = "SIYER_ORNEKLERI";
+      jevResult.recommended_tone = "NET_VE_MUALLIM";
+      jevResult.distress_level = Math.min(jevResult.distress_level, 3);
+    }
+
+    const intercept = evaluateSpiritualGuardrails(safeMessage, jevResult);
     let replyText = "";
     let editorAudit: UnifiedEditorAudit | Record<string, unknown>;
     let audioUrlSent: string | null = null;
@@ -490,24 +594,29 @@ export async function POST(req: NextRequest) {
       replyText = intercept.replyText;
       editorAudit = intercept.editorAudit;
       extraFlags = intercept.extraFlags;
-      sources = [
-        {
-          id: "guardrail-boundary",
-          sourceType: "SIYER",
-          sourceTitle:
-            intercept.status === "fatwa_blocked"
-              ? "Ehl-i Zikir & Alo 190 Fetva Usulü"
-              : "Can Emniyeti & 112 Acil Destek",
-        },
-      ];
+      if (intercept.ruleId === "CONVERSATIONAL_CLOSING_THANKS") {
+        sources = [];
+      } else {
+        sources = [
+          {
+            id: "guardrail-boundary",
+            sourceType: "SIYER",
+            sourceTitle:
+              intercept.status === "fatwa_blocked"
+                ? "Ehl-i Zikir & Alo 190 Fetva Usulü"
+                : "Can Emniyeti & 112 Acil Destek",
+          },
+        ];
+      }
     } else {
       const queryEmbedding = isRemoteDbOffline()
         ? new Array(768).fill(0)
-        : await generateEmbedding(rawMessage);
+        : await generateEmbedding(safeMessage);
       const { chunks, isRibaShieldActive } = await retrieveCelikKasaContext({
-        userMessage: rawMessage,
+        userMessage: safeMessage,
         queryEmbedding,
         jevResult,
+        intentMode,
       });
 
       ragChunkIds = chunks.map((c) => c.id);
@@ -515,6 +624,8 @@ export async function POST(req: NextRequest) {
         id: c.id,
         sourceType: c.sourceType,
         sourceTitle: c.sourceTitle,
+        content: c.content,
+        audioUrl: c.audioUrl ?? null,
       }));
 
       const resolvedTone =
@@ -527,7 +638,7 @@ export async function POST(req: NextRequest) {
           : jevResult.spiritual_stage || "ARAYIS_VE_BASLANGIC";
 
       const sirdasOutput = await generateSirdasReply({
-        userMessage: rawMessage,
+        userMessage: safeMessage,
         userProfile: {
           roles: ["WEB_KULLANICI"],
           spiritual_trials: [jevResult.nafs_trap],
@@ -542,9 +653,10 @@ export async function POST(req: NextRequest) {
         ragCategory: jevResult.rag_category,
         ragChunks: chunks,
         conversationHistory,
+        intentMode,
       });
 
-      replyText = sirdasOutput.whatsapp_reply;
+      replyText = sirdasOutput.reply_text || sirdasOutput.whatsapp_reply || "";
       if (sirdasOutput.selected_audio_chunk_id) {
         const found = chunks.find(
           (c) => c.id === sirdasOutput.selected_audio_chunk_id
@@ -567,7 +679,7 @@ export async function POST(req: NextRequest) {
       await persistChatTurn({
         userKey,
         conversationId,
-        rawMessage,
+        rawMessage: safeMessage,
         replyText,
         jevResult,
         editorAudit,
@@ -585,6 +697,7 @@ export async function POST(req: NextRequest) {
       conversationId,
       clientId: actor.clientId,
       replyText,
+      intentMode,
       jevResult,
       editorAudit,
       sources,
@@ -605,6 +718,46 @@ export async function POST(req: NextRequest) {
       {
         error: "INTERNAL_ERROR",
         message: "Şu anda tefekkür odasında yoğunluk yaşanıyor.",
+      },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * DELETE /api/chat
+ * KVKK Unutulma Hakkı (Right to be Forgotten):
+ * Permanently deletes all messages, 4-block digital twin profile metadata,
+ * and the user record from PostgreSQL for the active visitor or provided clientId.
+ */
+export async function DELETE(req: NextRequest) {
+  try {
+    const actor = resolveSirdasChatActor(req);
+    const body = await req.json().catch(() => ({}));
+    const targetClientId =
+      typeof body.clientId === "string" && body.clientId.trim()
+        ? body.clientId.trim()
+        : actor.clientId;
+
+    const purgeResult = await purgeSirdasActorData(targetClientId);
+
+    const res = NextResponse.json({
+      success: purgeResult.deleted,
+      message:
+        "Tüm sohbet geçmişiniz, dijital ikiz profil künyeniz ve sunucudaki anonim JSON kaydınız kalıcı olarak silindi.",
+      clientId: targetClientId,
+      messagesPurged: purgeResult.messagesCount ?? 0,
+      purged: true,
+    });
+
+    res.cookies.delete(SIRDAS_CLIENT_COOKIE);
+    return res;
+  } catch (error) {
+    console.error("[DELETE /api/chat Error]", error);
+    return NextResponse.json(
+      {
+        error: "PURGE_FAILED",
+        message: "Hafıza sıfırlama işlemi sırasında bir hata oluştu.",
       },
       { status: 500 }
     );

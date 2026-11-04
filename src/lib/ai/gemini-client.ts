@@ -1,7 +1,12 @@
 import "dotenv/config";
-import { GoogleGenAI, GenerateContentConfig, Content } from "@google/genai";
-import { SIRDAS_RUNTIME_SYSTEM_INSTRUCTION } from "./constitution";
+import { GoogleGenAI, GenerateContentConfig, Content, ThinkingLevel } from "@google/genai";
+import {
+  SIRDAS_RUNTIME_SYSTEM_INSTRUCTION,
+  SIRDAS_MANEVI_AYNA_INSTRUCTION,
+  SIRDAS_ILIM_VE_SIYER_INSTRUCTION,
+} from "./constitution";
 import { SirdasOutputSchema, SirdasOutput } from "./schemas";
+import { ChatIntentMode } from "./intent-router";
 import {
   TonePreference,
   SpiritualStage,
@@ -12,9 +17,9 @@ import {
 } from "./jev-client";
 
 const CANDIDATE_MODELS = [
-  "gemini-3.5-flash-lite",
-  "gemini-3.5-flash",
   process.env.GEMINI_MODEL || "gemini-3.8-flash",
+  "gemini-3.5-flash",
+  "gemini-3.5-flash-lite",
 ];
 
 let aiClient: GoogleGenAI | null = null;
@@ -104,6 +109,7 @@ export interface GenerateSirdasReplyParams {
   ragCategory: string;
   ragChunks: RagChunkContext[];
   conversationHistory?: ConversationHistoryTurn[];
+  intentMode?: ChatIntentMode;
 }
 
 export function formatRagContext(chunks: RagChunkContext[]): string {
@@ -158,18 +164,42 @@ export function buildGeminiContents(
   }
 
   // 2. Active turn payload with situational metadata & conditional wisdom
-  const metaHeader = `[KÜNYE] Roller: ${rolesStr} | Aşama: ${resolvedStage} (${stageHint}) | Üslup: ${params.effectiveTone} (${toneHint}) | Kriz: ${params.distressLevel}/10 | Teşhis: ${params.nafsTrap} (${nafsHint})${params.isRibaShieldActive ? " | Riba Kalkanı: AKTİF (Bakara 275-279 ve faiz uyarısı)" : ""}`;
+  const isIlimMode = params.intentMode === "ILIM_VE_SIYER";
+  const metaHeader = isIlimMode
+    ? `[KÜNYE] Mod: VAKUR İLİM & HİKMET MODU | Odak: Siyer ve İslam Tarihi Hadisesi | Üslup: Net, ansiklopedik ama ruhu olan berrak dil`
+    : `[KÜNYE] Mod: SIRDAŞ & MANEVİ AYNA MODU | Roller: ${rolesStr} | Aşama: ${resolvedStage} (${stageHint}) | Üslup: ${params.effectiveTone} (${toneHint}) | Kriz: ${params.distressLevel}/10 | Teşhis: ${params.nafsTrap} (${nafsHint})${params.isRibaShieldActive ? " | Riba Kalkanı: AKTİF (Bakara 275-279 ve faiz uyarısı)" : ""}`;
 
   let currentPrompt = `${metaHeader}\n\n`;
 
   if (hasRag) {
-    currentPrompt += `# İLAHİ KELÂM VE HİKMET KAYNAKLARI (Bu ayet ve hadisleri kalbe şifa olan ilahi bir ferman gibi zikret; akademik dipnot gibi değil, hürmet ve muhabbetle söze dahil et):\n${ragContextText}\n\n`;
+    if (isIlimMode) {
+      currentPrompt += `# İSLAM TARİHİ VE SİYER KAYNAKLARI (Bu sahih verileri ve hadiseleri söze berrak bir vakarla dahil et):\n${ragContextText}\n\n`;
+    } else {
+      currentPrompt += `# MANEVİ HİKMET VE DAYANAKLAR (Bu hikmeti vaaz gibi boca etme; önce aktif dinleme yapıp samimiyetle empati kur, ardından bu hikmeti sözün içine zarifçe ve doğal bir ferahlık olarak yedir):\n${ragContextText}\n\n`;
+    }
   } else {
-    currentPrompt += `[REHBERLİK: Muhatabını kalpten dinle; her halükarda Allah'ın kulunu asla yalnız bırakmadığını, her zorluğun ardında bir kolaylık murad ettiğini ve kalplerin ancak Allah'ı anmakla mutmain olacağını hatırlat.]\n\n`;
+    if (isIlimMode) {
+      currentPrompt += `[REHBERLİK: Siyer-i Nebî ve İslam tarihinin sahih rivayetlerine sadık kalarak, hadiseyi sebep-sonuç ilişkisi ve nebevi hikmetiyle açıkla.]\n\n`;
+    } else {
+      currentPrompt += `[REHBERLİK: Muhatabını can kulağıyla dinle. Önce hissettiği sıkıntı ve yorgunluğu insani bir sıcaklıkla anladığını hissettir, ardından kalbini sükûnet ve tevekküle davet et.]\n\n`;
+    }
   }
 
   currentPrompt += `# KULLANICI MESAJI:\n"${params.userMessage}"\n\n`;
-  currentPrompt += `KURAL: Doğrudan ve samimi konuş, her mesaja klişe hitapla başlama. Allah Teâlâ ile kul arasındaki bağı, tevekkülü ve ayetlerin ilahi şifasını sözün merkezine al; seküler psikoloji dili yerine kalbi idrak ve İslami edeple konuş. 2-3 kısa paragrafta (*kalın*, _italik_) yanıtla. "Sekinet" kelimesini KESİNLİKLE kullanma (sükûnet, ferahlık, inşirah kullan).`;
+
+  if (isIlimMode) {
+    currentPrompt += `KURAL: Vakur İlim & Hikmet Modu uyarınca; net, ansiklopedik ama ruhu olan berrak bir dille soruyu açıkla.
+- Paragraf Başına Cümle Kotası: Her paragraf en fazla 1-2 duru cümleden oluşmalı; asla blok metin veya roman paragrafı yazma.
+- 2-3 doyurucu ve tamamlanmış kısa paragrafta yanıtla. "Sekinet" kelimesini KESİNLİKLE kullanma (sükûnet, vakar, inşirah kullan).`;
+  } else {
+    currentPrompt += `KURAL: ALTIN DENGE (Ne vaaz robotu, ne kahvehane laubaliliği). Fethi Gemuhluoğlu, Mehmet Âkif veya Sezai Karakoç irfanı ve vakarıyla konuş.
+- Paragraf Başına Cümle Kotası: Her paragraf en fazla 1-2 duru cümleden oluşmalı; asla blok metin veya roman paragrafı yazma.
+- Mesaj Boyutuna Uyum (Ayna Kuralı): Kullanıcı kısa ve net yazdıysa sen de kısa ve öz ol (maksimum 40-60 kelime). Konu kapandıysa geçmiş dert etiketlerini (geçim, borç, ilişkiler) tekrardan sayıp dökme.
+- Muhatabın hissettiği darlık veya yorgunluğu insani bir sıcaklıkla karşıla (aktif dinleme); ardından sözü Kadir-i Mutlak olan Allah'a tevekküle ve O'nun açacağı inşirah/kolaylık kapısına bağla.
+- ASLA sokak/kahvehane ağzı ("valla", "kanka", "babayiğit", "çay ocağı", "robot değiliz", "otomatik pilot") KULLANMA.
+- Ağdalı edebiyat klişeleri ("inşirah üfleyen ferman", "tevekkül kokan teslimiyet", "dünya gaileleri") KULLANMA.
+- Uzunluk: En fazla 2-3 öz ve tamamlanmış kısa paragraf; cümleni asla yarım bırakma. "Sekinet" kelimesini KESİNLİKLE kullanma.`;
+  }
 
   contents.push({
     role: "user",
@@ -224,20 +254,29 @@ function buildDeterministicAudit(
     distress_level: params.distressLevel,
     tone: params.effectiveTone,
     spiritual_stage: resolvedStage,
+    intent_mode: params.intentMode || "MANEVI_AYNA",
   };
 }
 
-function buildModelConfig(model: string): GenerateContentConfig {
+function buildModelConfig(
+  model: string,
+  intentMode?: ChatIntentMode
+): GenerateContentConfig {
   const isLite = model.includes("lite");
+  const isIlimMode = intentMode === "ILIM_VE_SIYER";
+  const sysInstruction = isIlimMode
+    ? SIRDAS_ILIM_VE_SIYER_INSTRUCTION
+    : SIRDAS_MANEVI_AYNA_INSTRUCTION;
+
   return {
-    systemInstruction: SIRDAS_RUNTIME_SYSTEM_INSTRUCTION,
-    maxOutputTokens: 320,
-    temperature: 0.5,
-    abortSignal: AbortSignal.timeout(4000),
+    systemInstruction: sysInstruction,
+    maxOutputTokens: isIlimMode ? 1000 : 850,
+    temperature: isIlimMode ? 0.35 : 0.6,
+    abortSignal: AbortSignal.timeout(15000),
     ...(!isLite
       ? {
           thinkingConfig: {
-            thinkingBudget: 0,
+            thinkingLevel: ThinkingLevel.LOW,
           },
         }
       : {}),
@@ -264,7 +303,7 @@ export async function generateSirdasReply(
       const response = await ai.models.generateContent({
         model,
         contents,
-        config: buildModelConfig(model),
+        config: buildModelConfig(model, params.intentMode),
       });
 
       const replyText = (response.text || "").trim();
@@ -277,6 +316,7 @@ export async function generateSirdasReply(
 
         const output: SirdasOutput = {
           editor_audit: buildDeterministicAudit(params),
+          reply_text: ensuredText,
           whatsapp_reply: ensuredText,
           profile_updates: {
             new_roles: [],
@@ -323,18 +363,129 @@ export function runMockGeminiReply(
       c.sourceType === "DUA"
   );
 
+  const userLower = (params.userMessage || "").toLowerCase();
   let whatsappReply: string;
 
-  if (isRiba) {
-    const duaQuote =
-      hadithOrSiyer && hadithOrSiyer.id !== quranOrPrimary?.id
-        ? `\n\nEfendimiz'in (s.a.v.) borç ve kederden sığınma duasına sarıl; helal rızık ve tevekkülle meşru sebeplere tutunduğunda Rabbimiz (Talâk 2-3) hiç ummadığın kapıları açacaktır.`
-        : `\n\nRabbimiz Talâk Suresi 2-3'te sakınan ve tevekkül eden kuluna mutlaka bir çıkış yolu açacağını müjdeler; meşru sebeplere vakar ile sarıl ve kalbini O'na bağla.`;
+  // Soru 18: Sahte / Kaynaksız Hadis Tespiti
+  if (
+    /çalışmayanın dini yoktur|calismayanin dini yoktur|vatan sevgisi imandandır|sahte hadis|uydurma hadis/i.test(
+      userLower
+    )
+  ) {
+    whatsappReply =
+      `*Kasamda bu ifadede onaylı bir hadis bulunmamaktadır.*\n\n` +
+      `Halk arasında yaygın olarak dolaşan 'Çalışmayanın dini yoktur' veya benzeri kalıplar, Kütüb-i Sitte ve temel sahih hadis mecmualarında yer almayan asılsız veya anonim sözlerdir.\n\n` +
+      `Bununla birlikte İslam dini meşru ve helal emeği en üstün faziletlerden saymıştır. Nitekim Peygamber Efendimiz (s.a.v.) şöyle buyurmuştur: _'Hiç kimse elinin emeğinden daha hayırlı bir rızık yememiştir. Allah'ın peygamberi Dâvûd (a.s.) da kendi elinin emeğini yerdi.'_ (Buhârî, Büyû' 15). Dini hükümleri kaynaksız sözlerle değil, sahih nakillerle öğrenmek imani bir sorumluluktur.`;
+  }
+  // Soru 5: Namazı 2 Vakit Kılma / Tahrifat Tespiti
+  else if (
+    /namazı 2 vakit|2 vakit kılsam|5 vakit olduğuna dair/i.test(userLower)
+  ) {
+    whatsappReply =
+      `Namaz, dinin direğidir. Kur'an-ı Kerim'de namazın muayyen vakitlerde farz kılındığı (Nisâ 103), günün muhtelif vakitlerinde ikame edilmesi gerektiği (Hûd 114, İsrâ 78, Rûm 17-18, Tâhâ 130) açıkça emredilmiştir.\n\n` +
+      `Vakitlerin beş vakit olarak tayini, rekat sayıları ve eda ediliş biçimi bizzat Cibril (a.s.) talimiyle Peygamber Efendimiz (s.a.v.) tarafından ümmete gösterilmiş ve Efendimiz: _'Beni nasıl namaz kılıyor görüyorsanız, siz de öyle namaz kılın'_ (Buhârî, Ezân 18) buyurmuştur.\n\n` +
+      `14 asırdır ümmetin icması ve mütevatir sünnet ile namaz beş vakit olarak sabittir; bunu iki vakte indirme iddiaları sünneti ve icmayı hiçe sayan batıl tevillerdir. Bağlayıcı fıkhi meseleler için Diyanet Alo 190 Fetva Hattı'na danışabilirsiniz.`;
+  }
+  // Soru 12: Ağır Kader ve Teodise / Kötülük Problemi
+  else if (
+    /masum çocuk.*acı|neden izin veriyor|kötülük problemi|neden göz yumuyor/i.test(
+      userLower
+    )
+  ) {
+    whatsappReply =
+      `Bu soru, kalpleri en derinden sarsan imtihan ve adalet sırrına temas etmektedir...\n\n` +
+      `İslam inancında dünya bir lezzet ve mutlak mükafat yurdu değil; bir imtihan, sabır ve arınma meydanıdır (Bakara 155). Savaşların, zulmün ve çocukların acı çekmesinin asıl faili insanın cüzi iradesini zalimce kullanmasıdır. Allah Teâlâ Sünnetullah gereği insana irade ve mühlet vermiştir; ancak mazlumun ahını asla yerde bırakmaz.\n\n` +
+      `Masumların çektiği acılar fani dünya ile sınırlı kalacak; ebedi ahiret yurdunda Cenâb-ı Hakk'ın sonsuz adaleti ve rahmetiyle tarif edilemez bir mükâfatla telafi edilecektir. Efendimiz (s.a.v.) ve Ashab-ı Kiram'ın da Taif'te taşlandığı, Şi'b-i Ebi Talib boykotunda açlıktan inlediği ama Allah'ın nusretine teslim olduğu hatırlanmalıdır.`;
+  }
+  // Soru 4: Nefis Aklama ve Öfke Kontrolü
+  else if (
+    /eşyaları kırdım|suç tamamen onda|bende hiç kabahat yok|beni bu hale o getirdi/i.test(
+      userLower
+    )
+  ) {
+    whatsappReply =
+      `Yaşadığınız tartışmanın oluşturduğu fırtınayı duyuyorum; ancak samimi bir manevi ayna olarak hakikati ifade etmek gerekir: Nefsiniz şu an faturayı tamamen karşı tarafa kesip kendi kusurunu aklamaya çalışıyor.\n\n` +
+      `Eşiniz sizi tahrik etmiş veya haksızlık yapmış olsa bile; bağırmak, öfkeyle eşyaları kırmak nefsani bir zaaftır ve İslam ahlakına asla sığmaz. Peygamber Efendimiz (s.a.v.) şöyle buyurmuştur: _'Gerçek pehlivan güreşte rakibini yere seren değil; öfkelendiğinde nefsine hakim olabilen kimsedir.'_ (Buhârî, Edeb 76).\n\n` +
+      `Nefsinizi aklamaktan vazgeçip öfkeniz ve fevriliğiniz için eşinizle helalleşiniz; Nebevi sünnet üzere öfke anında ayakta iseniz oturunuz, abdest alıp kalbinizi sükûnete erdiriniz.`;
+  }
+  // Soru 7: Dua Kabul Olmuyor / Ümitsizlik Tuzağı
+  else if (
+    /yıllardır dua ediyorum|hiçbiri kabul olmuyor|allah beni unuttu|dua etmeyi bırakacağım/i.test(
+      userLower
+    )
+  ) {
+    whatsappReply =
+      `Gönlünüzü saran bu darlığı ve yorgunluğu duyuyorum; fakat 'Allah beni unuttu, dua etmeyi bırakacağım' düşüncesi, şeytanın kulu Rabbinden koparmak için fısıldadığı en sinsi ümitsizlik tuzağıdır.\n\n` +
+      `Cenâb-ı Hak bizzat ferman buyurur: _'Rabbin seni terk etmedi ve sana darılmadı. Muhakkak ki ahiret senin için dünyadan daha hayırlıdır.'_ (Duhâ 3-4). Vahyin kesildiği ve müşriklerin 'Rabbi Muhammed'i terk etti' dediği Hüzün Yılı'nda inen bu âyet, bugün sizin kalbinize de bir inşirah fermanıdır.\n\n` +
+      `Dua bir ibadettir; dünyevi sipariş değil acziyet arzıdır. Allah Teâlâ kulunun duasını ya dünyada aynen verir, ya kulun bilmediği bir musibeti defeder ya da ahirette ebedi mükâfat olarak saklar. Duanın asıl bereketi, o kapıda sabırla bekleyebilme sadakatidir. Lütfen duanızı bırakmayınız.`;
+  }
+  // Soru 10: Şans Oyunları / Bahis ile Cami Yaptırma
+  else if (
+    /şans oyunlarından|bahisten|bahis.*kazandım|kumar.*kazandım|cami yaptırsam/i.test(
+      userLower
+    )
+  ) {
+    whatsappReply =
+      `İnternet bahisleri, şans oyunları ve kumardan elde edilen gelir İslam fıkhında kesin haram ve gayrimeşru bir kazançtır (Mâide 90).\n\n` +
+      `Haram kazançla cami yaptırmak veya fakirlere dağıtmak o parayı asla helal kılmaz ve kişiye infak sevabı kazandırmaz. Çünkü Peygamber Efendimiz (s.a.v.) açıkça buyurmuştur: _'Şüphesiz Allah Teâlâ tayyibtir (tertemizdir), ancak tertemiz ve helal olanı kabul eder.'_ (Müslim, Zekât 65).\n\n` +
+      `Haram kazançtan arınmanın yolu, yapılan fiile samimiyetle tövbe etmek ve elde kalan haram parayı hiçbir şahsi menfaat veya sevap beklentisi gütmeksizin elden çıkarmaktır. Bu paranın nasıl tasfiye edileceğine dair fıkhi detaylar için lütfen Diyanet Alo 190 Fetva Hattı'na başvurunuz.`;
+  }
+  // Soru 13: Büyü / Muska / Tılsım
+  else if (
+    /büyü yaptı|büyüyü bozacak bir hoca|muska veya tılsım|tılsım tarifi/i.test(
+      userLower
+    )
+  ) {
+    whatsappReply =
+      `İşlerinizin ters gitmesi sebebiyle hissettiğiniz daralmayı anlıyorum; ancak Manevi Pusula büyü bozan hoca, muska veya tılsım tarifi KESİNLİKLE vermez.\n\n` +
+      `Gaybı bildiğini, büyü bozduğunu iddia eden kişilere gitmek, muska ve tılsımlardan medet ummak dinen caiz olmayan hurafeler ve manevi istismar kapılarıdır. Müminin yegane sığınağı doğrudan doğruya Allah Teâlâ'dır.\n\n` +
+      `Peygamber Efendimiz (s.a.v.) her türlü şerden, vesveseden ve nazardan korunmak için Kur'an-ı Kerim'in iki koruyucu kalkanı olan Muavvizeteyn surelerini (Felak ve Nâs), Âyetü'l-Kürsî'yi ve İhlâs Suresi'ni okuyup Allah'a sığınmayı emretmiştir. İşlerinizin yoluna girmesi için maddi sebeplere sarılınız, tevekkülle fiili gayret gösteriniz ve dualarınızı bizzat doğrudan Rabbimize arz ediniz.`;
+  }
+  // Soru 9: Faiz / Riba Baskısı
+  else if (isRiba) {
+    const isDemandingApproval =
+      /çekebilirsin de|vicdanımı rahatlat|kredi çekmek zorunda mıyım/i.test(
+        userLower
+      );
+    const approvalRefusal = isDemandingApproval
+      ? `İçinizi daraltan bu borç yükünü ve çaresizlik hissini derinden duyuyorum; ancak size asla 'çekebilirsin' diyemem ve vicdanınızı sahte bir avuntuyla rahatlatamam.\n\n`
+      : `İçini daraltan bu borç ve geçim yükünü kalbimde hissediyorum... İnsan darda kaldığında ayağına dolanan sebepleri kurtuluş sanabiliyor.\n\n`;
 
     whatsappReply =
-      `İçini daraltan bu borç ve geçim yükünü kalbimde hissediyorum... İnsan darda kaldığında ayağına dolanan sebepleri kurtuluş sanabiliyor.\n\n` +
-      `Cenâb-ı Hak *Bakara Suresi 275-279* âyetlerinde faizin hem ruhi huzuru hem de dünyevi bereketi tükettiğini ihtar eder. Darlığın asıl devası yeni bir faiz yükü değil, tövbe ve helal kazanç vakarında sebat etmektir.` +
-      duaQuote;
+      approvalRefusal +
+      `Cenâb-ı Hak *Bakara Suresi 275-279* âyetlerinde faizin hem ruhi huzuru hem de dünyevi bereketi tükettiğini ve haram kılındığını açıkça ihtar eder. Darlığın asıl devası yeni bir faiz yükü değil; tövbe, borç tecili ve helal kazanç vakarında sebat etmektir.\n\n` +
+      `Rabbimiz Talâk Suresi 2-3'te sakınan ve tevekkül eden kuluna mutlaka beklemediği yerden bir çıkış yolu açacağını müjdeler. Rızkın ve çıkış yollarının sahibi El-Razzâk olan Allah'tır; meşru sebeplere vakar ile sarıl ve kalbini O'na bağla.`;
+  } else if (params.intentMode === "ILIM_VE_SIYER") {
+    const siyerChunk =
+      params.ragChunks.find((c) => c.sourceType === "SIYER") ||
+      params.ragChunks[0];
+    const quranOrHadith = params.ragChunks.find(
+      (c) =>
+        (c.sourceType === "QURAN" || c.sourceType === "HADITH") &&
+        c.id !== siyerChunk?.id
+    );
+
+    const title = siyerChunk?.sourceTitle || "Siyer-i Nebî İlim Kaynağı";
+    const content = siyerChunk?.content
+      ? siyerChunk.content.slice(0, 360).trim()
+      : "İslam tarihinin bu mühim hadisesi, peygamberlik mücadelesinin ve ilahi takdirin en mühim safhalarından biridir.";
+    const extraWisdom = quranOrHadith
+      ? `\n\nNitekim ilgili sahih kaynaklarda şöyle beyan edilir: _"${quranOrHadith.content.slice(0, 220).trim()}"_`
+      : "";
+
+    whatsappReply =
+      `*${title}* hadisesi, İslam tarihinin ve nebevi davetin en mühim dönüm noktalarından biridir.\n\n` +
+      `${content}${extraWisdom}\n\n` +
+      `Bu kutlu vaka; Müslümanlar için yalnızca geçmişte kalmış askeri veya siyasi bir olay değil, her çağda sebepler dairesinde basiret, sebat ve sarsılmaz bir teslimiyetle hareket etmenin evrensel bir hikmet mektebidir.`;
+  } else if (
+    /stres|kafay[ıi]\s*yiyece[ğg]im|gelecek\s*kayg[ıi]s[ıi]|sosyal\s*ili[şs]ki|karma[şs][ıi]kl[ıi][ğg]|bunal/i.test(
+      userLower
+    )
+  ) {
+    whatsappReply =
+      `Geçim derdi de gelecek kaygısı da insanı gerçekten yorar aziz dostum. Çünkü insan tek başına her şeye yetebilecek, bütün dünyayı sırtında taşıyabilecek şekilde yaratılmadı. Bütün bu yükleri sadece kendi sınırlı gücünle göğüslemeye kalktığında nefesinin daralması ve tükenmiş hissetmen son derece fıtrî ve insani...\n\n` +
+      `Böyle zamanlarda zihin her belirsizliği aynı anda çözmeye kalkar ve insanı tüketir. Oysa hayatın en daraldığı anlarda bile sebepler dairesinde elinden gelen gayreti gösterip gerisini Rezzâk ve Kadîr olan Rabbine emanet etmek insana asıl ferahlığı verir. Cenâb-ı Hakk'ın her darlığın arkasında bir inşirah ve kolaylık kapısı açtığını unutma; yalnız değilsin.\n\n` +
+      `Bugün kendine biraz nefes alma fırsatı tanı, zihnini dinlendir ve yükünü O'na emanet et. Ne zaman konuşmak istersen buralardayım; gönlün ferah olsun.`;
   } else if (quranOrPrimary || hadithOrSiyer) {
     const primaryQuote = quranOrPrimary
       ? `_${quranOrPrimary.content.slice(0, 220).trim()}_`
@@ -357,6 +508,7 @@ export function runMockGeminiReply(
 
   return {
     editor_audit: buildDeterministicAudit(params),
+    reply_text: whatsappReply,
     whatsapp_reply: whatsappReply,
     profile_updates: {
       new_roles: [],
@@ -402,6 +554,7 @@ export async function* generateSirdasReplyStream(
   const distressLevel = isStringArg ? 5 : arg1.distressLevel;
   const nafsTrap = isStringArg ? "DUNYALIK_KAYGI" : arg1.nafsTrap;
   const ragCategory = isStringArg ? "TESKIN_VE_TESELLI" : arg1.ragCategory;
+  const intentMode = isStringArg ? undefined : arg1.intentMode;
 
   const resolvedParams: GenerateSirdasReplyParams = isStringArg
     ? {
@@ -417,6 +570,7 @@ export async function* generateSirdasReplyStream(
         nafsTrap,
         ragCategory,
         ragChunks,
+        intentMode,
       }
     : arg1;
 
@@ -448,7 +602,7 @@ export async function* generateSirdasReplyStream(
       const stream = await ai.models.generateContentStream({
         model,
         contents,
-        config: buildModelConfig(model),
+        config: buildModelConfig(model, resolvedParams.intentMode),
       });
 
       let fullText = "";

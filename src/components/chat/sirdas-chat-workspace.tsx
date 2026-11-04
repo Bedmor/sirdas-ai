@@ -3,11 +3,14 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { SourceBookModal } from "./source-book-modal";
 
 export interface ChatSourceBadge {
   id: string;
   sourceType: string;
   sourceTitle: string;
+  content?: string;
+  audioUrl?: string | null;
 }
 
 export interface ChatMessageItem {
@@ -18,6 +21,7 @@ export interface ChatMessageItem {
   sources?: ChatSourceBadge[];
   audioUrl?: string | null;
   status?: "processed" | "fatwa_blocked" | "crisis_redirected";
+  intentMode?: "MANEVI_AYNA" | "ILIM_VE_SIYER";
 }
 
 export interface ChatConversationThread {
@@ -29,6 +33,20 @@ export interface ChatConversationThread {
 
 const THREADS_STORAGE_KEY = "sirdas_chat_threads_v1";
 const CLIENT_ID_STORAGE_KEY = "sirdas_anon_client_id_v1";
+const CONSENT_STORAGE_KEY = "sirdas_kvkk_consent_v1";
+const SETTINGS_STORAGE_KEY = "sirdas_privacy_settings_v1";
+
+export interface SirdasPrivacySettings {
+  autoPurgeOnClose: boolean;
+  inactivityTimeoutMinutes: number; // 0 (Kapalı), 15, 30, 60
+  ttlHours: number; // 0 (Süresiz), 12, 24, 72
+}
+
+const DEFAULT_PRIVACY_SETTINGS: SirdasPrivacySettings = {
+  autoPurgeOnClose: false,
+  inactivityTimeoutMinutes: 30,
+  ttlHours: 24,
+};
 
 function getSourceTypeLabel(sourceType: string): string {
   switch (sourceType) {
@@ -114,8 +132,26 @@ export function SirdasChatWorkspace() {
   const [streamingSources, setStreamingSources] = useState<ChatSourceBadge[]>(
     [],
   );
+  const [streamingIntentMode, setStreamingIntentMode] = useState<
+    "MANEVI_AYNA" | "ILIM_VE_SIYER" | null
+  >(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copiedMsgId, setCopiedMsgId] = useState<string | null>(null);
+  const [activeDetailSource, setActiveDetailSource] = useState<ChatSourceBadge | null>(null);
+
+  // KVKK Kalkanı: Açık Rıza ve Unutulma Hakkı Durumları
+  const [hasGivenConsent, setHasGivenConsent] = useState<boolean>(true);
+  const [isConsentModalOpen, setIsConsentModalOpen] = useState<boolean>(false);
+  const [isResetModalOpen, setIsResetModalOpen] = useState<boolean>(false);
+  const [isPurging, setIsPurging] = useState<boolean>(false);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+
+  // Hafıza & Gizlilik Ayarları (Kapanışta İmha, Hareketsizlik, TTL)
+  const [privacySettings, setPrivacySettings] = useState<SirdasPrivacySettings>(
+    DEFAULT_PRIVACY_SETTINGS,
+  );
+  const [isSettingsModalOpen, setIsSettingsModalOpen] =
+    useState<boolean>(false);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -123,7 +159,46 @@ export function SirdasChatWorkspace() {
   const activeThread = threads.find((t) => t.id === activeThreadId) || null;
   const activeMessages = activeThread?.messages || [];
 
-  // Initialize anonymous Better-Auth-ready clientId & load threads from localStorage
+  const handlePurgeAllData = useCallback(
+    async (customSuccessMessage?: string) => {
+      setIsPurging(true);
+      try {
+        await fetch("/api/chat", {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            ...(clientId ? { "x-sirdas-client-id": clientId } : {}),
+          },
+          body: JSON.stringify({ clientId }),
+        });
+      } catch (err) {
+        console.warn("[Purge Error]", err);
+      }
+
+      try {
+        localStorage.removeItem(THREADS_STORAGE_KEY);
+        const newClient = generateClientUuid();
+        localStorage.setItem(CLIENT_ID_STORAGE_KEY, newClient);
+        setClientId(newClient);
+      } catch {}
+
+      setThreads([]);
+      setActiveThreadId("");
+      setInputMessage("");
+      setStreamingText("");
+      setStreamingSources([]);
+      setIsPurging(false);
+      setIsResetModalOpen(false);
+      setToastMsg(
+        customSuccessMessage ||
+          "✅ Benlik hafızanız, tüm sohbetleriniz ve sunucudaki anonim JSON kaydınız kalıcı olarak silindi.",
+      );
+      setTimeout(() => setToastMsg(null), 4500);
+    },
+    [clientId],
+  );
+
+  // Initialize anonymous Better-Auth-ready clientId, KVKK consent & load threads from localStorage
   useEffect(() => {
     try {
       let storedClient = localStorage.getItem(CLIENT_ID_STORAGE_KEY);
@@ -133,18 +208,166 @@ export function SirdasChatWorkspace() {
       }
       setClientId(storedClient);
 
+      // Gizlilik Ayarlarını Yükle
+      let currentPrivacy = DEFAULT_PRIVACY_SETTINGS;
+      const rawSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
+      if (rawSettings) {
+        try {
+          const parsed = JSON.parse(rawSettings);
+          if (parsed && typeof parsed === "object") {
+            currentPrivacy = { ...DEFAULT_PRIVACY_SETTINGS, ...parsed };
+            setPrivacySettings(currentPrivacy);
+          }
+        } catch {}
+      }
+
       const rawThreads = localStorage.getItem(THREADS_STORAGE_KEY);
       if (rawThreads) {
         const parsed = JSON.parse(rawThreads) as ChatConversationThread[];
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setThreads(parsed);
-          setActiveThreadId(parsed[0].id);
+          // 3. Zaman Ayarlı Kendini İmhâ (TTL): Süresi dolan kayıtları ayıkla
+          if (currentPrivacy.ttlHours > 0) {
+            const cutoff =
+              Date.now() - currentPrivacy.ttlHours * 60 * 60 * 1000;
+            const validThreads = parsed.filter((t) => {
+              const tTime = new Date(t.updatedAt).getTime();
+              return !isNaN(tTime) && tTime >= cutoff;
+            });
+            if (validThreads.length < parsed.length) {
+              setThreads(validThreads);
+              setActiveThreadId(validThreads[0]?.id || "");
+              localStorage.setItem(
+                THREADS_STORAGE_KEY,
+                JSON.stringify(validThreads),
+              );
+              setToastMsg(
+                `⏱️ Zaman ayarlı imha (TTL ${currentPrivacy.ttlHours} saat): Süresi dolan eski kayıtlar otomatik silindi.`,
+              );
+              setTimeout(() => setToastMsg(null), 4500);
+            } else {
+              setThreads(parsed);
+              setActiveThreadId(parsed[0].id);
+            }
+          } else {
+            setThreads(parsed);
+            setActiveThreadId(parsed[0].id);
+          }
         }
+      }
+
+      // KVKK Kalkanı: İlk açılışta Açık Rıza ve Özel Nitelikli Veri Pop-up kontrolü
+      const storedConsent = localStorage.getItem(CONSENT_STORAGE_KEY);
+      if (storedConsent) {
+        try {
+          const parsedConsent = JSON.parse(storedConsent);
+          if (parsedConsent && parsedConsent.accepted) {
+            setHasGivenConsent(true);
+            setIsConsentModalOpen(false);
+          } else {
+            setHasGivenConsent(false);
+            setIsConsentModalOpen(true);
+          }
+        } catch {
+          setHasGivenConsent(false);
+          setIsConsentModalOpen(true);
+        }
+      } else {
+        setHasGivenConsent(false);
+        setIsConsentModalOpen(true);
       }
     } catch {
       // Ignore storage errors in private mode
     }
   }, []);
+
+  // 1. Sayfayı/Uygulamayı Kapattığı An (Browser Close Event - Beacon Purge)
+  useEffect(() => {
+    if (!privacySettings.autoPurgeOnClose || !clientId) return;
+
+    const handleWindowClose = () => {
+      try {
+        localStorage.removeItem(THREADS_STORAGE_KEY);
+        if (navigator.sendBeacon) {
+          const payload = JSON.stringify({ clientId, action: "purge" });
+          const blob = new Blob([payload], { type: "application/json" });
+          navigator.sendBeacon("/api/chat?action=purge", blob);
+        }
+      } catch {}
+    };
+
+    window.addEventListener("pagehide", handleWindowClose);
+    window.addEventListener("beforeunload", handleWindowClose);
+    return () => {
+      window.removeEventListener("pagehide", handleWindowClose);
+      window.removeEventListener("beforeunload", handleWindowClose);
+    };
+  }, [privacySettings.autoPurgeOnClose, clientId]);
+
+  // 2. Belirli Bir Süre Hareketsizlik (Inactivity Timeout - 30 Dk)
+  useEffect(() => {
+    if (
+      !privacySettings.inactivityTimeoutMinutes ||
+      privacySettings.inactivityTimeoutMinutes <= 0 ||
+      threads.length === 0
+    ) {
+      return;
+    }
+
+    const timeoutMs = privacySettings.inactivityTimeoutMinutes * 60 * 1000;
+    let lastActive = Date.now();
+
+    const onUserActivity = () => {
+      lastActive = Date.now();
+    };
+
+    const events = ["mousemove", "keydown", "touchstart", "scroll", "click"];
+    events.forEach((e) =>
+      window.addEventListener(e, onUserActivity, { passive: true }),
+    );
+
+    const timer = setInterval(() => {
+      if (Date.now() - lastActive >= timeoutMs) {
+        handlePurgeAllData(
+          `⏱️ ${privacySettings.inactivityTimeoutMinutes} dakika hareketsizlik algılandığı için benlik hafızanız güvenlik gereği otomatik imha edildi.`,
+        );
+      }
+    }, 15_000);
+
+    return () => {
+      clearInterval(timer);
+      events.forEach((e) => window.removeEventListener(e, onUserActivity));
+    };
+  }, [
+    privacySettings.inactivityTimeoutMinutes,
+    threads.length,
+    handlePurgeAllData,
+  ]);
+
+  const handleUpdatePrivacySettings = (
+    newSettings: Partial<SirdasPrivacySettings>,
+  ) => {
+    const merged = { ...privacySettings, ...newSettings };
+    setPrivacySettings(merged);
+    try {
+      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(merged));
+    } catch {}
+  };
+
+  const handleAcceptConsent = () => {
+    try {
+      localStorage.setItem(
+        CONSENT_STORAGE_KEY,
+        JSON.stringify({
+          accepted: true,
+          acceptedAt: new Date().toISOString(),
+          version: "v1.0",
+        }),
+      );
+    } catch {}
+    setHasGivenConsent(true);
+    setIsConsentModalOpen(false);
+    setErrorMsg(null);
+  };
 
   const saveThreadsToStorage = useCallback(
     (nextThreads: ChatConversationThread[]) => {
@@ -221,6 +444,14 @@ export function SirdasChatWorkspace() {
     if (isLoading || isStreaming) return;
 
     const trimmed = inputMessage.trim();
+    if (!hasGivenConsent) {
+      setIsConsentModalOpen(true);
+      setErrorMsg(
+        "Sohbete başlamadan önce lütfen KVKK Açık Rıza ve Özel Nitelikli Veri metnini onaylayınız.",
+      );
+      return;
+    }
+
     if (trimmed.length < 2) {
       setErrorMsg(
         "Lütfen gönlünüzü meşgul eden durumu birkaç kelimeyle ifade edin.",
@@ -318,6 +549,7 @@ export function SirdasChatWorkspace() {
         let buffer = "";
         let capturedSources: ChatSourceBadge[] = [];
         let capturedAudioUrl: string | null = null;
+        let capturedIntentMode: "MANEVI_AYNA" | "ILIM_VE_SIYER" | undefined;
         let capturedStatus:
           | "processed"
           | "fatwa_blocked"
@@ -355,6 +587,10 @@ export function SirdasChatWorkspace() {
                 if (parsed.status) {
                   capturedStatus = parsed.status;
                 }
+                if (parsed.intentMode) {
+                  capturedIntentMode = parsed.intentMode;
+                  setStreamingIntentMode(parsed.intentMode);
+                }
               } catch {}
             } else if (event === "token") {
               try {
@@ -381,6 +617,9 @@ export function SirdasChatWorkspace() {
                 if (parsed.status) {
                   capturedStatus = parsed.status;
                 }
+                if (parsed.intentMode) {
+                  capturedIntentMode = parsed.intentMode;
+                }
               } catch {}
             } else if (event === "error") {
               try {
@@ -396,6 +635,7 @@ export function SirdasChatWorkspace() {
         setIsStreaming(false);
         setStreamingText("");
         setStreamingSources([]);
+        setStreamingIntentMode(null);
 
         if (accumulated.trim()) {
           const assistantMsgItem: ChatMessageItem = {
@@ -406,6 +646,7 @@ export function SirdasChatWorkspace() {
             sources: capturedSources,
             audioUrl: capturedAudioUrl,
             status: capturedStatus,
+            intentMode: capturedIntentMode,
           };
 
           const finalThreads = updatedThreads.map((t) =>
@@ -423,6 +664,7 @@ export function SirdasChatWorkspace() {
         const json = await res.json();
         setIsLoading(false);
         setIsStreaming(false);
+        setStreamingIntentMode(null);
 
         if (json.replyText) {
           const assistantMsgItem: ChatMessageItem = {
@@ -433,6 +675,7 @@ export function SirdasChatWorkspace() {
             sources: json.sources || [],
             audioUrl: json.audioUrl || null,
             status: json.status || "processed",
+            intentMode: json.intentMode,
           };
           const finalThreads = updatedThreads.map((t) =>
             t.id === currentThreadId
@@ -658,6 +901,118 @@ export function SirdasChatWorkspace() {
               })}
         </div>
 
+        {/* Memory Security & Privacy Actions (Sol Alt) */}
+        <div className="p-3 border-t border-[#1d3336]/60">
+          {sidebarOpen || mobileDrawerOpen ? (
+            <div className="flex items-center gap-2 w-full">
+              {/* 1. Hafıza & Gizlilik Ayarları Butonu (Sol Alt) */}
+              <button
+                aria-label="Hafıza ve gizlilik ayarlarını aç"
+                className="flex-1 flex h-10 items-center justify-center rounded-xl bg-[#0e2224] hover:bg-[#132c2e] border border-[#1d3336] text-[#cca762] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cca762]"
+                onClick={() => setIsSettingsModalOpen(true)}
+                title="Hafıza ve Gizlilik Ayarları (Otomatik İmha, Hareketsizlik, TTL)"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+              </button>
+
+              {/* 2. Benlik Hafızamı Sıfırla Butonu */}
+              <button
+                aria-label="Benlik hafızamı sıfırla ve tüm verilerimi sil"
+                className="flex-1 flex h-10 items-center justify-center rounded-xl bg-[#201013] hover:bg-[#2d1418] border border-[#ffb4ab]/30 text-[#ffb4ab] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffb4ab]"
+                onClick={() => setIsResetModalOpen(true)}
+                title="Benlik Hafızamı Sıfırla / Tüm Verilerimi Sil (KVKK Unutulma Hakkı)"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-2">
+              <button
+                aria-label="Hafıza ve gizlilik ayarlarını aç"
+                className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#0e2224] hover:bg-[#132c2e] border border-[#1d3336] text-[#cca762] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cca762]"
+                onClick={() => setIsSettingsModalOpen(true)}
+                title="Hafıza ve Gizlilik Ayarları"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+              </button>
+              <button
+                aria-label="Benlik hafızamı sıfırla ve tüm verilerimi sil"
+                className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#201013] hover:bg-[#2d1418] border border-[#ffb4ab]/30 text-[#ffb4ab] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffb4ab]"
+                onClick={() => setIsResetModalOpen(true)}
+                title="Benlik Hafızamı Sıfırla / Tüm Verilerimi Sil (KVKK Unutulma Hakkı)"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* Sidebar Bottom Links & Emergency Lines */}
         <div className="border-t border-[#1d3336]/60 p-3 space-y-2.5">
           {sidebarOpen || mobileDrawerOpen ? (
@@ -689,12 +1044,14 @@ export function SirdasChatWorkspace() {
                   Sınırlar &amp; Beyan
                 </Link>
                 <span>•</span>
-                <Link
-                  className="hover:text-[#cca762] transition-colors"
-                  href="/gizlilik-politikasi"
+                <button
+                  type="button"
+                  onClick={() => setIsConsentModalOpen(true)}
+                  className="hover:text-[#cca762] transition-colors cursor-pointer"
+                  title="KVKK Açık Rıza ve Özel Nitelikli Veri Sözleşmesini Görüntüle"
                 >
                   KVKK
-                </Link>
+                </button>
                 <span>•</span>
                 <Link
                   className="hover:text-[#cca762] transition-colors"
@@ -722,6 +1079,14 @@ export function SirdasChatWorkspace() {
               >
                 112
               </a>
+              <button
+                type="button"
+                onClick={() => setIsConsentModalOpen(true)}
+                className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#0e2224] border border-[#1d3336] text-[9px] font-semibold text-[#459b95] hover:text-[#cca762]"
+                title="KVKK Kalkanı ve Açık Rıza Metni"
+              >
+                KVKK
+              </button>
             </div>
           )}
         </div>
@@ -774,6 +1139,40 @@ export function SirdasChatWorkspace() {
                 </span>
               </div>
             </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsConsentModalOpen(true)}
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-[#0e2224] hover:bg-[#132c2e] border border-[#1d3336] px-2.5 py-1.5 text-xs text-[#8b9ea0] hover:text-[#cca762] transition-colors"
+              title="KVKK Kalkanı ve Özel Nitelikli Kişisel Veri Metni"
+            >
+              <span className="h-2 w-2 rounded-full bg-[#459b95]" />
+              <span className="font-medium">KVKK Kalkanı</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsResetModalOpen(true)}
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-[#201013] hover:bg-[#2d1418] border border-[#ffb4ab]/30 px-2.5 py-1.5 text-xs text-[#ffdad6] hover:text-white transition-colors"
+              title="Benlik Hafızamı Sıfırla / Tüm Verilerimi Sil (KVKK Unutulma Hakkı)"
+            >
+              <svg
+                aria-hidden="true"
+                className="h-3.5 w-3.5 text-[#ffb4ab]"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <span>Hafızamı Sıfırla</span>
+            </button>
           </div>
         </header>
 
@@ -853,6 +1252,12 @@ export function SirdasChatWorkspace() {
 
                     <div className="flex-1 min-w-0 space-y-3.5">
                       <div className="rounded-2xl rounded-tl-xs bg-[#0a1c1e] border border-[#1d3336] px-5 py-4">
+                        {msg.intentMode === "ILIM_VE_SIYER" && (
+                          <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-md bg-[#0e2726] border border-[#459b95]/30 px-2 py-0.5 text-[11px] font-medium text-[#7dd3c8]">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#459b95]" />
+                            <span>Vakur İlim &amp; Hikmet Modu</span>
+                          </div>
+                        )}
                         {renderFormattedMessage(msg.content)}
                       </div>
 
@@ -863,21 +1268,32 @@ export function SirdasChatWorkspace() {
                           className="flex flex-wrap items-center gap-2"
                         >
                           {msg.sources.map((src) => (
-                            <span
+                            <button
+                              type="button"
                               key={src.id}
-                              className="inline-flex items-center gap-1.5 rounded-lg bg-[#0e2224] border border-[#1d3336] px-2.5 py-1 text-xs text-[#8b9ea0]"
+                              onClick={() => setActiveDetailSource(src)}
+                              title="Detaylı âyet, hadis veya sohbet metnini incelemek için tıklayın"
+                              className="group inline-flex items-center gap-1.5 rounded-lg bg-[#0e2224] hover:bg-[#133235] border border-[#1d3336] hover:border-[#cca762]/60 px-2.5 py-1 text-xs text-[#8b9ea0] hover:text-[#e1e9e8] transition-all cursor-pointer shadow-xs active:scale-[0.98]"
                             >
                               <span
                                 aria-hidden="true"
-                                className="h-1.5 w-1.5 rounded-full bg-[#cca762]"
+                                className="h-1.5 w-1.5 rounded-full bg-[#cca762] group-hover:scale-125 transition-transform"
                               />
-                              <span className="font-medium text-[#e5cca0]">
+                              <span className="font-medium text-[#e5cca0] group-hover:text-amber-300 transition-colors">
                                 {getSourceTypeLabel(src.sourceType)}:
                               </span>
-                              <span className="truncate max-w-[220px]">
+                              <span className="truncate max-w-[200px] sm:max-w-[260px]">
                                 {src.sourceTitle}
                               </span>
-                            </span>
+                              <svg
+                                className="w-3 h-3 text-[#cca762]/60 group-hover:text-[#cca762] ml-0.5 shrink-0 transition-transform group-hover:translate-x-0.5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
+                            </button>
                           ))}
                         </div>
                       )}
@@ -951,12 +1367,22 @@ export function SirdasChatWorkspace() {
 
                   <div className="flex-1 min-w-0 space-y-3">
                     <div className="rounded-2xl rounded-tl-xs bg-[#0a1c1e] border border-[#1d3336] px-5 py-4">
+                      {streamingIntentMode === "ILIM_VE_SIYER" && (
+                        <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-md bg-[#0e2726] border border-[#459b95]/30 px-2 py-0.5 text-[11px] font-medium text-[#7dd3c8]">
+                          <span className="h-1.5 w-1.5 rounded-full bg-[#459b95]" />
+                          <span>Vakur İlim &amp; Hikmet Modu</span>
+                        </div>
+                      )}
                       {streamingText ? (
                         renderFormattedMessage(streamingText)
                       ) : (
                         <div className="flex items-center gap-2.5 text-sm text-[#8b9ea0]">
                           <span className="h-2 w-2 rounded-full bg-[#cca762] animate-pulse" />
-                          <span>Manevi Pusula tefekkür ediyor...</span>
+                          <span>
+                            {streamingIntentMode === "ILIM_VE_SIYER"
+                              ? "Siyer ve ilim kaynakları taranıyor..."
+                              : "Manevi Pusula tefekkür ediyor..."}
+                          </span>
                         </div>
                       )}
                     </div>
@@ -964,21 +1390,32 @@ export function SirdasChatWorkspace() {
                     {streamingSources.length > 0 && (
                       <div className="flex flex-wrap items-center gap-2">
                         {streamingSources.map((src) => (
-                          <span
+                          <button
+                            type="button"
                             key={src.id}
-                            className="inline-flex items-center gap-1.5 rounded-lg bg-[#0e2224] border border-[#1d3336] px-2.5 py-1 text-xs text-[#8b9ea0]"
+                            onClick={() => setActiveDetailSource(src)}
+                            title="Detaylı âyet, hadis veya sohbet metnini incelemek için tıklayın"
+                            className="group inline-flex items-center gap-1.5 rounded-lg bg-[#0e2224] hover:bg-[#133235] border border-[#1d3336] hover:border-[#cca762]/60 px-2.5 py-1 text-xs text-[#8b9ea0] hover:text-[#e1e9e8] transition-all cursor-pointer shadow-xs active:scale-[0.98]"
                           >
                             <span
                               aria-hidden="true"
-                              className="h-1.5 w-1.5 rounded-full bg-[#cca762]"
+                              className="h-1.5 w-1.5 rounded-full bg-[#cca762] group-hover:scale-125 transition-transform"
                             />
-                            <span className="font-medium text-[#e5cca0]">
+                            <span className="font-medium text-[#e5cca0] group-hover:text-amber-300 transition-colors">
                               {getSourceTypeLabel(src.sourceType)}:
                             </span>
-                            <span className="truncate max-w-[220px]">
+                            <span className="truncate max-w-[200px] sm:max-w-[260px]">
                               {src.sourceTitle}
                             </span>
-                          </span>
+                            <svg
+                              className="w-3 h-3 text-[#cca762]/60 group-hover:text-[#cca762] ml-0.5 shrink-0 transition-transform group-hover:translate-x-0.5"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </button>
                         ))}
                       </div>
                     )}
@@ -1020,7 +1457,16 @@ export function SirdasChatWorkspace() {
                   syncTextareaHeight();
                 }}
                 onKeyDown={handleKeyDown}
-                placeholder="Gönlünü meşgul eden durumu buraya yaz..."
+                onClick={() => {
+                  if (!hasGivenConsent) {
+                    setIsConsentModalOpen(true);
+                  }
+                }}
+                placeholder={
+                  hasGivenConsent
+                    ? "Gönlünü meşgul eden durumu buraya yaz..."
+                    : "Sohbete başlamak için lütfen KVKK Açık Rıza onayını verin (tıklayın)..."
+                }
                 rows={1}
                 style={
                   {
@@ -1082,6 +1528,466 @@ export function SirdasChatWorkspace() {
           </div>
         </div>
       </div>
+
+      {/* FLOATING SUCCESS TOAST NOTIFICATION */}
+      {toastMsg && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed top-6 right-6 z-50 flex items-center gap-2.5 rounded-xl bg-[#0f2d24] border border-[#459b95] px-4 py-3 text-xs text-[#d2f8ea] shadow-2xl animate-in fade-in slide-in-from-top-4"
+        >
+          <svg
+            aria-hidden="true"
+            className="h-4 w-4 text-[#4ade80] shrink-0"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+          <span className="font-medium">{toastMsg}</span>
+        </div>
+      )}
+
+      {/* 1. KVKK KALKANI: AÇIK RIZA & ÖZEL NİTELİKLİ VERİ SÖZLEŞMESİ POP-UP */}
+      {isConsentModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="kvkk-modal-title"
+        >
+          <div className="relative w-full max-w-xl rounded-2xl bg-[#091416] border border-[#cca762]/50 p-6 sm:p-7 shadow-2xl text-[#e1e9e8] space-y-5 max-h-[92vh] overflow-y-auto">
+            {/* Header */}
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 rounded-full bg-[#182823] border border-[#459b95]/40 px-3 py-1 text-xs text-[#a2e8dd]">
+                <span className="h-2 w-2 rounded-full bg-[#459b95] animate-pulse" />
+                <span className="font-medium">Hukuki Zırh • KVKK Kalkanı</span>
+              </div>
+              <h2
+                id="kvkk-modal-title"
+                className="font-heading text-xl sm:text-2xl font-semibold text-[#f5ebd7] tracking-tight"
+              >
+                Açık Rıza ve Özel Nitelikli Kişisel Veri Sözleşmesi
+              </h2>
+              <p className="text-xs text-[#8b9ea0] leading-relaxed">
+                6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) uyarınca
+                manevi rehberlik mahremiyeti ve yasal güvenceniz
+              </p>
+            </div>
+
+            {/* 3 Pillars Content */}
+            <div className="space-y-3.5 text-xs">
+              {/* 1. Açık Rıza Metni */}
+              <div className="rounded-xl border border-[#cca762]/50 bg-[#16201a] p-4 space-y-2">
+                <div className="flex items-center gap-2 text-[#cca762] font-semibold text-[13px]">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#cca762]/20 text-[#cca762] text-[11px] font-bold">
+                    1
+                  </span>
+                  <span>Açık Rıza Metni (Pop-up Onayı)</span>
+                </div>
+                <p className="text-[#f0e6d2] font-medium leading-relaxed italic pl-7 text-[13px]">
+                  &ldquo;Size daha iyi bir manevi rehberlik sunabilmek adına,
+                  aktardığınız anonimleştirilmiş durum özetlerinin şifrelenerek
+                  hafızada tutulmasını kabul ediyorsunuz.&rdquo;
+                </p>
+              </div>
+
+              {/* 2. Kendi İradesiyle Paylaşım İlkesi */}
+              <div className="rounded-xl border border-[#1d3336] bg-[#0c181a] p-3.5 space-y-1.5">
+                <div className="flex items-center gap-2 text-[#7dd3c8] font-semibold text-[13px]">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#459b95]/20 text-[#7dd3c8] text-[11px] font-bold">
+                    2
+                  </span>
+                  <span>Kendi İradesiyle Paylaşım İlkesi (Hukuki Zırh)</span>
+                </div>
+                <p className="text-[#a0b5b7] leading-relaxed pl-7">
+                  Türkiye&apos;de Kişisel Verileri Koruma Kanunu&apos;na (KVKK
+                  md. 6) göre dini inanç, ruhsal durum ve ailevi bilgiler{" "}
+                  <strong className="text-[#e1e9e8]">
+                    &ldquo;Özel Nitelikli Kişisel Veri&rdquo;
+                  </strong>{" "}
+                  sınıfına girer. Hukukta temel kuraldır; kişi kendi rızasıyla
+                  ve anonim bir ortamda durumunu anlatıyorsa ve sistem bunu
+                  kimliğiyle eşleştirmiyorsa burada veri ihlali doğmaz. Manevi
+                  Pusula kimlik bilgisi (ad, soyad, T.C. kimlik no, telefon vb.)
+                  talep etmez; tamamen rastgele üretilmiş anonim oturum
+                  anahtarıyla çalışır.
+                </p>
+              </div>
+
+              {/* 3. Tek Tıkla Hafızamı Sil */}
+              <div className="rounded-xl border border-[#1d3336] bg-[#0c181a] p-3.5 space-y-1.5">
+                <div className="flex items-center gap-2 text-[#ffb4ab] font-semibold text-[13px]">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#ffb4ab]/20 text-[#ffb4ab] text-[11px] font-bold">
+                    3
+                  </span>
+                  <span>
+                    Tek Tıkla Hafızamı Sil (Unutulma Hakkı - Right to be
+                    Forgotten)
+                  </span>
+                </div>
+                <p className="text-[#a0b5b7] leading-relaxed pl-7">
+                  Dilediğiniz an sol menüde veya ekranın üst kısmında yer alan{" "}
+                  <strong className="text-[#ffdad6]">
+                    &ldquo;Benlik Hafızamı Sıfırla / Tüm Verilerimi Sil&rdquo;
+                  </strong>{" "}
+                  butonuna basabilirsiniz. Butona bastığınız an arka plandaki
+                  tüm durum özetleri ve anonim JSON kaydı PostgreSQL veri
+                  tabanından kalıcı olarak silinir. Kullanıcıya bu kontrolün
+                  verilmesi sizi ve bizi KVKK nezdinde kusursuz kılar.
+                </p>
+              </div>
+            </div>
+
+            {/* Footer Actions */}
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#1d3336]/60">
+              <Link
+                href="/gizlilik-politikasi#ozel-nitelikli-veri"
+                target="_blank"
+                className="text-xs text-[#cca762] hover:text-[#dec288] underline underline-offset-4"
+              >
+                Detaylı Aydınlatma Metnini İncele →
+              </Link>
+              <button
+                type="button"
+                onClick={handleAcceptConsent}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#cca762] hover:bg-[#dec288] text-[#1b1406] font-semibold px-5 py-2.5 text-xs sm:text-sm transition-colors shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cca762]"
+              >
+                <span>Okudum, Açık Rıza Veriyorum ve Başla</span>
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M14 5l7 7m0 0l-7 7m7-7H3"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 2. BENLİK HAFIZAMI SIFIRLA / TÜM VERİLERİMİ SİL CONFIRM MODAL */}
+      {isResetModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="reset-modal-title"
+        >
+          <div className="relative w-full max-w-md rounded-2xl bg-[#0d1618] border border-[#ffb4ab]/40 p-6 shadow-2xl text-[#e1e9e8] space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#331418] border border-[#ffb4ab]/30 text-[#ffb4ab]">
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h2
+                  id="reset-modal-title"
+                  className="font-heading text-lg font-semibold text-[#ffdad6]"
+                >
+                  Benlik Hafızasını ve Tüm Verileri Sil
+                </h2>
+                <span className="text-[11px] text-[#ffb4ab]/80">
+                  KVKK Unutulma Hakkı (Right to be Forgotten)
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-2 text-xs text-[#a0b5b7] leading-relaxed">
+              <p>Bu işlem geri alınamaz. Onayladığınız takdirde:</p>
+              <ul className="list-disc pl-5 space-y-1 text-[#e1e9e8]/90">
+                <li>Cihazınızdaki tüm geçmiş sohbet kayıtları,</li>
+                <li>Sunucuda tutulan anonim durum özetleri ve mesajlar,</li>
+                <li>
+                  Arka plandaki 4 bloklu dijital ikiz profil kaydınız (JSON),
+                </li>
+              </ul>
+              <p className="pt-1 text-[#ffb4ab]">
+                PostgreSQL veri tabanından kalıcı olarak silinecek ve oturumunuz
+                tamamen sıfırlanacaktır.
+              </p>
+            </div>
+
+            <div className="pt-2 flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                disabled={isPurging}
+                onClick={() => setIsResetModalOpen(false)}
+                className="rounded-xl bg-[#0e2224] hover:bg-[#132c2e] border border-[#1d3336] px-4 py-2 text-xs font-medium text-[#8b9ea0] hover:text-[#e1e9e8] transition-colors"
+              >
+                Vazgeç
+              </button>
+              <button
+                type="button"
+                disabled={isPurging}
+                onClick={() => handlePurgeAllData()}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#93000a] hover:bg-[#b3261e] text-white px-4 py-2 text-xs font-semibold transition-colors disabled:opacity-50"
+              >
+                {isPurging ? (
+                  <>
+                    <span className="h-3 w-3 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                    <span>Siliniyor...</span>
+                  </>
+                ) : (
+                  <span>Evet, Tüm Verilerimi Kalıcı Olarak Sil</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 3. HAFIZA & GİZLİLİK AYARLARI MODALI (OTOMATİK İMHA KALKANI) */}
+      {isSettingsModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="settings-modal-title"
+        >
+          <div className="relative w-full max-w-lg rounded-2xl bg-[#091416] border border-[#cca762]/50 p-6 shadow-2xl text-[#e1e9e8] space-y-5 max-h-[92vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-[#182823] border border-[#459b95]/40 px-2.5 py-0.5 text-[11px] text-[#a2e8dd] mb-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#459b95]" />
+                  <span>Otomatik İmha Kalkanı</span>
+                </div>
+                <h2
+                  id="settings-modal-title"
+                  className="font-heading text-xl font-semibold text-[#f5ebd7]"
+                >
+                  Hafıza ve Gizlilik Ayarları
+                </h2>
+                <p className="text-xs text-[#8b9ea0]">
+                  Sohbet verisi ve benlik hafızanız için otomatik imha
+                  kurallarını seçin.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsSettingsModalOpen(false)}
+                className="rounded-lg p-1 text-[#8b9ea0] hover:bg-[#0e2224] hover:text-[#e1e9e8] transition-colors"
+                aria-label="Ayarları kapat"
+              >
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            {/* 3 Short & Crisp Options */}
+            <div className="space-y-4 text-xs">
+              {/* Option 1: Sayfayı/Uygulamayı Kapattığı An */}
+              <div className="rounded-xl border border-[#1d3336] bg-[#0c181a] p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#cca762]/20 text-[#cca762] text-[11px] font-bold">
+                      1
+                    </span>
+                    <span className="font-semibold text-[13px] text-[#e1e9e8]">
+                      Sekme / Uygulama Kapanışında İmha
+                    </span>
+                  </div>
+                  {/* Toggle switch */}
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={privacySettings.autoPurgeOnClose}
+                    onClick={() =>
+                      handleUpdatePrivacySettings({
+                        autoPurgeOnClose: !privacySettings.autoPurgeOnClose,
+                      })
+                    }
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cca762] ${
+                      privacySettings.autoPurgeOnClose
+                        ? "bg-[#cca762]"
+                        : "bg-[#1d3336]"
+                    }`}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-[#040F0F] shadow-lg ring-0 transition duration-200 ease-in-out ${
+                        privacySettings.autoPurgeOnClose
+                          ? "translate-x-5"
+                          : "translate-x-0"
+                      }`}
+                    />
+                  </button>
+                </div>
+                <p className="text-[#8b9ea0] leading-relaxed pl-7">
+                  Sekmeyi kapattığınız veya uygulamadan çıktığınız an, arka
+                  plana sinyal gönderilerek sohbet ve benlik hafızası
+                  milisaniyeler içinde imha edilir.
+                </p>
+                <div className="pl-7 pt-0.5">
+                  <span
+                    className={`text-[11px] font-medium ${
+                      privacySettings.autoPurgeOnClose
+                        ? "text-[#cca762]"
+                        : "text-[#8b9ea0]/70"
+                    }`}
+                  >
+                    Durum:{" "}
+                    {privacySettings.autoPurgeOnClose
+                      ? "Aktif (Kapanışta anında silinir)"
+                      : "Kapalı (Oturum cihazda saklanır)"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Option 2: Belirli Bir Süre Hareketsizlik */}
+              <div className="rounded-xl border border-[#1d3336] bg-[#0c181a] p-4 space-y-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#459b95]/20 text-[#7dd3c8] text-[11px] font-bold">
+                    2
+                  </span>
+                  <span className="font-semibold text-[13px] text-[#e1e9e8]">
+                    Hareketsizlik Zaman Aşımı (Inactivity Timeout)
+                  </span>
+                </div>
+                <p className="text-[#8b9ea0] leading-relaxed pl-7">
+                  Uygulama açık unutulup işlem yapılmazsa, belirlenen süre
+                  dolduğunda güvenlik gereği hafıza otomatik sıfırlanır.
+                </p>
+                <div className="pl-7 flex flex-wrap gap-1.5 pt-1">
+                  {[
+                    { label: "Kapalı", value: 0 },
+                    { label: "15 Dk", value: 15 },
+                    { label: "30 Dk (Önerilen)", value: 30 },
+                    { label: "60 Dk", value: 60 },
+                  ].map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() =>
+                        handleUpdatePrivacySettings({
+                          inactivityTimeoutMinutes: opt.value,
+                        })
+                      }
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                        privacySettings.inactivityTimeoutMinutes === opt.value
+                          ? "bg-[#cca762] text-[#1b1406] font-semibold"
+                          : "bg-[#0e2224] text-[#8b9ea0] hover:text-[#e1e9e8] border border-[#1d3336]"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Option 3: Zaman Ayarlı Kendini İmhâ (TTL) */}
+              <div className="rounded-xl border border-[#1d3336] bg-[#0c181a] p-4 space-y-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#ffb4ab]/20 text-[#ffb4ab] text-[11px] font-bold">
+                    3
+                  </span>
+                  <span className="font-semibold text-[13px] text-[#e1e9e8]">
+                    Zaman Ayarlı Kendini İmhâ (TTL)
+                  </span>
+                </div>
+                <p className="text-[#8b9ea0] leading-relaxed pl-7">
+                  Veri tabanındaki kayıtlar için son kullanma tarihi tanımlanır;
+                  süre dolduğunda arka plandaki hafıza kaydı kendi kendine
+                  siler.
+                </p>
+                <div className="pl-7 flex flex-wrap gap-1.5 pt-1">
+                  {[
+                    { label: "12 Saat", value: 12 },
+                    { label: "24 Saat (Önerilen)", value: 24 },
+                    { label: "3 Gün (72s)", value: 72 },
+                    { label: "Süresiz (Manuel)", value: 0 },
+                  ].map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() =>
+                        handleUpdatePrivacySettings({
+                          ttlHours: opt.value,
+                        })
+                      }
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                        privacySettings.ttlHours === opt.value
+                          ? "bg-[#cca762] text-[#1b1406] font-semibold"
+                          : "bg-[#0e2224] text-[#8b9ea0] hover:text-[#e1e9e8] border border-[#1d3336]"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="pt-2 flex items-center justify-between border-t border-[#1d3336]/60">
+              <button
+                type="button"
+                onClick={() => {
+                  handleUpdatePrivacySettings(DEFAULT_PRIVACY_SETTINGS);
+                  setToastMsg("Varsayılan gizlilik ayarları yüklendi.");
+                  setTimeout(() => setToastMsg(null), 3000);
+                }}
+                className="text-xs text-[#8b9ea0] hover:text-[#cca762] transition-colors"
+              >
+                Varsayılanlara Sıfırla
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSettingsModalOpen(false);
+                  setToastMsg("✅ Hafıza ve gizlilik ayarlarınız kaydedildi.");
+                  setTimeout(() => setToastMsg(null), 3000);
+                }}
+                className="rounded-xl bg-[#cca762] hover:bg-[#dec288] text-[#1b1406] font-semibold px-4 py-2 text-xs transition-colors"
+              >
+                Kaydet ve Kapat
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Çelik Kasa RAG Sahih Mushaf & Hikmet Kitabı Modalı */}
+      <SourceBookModal
+        source={activeDetailSource}
+        onClose={() => setActiveDetailSource(null)}
+      />
     </div>
   );
 }

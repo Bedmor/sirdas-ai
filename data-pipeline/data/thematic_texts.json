@@ -31,7 +31,7 @@
     "source_type": "QURAN",
     "source_title": "İnşirah Suresi 1-8",
     "content": "Biz senin göğsünü açıp genişletmedik mi? Belini büken ağır yükünü üzerinden indirmedik mi? Ve senin şanını yüceltmedik mi? Elbette zorlukla beraber bir kolaylık vardır. Gerçekten zorlukla beraber bir kolaylık vardır. Öyleyse bir işi bitirince hemen diğerine koyul ve yalnız Rabbine yönel.",
-    "tags": ["INSIRAH_SURESI", "FERAHLIK", "KOLAYLIK", "SABIR", "GOGUS_DARLIGI", "SEKINE"],
+    "tags": ["INSIRAH_SURESI", "FERAHLIK", "KOLAYLIK", "SABIR", "GOGUS_DARLIGI", "SUKUNET"],
     "nafs_traps": ["DARALMA", "TUKENMISLIK", "ACELECI_SITEM", "BUNALIM"],
     "is_riba_related": false
   },
@@ -58,7 +58,7 @@
     "source_type": "QURAN",
     "source_title": "Duha Suresi 1-8",
     "content": "Kuşluk vaktine ve sükuna erdiği zaman geceye andolsun ki, Rabbin seni terk etmedi ve sana darılmadı. Elbette ahiret senin için dünyadan daha hayırlıdır. Pek yakında Rabbin sana verecek ve sen de razı ve hoşnut olacaksın. O seni yetim bulup barındırmadı mı? Seni yol bilmez bulup doğru yola iletmedi mi? Ve seni ihtiyaç içinde bulup zengin kılmadı mı?",
-    "tags": ["DUHA_SURESI", "ILAHI_YAKINLIK", "SEKINE", "YETIM_VE_SAHIPSIZLIK", "TESELLI"],
+    "tags": ["DUHA_SURESI", "ILAHI_YAKINLIK", "SUKUNET", "YETIM_VE_SAHIPSIZLIK", "TESELLI"],
     "nafs_traps": ["TERK_EDILMISLIK_HISSI", "DEPRESYON_VE_HUZUN", "KARAMSARLIK"],
     "is_riba_related": false
   },
@@ -148,7 +148,7 @@
     "source_type": "DUA",
     "source_title": "Sahih Müslim (Zikir 73 - Kalp Sebâtı ve İstikamet Duası)",
     "content": "Enes bin Malik (r.a.) nakleder: Resûlullah (s.a.v.) şu duayı dilinden hiç düşürmezdi: 'Yâ mukallibe'l-kulûb, sebbit kalbî alâ dînik.' (Ey kalpleri evirip çeviren, halden hale koyan Allah'ım! Benim kalbimi Senin dinin ve itaatin üzere sabit kıl.) Sahabe 'Bizim için korkuyor musun?' deyince buyurdu: 'Evet, kalpler Rahman'ın kudret parmakları arasındadır, onları dilediği gibi çevirir.'",
-    "tags": ["KALP_SEBATI", "HIDAYET", "SEKINE", "ISTIKAMET", "DUA"],
+    "tags": ["KALP_SEBATI", "HIDAYET", "SUKUNET", "ISTIKAMET", "DUA"],
     "nafs_traps": ["KALP_DONMESI", "ISTIKAMET_KAYBI", "KENDINE_GUVENME_ALDANISI"],
     "is_riba_related": false
   },
@@ -184,7 +184,7 @@
     "source_type": "SIYER",
     "source_title": "Sevr Mağarası - 'Korkma, Allah Bizimle Beraberdir'",
     "content": "Mekke'den Medine'ye hicret ederken Resûlullah (s.a.v.) ile Hz. Ebubekir Sevr Mağarası'na sığınmışlardı. Müşrikler iz sürerek mağaranın ağzına kadar geldiklerinde Hz. Ebubekir derin bir endişeyle: 'Ey Allah'ın Resûlü, ayaklarının dibine bir baksalar bizi görecekler' dedi. Kainatın Efendisi sarsılmaz bir sükunet ve tevekkülle buyurdu: 'Ey Ebubekir! Üçüncüleri Allah olan iki kişiyi sen ne sanıyorsun? Üzülme ve korkma, zira Allah muhakkak bizimle beraberdir!' (Tevbe 40).",
-    "tags": ["SEVR_MAGARASI", "HICRET", "TEVEKKUL", "SEKINE", "HZ_EBUBEKIR", "SIYER", "KORKUSUZLUK", "SIYER_ORNEKLERI"],
+    "tags": ["SEVR_MAGARASI", "HICRET", "TEVEKKUL", "SUKUNET", "HZ_EBUBEKIR", "SIYER", "KORKUSUZLUK", "SIYER_ORNEKLERI"],
     "nafs_traps": ["PANIK_VE_KORKU", "SEBEPLERIN_TUKENDIGI_ZEHABI", "YALNIZLIK_VEHMI", "UMITSIZLIK_KARAMSARLIK"],
     "is_riba_related": false
   },

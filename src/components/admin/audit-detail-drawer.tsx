@@ -29,6 +29,14 @@ export interface AuditEditorMetadata {
   nafs_and_vesvese_addressed?: string;
   siyer_example_used?: string;
   riba_warning_included?: boolean;
+  deepTriage?: {
+    nafsTrap?: string;
+    spiritualStage?: string;
+    distressLevel?: number;
+    recommendedTone?: string;
+    underlyingNeed?: string;
+    spiritualDiagnosis?: string;
+  };
 }
 
 export interface AuditMessage {
@@ -260,6 +268,31 @@ export function AuditDetailDrawer({ msg }: { msg: AuditMessage }) {
             <p className="text-foreground/90 italic leading-relaxed">
               &ldquo;{msg.editorAudit.siyer_example_used}&rdquo;
             </p>
+          </div>
+        )}
+
+        {msg.editorAudit?.deepTriage && (
+          <div className="p-3 rounded-lg bg-[#0a1612] border border-cyan-800/40 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-cyan-300 block text-[11px]">
+                🤖 Derin Semantik Triyaj (Gemini Flash 3.5 Lite):
+              </span>
+              <span className="text-[10px] text-cyan-400/80 font-mono">
+                {msg.editorAudit.deepTriage.spiritualStage}
+              </span>
+            </div>
+            {msg.editorAudit.deepTriage.spiritualDiagnosis && (
+              <p className="text-foreground/90 leading-relaxed">
+                <strong className="text-muted-foreground font-normal">Teşhis: </strong>
+                {msg.editorAudit.deepTriage.spiritualDiagnosis}
+              </p>
+            )}
+            {msg.editorAudit.deepTriage.underlyingNeed && (
+              <p className="text-foreground/80 text-[11px] italic">
+                <strong className="text-muted-foreground font-normal not-italic">Manevi İhtiyaç: </strong>
+                {msg.editorAudit.deepTriage.underlyingNeed}
+              </p>
+            )}
           </div>
         )}
       </div>

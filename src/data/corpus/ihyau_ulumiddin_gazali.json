@@ -1,0 +1,199 @@
+[
+  {
+    "ihya_id": "ihya_001_gazali_sabir_ve_sukur",
+    "kitap_adi": "Kitâbu's-Sabr ve'ş-Şükr (Sabır ve Şükür Kitabı)",
+    "bolum_adi": "İmanın İki Kanadı: Musibette Sabır, Nimet Anında Şükür",
+    "muellif": "Hüccetü'l-İslâm İmam Ebû Hâmid el-Gazalî (v. 505/1111)",
+    "arapca_metin": "الإِيمَانُ نِصْفَانِ: نِصْفٌ صَبْرٌ وَنِصْفٌ شُكْرٌ. فَالصَّبْرُ كَفُّ النَّفْسِ عَمَّا تَهْوَى وَحَبْسُهَا عَلَى مَا تَكْرَهُ لِوَجْهِ اللَّهِ تَعَالَى",
+    "turkce_metin": "İman iki eşit yarıdan müteşekkildir: Yarısı sabır, diğer yarısı şükürdür. Sabır, nefsi arzuladığı haramlardan alıkoymak ve hoşlanmadığı meşakkatlere Allah rızası için tahammül etmektir. Şükür ise Allah'ın ihsan ettiği hiçbir azayı ve nimeti O'na isyan yolunda kullanmamaktır.",
+    "ozet_hikmet": "Gazalî buyurur ki: İnsan hayatı iki halden ibarettir; ya nefsin hoşuna giden bir nimetle karşılaşır (ki vazifesi şükür ve kibre kapılmamaktır) ya da hoşlanmadığı bir hastalık, fakirlik veya vefasızlıkla sınanır (ki vazifesi sabır ve itiraz etmemektir). Bu iki makamı cem eden kul, dünya tufanında batmaz.",
+    "nefis_terbiyesi": "Musibet geldiğinde feryat etmek musibeti hafifletmez, bilakis ecrini yok eder. Gerçek pehlivanlık ilk sarsıntıda kalbe hakim olup sükûnetle teslim olmaktır.",
+    "tags": [
+      "IHYA",
+      "GAZALI",
+      "SABIR_VE_MUSIBET",
+      "SUKUR",
+      "KALP_AMELLERI_VE_IHLAS",
+      "NEFIS_TEZKIYESI"
+    ],
+    "nafs_traps": [
+      "KADERE_ITIRAZ_VE_ISYAN",
+      "UMITSIZLIK_KARAMSARLIK",
+      "REHAVET_TEMBELLIK"
+    ],
+    "is_riba_related": false,
+    "source_type": "HADITH"
+  },
+  {
+    "ihya_id": "ihya_002_gazali_tevekkul_ve_sebepler",
+    "kitap_adi": "Kitâbu't-Tevekkül ve't-Tevhîd (Tevekkül ve Tevhid Kitabı)",
+    "bolum_adi": "Tevekkülün Hakikati ve Sebeplere Riayet Dengesi",
+    "muellif": "Hüccetü'l-İslâm İmam Gazalî (r.a.)",
+    "arapca_metin": "حَقِيقَةُ التَّوَكُّلِ هُوَ اعْتِمَادُ الْقَلْبِ عَلَى اللَّهِ تَعَالَى وَحْدَهُ فِي جَلْبِ الْمَنَافِعِ وَدَفْعِ الْمَضَارِّ، مَعَ الأَخْذِ بِالأَسْبَابِ الْمَشْرُوعَةِ دُونَ الاعْتِمَادِ عَلَيْهَا",
+    "turkce_metin": "Tevekkülün hakikati; faydayı celp ve zararı defetme hususunda kalbin sadece ve sadece Allah'a itimat etmesidir. Ancak bu, sebepleri terk etmek demek değildir. Beden meşru sebeplere sarılır, tohumu eker, deveyi bağlar; fakat kalp sebebe değil, sebebi var eden Müsebbibü'l-Esbâb'a bağlanır.",
+    "ozet_hikmet": "Sebepleri tamamen terk etmek şeriatı inkar etmektir; sebeplere güvenip neticeyi onlardan beklemek ise tevhidden sapmaktır. Mümin elinden geleni kemaliyle yapar, ardından kalbini endişelerden arındırıp neticeyi Allah'a havale eder.",
+    "nefis_terbiyesi": "Rızık endişesiyle uykusu kaçan kimse, rızkı patronundan veya kasasından bilmektedir. Rızkı Rezzâk-ı Mutlak'tan bilen kalbe darlık anında dahi itminan iner.",
+    "tags": [
+      "IHYA",
+      "GAZALI",
+      "TEVEKKUL_VE_MURAKABE",
+      "RIZIK_VE_TICARET",
+      "NEFIS_TEZKIYESI"
+    ],
+    "nafs_traps": [
+      "FAKIRLIK_KORKUSU_VESVESESI",
+      "ZAHIRE_ALDANMA_VE_SEBEP_PERESTLIK",
+      "KONTROL_YANILSAMASI_VE_MUKEMMELIYETCILIK"
+    ],
+    "is_riba_related": false,
+    "source_type": "HADITH"
+  },
+  {
+    "ihya_id": "ihya_003_gazali_kibir_ve_ucb_tedavisi",
+    "kitap_adi": "Kitâbu Zemmi'l-Kibr ve'l-Ucb (Kibir ve Kendini Beğenme Afeti)",
+    "bolum_adi": "Nefsin En Sinsi Zehri: Kibir ve İbadetiyle Böbürlenme (Ucb)",
+    "muellif": "Hüccetü'l-İslâm İmam Gazalî (r.a.)",
+    "arapca_metin": "الْكِبْرُ هُوَ رُؤْيَةُ النَّفْسِ فَوْقَ الْغَيْرِ وَاسْتِحْقَارُ النَّاسِ، وَالْعُجْبُ هُوَ اسْتِعْظَامُ النِّعْمَةِ وَالرُّكُونُ إِلَيْهَا مَعَ نِسْيَانِ إِضَافَتِهَا إِلَى الْمُنْعِمِ",
+    "turkce_metin": "Kibir; kendini başkalarından üstün görmek ve insanları hakir saymaktır. Ucb ise kulun kendi yaptığı ameli, zekasını veya zenginliğini büyük görüp o nimeti Allah'tan bilmeyi unutmasıdır. Nice günahkâr vardır ki mahcubiyetiyle kurtulur; nice ibadet ehli vardır ki ucb ve böbürlenmesiyle helak olur.",
+    "ozet_hikmet": "Gazalî der ki: Kendinde başkasına karşı zerre kadar üstünlük vehmeden kimse kibrin pençesindedir. Bir fâsıkı gördüğünde dahi 'Belki onun gizli bir hali vardır ki benden önce affedilir, benim ise sonum meçhuldür' diyebilen kalp şifa bulmuştur.",
+    "nefis_terbiyesi": "Kibrin ilacı, insanın menşeini ve sonunu tefekkür etmesidir. Başlangıcı bir damla su, sonu bir avuç toprak olan insanın büyüklük taslaması ne acı bir cehalettir.",
+    "tags": [
+      "IHYA",
+      "GAZALI",
+      "KIBIR",
+      "UCUB",
+      "OFKE_VE_AHLAK",
+      "KALP_AMELLERI_VE_IHLAS",
+      "NEFIS_TEZKIYESI"
+    ],
+    "nafs_traps": [
+      "GIZLI_KIBIR_HAKLILIK",
+      "UCUB_VE_AMELINE_GUVENME",
+      "ELALEM_NE_DER_RIYA"
+    ],
+    "is_riba_related": false,
+    "source_type": "HADITH"
+  },
+  {
+    "ihya_id": "ihya_004_gazali_ofke_ve_hased_marazi",
+    "kitap_adi": "Kitâbu Zemmi'l-Ġadab ve'l-Hıkd ve'l-Hased (Öfke, Kin ve Haset Afeti)",
+    "bolum_adi": "Gazap Ateşini Söndürme ve Haset Zehrinden Arınma",
+    "muellif": "Hüccetü'l-İslâm İmam Gazalî (r.a.)",
+    "arapca_metin": "الْغَضَبُ جَمْرَةٌ مِنْ نَارِ الشَّيْطَانِ، وَالْحَسَدُ يَأْكُلُ الْحَسَنَاتِ كَمَا تَأْكُلُ النَّارُ الْحَطَبَ. وَعِلاجُ الْغَضَبِ أَنْ يَعْلَمَ أَنَّ قُدْرَةَ اللَّهِ عَلَيْهِ أَعْظَمُ مِنْ قُدْرَتِهِ عَلَى النَّاسِ",
+    "turkce_metin": "Öfke, şeytanın kalbe attığı bir ateş parçasıdır. Haset ise ateşin odunu yiyip bitirdiği gibi salih amelleri tüketir. Öfkelenen kimsenin ilacı; Allah'ın kendi üzerindeki kudretinin, kendisinin o insana olan gücünden katbekat büyük olduğunu hatırlaması ve affı seçmesidir.",
+    "ozet_hikmet": "Gazalî öfkeyi dindirmenin basamaklarını açıklar: Öfkelendiğinde ayaktaysa oturmalı, oturuyorsa uzanmalı, soğuk suyla abdest almalı ve 'Eğer ben bu kulun kusurunu bağışlamazsam, yarın mahşerde Allah'tan nasıl af dileyebilirim?' muhasebesi yapmalıdır.",
+    "nefis_terbiyesi": "Kin ve haset taşıyan insan başkasına değil, en çok kendi ruhuna azap eder. Haset ettiği nimetin sahibine zarar veremez, fakat kendi kalbini kemirip huzurunu yok eder.",
+    "tags": [
+      "IHYA",
+      "GAZALI",
+      "OFKE_VE_AHLAK",
+      "HASED",
+      "HILM",
+      "KALP_AMELLERI_VE_IHLAS"
+    ],
+    "nafs_traps": [
+      "INTIKAM_VE_HASET",
+      "GIZLI_KIBIR_HAKLILIK",
+      "KAYITSIZLIK_VE_MERHAMETSIZLIK"
+    ],
+    "is_riba_related": false,
+    "source_type": "HADITH"
+  },
+  {
+    "ihya_id": "ihya_005_gazali_murakabe_ve_muhasebe",
+    "kitap_adi": "Kitâbu'l-Murâkabe ve'l-Muhâsebe (Nefis Muhasebesi Kitabı)",
+    "bolum_adi": "Nefsi Teftişin Dört Makamı: Müşârata, Murâkaba, Muhâsaba, Muâkaba",
+    "muellif": "Hüccetü'l-İslâm İmam Gazalî (r.a.)",
+    "arapca_metin": "حَاسِبُوا أَنْفُسَكُمْ قَبْلَ أَنْ تُحَاسَبُوا. وَالْمُرَاقَبَةُ هِيَ عِلْمُ الْقَلْبِ بِقُرْبِ الرَّبِّ تَعَالَى وَاطِّلاعِهِ عَلَى السِّرِّ وَأَخْفَى",
+    "turkce_metin": "Hesaba çekilmeden önce kendi nefsinizi hesaba çekiniz. Murakabe; kalbin, Rabbinin kendisine şah damarından yakın olduğunu, her gizli niyetini ve bakışını bildiğini idrak etmesidir. Kul her sabah nefsiyle şartlaşmalı (müşârata), gün boyu kendini gözetlemeli (murâkaba), akşam hesabını görmeli (muhâsaba) ve kusurunu telafi etmelidir (muâkaba).",
+    "ozet_hikmet": "Ticarethanede bir kuruşun hesabını yapan tüccar gibi, mümin de ömür sermayesinin dakikalarını teftiş etmelidir. Boş geçen zaman ve gıybetle kirlenen dil telafisi en zor kayıptır.",
+    "nefis_terbiyesi": "Gece yatağa girmeden önce beş dakika gözlerini kapatıp 'Bugün kimi kırdım? Rabbime hangi sözü tuttum?' muhasebesi yapan kul, kalbini manevi paslardan arındırır.",
+    "tags": [
+      "IHYA",
+      "GAZALI",
+      "TEVEKKUL_VE_MURAKABE",
+      "NEFIS_TEZKIYESI",
+      "MUHASEBE_VE_TEVBE"
+    ],
+    "nafs_traps": [
+      "REHAVET_TEMBELLIK",
+      "TUL_I_EMEL_VE_GAYETSIZLIK",
+      "ELALEM_NE_DER_RIYA"
+    ],
+    "is_riba_related": false,
+    "source_type": "HADITH"
+  },
+  {
+    "ihya_id": "ihya_006_gazali_afatu_lisan_ve_sukut",
+    "kitap_adi": "Kitâbu Afâti'l-Lisân (Dilin Afetleri Kitabı)",
+    "bolum_adi": "Gıybet, Malayanî ve Boş Sözlerden Sükûnet Kalesi ile Korunma",
+    "muellif": "Hüccetü'l-İslâm İmam Gazalî (r.a.)",
+    "arapca_metin": "الْمَرْءُ مَخْبُوءٌ تَحْتَ لِسَانِهِ. وَالسُّكُوتُ عِبَادَةٌ مِنْ غَيْرِ عَنَاءٍ، وَزِينَةٌ مِنْ غَيْرِ حُلِيٍّ، وَهَيْبَةٌ مِنْ غَيْرِ سُلْطَانٍ",
+    "turkce_metin": "İnsan, dilinin altında gizlidir. Lisan kalbin tercümanıdır; kapta ne varsa dışarı o sızar. Yerinde sükût etmek; yorulmadan yapılan bir ibadet, süssüz bir ziynet ve kudretsiz bir heybettir. Konuştuğunda ya hayır söylemeli ya da susmalıdır.",
+    "ozet_hikmet": "Gazalî dilin yirmi afetini sıralar: Yalan, gıybet, koğuculuk, riyakâr övgü, müstehcen söz, lüzumsuz münakaşa ve başkasının kusurunu ifşa etmek. Dilini tutamayan kimsenin kalbi harabeye döner.",
+    "nefis_terbiyesi": "Bir mecliste başkası hakkında konuşulmaya başlandığında orayı terk etmek veya mevzuyu hayra çevirmek, nefsin dedikodu iştahını kıran en etkili terbiyedir.",
+    "tags": [
+      "IHYA",
+      "GAZALI",
+      "OFKE_VE_AHLAK",
+      "DILIN_AFETLERI",
+      "GIYBET",
+      "HIKMETLI_SUKUT"
+    ],
+    "nafs_traps": [
+      "SUI_ZAN_VE_TECESSUS",
+      "MINNET_VE_BASA_KAKMA",
+      "GIZLI_KIBIR_HAKLILIK"
+    ],
+    "is_riba_related": false,
+    "source_type": "HADITH"
+  },
+  {
+    "ihya_id": "ihya_007_gazali_dunya_harsi_ve_zuhd",
+    "kitap_adi": "Kitâbu Zemmi'd-Dünyâ ve'z-Zühd (Dünya Muhabbetinin Yergisi ve Zühd)",
+    "bolum_adi": "Dünyanın Faniliği ve Kalbi Eşyanın Tahakkümünden Kurtarma",
+    "muellif": "Hüccetü'l-İslâm İmam Gazalî (r.a.)",
+    "arapca_metin": "لَيْسَ الزُّهْدُ أَنْ لا تَمْلِكَ شَيْئًا، بَلِ الزُّهْدُ أَنْ لا يَمْلِكَكَ شَيْءٌ. الدُّنْيَا كَالْمَاءِ، وَالْقَلْبُ كَالسَّفِينَةِ؛ فَإِذَا دَخَلَ الْمَاءُ السَّفِينَةَ غَرِقَتْ",
+    "turkce_metin": "Zühd, elinde hiçbir şey bulunmaması demek değildir; bilakis hiçbir dünyalığın senin kalbine sahip olamamasıdır. Dünya deniz suyu gibidir, kalbin ise bir gemidir. Su geminin altında kaldığı müddetçe gemi yüzer; fakat su geminin içine girerse onu batırır.",
+    "ozet_hikmet": "Gazalî der ki: Mal mülk elde olmalı fakat kalbe girmemelidir. Malı cebinde tutan cömertçe infak eder; malı kalbine sokan ise cimrileşir, fakirlik korkusuyla harama tevessül eder ve faiz tuzaklarına düşer.",
+    "nefis_terbiyesi": "Kaybettiğin bir dünyalık için günlerce yas tutuyorsan, o mal senin kalbine girmiş demektir. Faniliğe değil, Bâkî olan Allah'a kalbini raptet.",
+    "tags": [
+      "IHYA",
+      "GAZALI",
+      "ISRAF_VE_IKTISAT_FIKHI",
+      "ZUHD",
+      "FANILIK_VE_TAZIYE",
+      "NEFIS_TEZKIYESI"
+    ],
+    "nafs_traps": [
+      "CIMRILIK_VE_MAL_HIRSI",
+      "FAKIRLIK_KORKUSU_VESVESESI",
+      "KOLAY_KAZANC_HIRSI"
+    ],
+    "is_riba_related": true,
+    "source_type": "HADITH"
+  },
+  {
+    "ihya_id": "ihya_008_gazali_tevbe_ve_inabe_ruknu",
+    "kitap_adi": "Kitâbu't-Tevbe (Tevbe Kitabı)",
+    "bolum_adi": "Tevbenin Üç Rüknü: İlim, Pişmanlık ve Amelî Azim",
+    "muellif": "Hüccetü'l-İslâm İmam Gazalî (r.a.)",
+    "arapca_metin": "التَّوْبَةُ تَنْتَظِمُ مِنْ ثَلاثَةِ أُمُورٍ: عِلْمٍ، وَحَالٍ، وَفِعْلٍ. فَالْعِلْمُ هُوَ مَعْرِفَةُ عِظَمِ ضَرَرِ الذُّنُوبِ، وَالْحَالُ هُوَ احْتِرَاقُ الْقَلْبِ نَدَمًا، وَالْفِعْلُ هُوَ الإِقْلاعُ فِي الْحَالِ وَالْعَزْمُ عَلَى عَدَمِ الْعَوْدِ",
+    "turkce_metin": "Tevbe üç hakikatten meydana gelir: İlim, hâl ve fiil. İlim; günahların kul ile Rabbi arasına giren zehirli engeller olduğunu bilmektir. Hâl; bu idrakle kalbin pişmanlık ateşiyle yanmasıdır (Nedamet). Fiil ise; günahı derhal terk etmek, gelecekte işlememeye azmetmek ve varsa kul haklarını ödeyip helalleşmektir.",
+    "ozet_hikmet": "Tevbe sadece dille 'Estağfirullah' demek değildir. Hakiki tevbe; kalbin istikametini bütünüyle günah vadisinden ilahi rıza dergahına çevirmesidir. Kul hakkı varsa hak sahibine iade edilmedikçe tevbe kemale ermez.",
+    "nefis_terbiyesi": "Günahın küçüklüğüne değil, kime karşı isyan ettiğinin azametine bak. Pişmanlıkla dökülen bir damla gözyaşı, nefsin kibrini eriten en saf iksirdir.",
+    "tags": [
+      "IHYA",
+      "GAZALI",
+      "TEVBE_VE_INABE",
+      "KUL_HAKKI_VE_ADALET",
+      "MUHASEBE_VE_TEVBE"
+    ],
+    "nafs_traps": [
+      "GECMISIN_PISMANLIK_GIRDABI",
+      "UMITSIZLIK_KARAMSARLIK"
+    ],
+    "is_riba_related": false,
+    "source_type": "HADITH"
+  }
+]

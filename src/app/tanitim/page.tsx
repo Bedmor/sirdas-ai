@@ -12,13 +12,6 @@ import { AskidaSirdasSection } from "@/components/landing/askida-sirdas-section"
 export default function TanitimLandingPage() {
   return (
     <>
-      <a
-        className="skip-link focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412] focus-visible:ring-amber-500"
-        href="#ana-icerik"
-      >
-        İçeriğe Atla
-      </a>
-
       <DisclaimerBanner />
       <Navbar />
 
@@ -59,17 +52,6 @@ export default function TanitimLandingPage() {
                   <span>Manevi Pusula ile Dertleş</span>
                   <i aria-hidden="true" className="ph ph-arrow-right text-xs"></i>
                 </Link>
-                <a
-                  aria-label="Sayfa üzerinden Manevi Pusula ile canlı mesajlaşarak dene"
-                  className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 text-sm text-slate-200 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
-                  href="#simdi-dene"
-                >
-                  <i
-                    aria-hidden="true"
-                    className="ph ph-chat-circle-dots text-lg text-primary"
-                  ></i>
-                  <span>Hemen Aşağıda Dene</span>
-                </a>
                 <a
                   className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 text-sm text-slate-200 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
                   href="#sohbet-ornekleri"
@@ -285,7 +267,7 @@ export default function TanitimLandingPage() {
                   aria-hidden="true"
                   className="ph ph-chat-circle-dots text-lg text-secondary"
                 ></i>
-                <span>Tefekkür Odasında Hemen Başla</span>
+                <span className="animate-pulse">Tefekkür Odasında Hemen Başla</span>
               </Link>
             </div>
           </section>

@@ -13,6 +13,7 @@ const globalForPrisma = globalThis as unknown as {
   realPrisma: PrismaClient | undefined;
   prismaProxy: PrismaClient | undefined;
   inMemoryDb: InMemoryDatabase | undefined;
+  inMemoryKnowledgeChunks: Map<string, LocalKnowledgeChunk> | undefined;
 };
 
 interface InMemoryUser {
@@ -58,17 +59,26 @@ interface InMemoryDatabase {
   knowledgeChunks: Map<string, LocalKnowledgeChunk>;
 }
 
+function getKnowledgeChunksMap(): Map<string, LocalKnowledgeChunk> {
+  if (!globalForPrisma.inMemoryKnowledgeChunks) {
+    const map = new Map<string, LocalKnowledgeChunk>();
+    for (const chunk of getLocalKnowledgeCorpus()) {
+      map.set(chunk.id, chunk);
+    }
+    globalForPrisma.inMemoryKnowledgeChunks = map;
+  }
+  return globalForPrisma.inMemoryKnowledgeChunks;
+}
+
 function getInMemoryDb(): InMemoryDatabase {
   if (!globalForPrisma.inMemoryDb) {
-    const knowledgeChunks = new Map<string, LocalKnowledgeChunk>();
-    for (const chunk of getLocalKnowledgeCorpus()) {
-      knowledgeChunks.set(chunk.id, chunk);
-    }
     globalForPrisma.inMemoryDb = {
       users: new Map(),
       messages: new Map(),
       donations: new Map(),
-      knowledgeChunks,
+      get knowledgeChunks() {
+        return getKnowledgeChunksMap();
+      },
     };
   }
   return globalForPrisma.inMemoryDb;
@@ -111,6 +121,11 @@ async function runWithFallback<T>(
   }
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
+    const timeoutMs = process.env.DB_TIMEOUT_MS
+      ? Number(process.env.DB_TIMEOUT_MS)
+      : process.env.NODE_ENV === "test"
+        ? 2500
+        : 6000;
     const timeoutPromise = new Promise<never>((_, reject) => {
       timer = setTimeout(() => {
         const timeoutErr = new Error("Database connection timeout") as Error & {
@@ -118,7 +133,7 @@ async function runWithFallback<T>(
         };
         timeoutErr.code = "DB_TIMEOUT";
         reject(timeoutErr);
-      }, 120);
+      }, timeoutMs);
     });
     const realPromise = realFn();
     // Prevent unhandled rejection if realPromise rejects after timeoutPromise wins
@@ -126,7 +141,7 @@ async function runWithFallback<T>(
     return await Promise.race([realPromise, timeoutPromise]);
   } catch (err) {
     if (isConnectionError(err)) {
-      markRemoteDbOffline(60_000);
+      markRemoteDbOffline(30_000);
       return await fallbackFn();
     }
     throw err;
@@ -560,7 +575,7 @@ function createResilientPrisma(client: PrismaClient): PrismaClient {
         () => (client.user.count as (a?: unknown) => Promise<number>)(args),
         () => {
           const db = getInMemoryDb();
-          return Math.max(db.users.size, 428);
+          return db.users.size;
         }
       ),
   };
@@ -615,7 +630,14 @@ function createResilientPrisma(client: PrismaClient): PrismaClient {
               const u = db.users.get(m.userId);
               return {
                 ...m,
-                user: u ? { phoneNumber: u.phoneNumber } : null,
+                user: u
+                  ? {
+                      phoneNumber: u.phoneNumber,
+                      profileMetadata: u.profileMetadata,
+                      onboardingStep: u.onboardingStep,
+                      onboardingCompleted: u.onboardingCompleted,
+                    }
+                  : null,
               };
             }
             return { ...m };
@@ -664,6 +686,41 @@ function createResilientPrisma(client: PrismaClient): PrismaClient {
           return { ...msg };
         }
       ),
+    update: (args: {
+      where: { id: string };
+      data: Partial<InMemoryMessage>;
+    }) =>
+      runWithFallback(
+        () => (client.message.update as (a: unknown) => Promise<unknown>)(args),
+        () => {
+          const db = getInMemoryDb();
+          const existing = db.messages.get(args.where.id);
+          if (!existing) return null;
+          const updated: InMemoryMessage = {
+            ...existing,
+            ...(args.data.content !== undefined
+              ? { content: args.data.content }
+              : {}),
+            ...(args.data.jevMetadata !== undefined
+              ? { jevMetadata: args.data.jevMetadata }
+              : {}),
+            ...(args.data.ragChunkIds !== undefined
+              ? { ragChunkIds: args.data.ragChunkIds }
+              : {}),
+            ...(args.data.editorAudit !== undefined
+              ? { editorAudit: args.data.editorAudit }
+              : {}),
+            ...(args.data.audioSent !== undefined
+              ? { audioSent: args.data.audioSent }
+              : {}),
+            ...(args.data.audioUrlSent !== undefined
+              ? { audioUrlSent: args.data.audioUrlSent }
+              : {}),
+          };
+          db.messages.set(updated.id, updated);
+          return { ...updated };
+        }
+      ),
     deleteMany: (args?: { where?: { userId?: string } }) =>
       runWithFallback(
         () =>
@@ -692,7 +749,7 @@ function createResilientPrisma(client: PrismaClient): PrismaClient {
             }
             return userCount;
           }
-          return Math.max(db.messages.size, 142850);
+          return db.messages.size;
         }
       ),
   };

@@ -247,6 +247,37 @@ export const TURKISH_STOP_WORDS = new Set<string>([
   "yok",
   "yoksa",
   "zaten",
+  "adım",
+  "adim",
+  "ismim",
+  "bugün",
+  "bugun",
+  "yarın",
+  "yarin",
+  "dün",
+  "dun",
+  "geçen",
+  "gecen",
+  "kaldım",
+  "kaldim",
+  "kaldı",
+  "kaldi",
+  "oldum",
+  "oldu",
+  "oluyor",
+  "geldi",
+  "geldim",
+  "gittim",
+  "gitti",
+  "dedim",
+  "dedi",
+  "diyor",
+  "yaşıyorum",
+  "yasiyorum",
+  "çalışıyorum",
+  "calisiyorum",
+  "istiyorum",
+  "bilmiyorum",
 ]);
 
 /**
@@ -553,12 +584,25 @@ export function getLocalKnowledgeCorpus(): LocalKnowledgeChunk[] {
     "hadith_kutub_sitte.json",
     "siyer_kriz_matrisi.json",
     "tefsir_hikmet_corpus.json",
+    "akaid_fikhul_ekber_tahavi.json",
+    "ihyau_ulumiddin_gazali.json",
+    "ezkar_nevevi.json",
   ];
 
   for (const fileName of dataFiles) {
     try {
-      const filePath = path.join(process.cwd(), "data-pipeline/data", fileName);
-      if (!fs.existsSync(filePath)) continue;
+      const candidatePaths = [
+        path.join(process.cwd(), "src/data/corpus", fileName),
+        path.join(process.cwd(), "data-pipeline/data", fileName),
+      ];
+      let filePath: string | null = null;
+      for (const p of candidatePaths) {
+        if (fs.existsSync(p)) {
+          filePath = p;
+          break;
+        }
+      }
+      if (!filePath) continue;
 
       const rawJson = JSON.parse(fs.readFileSync(filePath, "utf-8"));
       if (!Array.isArray(rawJson)) continue;
@@ -585,6 +629,12 @@ export function getLocalKnowledgeCorpus(): LocalKnowledgeChunk[] {
           sourceType = "QURAN";
         } else if ("hadis_id" in item || "kaynak" in item) {
           sourceType = "HADITH";
+        } else if ("akaid_id" in item || "eser" in item) {
+          sourceType = "HADITH";
+        } else if ("ihya_id" in item || "kitap_adi" in item) {
+          sourceType = "HADITH";
+        } else if ("ezkar_id" in item || "dua_turkce" in item) {
+          sourceType = "DUA";
         }
 
         // Normalize source_title
@@ -592,7 +642,13 @@ export function getLocalKnowledgeCorpus(): LocalKnowledgeChunk[] {
           item.source_title || item.sourceTitle || item.title || ""
         ).trim();
         if (!sourceTitle) {
-          if ("siyer_id" in item || "olay_adi" in item) {
+          if ("akaid_id" in item || "eser" in item) {
+            sourceTitle = item.eser ? `${item.eser}: ${item.baslik || "Akaid"}` : "Ehl-i Sünnet Akaid";
+          } else if ("ihya_id" in item || "kitap_adi" in item) {
+            sourceTitle = `İmam Gazalî - İhyâ: ${item.kitap_adi || item.bolum_adi || "Ahlak"}`;
+          } else if ("ezkar_id" in item || "eser_adi" in item) {
+            sourceTitle = `İmam Nevevî - ${item.eser_adi || "el-Ezkâr"}: ${item.baslik || "Zikir ve Dua"}`;
+          } else if ("siyer_id" in item || "olay_adi" in item) {
             const donemStr = item.donem ? ` (${item.donem})` : "";
             sourceTitle = `Siyer-i Nebî: ${item.olay_adi || "Olay"}${donemStr}`;
           } else if ("tefsir_id" in item || "sure" in item) {
@@ -610,7 +666,20 @@ export function getLocalKnowledgeCorpus(): LocalKnowledgeChunk[] {
         // Normalize content
         let content = String(item.content || "").trim();
         if (!content) {
-          if ("turkce_meal" in item) {
+          if ("akaid_id" in item || "eser" in item) {
+            const serhPart = item.serh_ve_hikmet ? `\n\nŞerh ve Delil: ${item.serh_ve_hikmet}` : "";
+            const hikmetPart = item.manevi_hikmet ? `\n\nManevi Hikmet: ${item.manevi_hikmet}` : "";
+            content = `İtikad Esası: "${item.turkce_metin}"${serhPart}${hikmetPart}`;
+          } else if ("ihya_id" in item || "kitap_adi" in item) {
+            const ozetPart = item.ozet_hikmet ? `\n\nİhyâ Hikmeti: ${item.ozet_hikmet}` : "";
+            const dersPart = item.nefis_terbiyesi ? `\n\nNefis Terbiyesi Dersi: ${item.nefis_terbiyesi}` : "";
+            content = `Ahlak ve Kalp Ameli: "${item.turkce_metin}"${ozetPart}${dersPart}`;
+          } else if ("ezkar_id" in item || "dua_turkce" in item) {
+            const kaynakPart = item.kaynak ? ` [Kaynak: ${item.kaynak}]` : "";
+            const serhPart = item.serh ? `\n\nŞerh: ${item.serh}` : "";
+            const hikmetPart = item.manevi_hikmet ? `\n\nManevi Hikmet: ${item.manevi_hikmet}` : "";
+            content = `Dua ve Zikir: "${item.dua_turkce}"${kaynakPart}${serhPart}${hikmetPart}`;
+          } else if ("turkce_meal" in item) {
             const kaynakInfo = item.kaynak
               ? ` [Kaynak: ${item.kaynak}, Derece: ${item.sahihlik_derecesi || "Sahih"}]`
               : "";
@@ -638,6 +707,9 @@ export function getLocalKnowledgeCorpus(): LocalKnowledgeChunk[] {
             item.hadis_id ||
             item.siyer_id ||
             item.tefsir_id ||
+            item.akaid_id ||
+            item.ihya_id ||
+            item.ezkar_id ||
             `${fileName}-${idx}`
         );
         const isRibaRelated = Boolean(
@@ -691,13 +763,92 @@ export function getLocalKnowledgeCorpus(): LocalKnowledgeChunk[] {
   return cachedCorpus;
 }
 
+export const MIN_LOCAL_RAG_SCORE = 0.42;
+
 export interface HybridSearchInput {
   userMessage?: string;
   filterCategory?: string | null;
   filterNafs?: string | null;
   forceRiba?: boolean;
   matchCount?: number;
+  minSimilarity?: number;
   intentMode?: "MANEVI_AYNA" | "ILIM_VE_SIYER";
+}
+
+const SPIRITUAL_CONCEPT_BRIDGES: ReadonlyArray<{
+  trigger: RegExp;
+  targetTerms: ReadonlyArray<string>;
+  targetTags: ReadonlyArray<string>;
+}> = [
+  {
+    trigger:
+      /(?<![\p{L}\p{N}])(?:öfke[\p{L}]*|sinir[\p{L}]*|kızgın[\p{L}]*|kızdım|çileden|tahammül[\p{L}]*|patlayaca[ğg]ım|hiddet)(?![\p{L}\p{N}])/iu,
+    targetTerms: ["öfke", "pehlivan", "hilm", "affet"],
+    targetTags: ["OFKE_VE_AHLAK"],
+  },
+  {
+    trigger:
+      /(?<![\p{L}\p{N}])(?:üzgün[\p{L}]*|üzüldüm|ağlıyor[\p{L}]*|ağladım|gözyaş[\p{L}]*|kırgın[\p{L}]*|kırıldım|kalbim\s*kırık|kalbimi\s*kırdı|hüzün[\p{L}]*|içim\s*acıyor|içim\s*yanıyor)(?![\p{L}\p{N}])/iu,
+    targetTerms: ["terk etmedi", "zorlukla beraber", "göğsünü", "ferahlık", "teselli"],
+    targetTags: ["TESKIN_VE_TESELLI", "SABIR_VE_MUSIBET"],
+  },
+  {
+    trigger:
+      /(?<![\p{L}\p{N}])(?:daral[\p{L}]*|bunal[\p{L}]*|sıkış[\p{L}]*|kaygı[\p{L}]*|anksiyete[\p{L}]*|panik|evham[\p{L}]*|vesvese[\p{L}]*|stres[\p{L}]*|korkuyorum)(?![\p{L}\p{N}])/iu,
+    targetTerms: ["inşirah", "ferahlık", "darlık", "kalpler", "kolaylık"],
+    targetTags: ["TESKIN_VE_TESELLI", "TEVEKKUL_VE_MURAKABE"],
+  },
+  {
+    trigger:
+      /(?<![\p{L}\p{N}])(?:vefat|kaybettim|cenaze|toprağa\s*verdim|yas\s*tut[\p{L}]*|ölüm)(?![\p{L}\p{N}])/iu,
+    targetTerms: ["musibet", "sabır", "ahiret", "ölüm"],
+    targetTags: ["FANILIK_VE_TAZIYE", "SABIR_VE_MUSIBET"],
+  },
+  {
+    trigger:
+      /(?<![\p{L}\p{N}])(?:haksızlı[ğg][\p{L}]*|hakkım[\p{L}]*\s*ye[\p{L}]*|kul\s*hakkı|iftira|zulüm|mobbing)(?![\p{L}\p{N}])/iu,
+    targetTerms: ["kul hakkı", "adalet", "müflis", "haksızlık"],
+    targetTags: ["KUL_HAKKI_VE_ADALET"],
+  },
+  {
+    trigger:
+      /(?<![\p{L}\p{N}])(?:rızık|geçim|işsiz[\p{L}]*|maaş|bereket|fakirlik|borç[\p{L}]*|borcum|iflas)(?![\p{L}\p{N}])/iu,
+    targetTerms: ["rızık", "çıkış yolu", "beklemediği yerden", "tevekkül"],
+    targetTags: ["RIZIK_VE_TICARET"],
+  },
+  {
+    trigger:
+      /(?<![\p{L}\p{N}])(?:pişman[\p{L}]*|günah[\p{L}]*|tövbe|tevbe|istiğfar|vicdan[\p{L}]*|mahcup[\p{L}]*|affeder\s*mi)(?![\p{L}\p{N}])/iu,
+    targetTerms: ["tevbe", "tövbe", "bağışla", "ümidinizi kesmeyin"],
+    targetTags: ["TEVBE_VE_INABE"],
+  },
+  {
+    trigger:
+      /(?<![\p{L}\p{N}])(?:yoruldum|yorgunum|tükendim|tükenmiş[\p{L}]*|bitkinim|takatim\s*kalmadı|gücüm\s*kalmadı)(?![\p{L}\p{N}])/iu,
+    targetTerms: ["kolaylık", "inşirah", "sabır", "terk etmedi"],
+    targetTags: ["TESKIN_VE_TESELLI", "SABIR_VE_MUSIBET"],
+  },
+];
+
+function normalizeAsciiToken(s: string): string {
+  return s
+    .toLocaleLowerCase("tr-TR")
+    .replace(/[âā]/g, "a")
+    .replace(/[îī]/g, "i")
+    .replace(/[ûū]/g, "u")
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ş/g, "s")
+    .replace(/ı/g, "i")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c");
+}
+
+function hasPrefixWordMatch(normalizedTokens: string[], kwNorm: string): boolean {
+  if (!kwNorm || kwNorm.length < 3) return false;
+  return normalizedTokens.some((tok) =>
+    kwNorm.length <= 4 ? tok === kwNorm || tok.startsWith(kwNorm) && tok.length <= kwNorm.length + 3 : tok.startsWith(kwNorm)
+  );
 }
 
 export function scoreChunkRelevance(
@@ -705,23 +856,17 @@ export function scoreChunkRelevance(
   input: HybridSearchInput,
   keywords: string[]
 ): number {
-  let score = 0.35; // Base semantic score
-
-  if (input.intentMode === "ILIM_VE_SIYER") {
-    if (chunk.sourceType === "SIYER") {
-      score += 0.25;
-    } else if (chunk.sourceType === "HADITH") {
-      score += 0.15;
-    }
-  }
+  // Alaka eşiği için taban skor 0.0'dır: gerçek kelime/kavram/kategori örtüşmesi yoksa
+  // rastgele ayet/hadis çekilmemesi için skor yükselmez.
+  let score = 0.0;
 
   if (input.forceRiba && chunk.isRibaRelated) {
-    score += 0.45;
+    score += 0.75;
     if (
       chunk.tags.includes("BAKARA_275_279") ||
       chunk.sourceTitle.includes("275")
     ) {
-      score += 0.25;
+      score += 0.2;
     }
   }
 
@@ -731,7 +876,7 @@ export function scoreChunkRelevance(
       (t) => t.toUpperCase() === input.filterCategory?.toUpperCase()
     )
   ) {
-    score += 0.3;
+    score += 0.2;
   }
 
   if (
@@ -740,45 +885,85 @@ export function scoreChunkRelevance(
       (n) => n.toUpperCase() === input.filterNafs?.toUpperCase()
     )
   ) {
-    score += 0.28;
+    score += 0.18;
   }
 
-  if (keywords.length > 0) {
-    const haystack = `${chunk.sourceTitle} ${chunk.content} ${chunk.tags.join(" ")}`.toLowerCase();
-    const normalizedHaystack = haystack
-      .replace(/ğ/g, "g")
-      .replace(/ü/g, "u")
-      .replace(/ş/g, "s")
-      .replace(/ı/g, "i")
-      .replace(/ö/g, "o")
-      .replace(/ç/g, "c");
+  const titleAndTagsNorm = normalizeAsciiToken(
+    `${chunk.sourceTitle} ${chunk.tags.join(" ")}`
+  );
+  const titleTokens = titleAndTagsNorm
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean);
 
-    let matchedCount = 0;
-    for (const kw of keywords) {
-      const normalizedKw = kw
-        .replace(/ğ/g, "g")
-        .replace(/ü/g, "u")
-        .replace(/ş/g, "s")
-        .replace(/ı/g, "i")
-        .replace(/ö/g, "o")
-        .replace(/ç/g, "c");
+  const contentNorm = normalizeAsciiToken(chunk.content);
+  const contentTokens = contentNorm
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean);
 
-      if (haystack.includes(kw) || normalizedHaystack.includes(normalizedKw)) {
-        matchedCount++;
+  // Aynı kelimenin hem kendisi hem 5 harfli kökü listede olabildiği için kök bazında tekilleştir
+  const matchedRoots = new Set<string>();
+  let titleHits = 0;
+  let contentHits = 0;
+
+  for (const kw of keywords) {
+    const kwNorm = normalizeAsciiToken(kw).replace(/[^a-z0-9]/g, "");
+    if (kwNorm.length < 3) continue;
+    const rootKey = kwNorm.slice(0, 5);
+    if (matchedRoots.has(rootKey)) continue;
+
+    if (hasPrefixWordMatch(titleTokens, kwNorm)) {
+      matchedRoots.add(rootKey);
+      titleHits++;
+    } else if (hasPrefixWordMatch(contentTokens, kwNorm)) {
+      matchedRoots.add(rootKey);
+      contentHits++;
+    }
+  }
+
+  if (titleHits > 0) {
+    score += 0.45 + Math.min(0.3, (titleHits - 1) * 0.18);
+  }
+  if (contentHits > 0) {
+    score += (contentHits === 1 ? 0.24 : 0.44) + Math.min(0.24, Math.max(0, contentHits - 2) * 0.12);
+  }
+
+  // Duygusal / Manevi kavram köprüsü (kullanıcı doğrudan ayet kelimesini geçirmese de gerçek bir dert anlattığında)
+  const rawMsg = input.userMessage || "";
+  if (rawMsg) {
+    for (const bridge of SPIRITUAL_CONCEPT_BRIDGES) {
+      if (!bridge.trigger.test(rawMsg)) continue;
+      const tagHit = bridge.targetTags.some((tg) => chunk.tags.includes(tg));
+      const termHit = bridge.targetTerms.some((tm) =>
+        contentNorm.includes(normalizeAsciiToken(tm)) ||
+        titleAndTagsNorm.includes(normalizeAsciiToken(tm))
+      );
+      if (tagHit && termHit) {
+        score += 0.48;
+      } else if (termHit) {
+        score += 0.36;
+      } else if (tagHit) {
+        score += 0.24;
       }
     }
-    score += Math.min(0.3, matchedCount * 0.08);
+  }
+
+  // İlim ve Siyer modunda yalnızca zaten konuyla örtüşen (skor > 0) Siyer/Hadis kayıtlarına öncelik ver
+  if (input.intentMode === "ILIM_VE_SIYER" && score >= 0.24) {
+    if (chunk.sourceType === "SIYER") {
+      score += 0.22;
+    } else if (chunk.sourceType === "HADITH") {
+      score += 0.12;
+    }
   }
 
   return Math.min(1.0, Number(score.toFixed(4)));
 }
 
 /**
- * Multi-source balanced hybrid search matching `prisma/sql/02_hybrid_search_rpc.sql`:
- * 1. Mandatory Riba package (if `forceRiba === true`, Bakara 275-279 first)
- * 2. Best QURAN passage
- * 3. Best HADITH / SIYER / DUA passage
- * 4. General top-scoring candidates up to `matchCount`
+ * Multi-source balanced hybrid search with strict minimum relevance threshold (`MIN_LOCAL_RAG_SCORE`):
+ * Benzerlik / kelime-kavram eşleşmesi eşiğin altındaysa kasadan zorla rastgele ayet çekilmez (`[]` döner).
  */
 export function searchLocalKnowledgeCorpus(
   input: HybridSearchInput
@@ -787,11 +972,18 @@ export function searchLocalKnowledgeCorpus(
   const keywords = extractMeaningfulKeywords(input.userMessage || "");
   const matchCount = input.matchCount ?? 4;
   const forceRiba = Boolean(input.forceRiba);
+  const minSimilarity = input.minSimilarity ?? MIN_LOCAL_RAG_SCORE;
 
-  const scored = corpus.map((chunk) => ({
-    ...chunk,
-    similarity: scoreChunkRelevance(chunk, input, keywords),
-  }));
+  const scored = corpus
+    .map((chunk) => ({
+      ...chunk,
+      similarity: scoreChunkRelevance(chunk, input, keywords),
+    }))
+    .filter((c) => (forceRiba && c.isRibaRelated) || c.similarity >= minSimilarity);
+
+  if (scored.length === 0) {
+    return [];
+  }
 
   const selected: Array<LocalKnowledgeChunk & { similarity: number }> = [];
   const usedIds = new Set<string>();
@@ -830,7 +1022,7 @@ export function searchLocalKnowledgeCorpus(
     }
   }
 
-  // 1.5 If ILIM_VE_SIYER mode, prioritize best Siyer passage first
+  // 1.5 If ILIM_VE_SIYER mode, prioritize best Siyer passage first (already >= minSimilarity)
   if (input.intentMode === "ILIM_VE_SIYER") {
     const bestSiyer = scored
       .filter((c) => c.sourceType === "SIYER" && !isAlreadyUsed(c))
@@ -838,7 +1030,7 @@ export function searchLocalKnowledgeCorpus(
     pushUnique(bestSiyer);
   }
 
-  // 2. Best QURAN passage
+  // 2. Best QURAN passage (only if >= minSimilarity)
   const bestQuran = scored
     .filter(
       (c) =>
@@ -849,7 +1041,7 @@ export function searchLocalKnowledgeCorpus(
     .sort((a, b) => b.similarity - a.similarity)[0];
   pushUnique(bestQuran);
 
-  // 3. Best HADITH / SIYER / DUA passage
+  // 3. Best HADITH / SIYER / DUA passage (only if >= minSimilarity)
   const bestHadithSiyer = scored
     .filter(
       (c) =>
@@ -862,7 +1054,7 @@ export function searchLocalKnowledgeCorpus(
     .sort((a, b) => b.similarity - a.similarity)[0];
   pushUnique(bestHadithSiyer);
 
-  // 4. Fill remaining slots with highest-scoring general matches
+  // 4. Fill remaining slots with highest-scoring general matches >= minSimilarity
   const limit = matchCount + (forceRiba ? 2 : 0);
   const remaining = scored
     .filter((c) => !isAlreadyUsed(c) && (!c.isRibaRelated || forceRiba))

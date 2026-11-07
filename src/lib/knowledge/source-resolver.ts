@@ -171,6 +171,50 @@ let cachedTefsirs: RawTefsirItem[] | null = null;
 let cachedHadiths: RawHadithItem[] | null = null;
 let cachedSiyer: RawSiyerItem[] | null = null;
 
+interface RawAkaidItem {
+  akaid_id?: string;
+  eser?: string;
+  muellif?: string;
+  baslik?: string;
+  madde_no?: number;
+  arapca_metin?: string;
+  turkce_metin?: string;
+  serh_ve_hikmet?: string;
+  manevi_hikmet?: string;
+  tags?: string[];
+}
+
+interface RawIhyaItem {
+  ihya_id?: string;
+  kitap_adi?: string;
+  bolum_adi?: string;
+  muellif?: string;
+  arapca_metin?: string;
+  turkce_metin?: string;
+  ozet_hikmet?: string;
+  nefis_terbiyesi?: string;
+  tags?: string[];
+}
+
+interface RawEzkarItem {
+  ezkar_id?: string;
+  eser_adi?: string;
+  bolum?: string;
+  muellif?: string;
+  baslik?: string;
+  arapca_metin?: string;
+  dua_turkce?: string;
+  kaynak?: string;
+  sahihlik_derecesi?: string;
+  serh?: string;
+  manevi_hikmet?: string;
+  tags?: string[];
+}
+
+let cachedAkaid: RawAkaidItem[] | null = null;
+let cachedIhya: RawIhyaItem[] | null = null;
+let cachedEzkar: RawEzkarItem[] | null = null;
+
 function loadJsonSafe<T>(fileNames: string[]): T | null {
   for (const fileName of fileNames) {
     const candidatePaths = [
@@ -227,6 +271,36 @@ function getSiyer(): RawSiyerItem[] {
   if (Array.isArray(data)) {
     cachedSiyer = data;
     return cachedSiyer;
+  }
+  return [];
+}
+
+function getAkaid(): RawAkaidItem[] {
+  if (cachedAkaid) return cachedAkaid;
+  const data = loadJsonSafe<RawAkaidItem[]>(["akaid_fikhul_ekber_tahavi.json"]);
+  if (Array.isArray(data)) {
+    cachedAkaid = data;
+    return cachedAkaid;
+  }
+  return [];
+}
+
+function getIhya(): RawIhyaItem[] {
+  if (cachedIhya) return cachedIhya;
+  const data = loadJsonSafe<RawIhyaItem[]>(["ihyau_ulumiddin_gazali.json"]);
+  if (Array.isArray(data)) {
+    cachedIhya = data;
+    return cachedIhya;
+  }
+  return [];
+}
+
+function getEzkar(): RawEzkarItem[] {
+  if (cachedEzkar) return cachedEzkar;
+  const data = loadJsonSafe<RawEzkarItem[]>(["ezkar_nevevi.json"]);
+  if (Array.isArray(data)) {
+    cachedEzkar = data;
+    return cachedEzkar;
   }
   return [];
 }
@@ -386,7 +460,127 @@ export function resolveSourceBookDetail(params: {
     }
   }
 
-  // 2. Check if it's a Hadith
+  // 2. Check if it's Classical Akaid (Ebû Hanîfe / İmam Tahâvî)
+  const isAkaid =
+    sourceId.startsWith("akaid_") ||
+    cleanTitle.toLowerCase().includes("fıkhü'l-ekber") ||
+    cleanTitle.toLowerCase().includes("fıkhul ekber") ||
+    cleanTitle.toLowerCase().includes("ebu hanife") ||
+    cleanTitle.toLowerCase().includes("ebû hanîfe") ||
+    cleanTitle.toLowerCase().includes("tahavi") ||
+    cleanTitle.toLowerCase().includes("tahâvî");
+
+  if (isAkaid) {
+    const akaidList = getAkaid();
+    const matchedAkaid = akaidList.find((a) => {
+      const aId = normalizeKey(a.akaid_id || "");
+      const aBaslik = normalizeKey(a.baslik || "");
+      const sIdNorm = normalizeKey(sourceId);
+      const titleNorm = normalizeKey(cleanTitle);
+      return (
+        (sourceId && aId === sIdNorm) ||
+        (aBaslik && (titleNorm.includes(aBaslik) || aBaslik.includes(titleNorm)))
+      );
+    }) || (sourceId.startsWith("akaid_") ? akaidList[0] : null);
+
+    if (matchedAkaid) {
+      return {
+        kind: "HADITH",
+        title: matchedAkaid.eser ? `${matchedAkaid.eser}: ${matchedAkaid.baslik}` : cleanTitle,
+        arabicText: matchedAkaid.arapca_metin,
+        turkishMeal: matchedAkaid.turkce_metin || content,
+        kaynak: matchedAkaid.eser || "Ehl-i Sünnet Akaid Külliyatı",
+        kitapBolumu: matchedAkaid.baslik,
+        babNo: matchedAkaid.madde_no ?? null,
+        sahihlikDerecesi: "Mütevatir İtikad (Ehl-i Sünnet ve'l-Cemaat)",
+        ravi: matchedAkaid.muellif || "İmâm-ı Â'zam Ebû Hanîfe / İmam Tahâvî",
+        esbabIVurud: "Ehl-i Sünnet ve'l-Cemaat İtikad Esasları ve Nebevi Vasiyetnameler.",
+        serh: matchedAkaid.serh_ve_hikmet || "Klasik Ehl-i Sünnet akide şerhleri.",
+        maneviHikmet: matchedAkaid.manevi_hikmet || "Tevhid ve teslimiyet şuuru.",
+        audioUrl: audioUrl || null,
+      };
+    }
+  }
+
+  // 3. Check if it's İhyâ (İmam Gazalî)
+  const isIhya =
+    sourceId.startsWith("ihya_") ||
+    cleanTitle.toLowerCase().includes("gazali") ||
+    cleanTitle.toLowerCase().includes("gazalî") ||
+    cleanTitle.toLowerCase().includes("ihya") ||
+    cleanTitle.toLowerCase().includes("ihyâ");
+
+  if (isIhya) {
+    const ihyaList = getIhya();
+    const matchedIhya = ihyaList.find((i) => {
+      const iId = normalizeKey(i.ihya_id || "");
+      const iKitap = normalizeKey(i.kitap_adi || "");
+      const iBolum = normalizeKey(i.bolum_adi || "");
+      const sIdNorm = normalizeKey(sourceId);
+      const titleNorm = normalizeKey(cleanTitle);
+      return (
+        (sourceId && iId === sIdNorm) ||
+        (iKitap && (titleNorm.includes(iKitap) || iKitap.includes(titleNorm))) ||
+        (iBolum && (titleNorm.includes(iBolum) || iBolum.includes(titleNorm)))
+      );
+    }) || (sourceId.startsWith("ihya_") ? ihyaList[0] : null);
+
+    if (matchedIhya) {
+      return {
+        kind: "HADITH",
+        title: cleanTitle || `İmam Gazalî - İhyâ: ${matchedIhya.kitap_adi}`,
+        arabicText: matchedIhya.arapca_metin,
+        turkishMeal: matchedIhya.turkce_metin || content,
+        kaynak: `İhyâu 'Ulûmi'd-Dîn (${matchedIhya.kitap_adi || "Kalp Amelleri"})`,
+        kitapBolumu: matchedIhya.bolum_adi || matchedIhya.kitap_adi,
+        sahihlikDerecesi: "Klasik Kalp Amelleri ve Ahlak Şaheseri",
+        ravi: matchedIhya.muellif || "Hüccetü'l-İslâm İmam Gazalî (r.a.)",
+        esbabIVurud: "Nefis terbiyesi, kalp afetlerinin teşhisi ve manevi tedavi usulü.",
+        serh: matchedIhya.ozet_hikmet || "İmam Gazalî'nin nefis muhasebesi ve ahlak izahı.",
+        maneviHikmet: matchedIhya.nefis_terbiyesi || "Nefsin tuzaklarına karşı manevi kalkan.",
+        audioUrl: audioUrl || null,
+      };
+    }
+  }
+
+  // 4. Check if it's Ezkâr (İmam Nevevî)
+  const isEzkar =
+    sourceId.startsWith("ezkar_") ||
+    cleanTitle.toLowerCase().includes("ezkar") ||
+    cleanTitle.toLowerCase().includes("ezkâr");
+
+  if (isEzkar) {
+    const ezkarList = getEzkar();
+    const matchedEzkar = ezkarList.find((e) => {
+      const eId = normalizeKey(e.ezkar_id || "");
+      const eBaslik = normalizeKey(e.baslik || "");
+      const sIdNorm = normalizeKey(sourceId);
+      const titleNorm = normalizeKey(cleanTitle);
+      return (
+        (sourceId && eId === sIdNorm) ||
+        (eBaslik && (titleNorm.includes(eBaslik) || eBaslik.includes(titleNorm)))
+      );
+    }) || (sourceId.startsWith("ezkar_") ? ezkarList[0] : null);
+
+    if (matchedEzkar) {
+      return {
+        kind: "HADITH",
+        title: cleanTitle || `İmam Nevevî - ${matchedEzkar.eser_adi}: ${matchedEzkar.baslik}`,
+        arabicText: matchedEzkar.arapca_metin,
+        turkishMeal: matchedEzkar.dua_turkce || content,
+        kaynak: matchedEzkar.kaynak || `${matchedEzkar.eser_adi} (İmam Nevevî)`,
+        kitapBolumu: matchedEzkar.bolum || matchedEzkar.baslik,
+        sahihlikDerecesi: matchedEzkar.sahihlik_derecesi || "Sahih Nebevi Dua ve Zikir",
+        ravi: matchedEzkar.muellif || "İmam Muhyiddin en-Nevevî (r.a.)",
+        esbabIVurud: "Resûlullah'ın (s.a.v.) darlık, musibet ve keder anında yaptığı ilticalar ve sünnet edepleri.",
+        serh: matchedEzkar.serh || "İmam Nevevî'nin hadis ve zikir şerhi.",
+        maneviHikmet: matchedEzkar.manevi_hikmet || "Zikir ve iltica ile kalbe inen ferahlık ve inşirah.",
+        audioUrl: audioUrl || null,
+      };
+    }
+  }
+
+  // 5. Check if it's a Hadith
   if (
     upperType === "HADITH" ||
     cleanTitle.toLowerCase().includes("hadis") ||

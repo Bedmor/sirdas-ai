@@ -56,6 +56,7 @@ export const RagCategoryEnum = z.enum([
 
 export const TonePreferenceEnum = z.enum([
   "SEFKATLI_TESKIN",
+  "SAKINLESTIRICI_VE_VAKUR",
   "DIRILIS_VE_GAYRET",
   "NET_VE_MUALLIM",
   "HIKMETLI_SUKUT",
@@ -72,6 +73,16 @@ export const SpiritualStageEnum = z.enum([
 
 export const IntentModeEnum = z.enum(["MANEVI_AYNA", "ILIM_VE_SIYER"]);
 
+export const SessionMoodEnum = z.enum([
+  "HUZUNLU_VE_KIRGIN",
+  "OFKELI_VE_GERGIN",
+  "KAYGILI_VE_DARALMIS",
+  "YORGUN_VE_TUKENMIS",
+  "PISMAN_VE_MAHCUP",
+  "KARARLI_VE_GAYRETLI",
+  "SAKIN_VE_DENGELI",
+]);
+
 export const EditorAuditSchema = z.object({
   murakabe_applied: z.boolean().describe("Murakabe şuuru işletildi mi?"),
   ilahi_riza_checked: z.boolean().describe("Kazan-kazan değil, İlahi rıza kriteri konuldu mu?"),
@@ -83,6 +94,7 @@ export const EditorAuditSchema = z.object({
   rag_category: z.string().optional().describe("İlgili 16+ RAG kategorisinden biri"),
   distress_level: z.number().min(0).max(10).optional().describe("0-10 arası kriz/hüzün seviyesi"),
   tone: TonePreferenceEnum.optional().describe("Uygulanan hitabet tavrı"),
+  session_mood: SessionMoodEnum.optional().describe("Oturum içi tespit edilen anlık ruh hali"),
   spiritual_stage: SpiritualStageEnum.optional().describe("Kullanıcının manevi aşaması"),
   intent_mode: IntentModeEnum.optional().describe("Akıllı niyet yönlendirmesi modu (MANEVI_AYNA | ILIM_VE_SIYER)")
 });
@@ -139,6 +151,7 @@ export const SIRDAS_OUTPUT_JSON_SCHEMA = {
           type: "string",
           enum: [
             "SEFKATLI_TESKIN",
+            "SAKINLESTIRICI_VE_VAKUR",
             "DIRILIS_VE_GAYRET",
             "NET_VE_MUALLIM",
             "HIKMETLI_SUKUT",
@@ -188,6 +201,7 @@ export const SIRDAS_OUTPUT_JSON_SCHEMA = {
           type: "string",
           enum: [
             "SEFKATLI_TESKIN",
+            "SAKINLESTIRICI_VE_VAKUR",
             "DIRILIS_VE_GAYRET",
             "NET_VE_MUALLIM",
             "HIKMETLI_SUKUT",

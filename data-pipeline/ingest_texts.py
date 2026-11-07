@@ -165,13 +165,25 @@ def load_thematic_corpus(file_path: Path) -> List[Dict[str, Any]]:
                 source_type = "QURAN"
             elif "hadis_id" in item or "kaynak" in item:
                 source_type = "HADITH"
+            elif "akaid_id" in item or "eser" in item:
+                source_type = "HADITH"
+            elif "ihya_id" in item or "kitap_adi" in item:
+                source_type = "HADITH"
+            elif "ezkar_id" in item or "dua_turkce" in item:
+                source_type = "DUA"
             else:
                 source_type = "QURAN"
 
         # 2. Normalize source_title
         source_title = (item.get("source_title") or item.get("title") or "").strip()
         if not source_title:
-            if "siyer_id" in item or "olay_adi" in item:
+            if "akaid_id" in item or "eser" in item:
+                source_title = f"{item.get('eser', 'Akaid')}: {item.get('baslik', 'İtikad')}"
+            elif "ihya_id" in item or "kitap_adi" in item:
+                source_title = f"İmam Gazalî - İhyâ: {item.get('kitap_adi', item.get('bolum_adi', 'Ahlak'))}"
+            elif "ezkar_id" in item or "eser_adi" in item:
+                source_title = f"İmam Nevevî - {item.get('eser_adi', 'el-Ezkâr')}: {item.get('baslik', 'Dua ve Zikir')}"
+            elif "siyer_id" in item or "olay_adi" in item:
                 donem_str = f" ({item['donem']})" if item.get("donem") else ""
                 source_title = f"Siyer-i Nebî: {item.get('olay_adi', 'Olay')}{donem_str}"
             elif "tefsir_id" in item or "sure" in item:
@@ -187,7 +199,20 @@ def load_thematic_corpus(file_path: Path) -> List[Dict[str, Any]]:
         # 3. Normalize content
         content = (item.get("content") or "").strip()
         if not content:
-            if "turkce_meal" in item:
+            if "akaid_id" in item or "eser" in item:
+                serh_part = f"\n\nŞerh ve Delil: {item['serh_ve_hikmet']}" if item.get("serh_ve_hikmet") else ""
+                hikmet_part = f"\n\nManevi Hikmet: {item['manevi_hikmet']}" if item.get("manevi_hikmet") else ""
+                content = f"İtikad Esası: \"{item.get('turkce_metin', '')}\"{serh_part}{hikmet_part}"
+            elif "ihya_id" in item or "kitap_adi" in item:
+                ozet_part = f"\n\nİhyâ Hikmeti: {item['ozet_hikmet']}" if item.get("ozet_hikmet") else ""
+                ders_part = f"\n\nNefis Terbiyesi Dersi: {item['nefis_terbiyesi']}" if item.get("nefis_terbiyesi") else ""
+                content = f"Ahlak ve Kalp Ameli: \"{item.get('turkce_metin', '')}\"{ozet_part}{ders_part}"
+            elif "ezkar_id" in item or "dua_turkce" in item:
+                kaynak_part = f" [Kaynak: {item['kaynak']}]" if item.get("kaynak") else ""
+                serh_part = f"\n\nŞerh: {item['serh']}" if item.get("serh") else ""
+                hikmet_part = f"\n\nManevi Hikmet: {item['manevi_hikmet']}" if item.get("manevi_hikmet") else ""
+                content = f"Dua ve Zikir: \"{item.get('dua_turkce', '')}\"{kaynak_part}{serh_part}{hikmet_part}"
+            elif "turkce_meal" in item:
                 kaynak_info = f" [Kaynak: {item.get('kaynak', '')}, Derece: {item.get('sahihlik_derecesi', 'Sahih')}]" if item.get("kaynak") else ""
                 content = f"Resûlullah (s.a.v.) buyurdu: \"{item.get('turkce_meal', '')}\"{kaynak_info}"
             elif "ozet_metin" in item:
@@ -207,7 +232,15 @@ def load_thematic_corpus(file_path: Path) -> List[Dict[str, Any]]:
             continue
 
         # 4. Normalize record_id as valid UUID
-        raw_id = item.get("id") or item.get("hadis_id") or item.get("siyer_id") or item.get("tefsir_id")
+        raw_id = (
+            item.get("id") or
+            item.get("hadis_id") or
+            item.get("siyer_id") or
+            item.get("tefsir_id") or
+            item.get("akaid_id") or
+            item.get("ihya_id") or
+            item.get("ezkar_id")
+        )
         record_id = None
         if raw_id:
             try:
@@ -278,6 +311,9 @@ def ingest_texts(
     hadith_path = PIPELINE_ROOT / "data" / "hadith_kutub_sitte.json"
     siyer_path = PIPELINE_ROOT / "data" / "siyer_kriz_matrisi.json"
     tefsir_path = PIPELINE_ROOT / "data" / "tefsir_hikmet_corpus.json"
+    akaid_path = PIPELINE_ROOT / "data" / "akaid_fikhul_ekber_tahavi.json"
+    ihya_path = PIPELINE_ROOT / "data" / "ihyau_ulumiddin_gazali.json"
+    ezkar_path = PIPELINE_ROOT / "data" / "ezkar_nevevi.json"
     passages_path = PIPELINE_ROOT / "data" / "quran_semantic_passages.json"
     corpus_path = PIPELINE_ROOT / "data" / "quran_full_corpus.json"
 
@@ -295,11 +331,17 @@ def ingest_texts(
         records = load_thematic_corpus(siyer_path)
     elif source == "tefsir":
         records = load_thematic_corpus(tefsir_path)
+    elif source == "akaid":
+        records = load_thematic_corpus(akaid_path)
+    elif source == "ihya":
+        records = load_thematic_corpus(ihya_path)
+    elif source == "ezkar":
+        records = load_thematic_corpus(ezkar_path)
     elif source == "quran":
         target = passages_path if passages_path.exists() else corpus_path
         records = load_thematic_corpus(target)
     elif source == "all":
-        sources_to_load = [thematic_path, hadith_path, siyer_path, tefsir_path]
+        sources_to_load = [thematic_path, hadith_path, siyer_path, tefsir_path, akaid_path, ihya_path, ezkar_path]
         all_raw_records = []
         for p in sources_to_load:
             if p.exists():
@@ -451,8 +493,8 @@ def main():
         "--source",
         type=str,
         default="thematic",
-        choices=["thematic", "quran", "hadith", "siyer", "tefsir", "all"],
-        help="Corpus source to ingest: thematic, quran, hadith, siyer, tefsir, or all.",
+        choices=["thematic", "quran", "hadith", "siyer", "tefsir", "akaid", "ihya", "ezkar", "all"],
+        help="Corpus source to ingest: thematic, quran, hadith, siyer, tefsir, akaid, ihya, ezkar, or all.",
     )
     parser.add_argument(
         "--data-file",

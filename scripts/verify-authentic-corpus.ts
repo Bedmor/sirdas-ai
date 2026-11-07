@@ -101,21 +101,94 @@ async function run() {
   });
   assert(bakaraRibaFound, "Bakara 275-279 tefsir package verified");
 
-  // 4. Local Corpus Ingestion & RAG Matching
-  console.log("\n[4] Checking In-Memory Local Knowledge Corpus Aggregation...");
+  // 4. Classical Creed & Akaid Dataset (Ebû Hanîfe & İmam Tahâvî)
+  console.log("\n[4] Checking Classical Creed & Akaid Dataset (Ebû Hanîfe & Tahâvî)...");
+  const akaidPath = path.join(dataDir, "akaid_fikhul_ekber_tahavi.json");
+  assert(fs.existsSync(akaidPath), "akaid_fikhul_ekber_tahavi.json exists");
+  const akaidItems = JSON.parse(fs.readFileSync(akaidPath, "utf-8"));
+  assert(Array.isArray(akaidItems) && akaidItems.length >= 10, `Akaid items >= 10 (found: ${akaidItems.length})`);
+  assert(akaidItems.some((a: Record<string, unknown>) => String(a.eser).includes("Fıkhü'l-Ekber")), "Fıkhü'l-Ekber present");
+  assert(akaidItems.some((a: Record<string, unknown>) => String(a.eser).includes("Vasiyye")), "Ebû Hanîfe Vasiyye present");
+  assert(akaidItems.some((a: Record<string, unknown>) => String(a.eser).includes("Tahâviyye")), "Akîdetü't-Tahâviyye present");
+
+  // 5. Heart & Ethics Dataset (İmam Gazalî - İhyâu 'Ulûmi'd-Dîn)
+  console.log("\n[5] Checking Heart & Ethics Dataset (İmam Gazalî - İhyâu 'Ulûmi'd-Dîn)...");
+  const ihyaPath = path.join(dataDir, "ihyau_ulumiddin_gazali.json");
+  assert(fs.existsSync(ihyaPath), "ihyau_ulumiddin_gazali.json exists");
+  const ihyaItems = JSON.parse(fs.readFileSync(ihyaPath, "utf-8"));
+  assert(Array.isArray(ihyaItems) && ihyaItems.length >= 8, `İhyâ items >= 8 (found: ${ihyaItems.length})`);
+  assert(ihyaItems.some((i: Record<string, unknown>) => String(i.kitap_adi).includes("Sabr")), "İhyâ Sabır ve Şükür present");
+  assert(ihyaItems.some((i: Record<string, unknown>) => String(i.kitap_adi).includes("Tevekkül")), "İhyâ Tevekkül present");
+  assert(ihyaItems.some((i: Record<string, unknown>) => String(i.kitap_adi).includes("Kibr")), "İhyâ Kibir ve Ucb present");
+
+  // 6. Supplications & Prophetic Ethics (İmam Nevevî - el-Ezkâr & Riyâz)
+  console.log("\n[6] Checking Supplications & Adab Dataset (İmam Nevevî - el-Ezkâr & Riyâz)...");
+  const ezkarPath = path.join(dataDir, "ezkar_nevevi.json");
+  assert(fs.existsSync(ezkarPath), "ezkar_nevevi.json exists");
+  const ezkarItems = JSON.parse(fs.readFileSync(ezkarPath, "utf-8"));
+  assert(Array.isArray(ezkarItems) && ezkarItems.length >= 8, `Ezkâr items >= 8 (found: ${ezkarItems.length})`);
+  assert(ezkarItems.some((e: Record<string, unknown>) => String(e.baslik).includes("Kürb")), "Nevevî Kürb/Sıkıntı Duası present");
+  assert(ezkarItems.some((e: Record<string, unknown>) => String(e.baslik).includes("Borç")), "Nevevî Borç ve Keder Duası present");
+  assert(ezkarItems.some((e: Record<string, unknown>) => String(e.bolum || e.baslik || e.ezkar_id).includes("İstiğfâr") || String(e.ezkar_id).includes("istigfar")), "Seyyidü'l-İstiğfâr present");
+  assert(ezkarItems.some((e: Record<string, unknown>) => String(e.eser_adi).includes("Riyâz")), "Riyâzü's-Sâlihîn babları present");
+
+  // 7. Strict Deduplication Across All Knowledge Files
+  console.log("\n[7] Checking Strict Deduplication Across All Knowledge Files...");
+  const seenIds = new Set<string>();
+  let duplicateCount = 0;
+  const allJsonFiles = [
+    "hadith_kutub_sitte.json",
+    "siyer_kriz_matrisi.json",
+    "tefsir_hikmet_corpus.json",
+    "thematic_texts.json",
+    "akaid_fikhul_ekber_tahavi.json",
+    "ihyau_ulumiddin_gazali.json",
+    "ezkar_nevevi.json",
+  ];
+  for (const f of allJsonFiles) {
+    const fPath = path.join(dataDir, f);
+    if (!fs.existsSync(fPath)) continue;
+    const items = JSON.parse(fs.readFileSync(fPath, "utf-8"));
+    if (!Array.isArray(items)) continue;
+    for (const item of items) {
+      const id = String(
+        item.id ||
+          item.hadis_id ||
+          item.siyer_id ||
+          item.tefsir_id ||
+          item.akaid_id ||
+          item.ihya_id ||
+          item.ezkar_id ||
+          ""
+      );
+      if (id) {
+        if (seenIds.has(id)) {
+          duplicateCount++;
+          console.error(`Duplicate ID found: ${id} in file ${f}`);
+        }
+        seenIds.add(id);
+      }
+    }
+  }
+  assert(duplicateCount === 0, `No duplicate IDs in corpus (${seenIds.size} unique items verified)`);
+
+  // 8. Local Corpus Ingestion & RAG Matching
+  console.log("\n[8] Checking In-Memory Local Knowledge Corpus Aggregation...");
   const corpus = getLocalKnowledgeCorpus();
-  assert(corpus.length >= 250, `Local corpus aggregates all datasets (total chunks: ${corpus.length})`);
+  assert(corpus.length >= 280, `Local corpus aggregates all datasets (total chunks: ${corpus.length})`);
 
   const hadithChunks = corpus.filter((c) => c.sourceType === "HADITH");
   const siyerChunks = corpus.filter((c) => c.sourceType === "SIYER");
   const quranChunks = corpus.filter((c) => c.sourceType === "QURAN");
+  const duaChunks = corpus.filter((c) => c.sourceType === "DUA");
 
-  assert(hadithChunks.length >= 100, `Hadith chunks loaded into local corpus (${hadithChunks.length})`);
+  assert(hadithChunks.length >= 115, `Hadith & Classical chunks loaded into local corpus (${hadithChunks.length})`);
   assert(siyerChunks.length >= 100, `Siyer chunks loaded into local corpus (${siyerChunks.length})`);
   assert(quranChunks.length >= 50, `Quran/Tafsir chunks loaded into local corpus (${quranChunks.length})`);
+  assert(duaChunks.length >= 5, `Dua/Ezkar chunks loaded into local corpus (${duaChunks.length})`);
 
   // Test RAG relevance scoring on authentic questions
-  console.log("\n[5] Testing RAG Relevance Matching on Real Life Queries...");
+  console.log("\n[9] Testing RAG Relevance Matching on Real Life Queries...");
   
   // Case A: Taif & Disappointment
   const taifKeywords = extractMeaningfulKeywords("Beni herkes dışladı ve taşladı çok yalnız hissediyorum");

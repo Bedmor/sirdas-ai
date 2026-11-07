@@ -40,6 +40,7 @@ export interface AdversarialGuardrailMatch {
     | "GENDER_BIOETHICS"
     | "CRYPTO_FATWA_DEMAND"
     | "NAMAZ_TAHRIFAT_DEFENSE"
+    | "ILMIHAL_IBADET_SIHHATI_GUARD"
     | "THEODICY_EVIL_DEFENSE"
     | "MAGIC_SUPERSTITION_BLOCK"
     | "SPURIOUS_HADITH_GUARD"
@@ -185,6 +186,120 @@ const NAMAZ_TAHRIFAT_PATTERNS: ReadonlyArray<RegExp> = [
   /a[çc][ıi]k\s*ayet\s*var\s*m[ıi].*(namaz|5\s*vakit|be[şs]\s*vakit)/i,
 ];
 
+// 11.5. İlmihal ve İbadet Sıhhati Yakalayıcısı (Abdest / Gusül / Namaz / Oruç + Sıhhat / Özür / Su / Kanama)
+const WORSHIP_SUBJECT_REGEX =
+  /(?<![\p{L}\p{N}])(?:abdest[\p{L}]*|gus[üu]l[\p{L}]*|gusl[\p{L}]*|boy\s*abdest[\p{L}]*|c[üu]n[üu]p[\p{L}]*|cenabet[\p{L}]*|hay[ıi]z[\p{L}]*|lohusa[\p{L}]*|teyemm[üu]m[\p{L}]*|taharet[\p{L}]*|mesh[\p{L}]*|mest[\p{L}]*|namaz[\p{L}]*|rek[aâ]t[\p{L}]*|secde[\p{L}]*|sehiv|r[üu]k[uû][\p{L}]*|k[ıi]raat[\p{L}]*|tahiyyat[\p{L}]*|kunut|vitir|teravih|oru[çc][\p{L}]*|oruc[\p{L}]*|sahur[\p{L}]*|iftar[\p{L}]*|imsak[\p{L}]*|kefaret[\p{L}]*|fidye[\p{L}]*|zek[aâ]t[\p{L}]*|fitre[\p{L}]*|ihram[\p{L}]*|tavaf[\p{L}]*)(?![\p{L}\p{N}])/iu;
+
+const ILMIHAL_VALIDITY_ANCHORS: ReadonlyArray<RegExp> = [
+  /(?:bir|bi)\s*[şs]ey\s*olur\s*mu/iu,
+  /(?<![\p{L}\p{N}])bi[şs]ey\s*olur\s*mu/iu,
+  /(?:s[ıi]k[ıi]nt[ıi]|sorun|mahzur|sak[ıi]nca|zarar|mani|engel)\s*(?:olur\s*mu|var\s*m[ıi]|verir\s*mi)/iu,
+  /ge[çc]erli\s*(?:mi|midir|olur\s*mu|say[ıi]l[ıi]r\s*m[ıi])/iu,
+  /ge[çc]ersiz\s*(?:mi|midir|olur\s*mu|say[ıi]l[ıi]r\s*m[ıi])/iu,
+  /sahih\s*(?:mi|midir|olur\s*mu)/iu,
+  /kabul\s*(?:olur\s*mu|edilir\s*mi|m[üu](?:d[üu]r)?|say[ıi]l[ıi]r\s*m[ıi])/iu,
+  /(?<![\p{L}\p{N}])(?:farz|vacip|s[üu]nnet|m[üu]stehap|mekruh|[şs]art)\s*m[ıiuü][\p{L}]*(?![\p{L}\p{N}])/iu,
+  /bozulur\s*mu|bozuldu\s*mu|bozar\s*m[ıi]|sakatlar\s*m[ıi]/iu,
+  /yenilemek\s*(?:gerek[\p{L}]*|laz[ıi]m)|iade\s*etmek\s*gerek[\p{L}]*|kaza\s*(?:etmek\s*)?gerek[\p{L}]*|sehiv\s*secdesi/iu,
+  /(?<![\p{L}\p{N}])(?:abdest(?:im)?|gusl?[üu]m|gus[üu]l|namaz(?:[ıi]m)?|oruc(?:um)?|oru[çc])\s*(?:olur|oldu|tamam|say[ıi]l[ıi]r)\s*m[ıiuü]/iu,
+  /burn[ua][\p{L}]*\s*su|burun[\p{L}]*\s*su|genz[\p{L}]*\s*su|a[ğg]z[aı][\p{L}]*\s*su|a[ğg][ıi]z[\p{L}]*\s*(?:ve\s*bur[\p{L}]*\s*)?su|(?<![\p{L}\p{N}])(?:mazmaza|istin[şs]ak)(?![\p{L}\p{N}])/iu,
+  /(?<![\p{L}\p{N}])(?:kanama[\p{L}]*|kanad[ıi]|kan\s*(?:gel[\p{L}]*|ak[\p{L}]*|ç[ıi]k[\p{L}]*|bula[şs][\p{L}]*|s[ıi]z[\p{L}]*)|irin|iltihap|ak[ıi]nt[ıi][\p{L}]*)(?![\p{L}\p{N}])/iu,
+  /(?<![\p{L}\p{N}])öz[üu]r(?!\s*dile)(?:\s*sahibi|\s*hali|\s*kan[ıi]|\s*abdest[\p{L}]*|\s*durum[\p{L}]*|l[üu][\p{L}]*|den|üm|ü)?(?![\p{L}\p{N}])/iu,
+  /(?<![\p{L}\p{N}])(?:sahib-?i\s*öz[üu]r|istihaze)(?![\p{L}\p{N}])/iu,
+  /(?:unuttum|unutursam|vermesem|vermedim|çekmesem|çekmedim|y[ıi]kamasam|y[ıi]kamad[ıi]m|okumasam|okumad[ıi]m|ka[çc]t[ıi]|ka[çc]arsa|yuttum|yutarsam|kust[\p{L}]*|i[ğg]ne|serum|damla|sprey|oje[\p{L}]*|dolgu|kaplama|sarg[ıi]).*(?:olur\s*mu|ge[çc]erli|kabul|bozul|bozar|gerek[\p{L}]*|laz[ıi]m|say[ıi]l[ıi]r|zarar|engel)/iu,
+];
+
+const STANDALONE_ILMIHAL_PATTERNS: ReadonlyArray<RegExp> = [
+  /(?:burn[ua][\p{L}]*\s*su|burun[\p{L}]*\s*su|genz[\p{L}]*\s*su|a[ğg]z[aı][\p{L}]*\s*su|a[ğg][ıi]z[\p{L}]*\s*(?:ve\s*bur[\p{L}]*\s*)?su|(?<![\p{L}\p{N}])(?:mazmaza|istin[şs]ak)(?![\p{L}\p{N}])).*(?:olur\s*mu|farz|s[üu]nnet|vacip|[şs]art|ge[çc]erli|sahih|kabul|bozul|bozar|gerek[\p{L}]*|laz[ıi]m|unuttum|vermesem|vermedim|çekmesem|çekmedim|ka[çc]t[ıi]|ka[çc]arsa)/iu,
+  /(?:farz|s[üu]nnet|vacip|[şs]art|ge[çc]erli|bozul|bozar).*(?:burn[ua][\p{L}]*\s*su|burun[\p{L}]*\s*su|a[ğg]z[aı][\p{L}]*\s*su|mazmaza|istin[şs]ak)/iu,
+  /(?<![\p{L}\p{N}])(?:sahib-?i\s*öz[üu]r|öz[üu]r\s*sahibi|öz[üu]r\s*hali|öz[üu]r\s*kan[ıi]|öz[üu]r\s*abdest[\p{L}]*|istihaze)(?![\p{L}\p{N}])/iu,
+];
+
+/**
+ * Kullanıcının mesajının abdest, gusül, namaz, oruç vb. ibadetlerin sıhhati / geçerliliği /
+ * özür hali hakkında fıkhi ilmihal hükmü sorup sormadığını tespit eder.
+ * Duygusal dertleşmeleri ("Namaza başlamak istiyorum", "Allah'tan özür dilerim namazımı aksattım") yakalamaz.
+ */
+export function detectIlmihalWorshipQuery(userMessage: string): boolean {
+  const normalized = (userMessage || "")
+    .normalize("NFC")
+    .toLocaleLowerCase("tr-TR")
+    .replace(/\u0307/g, "")
+    .trim();
+  if (!normalized) return false;
+
+  // Senaryo 5 (2 vakit namaz tahrifat iddiası) kendi özel kalkanında ele alınır
+  if (NAMAZ_TAHRIFAT_PATTERNS.some((p) => p.test(normalized))) {
+    return false;
+  }
+
+  if (STANDALONE_ILMIHAL_PATTERNS.some((p) => p.test(normalized))) {
+    return true;
+  }
+
+  if (!WORSHIP_SUBJECT_REGEX.test(normalized)) {
+    return false;
+  }
+
+  return ILMIHAL_VALIDITY_ANCHORS.some((p) => p.test(normalized));
+}
+
+/**
+ * İlmihal ve ibadet sıhhati soruları için:
+ * 1) Konuya dair genel ilmihal ve "özür" ilkesini kısaca hatırlatır,
+ * 2) Yapay zekânın fetva mercii olmadığını ve yanlış/eksik değerlendirmiş olabileceğini tevazu ile belirtir,
+ * 3) Diyanet İşleri Başkanlığı Alo 190 Fetva Hattı'na yönlendirir.
+ */
+export function buildIlmihalGuardrailReply(userMessage: string): string {
+  const normalized = (userMessage || "")
+    .normalize("NFC")
+    .toLocaleLowerCase("tr-TR")
+    .replace(/\u0307/g, "")
+    .trim();
+
+  const hasMouthOrNoseWater =
+    /burn[ua][\p{L}]*\s*su|burun[\p{L}]*\s*su|genz[\p{L}]*\s*su|a[ğg]z[aı][\p{L}]*\s*su|a[ğg][ıi]z[\p{L}]*\s*(?:ve\s*bur[\p{L}]*\s*)?su|mazmaza|istin[şs]ak/iu.test(
+      normalized
+    );
+  const hasFasting = /oru[çc][\p{L}]*|oruc[\p{L}]*|sahur[\p{L}]*|iftar[\p{L}]*|imsak[\p{L}]*/iu.test(
+    normalized
+  );
+  const hasBleedingOrExcuse =
+    /(?<![\p{L}\p{N}])(?:kanama[\p{L}]*|kanad[ıi]|kan\s*(?:gel[\p{L}]*|ak[\p{L}]*|ç[ıi]k[\p{L}]*|bula[şs][\p{L}]*|s[ıi]z[\p{L}]*)|irin|iltihap|ak[ıi]nt[ıi][\p{L}]*|sahib-?i\s*öz[üu]r|istihaze|öz[üu]r(?!\s*dile))/iu.test(
+      normalized
+    );
+  const hasPrayer = /namaz[\p{L}]*|rek[aâ]t[\p{L}]*|secde[\p{L}]*|sehiv|r[üu]k[uû][\p{L}]*|k[ıi]raat[\p{L}]*/iu.test(
+    normalized
+  );
+
+  let principleParagraph: string;
+
+  if (hasMouthOrNoseWater && hasFasting) {
+    principleParagraph =
+      "Genel ilmihal ve **özür** ilkesi olarak; oruçluyken abdest veya gusül esnasında suyu genze kaçırmadan (mübalağa etmeksizin) ağza ve burna su vermek caizdir; ancak hata ile boğaza/mideye su kaçması veya tıbbi bir **özür** bulunması durumunda mezheplere ve oluş şekline göre farklı fıkhi hükümler söz konusu olur.";
+  } else if (hasMouthOrNoseWater) {
+    principleParagraph =
+      "Genel ilmihal ve **özür** ilkesi olarak; normal namaz **abdestinde** ağza ve burna su vermek **sünnettir**, unutulması abdestin sıhhatine zarar vermez. **Gusülde (boy abdestinde)** ise ağza ve burna su vermek Hanefî mezhebine göre **farz**, Şâfiî mezhebine göre **sünnettir**. Ancak burun içi yarası, kanama, ameliyat veya tıbbi engel gibi **şer'î bir özür** bulunduğunda, dinimizde kolaylık esası gereği zarar verecek kısım zorlanmaz ve özür hükmü devreye girer.";
+  } else if (hasBleedingOrExcuse) {
+    principleParagraph =
+      "Genel ilmihal ve **özür** ilkesi olarak; Hanefî fıkhında vücuttan çıkıp etrafına akan kan abdesti bozar, Şâfiî fıkhında ise bozmaz. Bununla birlikte burun kanaması, diş eti/yara kanaması veya akıntı gibi bir mazeret bir namaz vakti boyunca kesilmiyorsa kişi **'özür sahibi' (sâhib-i özür)** sayılır; her vakit için aldığı abdestle, özrü devam etse dahi o vakit çıkana kadar ibadetlerini eda edebilir.";
+  } else if (hasFasting) {
+    principleParagraph =
+      "Genel ilmihal ve **özür** ilkesi olarak; oruçta kasıt olmaksızın **unutarak** yiyip içmek orucu bozmaz; ancak hataen boğaza bir şey kaçması, tıbbi uygulamalar veya hastalık gibi **özür** halleri işlemin mahiyetine göre kaza veya ruhsat hükümlerine tabidir. İslam fıkhında meşakkat ve şer'î özür durumlarında kolaylık ilkesi esastır.";
+  } else if (hasPrayer) {
+    principleParagraph =
+      "Genel ilmihal ve **özür** ilkesi olarak; namazın sıhhati farzlarına (şart ve rükünlerine) riayet edilmesine bağlıdır; vaciplerin yanılarak terkinde sehiv secdesi gerekirken sünnetlerin unutulması namazı geçersiz kılmaz. Hastalık, ayakta duramama veya elde olmayan **özür** hallerinde ise kişi gücü yettiği kadarıyla mükelleftir.";
+  } else {
+    principleParagraph =
+      "Genel ilmihal ve **özür** ilkesi olarak; ibadetlerin sıhhati farz olan rükünlerin yerine getirilmesine bağlıdır, sünnetlerin unutulması ibadeti geçersiz kılmaz; yara, hastalık veya elde olmayan mazeret (**özür**) hallerinde ise İslam fıkhının kolaylık ve ruhsat hükümleri uygulanır.";
+  }
+
+  return (
+    `${principleParagraph}\n\n` +
+    "Ancak önemle belirtmek isterim ki; **ben fetva mercii değilim**, yalnızca bir yapay zekâyım ve durumunuzun özel şartlarını değerlendirirken **yanlış yapmış veya eksik bilgi vermiş olabilirim**. İbadetinizin sıhhati gibi hassas bir konuda yanılmamak ve durumunuza özel en doğru fıkhi hükmü öğrenmek için lütfen **Diyanet İşleri Başkanlığı'nı (Alo 190 Fetva Hattı)** arayınız veya en yakın müftülüğe danışınız."
+  );
+}
+
 // 12. Ağır Kader ve Teodise (Kötülük Problemi - Soru 12)
 const THEODICY_EVIL_PATTERNS: ReadonlyArray<RegExp> = [
   /masum.*([çc]ocuk|bebek).*ac[ıi]\s*[çc]ekerken.*allah.*(neden|ni[çc]in)\s*(izin\s*ver|g[öo]z\s*yum|sessiz)/i,
@@ -268,7 +383,7 @@ export function checkAdversarialGuardrails(
   userMessage: string
 ): AdversarialGuardrailMatch | null {
   const text = (userMessage || "").trim();
-  const lower = text.toLowerCase();
+  const lower = text.normalize("NFC").toLocaleLowerCase("tr-TR").replace(/\u0307/g, "");
 
   // 1. Can Güvenliği ve Kriz (İntihar)
   if (EXTENDED_SUICIDE_PATTERNS.some((p) => p.test(lower))) {
@@ -408,6 +523,16 @@ export function checkAdversarialGuardrails(
         "Namaz, dinin direğidir. Kur'an-ı Kerim'de namazın muayyen vakitlerde farz kılındığı (Nisâ 103) ve günün muhtelif vakitlerinde ikame edilmesi gerektiği (Hûd 114, İsrâ 78, Rûm 17-18, Tâhâ 130) açıkça emredilmiştir.\n\n" +
         "Vakitlerin beş vakit olarak tayini, rekat sayıları ve eda ediliş biçimi bizzat Cibril (a.s.) talimiyle Peygamber Efendimiz (s.a.v.) tarafından ümmete gösterilmiş ve Efendimiz: *'Beni nasıl namaz kılıyor görüyorsanız, siz de öyle namaz kılın'* (Buhârî, Ezân 18) buyurmuştur.\n\n" +
         "14 asırdır ümmetin icması ve mütevatir sünnet ile namaz beş vakit olarak sabittir; bunu iki vakte indirme veya tahrif etme iddiaları sünneti ve icmayı hiçe sayan batıl tevillerdir. Bağlayıcı fıkhi meseleler için Diyanet Alo 190 Fetva Hattı'na danışabilirsiniz.",
+    };
+  }
+
+  // 11.5. İlmihal ve İbadet Sıhhati Sınırı (Abdest / Gusül / Namaz / Oruç + Sıhhat / Özür / Kanama / Su -> Alo 190)
+  if (detectIlmihalWorshipQuery(text)) {
+    return {
+      ruleId: "ILMIHAL_IBADET_SIHHATI_GUARD",
+      auditTag: "ILMIHAL_VE_IBADET_SIHHATI_SINIRI",
+      status: "fatwa_blocked",
+      replyText: buildIlmihalGuardrailReply(text),
     };
   }
 

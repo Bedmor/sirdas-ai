@@ -173,6 +173,26 @@ export default function DisclaimerPage() {
                 inceleyebilirsiniz.
               </p>
             </section>
+
+            <section className="bg-surface-container/60 p-6 sm:p-8 rounded-2xl border border-primary/40 space-y-3">
+              <h2 className="text-xl font-heading font-semibold text-on-surface flex items-center gap-2">
+                <i className="ph ph-envelope-simple text-primary text-xl"></i>
+                <span>5. Görüş, Öneri, Tenkit ve Hatalı Cevap Bildirimi</span>
+              </h2>
+              <p className="text-sm text-slate-300 font-light leading-relaxed">
+                Manevi Pusula yapay zeka destekli bir tefekkür ve dertleşme alanıdır; her yapay zeka sistemi gibi zaman zaman hata yapabilir veya bağlama tam uymayan ifadeler üretebilir. Karşılaştığınız hatalı yanıtlar, fıkhi veya ilmi tenkitler, üslup eleştirileri ve geliştirme önerileriniz için bize doğrudan{" "}
+                <a
+                  href="mailto:adnan.kus@hotmail.com?subject=Manevi%20Pusula%20-%20G%C3%B6r%C3%BC%C5%9F%2C%20Tenkit%20ve%20Hata%20Bildirimi"
+                  className="text-primary underline hover:text-amber-300 font-medium"
+                >
+                  adnan.kus@hotmail.com
+                </a>{" "}
+                e-posta adresi üzerinden ulaşabilirsiniz.
+              </p>
+              <p className="text-xs text-slate-400 font-light leading-relaxed">
+                Tarafımıza iletilen tüm tenkit, eleştiri ve hata bildirimleri titizlikle incelenmekte; korpus, denetim filtreleri ve tefekkür modelleri bu geri bildirimler ışığında sürekli iyileştirilmektedir.
+              </p>
+            </section>
           </article>
         </div>
       </main>

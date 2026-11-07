@@ -1,0 +1,220 @@
+[
+  {
+    "ezkar_id": "ezkar_001_nevevi_sikinti_kurb_duasi",
+    "eser_adi": "el-Ezkâr el-Müntehabe",
+    "bolum": "Darlık, Keder ve Şiddetli Sıkıntı Anında Yapılacak Dualar (Kürb Duası)",
+    "muellif": "İmam Ebû Zekeriyyâ Yahyâ b. Şeref en-Nevevî (v. 676/1277)",
+    "baslik": "Resûlullah'ın (s.a.v.) Darlık Vaktindeki İlticası (Kürb Duası)",
+    "arapca_metin": "لا إِلَهَ إِلا اللَّهُ الْعَظِيمُ الْحَلِيمُ، لا إِلَهَ إِلا اللَّهُ رَبُّ الْعَرْشِ الْعَظِيمِ، لا إِلَهَ إِلا اللَّهُ رَبُّ السَّمَاوَاتِ وَرَبُّ الأَرْضِ وَرَبُّ الْعَرْشِ الْكَرِيمِ",
+    "dua_turkce": "Azîm ve Halîm olan Allah'tan başka hiçbir ilah yoktur. Yüce Arş'ın Rabbi olan Allah'tan başka hiçbir ilah yoktur. Göklerin Rabbi, yerin Rabbi ve kerîm Arş'ın Rabbi olan Allah'tan başka hiçbir ilah yoktur.",
+    "kaynak": "Sahih-i Buhârî (Deavât 27), Sahih-i Müslim (Zikr 83), Nevevî el-Ezkâr s. 182",
+    "sahihlik_derecesi": "Müttefekun Aleyh (Sahih)",
+    "serh": "İmam Nevevî: 'Bu mübarek zikir Resûlullah'ın (s.a.v.) büyük bir musibet, darlık veya çaresizlik anında ilk sarıldığı nebevi sığınaktır. İçinde talep cümlesi olmaksızın sırf tevhid ve tenzih ile başlar; zira kul Rabbini azametiyle andığında Allah onun darlığını inşiraha tebdil eder.'",
+    "manevi_hikmet": "Göğsün daraldığında ve dünyevi kapılar kapandığında bu nebevi tevhid zikrini kalben tekrar et. Arş'ın sahibine dayanan kimse hiçbir fani meşakkat altında ezilmez.",
+    "tags": [
+      "EZKAR",
+      "NEVEVI",
+      "DUA_VE_ILCA_USULU",
+      "SIKINTI_DUASI",
+      "TEVHID",
+      "INSERAH",
+      "DUA"
+    ],
+    "nafs_traps": [
+      "UMITSIZLIK_KARAMSARLIK",
+      "DARALMA",
+      "CARESIZLIK_VEHMI"
+    ],
+    "is_riba_related": false,
+    "source_type": "DUA"
+  },
+  {
+    "ezkar_id": "ezkar_002_nevevi_keder_ve_borc_duasi",
+    "eser_adi": "el-Ezkâr el-Müntehabe",
+    "bolum": "Keder, Tasa, Borç Yükü ve İnsanların Tahakkümünden Sığınma",
+    "muellif": "İmam Nevevî (r.a.)",
+    "baslik": "Hüzün, Acizlik ve Ağır Borç Altında Ezilmekten Korunma Duası",
+    "arapca_metin": "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَأَعُوذُ بِكَ مِنَ الْعَجْزِ وَالْكَسَلِ، وَأَعُوذُ بِكَ مِنَ الْجُبْنِ وَالْبُخْلِ، وَأَعُوذُ بِكَ مِنْ غَلَبَةِ الدَّيْنِ وَقَهْرِ الرِّجَالِ",
+    "dua_turkce": "Allah'ım! Gelecek kaygısından (tasadan) ve geçmişin hüznünden Sana sığınırım. Acizlikten ve tembellikten Sana sığınırım. Korkaklıktan ve cimrilikten Sana sığınırım. Borcun belimi bükmesinden ve insanların tahakkümü altında ezilip horlanmaktan Sana sığınırım.",
+    "kaynak": "Sahih-i Buhârî (Deavât 35), Ebû Dâvûd (Vitr 32), Nevevî el-Ezkâr s. 185",
+    "sahihlik_derecesi": "Sahih",
+    "serh": "İmam Nevevî buyurur: 'Peygamberimiz (s.a.v.) bu duayı sabah ve akşam vird edinmeyi ashabına öğretmiştir. Ebû Ümâme (r.a.) mescidde borç ve darlık içinde otururken Resûlullah bu duayı ona talim etmiş, o da devam ederek borçlarından ve kederinden halas olmuştur.'",
+    "manevi_hikmet": "Maddi sıkıntı ve borç baskısı insanı zillete ve faiz batağına düşürmesin diye her sabah bu nebevi kalkanı kuşanmak, kalbe gayret ve ümit aşılar.",
+    "tags": [
+      "EZKAR",
+      "NEVEVI",
+      "DUA_VE_ILCA_USULU",
+      "BORC_KRIZI",
+      "RIZIK_VE_TICARET",
+      "DUA"
+    ],
+    "nafs_traps": [
+      "FAKIRLIK_KORKUSU_VESVESESI",
+      "REHAVET_TEMBELLIK",
+      "UMITSIZLIK_KARAMSARLIK"
+    ],
+    "is_riba_related": true,
+    "source_type": "DUA"
+  },
+  {
+    "ezkar_id": "ezkar_003_nevevi_seyyidul_istigfar",
+    "eser_adi": "el-Ezkâr el-Müntehabe",
+    "bolum": "İstiğfarın Şahı: Seyyidü'l-İstiğfâr",
+    "muellif": "İmam Nevevî (r.a.)",
+    "baslik": "Kulun Aczini ve Günahını İtiraf Edip İlahi Mağfirete Sığınması",
+    "arapca_metin": "اللَّهُمَّ أَنْتَ رَبِّي لا إِلَهَ إِلا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لا يَغْفِرُ الذُّنُوبَ إِلا أَنْتَ",
+    "dua_turkce": "Allah'ım! Sen benim Rabbimsin; Senden başka hiçbir ilah yoktur. Beni Sen yarattın ve ben Senin kulunum. Gücüm yettiğince Sana verdiğim ahit ve vaat üzereyim. Yaptıklarımın şerrinden Sana sığınırım. Üzerimdeki nimetini itiraf eder, günahımı da Sana arz ederim. Beni bağışla; zira günahları Senden başka bağışlayacak kimse yoktur.",
+    "kaynak": "Sahih-i Buhârî (Deavât 2), Nevevî el-Ezkâr s. 80",
+    "sahihlik_derecesi": "Sahih (Buhârî)",
+    "serh": "İmam Nevevî: 'Resûlullah (s.a.v.) buyurdu: Kim bu duayı sevabına inanarak gündüz okur da akşamdan önce ölürse cennet ehlindendir. Kim de gece okur da sabahtan önce vefat ederse cennet ehlindendir.' Bu dua kulluk edebinin zirvesidir.",
+    "manevi_hikmet": "Geçmişin günahları altında ezilip ye'se düşen ruh, bu istiğfar ile Rabbine sığınarak tertemiz bir sayfa açar ve ilahi rahmete kavuşur.",
+    "tags": [
+      "EZKAR",
+      "NEVEVI",
+      "DUA_VE_ILCA_USULU",
+      "ISTIGFAR",
+      "TEVBE_VE_INABE",
+      "DUA"
+    ],
+    "nafs_traps": [
+      "GECMISIN_PISMANLIK_GIRDABI",
+      "UMITSIZLIK_KARAMSARLIK"
+    ],
+    "is_riba_related": false,
+    "source_type": "DUA"
+  },
+  {
+    "ezkar_id": "ezkar_004_nevevi_evden_cikarken_tevekkul",
+    "eser_adi": "el-Ezkâr el-Müntehabe",
+    "bolum": "Evden Çıkarken, Rızık Aramaya Başlarken Tevekkül Duası",
+    "muellif": "İmam Nevevî (r.a.)",
+    "baslik": "Dünya Hayatına ve İşe Başlarken İlahi Himaye Talebi",
+    "arapca_metin": "بِسْمِ اللَّهِ، تَوَكَّلْتُ عَلَى اللَّهِ، لا حَوْلَ وَلا قُوَّةَ إِلا بِاللَّهِ",
+    "dua_turkce": "Allah'ın adıyla! Ben ancak Allah'a tevekkül ettim. Günahlardan korunmaya ve ibadete güç yetirmeye hiçbir takat yoktur; ancak Yüce Allah'ın yardımıyladır.",
+    "kaynak": "Ebû Dâvûd (Edeb 102), Tirmizî (Deavât 34), Nevevî el-Ezkâr s. 28",
+    "sahihlik_derecesi": "Sahih (Tirmizî: Hasen-Sahih)",
+    "serh": "İmam Nevevî: 'Resûlullah (s.a.v.) buyurdu: İnsan evinden çıkarken bu duayı okuduğunda kendisine şöyle nida edilir: Hidayete erdirildin, ihtiyaçların karşılandı ve kötülüklerden korundun! Şeytan da ondan uzaklaşır.'",
+    "manevi_hikmet": "Sabah işine ve maişetine koşarken kapıdan bu şuurla çıkan esnaf ve çalışan; hileden, faizden, haram lokmadan ve panikten korunur.",
+    "tags": [
+      "EZKAR",
+      "NEVEVI",
+      "DUA_VE_ILCA_USULU",
+      "TEVEKKUL",
+      "RIZIK_VE_TICARET",
+      "DUA"
+    ],
+    "nafs_traps": [
+      "FAKIRLIK_KORKUSU_VESVESESI",
+      "KONTROL_YANILSAMASI_VE_MUKEMMELIYETCILIK"
+    ],
+    "is_riba_related": false,
+    "source_type": "DUA"
+  },
+  {
+    "ezkar_id": "ezkar_005_nevevi_vesvese_ve_evham_defetme",
+    "eser_adi": "el-Ezkâr el-Müntehabe",
+    "bolum": "Kalbe Gelen Vesvese, Şüphe ve Evhamı Defetme Duaları",
+    "muellif": "İmam Nevevî (r.a.)",
+    "baslik": "İbâdette ve İtikadda Vesveseye Düşen Kimsenin Zikri",
+    "arapca_metin": "آمَنْتُ بِاللَّهِ وَرُسُلِهِ. هُوَ الأَوَّلُ وَالآخِرُ وَالظَّاهِرُ وَالْبَاطِنُ وَهُوَ بِكُلِّ شَيْءٍ عَلِيمٌ. أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ",
+    "dua_turkce": "Allah'a ve peygamberlerine iman ettim! O, Evvel'dir (başlangıcı yoktur), Âhir'dir (sonu yoktur), Zâhir'dir (varlığı delillerle açıktır), Bâtın'dır (zatı idrak edilemez). O her şeyi hakkıyla bilendir. Kovulmuş şeytanın vesvesesinden Allah'a sığınırım.",
+    "kaynak": "Sahih-i Müslim (Îmân 212), Ebû Dâvûd (Edeb 109), Nevevî el-Ezkâr s. 143",
+    "sahihlik_derecesi": "Sahih",
+    "serh": "İmam Nevevî: 'Abdestte, namazda veya kalbinde istemsizce beliren vesveselerden mustarip olan kimse bu vesveseyi tartışmaya girmeden derhal kesmeli, bu ayet ve zikirle Rabbine sığınmalıdır. Zira şeytan vesveseyle kalbi oyalamak ister; üzerine gidilmezse kendiliğinden söner.'",
+    "manevi_hikmet": "Vesvese bir günah değil, şeytanın kalbe attığı boş bir fısıltıdır. Kul o fısıltıya kulak asmayıp zikir kalesine sığındığında iç huzura erer.",
+    "tags": [
+      "EZKAR",
+      "NEVEVI",
+      "DUA_VE_ILCA_USULU",
+      "VESVESE",
+      "TEVEKKUL_VE_MURAKABE",
+      "DUA"
+    ],
+    "nafs_traps": [
+      "VESVESE_VE_GUSUL_ABDEST_EVHAMI",
+      "ZAHIRE_ALDANMA_VE_SEBEP_PERESTLIK"
+    ],
+    "is_riba_related": false,
+    "source_type": "DUA"
+  },
+  {
+    "ezkar_id": "ezkar_006_nevevi_riyazussalihin_murakabe",
+    "eser_adi": "Riyâzü's-Sâlihîn",
+    "bolum": "Bâbu'l-Murâkabe (Allah'ın Gözetiminde Yaşama Şuuru)",
+    "muellif": "İmam Nevevî (r.a.)",
+    "baslik": "İhsan Makamı ve Gizlide Açıkta Takva Esası",
+    "arapca_metin": "عَنْ أَبِي هُرَيْرَةَ رَضِيَ اللَّهُ عَنْهُ، أَنَّ النَّبِيَّ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ قَالَ فِي حَدِيثِ جِبْرِيلَ: الإِحْسَانُ أَنْ تَعْبُدَ اللَّهَ كَأَنَّكَ تَرَاهُ، فَإِنْ لَمْ تَكُنْ تَرَاهُ فَإِنَّهُ يَرَاكَ",
+    "dua_turkce": "Ebû Hüreyre'den (r.a.) rivayetle Peygamber Efendimiz (s.a.v.) Cibril hadisinde şöyle buyurdu: 'İhsan; Allah'ı görüyormuşsun gibi O'na kulluk etmendir. Her ne kadar sen O'nu görmüyorsan da şüphesiz O seni görmektedir.'",
+    "kaynak": "Riyâzü's-Sâlihîn Hadis No: 60; Sahih-i Buhârî (Îmân 37), Sahih-i Müslim (Îmân 1)",
+    "sahihlik_derecesi": "Müttefekun Aleyh (Sahih)",
+    "serh": "İmam Nevevî: 'Murakabe babı, kalbi riyadan, gizli günahlardan ve benlik putlarından koruyan en büyük kalkandır. İnsanların görmediği tenhalarda dahi Allah'ın kendisini izlediğini bilen mümin, kötülüğe el uzatamaz.'",
+    "manevi_hikmet": "Kamera ve denetçilerin olmadığı yerde kul hakkına ve harama girmeyen insan, ihsan şuuruna ermiştir.",
+    "tags": [
+      "RIYAZUS_SALIHIN",
+      "NEVEVI",
+      "MURAKABE",
+      "IHSAN",
+      "KALP_AMELLERI_VE_IHLAS",
+      "HADITH"
+    ],
+    "nafs_traps": [
+      "ELALEM_NE_DER_RIYA",
+      "GIZLI_SIRK_VE_SAHTE_SIGINAKLAR"
+    ],
+    "is_riba_related": false,
+    "source_type": "HADITH"
+  },
+  {
+    "ezkar_id": "ezkar_007_nevevi_riyazussalihin_sabr",
+    "eser_adi": "Riyâzü's-Sâlihîn",
+    "bolum": "Bâbu's-Sabr (Musibetler Karşısında Sabır ve Metanet)",
+    "muellif": "İmam Nevevî (r.a.)",
+    "baslik": "Müminin Haline Hayranlık: Nimet Gelince Şükür, Darlık Gelince Sabır",
+    "arapca_metin": "عَنْ صُهَيْبٍ رَضِيَ اللَّهُ عَنْهُ قَالَ: قَالَ رَسُولُ اللَّهِ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ: عَجَبًا لأَمْرِ الْمُؤْمِنِ إِنَّ أَمْرَهُ كُلَّهُ خَيْرٌ، وَلَيْسَ ذَاكَ لأَحَدٍ إِلا لِلْمُؤْمِنِ: إِنْ أَصَابَتْهُ سَرَّاءُ شَكَرَ فَكَانَ خَيْرًا لَهُ، وَإِنْ أَصَابَتْهُ ضَرَّاءُ صَبَرَ فَكَانَ خَيْرًا لَهُ",
+    "dua_turkce": "Suheyb'den (r.a.) rivayetle Resûlullah (s.a.v.) buyurdu: 'Müminin haline şaşılır! Şüphesiz onun her işi hayırdır. Bu hal müminden başka hiç kimsede yoktur: Kendisine bir sevinç ve nimet isabet etse şükreder, bu onun için hayır olur. Bir musibet ve darlık isabet etse sabreder, bu da onun için hayır olur.'",
+    "kaynak": "Riyâzü's-Sâlihîn Hadis No: 27; Sahih-i Müslim (Zühd 64)",
+    "sahihlik_derecesi": "Sahih (Müslim)",
+    "serh": "İmam Nevevî: 'Mümin için dünyada mutlak zarar yoktur; niyet ve tavır selim oldukça her durum ecir ve derecat vesilesidir.'",
+    "manevi_hikmet": "Ruhsal daralma yaşayan kimse bilmelidir ki sabrettiği her saniye günahlarına kefaret olmakta ve manevi rütbesini artırmaktadır.",
+    "tags": [
+      "RIYAZUS_SALIHIN",
+      "NEVEVI",
+      "SABIR_VE_MUSIBET",
+      "SUKUR",
+      "TESKIN_VE_TESELLI",
+      "HADITH"
+    ],
+    "nafs_traps": [
+      "KADERE_ITIRAZ_VE_ISYAN",
+      "UMITSIZLIK_KARAMSARLIK"
+    ],
+    "is_riba_related": false,
+    "source_type": "HADITH"
+  },
+  {
+    "ezkar_id": "ezkar_008_nevevi_riyazussalihin_yakin_tevekkul",
+    "eser_adi": "Riyâzü's-Sâlihîn",
+    "bolum": "Bâbu'l-Yakîn ve't-Tevekkül (Sarsılmaz İman ve Tevekkül)",
+    "muellif": "İmam Nevevî (r.a.)",
+    "baslik": "Kuşların Rızıklanması Misali Hakiki Tevekkül",
+    "arapca_metin": "عَنْ عُمَرَ رَضِيَ اللَّهُ عَنْهُ قَالَ: سَمِعْتُ رَسُولَ اللَّهِ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ يَقُولُ: لَوْ أَنَّكُمْ تَتَوَكَّلُونَ عَلَى اللَّهِ حَقَّ تَوَكُّلِهِ لَرَزَقَكُمْ كَمَا يَرْزُقُ الطَّيْرَ؛ تَغْدُو خِمَاصًا وَتَرُوحُ بِطَانًا",
+    "dua_turkce": "Hz. Ömer'den (r.a.) rivayetle Resûlullah (s.a.v.) buyurdu: 'Eğer siz Allah'a hakkıyla tevekkül etseydiniz; sabahleyin aç çıkıp akşamleyin kursakları doymuş olarak dönen kuşları rızıklandırdığı gibi sizi de rızıklandırırdı.'",
+    "kaynak": "Riyâzü's-Sâlihîn Hadis No: 79; Tirmizî (Zühd 33), İbn Mâce (Zühd 14)",
+    "sahihlik_derecesi": "Sahih (Tirmizî: Hasen-Sahih)",
+    "serh": "İmam Nevevî: 'Hadis-i şerifte tevekkülün tembellik olmadığı açıktır. Zira kuşlar yuvalarında beklemez; sabah erkenden rızık aramaya uçar ve gayret gösterir. Asıl mesele kalpte endişe taşımayıp Rezzâk'a güvenmektir.'",
+    "manevi_hikmet": "Gelecek kaygısıyla uykuları kaçan insan, gökyüzündeki kuşların rızkını unutmayan Allah'ın kendisini de asla zayi etmeyeceğini tefekkür etmelidir.",
+    "tags": [
+      "RIYAZUS_SALIHIN",
+      "NEVEVI",
+      "TEVEKKUL_VE_MURAKABE",
+      "RIZIK_VE_TICARET",
+      "HADITH"
+    ],
+    "nafs_traps": [
+      "FAKIRLIK_KORKUSU_VESVESESI",
+      "DUNYALIK_KAYGI"
+    ],
+    "is_riba_related": false,
+    "source_type": "HADITH"
+  }
+]

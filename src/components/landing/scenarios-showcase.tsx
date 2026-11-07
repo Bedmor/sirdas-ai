@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import Link from "next/link";
 import { SCENARIOS_DATA } from "./trial-scenarios-data";
 
 export function ScenariosShowcase({
@@ -8,7 +9,7 @@ export function ScenariosShowcase({
   onSwitchToTrial,
 }: {
   waUrl: string;
-  onSwitchToTrial: () => void;
+  onSwitchToTrial?: () => void;
 }) {
   const [scenarioIndex, setScenarioIndex] = useState(0);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
@@ -216,25 +217,17 @@ export function ScenariosShowcase({
       {/* Bottom Actions for Scenarios */}
       <div className="bg-[#1f2c34] p-4 border-t border-outline-variant/20 flex flex-col sm:flex-row items-center justify-between gap-3">
         <span className="text-xs text-slate-300 text-center sm:text-left">
-          Kendi gönül meselenizi yazarak canlı denemek ister misiniz?
+          Kendi gönül meselenizi Kur&apos;an ve Sünnet hikmetiyle doğrudan hasbihal edin.
         </span>
-        <div className="flex items-center gap-2.5 w-full sm:w-auto">
-          <button
-            type="button"
-            onClick={onSwitchToTrial}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/50 text-xs text-white font-medium transition-colors"
-          >
-            <i className="ph ph-chat-text text-sm text-primary" />
-            <span>Kendi Derdini Yaz</span>
-          </button>
-          <a
-            aria-label="Tam ekran Manevi Pusula ile sohbete başla"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 bg-secondary-container hover:bg-[#117a51] text-white px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-colors"
+        <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+          <Link
+            aria-label="Tefekkür Odasında Manevi Pusula ile sohbete başla"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-secondary-container hover:bg-[#117a51] text-white px-5 py-2.5 rounded-full text-xs font-semibold tracking-wide transition-colors shadow-md hover:shadow-secondary/10"
             href={waUrl || "/"}
           >
-            <i className="ph ph-chat-circle-dots text-sm text-secondary" />
-            <span>Tam Ekran Sohbet</span>
-          </a>
+            <i className="ph ph-chat-circle-dots text-base text-secondary" />
+            <span>Tefekkür Odasında Sohbete Başla →</span>
+          </Link>
         </div>
       </div>
     </>

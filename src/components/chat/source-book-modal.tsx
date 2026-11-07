@@ -126,12 +126,12 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="source-book-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md animate-in fade-in duration-300"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-2xl bg-[#071315] border-2 border-[#cca762]/50 shadow-[0_0_50px_rgba(204,167,98,0.12)] overflow-hidden">
+      <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-2xl bg-[#071315] border-2 border-[#cca762]/50 shadow-[0_0_50px_rgba(204,167,98,0.12)] overflow-hidden animate-in zoom-in-95">
         {/* Book Header / Top Bar */}
         <div className="relative px-5 py-4 border-b border-[#cca762]/30 bg-gradient-to-r from-[#08181b] via-[#0e272b] to-[#08181b] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">

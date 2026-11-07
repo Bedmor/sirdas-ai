@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { prisma } from "@/lib/db/prisma";
-import { isRemoteDbOffline } from "@/lib/db/local-corpus";
+import { getLocalKnowledgeCorpus, isRemoteDbOffline } from "@/lib/db/local-corpus";
 import { analyzeWithJev, JevAnalysisResult } from "@/lib/ai/jev-client";
 import { generateEmbedding } from "@/lib/ai/embeddings";
 import {
@@ -12,10 +12,16 @@ import {
 } from "@/lib/ai/gemini-client";
 import {
   evaluateSpiritualGuardrails,
+  filterUsedSourcesByReply,
   retrieveCelikKasaContext,
   UnifiedEditorAudit,
 } from "@/lib/ai/rag-pipeline";
-import { dispatchBackgroundTriage } from "@/lib/ai/semantic-triage";
+import {
+  dispatchBackgroundTriage,
+  extractUserProfileFactsFromText,
+  mergeUserProfileMetadata,
+  PersistentUserProfile,
+} from "@/lib/ai/semantic-triage";
 import { detectChatIntent, ChatIntentMode } from "@/lib/ai/intent-router";
 import { sanitizeIncomingUserMessage } from "@/lib/ai/pii-anonymizer";
 import {
@@ -41,6 +47,7 @@ async function persistChatTurn(params: {
   rawMessage: string;
   replyText: string;
   jevResult: JevAnalysisResult;
+  userProfile: PersistentUserProfile;
   editorAudit: UnifiedEditorAudit | Record<string, unknown>;
   ragChunkIds: string[];
   audioUrlSent: string | null;
@@ -52,29 +59,37 @@ async function persistChatTurn(params: {
     rawMessage,
     replyText,
     jevResult,
+    userProfile,
     editorAudit,
     ragChunkIds,
     audioUrlSent,
     extraFlags,
   } = params;
 
+  const serializedProfile = JSON.parse(JSON.stringify(userProfile));
+  const nextStep =
+    typeof userProfile.onboarding_step === "number"
+      ? userProfile.onboarding_step
+      : 1;
+  const nextCompleted = Boolean(userProfile.onboarding_completed);
+
   const user = await prisma.user.upsert({
     where: { phoneNumber: userKey },
-    update: { lastActiveAt: new Date() },
+    update: {
+      lastActiveAt: new Date(),
+      onboardingStep: nextStep,
+      onboardingCompleted: nextCompleted,
+      profileMetadata: serializedProfile,
+    },
     create: {
       phoneNumber: userKey,
-      onboardingStep: 3,
-      onboardingCompleted: true,
-      profileMetadata: {
-        roles: ["WEB_KULLANICI"],
-        spiritual_trials: [jevResult.nafs_trap],
-        tone_preference: jevResult.recommended_tone || "SEFKATLI_TESKIN",
-        spiritual_stage: jevResult.spiritual_stage || "ARAYIS_VE_BASLANGIC",
-      },
+      onboardingStep: nextStep,
+      onboardingCompleted: nextCompleted,
+      profileMetadata: serializedProfile,
     },
   });
 
-  await prisma.message.create({
+  const userMsg = await prisma.message.create({
     data: {
       userId: user.id,
       role: "USER",
@@ -96,6 +111,14 @@ async function persistChatTurn(params: {
       role: "ASSISTANT",
       content: replyText,
       ragChunkIds,
+      jevMetadata: JSON.parse(
+        JSON.stringify({
+          ...jevResult,
+          source: "web_sirdas_chat",
+          conversationId,
+          ...(extraFlags || {}),
+        })
+      ),
       editorAudit: JSON.parse(
         JSON.stringify({
           ...editorAudit,
@@ -119,6 +142,7 @@ async function persistChatTurn(params: {
     dispatchBackgroundTriage({
       userKey,
       assistantMessageId: assistantMsg.id,
+      userMessageId: userMsg.id,
       userMessage: rawMessage,
     });
   }
@@ -134,9 +158,10 @@ export async function GET(req: NextRequest) {
     const conversationId = req.nextUrl.searchParams.get("conversationId");
     const userKey = `web_chat_${actor.clientId}`;
 
-    // 3. Zaman Ayarlı Kendini İmhâ (TTL): Arka planda vadesi dolan kayıtları süpür
+    // 3. Zaman Ayarlı Kendini İmhâ (TTL): Yalnızca kullanıcı açıkça TTL seçtiyse (>0) çalıştır;
+    // varsayılan olarak web kullanıcıları kalıcı (gerçek) hesap statüsündedir (ttlHours = 0).
     const ttlParam = req.nextUrl.searchParams.get("ttlHours");
-    const ttlHours = ttlParam !== null ? Math.max(0, Number(ttlParam)) : 24;
+    const ttlHours = ttlParam !== null ? Math.max(0, Number(ttlParam)) : 0;
     if (ttlHours > 0) {
       purgeExpiredSirdasRecords(ttlHours).catch(() => {});
     }
@@ -163,6 +188,9 @@ export async function GET(req: NextRequest) {
       success: true,
       clientId: actor.clientId,
       isAnonymous: actor.isAnonymous,
+      userProfile: existingUser?.profileMetadata || null,
+      onboardingStep: existingUser?.onboardingStep ?? 1,
+      onboardingCompleted: existingUser?.onboardingCompleted ?? false,
       messages: filteredMessages.map((m) => ({
         id: m.id,
         role: m.role === "USER" ? "user" : "assistant",
@@ -185,8 +213,95 @@ export async function GET(req: NextRequest) {
     console.error("[GET /api/chat Error]", err);
     return NextResponse.json({
       success: true,
+      userProfile: null,
       messages: [],
     });
+  }
+}
+
+/**
+ * PATCH /api/chat
+ * Kullanıcının "Sırdaş Profilim & Manevi Seyir" ekranından hitap adını,
+ * hayat rollerini veya üslup tercihini doğrudan güncellemesini sağlar.
+ */
+export async function PATCH(req: NextRequest) {
+  try {
+    const body = await req.json().catch(() => ({}));
+    const actor = resolveSirdasChatActor(req, body.clientId);
+    const userKey = `web_chat_${actor.clientId}`;
+
+    const existingUser = await prisma.user.findUnique({
+      where: { phoneNumber: userKey },
+      select: { profileMetadata: true },
+    });
+
+    const currentMeta =
+      existingUser?.profileMetadata &&
+      typeof existingUser.profileMetadata === "object"
+        ? (existingUser.profileMetadata as Record<string, unknown>)
+        : {};
+
+    const updatedRoles = Array.isArray(body.roles)
+      ? body.roles.filter((r: unknown) => typeof r === "string")
+      : Array.isArray(currentMeta.roles)
+        ? (currentMeta.roles as string[])
+        : [];
+
+    const updatedFacts = Array.isArray(body.known_facts)
+      ? body.known_facts.filter((f: unknown) => typeof f === "string")
+      : Array.isArray(currentMeta.known_facts)
+        ? (currentMeta.known_facts as string[])
+        : [];
+
+    const preferredName =
+      typeof body.preferred_name === "string"
+        ? body.preferred_name.trim() || undefined
+        : typeof currentMeta.preferred_name === "string"
+          ? currentMeta.preferred_name
+          : undefined;
+
+    const merged = mergeUserProfileMetadata({
+      existingMeta: {
+        ...currentMeta,
+        ...(preferredName ? { preferred_name: preferredName } : {}),
+        ...(body.tone_preference
+          ? { tone_preference: body.tone_preference }
+          : {}),
+        ...(body.spiritual_stage
+          ? { spiritual_stage: body.spiritual_stage }
+          : {}),
+        roles: updatedRoles,
+        known_facts: updatedFacts,
+      },
+    });
+
+    const serialized = JSON.parse(JSON.stringify(merged));
+    await prisma.user.upsert({
+      where: { phoneNumber: userKey },
+      update: {
+        lastActiveAt: new Date(),
+        onboardingStep: merged.onboarding_step,
+        onboardingCompleted: merged.onboarding_completed,
+        profileMetadata: serialized,
+      },
+      create: {
+        phoneNumber: userKey,
+        onboardingStep: merged.onboarding_step,
+        onboardingCompleted: merged.onboarding_completed,
+        profileMetadata: serialized,
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      userProfile: merged,
+    });
+  } catch (err) {
+    console.error("[PATCH /api/chat Error]", err);
+    return NextResponse.json(
+      { error: "PROFILE_UPDATE_FAILED" },
+      { status: 500 }
+    );
   }
 }
 
@@ -273,23 +388,139 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const rawHistory = Array.isArray(body.history) ? body.history : [];
-    let conversationHistory: ConversationHistoryTurn[] = rawHistory
-      .filter(
-        (item: unknown): item is { role: string; content: string } =>
-          Boolean(
-            item &&
-              typeof item === "object" &&
-              typeof (item as { content?: unknown }).content === "string"
-          )
-      )
+    const rawHistory: unknown[] = Array.isArray(body.history)
+      ? body.history
+      : [];
+    const validRawHistory = rawHistory.filter(
+      (item: unknown): item is { role: string; content: string } =>
+        Boolean(
+          item &&
+            typeof item === "object" &&
+            typeof (item as { content?: unknown }).content === "string"
+        )
+    );
+
+    // Gece Geç Saat + Mesaj Sınırı Birlikte Kontrolü (Tatlı Fesih Tespiti)
+    const resolveUserLocalTime = (): { hour: number; minute: number } => {
+      if (
+        typeof body.localHour === "number" &&
+        body.localHour >= 0 &&
+        body.localHour <= 23
+      ) {
+        const minute =
+          typeof body.localMinute === "number" &&
+          body.localMinute >= 0 &&
+          body.localMinute <= 59
+            ? body.localMinute
+            : 30;
+        return { hour: body.localHour, minute };
+      }
+      try {
+        const tz =
+          typeof body.timeZone === "string" && body.timeZone.trim()
+            ? body.timeZone.trim()
+            : "Europe/Istanbul";
+        const parts = new Intl.DateTimeFormat("en-US", {
+          timeZone: tz,
+          hour: "numeric",
+          minute: "numeric",
+          hour12: false,
+        }).formatToParts(new Date());
+        const h = Number(parts.find((p) => p.type === "hour")?.value ?? 12) % 24;
+        const m = Number(parts.find((p) => p.type === "minute")?.value ?? 0);
+        return { hour: h, minute: m };
+      } catch {
+        const now = new Date();
+        return { hour: now.getHours(), minute: now.getMinutes() };
+      }
+    };
+
+    const { hour: userLocalHour, minute: userLocalMinute } =
+      resolveUserLocalTime();
+    const isLateNightTime =
+      (userLocalHour === 0 && userLocalMinute >= 30) ||
+      (userLocalHour >= 1 && userLocalHour < 5);
+
+    const historyUserMsgCount =
+      validRawHistory.filter((item) => item.role === "user").length + 1;
+    const reportedUserMsgCount =
+      typeof body.sessionUserMessagesCount === "number"
+        ? body.sessionUserMessagesCount
+        : historyUserMsgCount;
+    const effectiveUserMsgCount = Math.max(
+      historyUserMsgCount,
+      reportedUserMsgCount
+    );
+
+    // Hem gece saati (00:30 - 04:59) hem de mesaj sınırı (>= 10 mesaj) birlikte sağlanmalı
+    const isLateNightEscapeCandidate =
+      isLateNightTime && effectiveUserMsgCount >= 10;
+
+    // Veri saklanmayan geçici (stateless / ephemeral) oturum modu kontrolü
+    const isEphemeralSession = body.ephemeralSession === true;
+
+    // Kalıcı Kullanıcı Künyesi (Persistent Memory):
+    // Veritabanındaki User.profileMetadata kaydını oku ve mevcut/geçmiş mesajlardaki
+    // hitap ismi ("Adım Ahmet"), rol ("EVLI", "ESNAF") ve yaşam olgularıyla birleştir.
+    // Veri saklanmasa dahi (isEphemeralSession veya DB kapalı), oturum içi ruh hali ve
+    // tonlama esnekliği RAM'deki geçici bağlam üzerinden eksiksiz çalışır.
+    let existingProfileMeta: Record<string, unknown> | null =
+      body.userProfile && typeof body.userProfile === "object"
+        ? (body.userProfile as Record<string, unknown>)
+        : null;
+
+    if (!isEphemeralSession) {
+      try {
+        const existingUserRecord = await prisma.user.findUnique({
+          where: { phoneNumber: userKey },
+          select: { profileMetadata: true },
+        });
+        if (
+          existingUserRecord?.profileMetadata &&
+          typeof existingUserRecord.profileMetadata === "object"
+        ) {
+          existingProfileMeta = {
+            ...(existingProfileMeta || {}),
+            ...(existingUserRecord.profileMetadata as Record<string, unknown>),
+          };
+        }
+      } catch {
+        // Fallback gracefully if DB query fails
+      }
+    }
+
+    // Tüm geçmiş kullanıcı mesajlarından ve yeni mesajdan senkron (0ms) bilgi çıkarımı
+    const combinedUserCorpus = [
+      ...validRawHistory
+        .filter((item) => item.role === "user")
+        .map((item) => item.content),
+      rawMessage,
+    ].join(" . ");
+    const latestTurnFacts = extractUserProfileFactsFromText(rawMessage);
+    const historyFacts = extractUserProfileFactsFromText(combinedUserCorpus);
+    const extractedProfileFacts = {
+      preferred_name:
+        latestTurnFacts.preferred_name || historyFacts.preferred_name,
+      roles: Array.from(
+        new Set([...historyFacts.roles, ...latestTurnFacts.roles])
+      ),
+      known_facts: Array.from(
+        new Set([...historyFacts.known_facts, ...latestTurnFacts.known_facts])
+      ),
+      biological_energy: latestTurnFacts.biological_energy,
+      progressed_stage:
+        latestTurnFacts.progressed_stage || historyFacts.progressed_stage,
+      progressed_tone: latestTurnFacts.progressed_tone,
+    };
+
+    let conversationHistory: ConversationHistoryTurn[] = validRawHistory
       .slice(-6)
       .map((item: { role: string; content: string }) => ({
         role: item.role === "user" ? "user" : "assistant",
         content: item.content.trim(),
       }));
 
-    if (conversationHistory.length === 0) {
+    if (!isEphemeralSession && conversationHistory.length === 0) {
       try {
         const dbMessages = await prisma.message.findMany({
           where: {
@@ -332,6 +563,7 @@ export async function POST(req: NextRequest) {
           try {
             jevResult = await analyzeWithJev({
               userMessage: safeMessage,
+              sessionHistory: conversationHistory,
               userContextSnippet: JSON.stringify({
                 source: "web_sirdas_chat",
                 recentTurnsCount: conversationHistory.length,
@@ -348,6 +580,12 @@ export async function POST(req: NextRequest) {
               jevResult.distress_level = Math.min(jevResult.distress_level, 3);
             }
 
+            const activeUserProfile = mergeUserProfileMetadata({
+              existingMeta: existingProfileMeta,
+              extractedFacts: extractedProfileFacts,
+              jevResult,
+            });
+
             const intercept = evaluateSpiritualGuardrails(
               safeMessage,
               jevResult
@@ -357,19 +595,24 @@ export async function POST(req: NextRequest) {
               statusType = intercept.status;
               editorAudit = intercept.editorAudit;
               extraFlags = intercept.extraFlags;
-              if (intercept.ruleId === "CONVERSATIONAL_CLOSING_THANKS") {
-                sources = [];
+              if (
+                intercept.status === "processed" &&
+                intercept.ruleId !== "CONVERSATIONAL_CLOSING_THANKS"
+              ) {
+                const matchedVaultChunks = filterUsedSourcesByReply(
+                  getLocalKnowledgeCorpus(),
+                  intercept.replyText
+                );
+                ragChunkIds = matchedVaultChunks.map((c) => c.id);
+                sources = matchedVaultChunks.map((c) => ({
+                  id: c.id,
+                  sourceType: c.sourceType,
+                  sourceTitle: c.sourceTitle,
+                  content: c.content,
+                  audioUrl: c.audioUrl ?? null,
+                }));
               } else {
-                sources = [
-                  {
-                    id: "guardrail-boundary",
-                    sourceType: "SIYER",
-                    sourceTitle:
-                      intercept.status === "fatwa_blocked"
-                        ? "Ehl-i Zikir & Alo 190 Fetva Usulü"
-                        : "Can Emniyeti & 112 Acil Destek",
-                  },
-                ];
+                sources = [];
               }
 
               const metaFrame = `event: meta\ndata: ${JSON.stringify({
@@ -377,7 +620,7 @@ export async function POST(req: NextRequest) {
                 status: statusType,
                 intentMode,
                 jevResult,
-                sources,
+                sources: [],
               })}\n\n`;
               controller.enqueue(encoder.encode(metaFrame));
 
@@ -404,45 +647,46 @@ export async function POST(req: NextRequest) {
                   intentMode,
                 });
 
-              ragChunkIds = chunks.map((c) => c.id);
-              sources = chunks.map((c) => ({
-                id: c.id,
-                sourceType: c.sourceType,
-                sourceTitle: c.sourceTitle,
-                content: c.content,
-                audioUrl: c.audioUrl ?? null,
-              }));
-
+              // Akış başlarken henüz üretilmiş yanıt metni olmadığından kullanılmamış aday kaynakları gösterme
               const metaFrame = `event: meta\ndata: ${JSON.stringify({
                 conversationId,
                 status: statusType,
                 intentMode,
                 jevResult,
-                sources,
+                sources: [],
               })}\n\n`;
               controller.enqueue(encoder.encode(metaFrame));
 
               const resolvedTone =
-                jevResult.distress_level >= 8
-                  ? "SEFKATLI_TESKIN"
-                  : jevResult.recommended_tone || "SEFKATLI_TESKIN";
+                intentMode === "ILIM_VE_SIYER"
+                  ? "NET_VE_MUALLIM"
+                  : jevResult.session_mood === "OFKELI_VE_GERGIN"
+                    ? "SAKINLESTIRICI_VE_VAKUR"
+                    : jevResult.session_mood === "HUZUNLU_VE_KIRGIN" ||
+                        jevResult.distress_level >= 8
+                      ? "SEFKATLI_TESKIN"
+                      : activeUserProfile.tone_preference ||
+                        jevResult.recommended_tone ||
+                        "SEFKATLI_TESKIN";
               const resolvedStage =
                 jevResult.distress_level >= 8
                   ? "DARLIK_VE_BUNALIM"
-                  : jevResult.spiritual_stage || "ARAYIS_VE_BASLANGIC";
+                  : activeUserProfile.spiritual_stage ||
+                    jevResult.spiritual_stage ||
+                    "ARAYIS_VE_BASLANGIC";
+
+              const isLateNightDismissal =
+                isLateNightEscapeCandidate && jevResult.distress_level < 10;
 
               const streamGenerator = generateSirdasReplyStream({
                 userMessage: safeMessage,
-                userProfile: {
-                  roles: ["WEB_KULLANICI"],
-                  spiritual_trials: [jevResult.nafs_trap],
-                  tone_preference: resolvedTone,
-                  spiritual_stage: resolvedStage,
-                },
+                userProfile: activeUserProfile,
                 effectiveTone: resolvedTone,
+                sessionMood: jevResult.session_mood,
                 spiritualStage: resolvedStage,
                 distressLevel: jevResult.distress_level,
                 isRibaShieldActive,
+                isLateNightDismissal,
                 nafsTrap: jevResult.nafs_trap,
                 ragCategory: jevResult.rag_category,
                 ragChunks: chunks,
@@ -467,8 +711,22 @@ export async function POST(req: NextRequest) {
                 controller.enqueue(encoder.encode(frame));
               }
 
+              // Sadece AI'ın ürettiği nihai cevap metniyle gerçekten örtüşen / atıf yapılan kaynakları göster
+              const usedChunks = filterUsedSourcesByReply(
+                chunks,
+                accumulatedReply
+              );
+              ragChunkIds = usedChunks.map((c) => c.id);
+              sources = usedChunks.map((c) => ({
+                id: c.id,
+                sourceType: c.sourceType,
+                sourceTitle: c.sourceTitle,
+                content: c.content,
+                audioUrl: c.audioUrl ?? null,
+              }));
+
               if (streamFinalResult?.selectedAudioChunkId) {
-                const found = chunks.find(
+                const found = usedChunks.find(
                   (c) => c.id === streamFinalResult?.selectedAudioChunkId
                 );
                 audioUrlSent = found?.audioUrl ?? null;
@@ -482,31 +740,34 @@ export async function POST(req: NextRequest) {
                 tevekkul_and_talak_hope_included: true,
                 nafs_and_vesvese_addressed: jevResult.nafs_trap,
                 siyer_example_used:
-                  sources[0]?.sourceTitle ||
-                  "Taif dönüşü Efendimiz'in (s.a.v.) tevekkülü",
+                  sources[0]?.sourceTitle || "Samimi Manevi Hasbihal",
                 riba_warning_included: isRibaShieldActive,
                 nafs_trap: jevResult.nafs_trap,
                 rag_category: jevResult.rag_category,
                 distress_level: jevResult.distress_level,
                 tone: resolvedTone,
+                session_mood: jevResult.session_mood,
                 spiritual_stage: resolvedStage,
               };
             }
 
-            try {
-              await persistChatTurn({
-                userKey,
-                conversationId,
-                rawMessage: safeMessage,
-                replyText: accumulatedReply,
-                jevResult,
-                editorAudit: editorAudit || {},
-                ragChunkIds,
-                audioUrlSent,
-                extraFlags,
-              });
-            } catch (dbErr) {
-              console.warn("[POST /api/chat DB Persistence Warning]", dbErr);
+            if (!isEphemeralSession) {
+              try {
+                await persistChatTurn({
+                  userKey,
+                  conversationId,
+                  rawMessage: safeMessage,
+                  replyText: accumulatedReply,
+                  jevResult,
+                  userProfile: activeUserProfile,
+                  editorAudit: editorAudit || {},
+                  ragChunkIds,
+                  audioUrlSent,
+                  extraFlags,
+                });
+              } catch (dbErr) {
+                console.warn("[POST /api/chat DB Persistence Warning]", dbErr);
+              }
             }
 
             const donePayload = JSON.stringify({
@@ -517,6 +778,7 @@ export async function POST(req: NextRequest) {
               replyText: accumulatedReply,
               intentMode,
               jevResult,
+              userProfile: activeUserProfile,
               editorAudit,
               sources,
               audioUrl: audioUrlSent,
@@ -563,6 +825,7 @@ export async function POST(req: NextRequest) {
     // Non-streaming JSON mode
     const jevResult = await analyzeWithJev({
       userMessage: safeMessage,
+      sessionHistory: conversationHistory,
       userContextSnippet: JSON.stringify({
         source: "web_sirdas_chat",
         recentTurnsCount: conversationHistory.length,
@@ -579,6 +842,12 @@ export async function POST(req: NextRequest) {
       jevResult.distress_level = Math.min(jevResult.distress_level, 3);
     }
 
+    const activeUserProfile = mergeUserProfileMetadata({
+      existingMeta: existingProfileMeta,
+      extractedFacts: extractedProfileFacts,
+      jevResult,
+    });
+
     const intercept = evaluateSpiritualGuardrails(safeMessage, jevResult);
     let replyText = "";
     let editorAudit: UnifiedEditorAudit | Record<string, unknown>;
@@ -594,19 +863,24 @@ export async function POST(req: NextRequest) {
       replyText = intercept.replyText;
       editorAudit = intercept.editorAudit;
       extraFlags = intercept.extraFlags;
-      if (intercept.ruleId === "CONVERSATIONAL_CLOSING_THANKS") {
-        sources = [];
+      if (
+        intercept.status === "processed" &&
+        intercept.ruleId !== "CONVERSATIONAL_CLOSING_THANKS"
+      ) {
+        const matchedVaultChunks = filterUsedSourcesByReply(
+          getLocalKnowledgeCorpus(),
+          intercept.replyText
+        );
+        ragChunkIds = matchedVaultChunks.map((c) => c.id);
+        sources = matchedVaultChunks.map((c) => ({
+          id: c.id,
+          sourceType: c.sourceType,
+          sourceTitle: c.sourceTitle,
+          content: c.content,
+          audioUrl: c.audioUrl ?? null,
+        }));
       } else {
-        sources = [
-          {
-            id: "guardrail-boundary",
-            sourceType: "SIYER",
-            sourceTitle:
-              intercept.status === "fatwa_blocked"
-                ? "Ehl-i Zikir & Alo 190 Fetva Usulü"
-                : "Can Emniyeti & 112 Acil Destek",
-          },
-        ];
+        sources = [];
       }
     } else {
       const queryEmbedding = isRemoteDbOffline()
@@ -619,36 +893,36 @@ export async function POST(req: NextRequest) {
         intentMode,
       });
 
-      ragChunkIds = chunks.map((c) => c.id);
-      sources = chunks.map((c) => ({
-        id: c.id,
-        sourceType: c.sourceType,
-        sourceTitle: c.sourceTitle,
-        content: c.content,
-        audioUrl: c.audioUrl ?? null,
-      }));
-
       const resolvedTone =
-        jevResult.distress_level >= 8
-          ? "SEFKATLI_TESKIN"
-          : jevResult.recommended_tone || "SEFKATLI_TESKIN";
+        intentMode === "ILIM_VE_SIYER"
+          ? "NET_VE_MUALLIM"
+          : jevResult.session_mood === "OFKELI_VE_GERGIN"
+            ? "SAKINLESTIRICI_VE_VAKUR"
+            : jevResult.session_mood === "HUZUNLU_VE_KIRGIN" ||
+                jevResult.distress_level >= 8
+              ? "SEFKATLI_TESKIN"
+              : activeUserProfile.tone_preference ||
+                jevResult.recommended_tone ||
+                "SEFKATLI_TESKIN";
       const resolvedStage =
         jevResult.distress_level >= 8
           ? "DARLIK_VE_BUNALIM"
-          : jevResult.spiritual_stage || "ARAYIS_VE_BASLANGIC";
+          : activeUserProfile.spiritual_stage ||
+            jevResult.spiritual_stage ||
+            "ARAYIS_VE_BASLANGIC";
+
+      const isLateNightDismissal =
+        isLateNightEscapeCandidate && jevResult.distress_level < 10;
 
       const sirdasOutput = await generateSirdasReply({
         userMessage: safeMessage,
-        userProfile: {
-          roles: ["WEB_KULLANICI"],
-          spiritual_trials: [jevResult.nafs_trap],
-          tone_preference: resolvedTone,
-          spiritual_stage: resolvedStage,
-        },
+        userProfile: activeUserProfile,
         effectiveTone: resolvedTone,
+        sessionMood: jevResult.session_mood,
         spiritualStage: resolvedStage,
         distressLevel: jevResult.distress_level,
         isRibaShieldActive,
+        isLateNightDismissal,
         nafsTrap: jevResult.nafs_trap,
         ragCategory: jevResult.rag_category,
         ragChunks: chunks,
@@ -657,8 +931,20 @@ export async function POST(req: NextRequest) {
       });
 
       replyText = sirdasOutput.reply_text || sirdasOutput.whatsapp_reply || "";
+
+      // Sadece AI'ın ürettiği nihai cevap metniyle gerçekten örtüşen / atıf yapılan kaynakları göster
+      const usedChunks = filterUsedSourcesByReply(chunks, replyText);
+      ragChunkIds = usedChunks.map((c) => c.id);
+      sources = usedChunks.map((c) => ({
+        id: c.id,
+        sourceType: c.sourceType,
+        sourceTitle: c.sourceTitle,
+        content: c.content,
+        audioUrl: c.audioUrl ?? null,
+      }));
+
       if (sirdasOutput.selected_audio_chunk_id) {
-        const found = chunks.find(
+        const found = usedChunks.find(
           (c) => c.id === sirdasOutput.selected_audio_chunk_id
         );
         audioUrlSent = found?.audioUrl ?? null;
@@ -667,28 +953,35 @@ export async function POST(req: NextRequest) {
       }
       editorAudit = {
         ...sirdasOutput.editor_audit,
+        siyer_example_used:
+          sources[0]?.sourceTitle ||
+          sirdasOutput.editor_audit.siyer_example_used,
         nafs_trap: jevResult.nafs_trap,
         rag_category: jevResult.rag_category,
         distress_level: jevResult.distress_level,
         tone: resolvedTone,
+        session_mood: jevResult.session_mood,
         spiritual_stage: resolvedStage,
       };
     }
 
-    try {
-      await persistChatTurn({
-        userKey,
-        conversationId,
-        rawMessage: safeMessage,
-        replyText,
-        jevResult,
-        editorAudit,
-        ragChunkIds,
-        audioUrlSent,
-        extraFlags,
-      });
-    } catch (dbErr) {
-      console.warn("[POST /api/chat DB Persistence Warning]", dbErr);
+    if (!isEphemeralSession) {
+      try {
+        await persistChatTurn({
+          userKey,
+          conversationId,
+          rawMessage: safeMessage,
+          replyText,
+          jevResult,
+          userProfile: activeUserProfile,
+          editorAudit,
+          ragChunkIds,
+          audioUrlSent,
+          extraFlags,
+        });
+      } catch (dbErr) {
+        console.warn("[POST /api/chat DB Persistence Warning]", dbErr);
+      }
     }
 
     const res = NextResponse.json({
@@ -699,6 +992,7 @@ export async function POST(req: NextRequest) {
       replyText,
       intentMode,
       jevResult,
+      userProfile: activeUserProfile,
       editorAudit,
       sources,
       audioUrl: audioUrlSent,

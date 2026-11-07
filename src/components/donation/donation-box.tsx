@@ -51,7 +51,7 @@ export function DonationBox({
   }, [initialAmount]);
 
   const currentAmount = isCustom ? Number(customAmount) || 0 : selectedAmount;
-  const sponsoredMessagesEst = Math.round(currentAmount * 100).toLocaleString("tr-TR");
+  const sponsoredMessagesEst = Math.round(currentAmount).toLocaleString("tr-TR");
 
   const handleSelectPreset = (amount: number) => {
     setSelectedAmount(amount);
@@ -120,7 +120,7 @@ export function DonationBox({
                   }`}
                 >
                   <span className="text-base font-bold text-primary block">{amt} ₺</span>
-                  <span className="text-[10px] text-slate-300 font-medium">~{(amt * 100).toLocaleString("tr-TR")} dertleşme</span>
+                  <span className="text-[10px] text-slate-300 font-medium">~{amt.toLocaleString("tr-TR")} dertleşme</span>
                 </button>
               );
             })}

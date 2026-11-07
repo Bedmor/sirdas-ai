@@ -25,7 +25,7 @@ export default function AdminLayout({
       href: "/admin/audit-logs",
       icon: "ph-shield-check",
       active: pathname.startsWith("/admin/audit-logs"),
-      badge: "Jev & Gemini",
+      badge: "Sistem 1 & 2",
     },
     {
       name: "Çelik Kasa RAG",
@@ -71,7 +71,7 @@ export default function AdminLayout({
                     Manevi Pusula
                   </span>
                   <span className="text-[10px] font-mono text-primary px-1.5 py-0.5 rounded-full bg-surface-container border border-primary/30 font-medium">
-                    v2.5
+                    v3.8
                   </span>
                 </div>
                 <span className="text-[10px] text-slate-400">
@@ -85,7 +85,7 @@ export default function AdminLayout({
           <div className="flex items-center gap-3">
             <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 rounded-lg bg-surface-container border border-outline-variant/40 text-[11px] text-slate-300">
               <i className="ph ph-cpu text-secondary"></i>
-              <span>Jev 1.14 &bull; Gemini 2.5 Flash</span>
+              <span>Refleks Süzgeci &bull; Gemini 3.8 Flash</span>
             </div>
 
             <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-surface-container border border-secondary/30 text-xs">

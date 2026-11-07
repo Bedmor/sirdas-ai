@@ -3,10 +3,16 @@ import { prisma } from "@/lib/db/prisma";
 import { matchKnowledgeChunks } from "@/lib/db/supabase";
 import {
   extractMeaningfulKeywords,
+  MIN_LOCAL_RAG_SCORE,
+  scoreChunkRelevance,
   searchLocalKnowledgeCorpus,
+  LocalSourceType,
 } from "@/lib/db/local-corpus";
 import { ChatIntentMode } from "./intent-router";
 import { checkAdversarialGuardrails } from "./adversarial-guardrails";
+import { filterUsedSourcesByReply, isSourceUsedInReply } from "./source-citation-filter";
+
+export { filterUsedSourcesByReply, isSourceUsedInReply };
 import {
   FATWA_REJECTION_MESSAGE,
   CRISIS_EMERGENCY_MESSAGE,
@@ -48,6 +54,7 @@ export interface UnifiedEditorAudit {
   rag_category?: string;
   distress_level?: number;
   tone?: string;
+  session_mood?: string;
   spiritual_stage?: string;
   intent_mode?: string;
 }
@@ -228,9 +235,9 @@ export function isSpiritualWisdomNeeded(
 ): boolean {
   const trimmed = userMessage.trim().toLowerCase();
 
-  // Yalnızca hiçbir dert veya soru içermeyen saf selamlama ve kısa hal-hatır mesajlarında RAG gerekmez
+  // Yalnızca hiçbir dert veya soru içermeyen saf selamlama, seslenme ve kısa hal-hatır mesajlarında RAG gerekmez
   const pureCasualGreetings =
-    /^(selam(ün\s*aleyküm|un\s*aleykum)?|merhaba(lar)?|iyi\s*(günler|akşamlar)|günaydın|hayırlı\s*(sabahlar|akşamlar|günler|geceler)|naber|nasılsın|kimsin|sen\s*kimsin|hey|sa|as)(\s+(nasılsın|naber|iyi\s*misin))?[\s!.]*$/i;
+    /^(selam(ün\s*aleyküm|un\s*aleykum)?|merhaba(lar)?|iyi\s*(günler|akşamlar)|günaydın|hayırlı\s*(sabahlar|akşamlar|günler|geceler)|naber|nasılsın|kimsin|sen\s*kimsin|hey|sa|as|alo+|alooo+|or(a|da)mısın|orada\s*mısın|ses\s*ver|duyuyor\s*musun|bakar\s*mısın)(\s+(nasılsın|naber|iyi\s*misin))?[\s!.]*$/i;
   if (pureCasualGreetings.test(trimmed)) {
     return false;
   }
@@ -276,10 +283,13 @@ export async function retrieveCelikKasaContext(params: {
       ? "SIYER_ORNEKLERI"
       : undefined;
 
+  const MIN_VECTOR_THRESHOLD = 0.52;
+  let vectorRpcSucceededEmpty = false;
+
   try {
     const rpcResponse = await matchKnowledgeChunks({
       query_embedding: queryEmbedding,
-      match_threshold: 0.3,
+      match_threshold: MIN_VECTOR_THRESHOLD,
       match_count: 4,
       filter_category: effectiveCategory,
       filter_nafs: undefined,
@@ -287,78 +297,121 @@ export async function retrieveCelikKasaContext(params: {
       user_message: userMessage,
     });
 
-    if (
-      !rpcResponse.error &&
-      Array.isArray(rpcResponse.data) &&
-      rpcResponse.data.length > 0
-    ) {
-      chunks = rpcResponse.data.map((r: SupabaseRagRow) => ({
-        id: r.id,
-        sourceType: r.source_type,
-        sourceTitle: r.source_title,
-        content: r.content,
-        audioUrl: r.audio_url ?? null,
-      }));
+    if (!rpcResponse.error && Array.isArray(rpcResponse.data)) {
+      if (rpcResponse.data.length > 0) {
+        chunks = rpcResponse.data.map((r: SupabaseRagRow & { similarity?: number; is_riba_related?: boolean }) => ({
+          id: r.id,
+          sourceType: r.source_type,
+          sourceTitle: r.source_title,
+          content: r.content,
+          audioUrl: r.audio_url ?? null,
+        }));
+      } else {
+        vectorRpcSucceededEmpty = true;
+      }
     }
   } catch {
     // Fallback to Prisma / local corpus search below
   }
 
   if (chunks.length === 0) {
-    try {
-      const keywords = extractMeaningfulKeywords(userMessage, 6);
-      const conditions: Prisma.KnowledgeChunkWhereInput[] = [];
+    const keywords = extractMeaningfulKeywords(userMessage, 6);
+    if (keywords.length > 0 || isRibaShieldActive) {
+      try {
+        const conditions: Prisma.KnowledgeChunkWhereInput[] = [];
 
-      if (isRibaShieldActive) {
-        conditions.push({ isRibaRelated: true });
+        if (isRibaShieldActive) {
+          conditions.push({ isRibaRelated: true });
+        }
+
+        if (keywords.length > 0) {
+          conditions.push({
+            OR: keywords.flatMap((kw: string) => [
+              { content: { contains: kw, mode: "insensitive" } },
+              { sourceTitle: { contains: kw, mode: "insensitive" } },
+            ]),
+          });
+        }
+
+        if (conditions.length > 0) {
+          const dbChunks = await prisma.knowledgeChunk.findMany({
+            where:
+              effectiveCategory && !isRibaShieldActive
+                ? {
+                    AND: [
+                      { tags: { has: effectiveCategory } },
+                      { OR: conditions },
+                    ],
+                  }
+                : { OR: conditions },
+            take: 8,
+            orderBy: isRibaShieldActive
+              ? [{ isRibaRelated: "desc" }, { createdAt: "desc" }]
+              : { createdAt: "desc" },
+          });
+
+          if (dbChunks.length > 0) {
+            const scoredDbChunks = dbChunks
+              .map((c) => {
+                const relevance = scoreChunkRelevance(
+                  {
+                    id: c.id,
+                    sourceType: c.sourceType as LocalSourceType,
+                    sourceTitle: c.sourceTitle,
+                    content: c.content,
+                    tags: c.tags,
+                    nafsTraps: c.nafsTraps,
+                    isRibaRelated: c.isRibaRelated,
+                    youtubeId: c.youtubeId,
+                    startSec: c.startSec,
+                    endSec: c.endSec,
+                    audioUrl: c.audioUrl,
+                    createdAt: c.createdAt,
+                  },
+                  {
+                    userMessage,
+                    filterCategory: effectiveCategory ?? null,
+                    forceRiba: isRibaShieldActive,
+                    intentMode,
+                  },
+                  keywords
+                );
+                return { chunk: c, relevance };
+              })
+              .filter(
+                (item) =>
+                  (isRibaShieldActive && item.chunk.isRibaRelated) ||
+                  item.relevance >= MIN_LOCAL_RAG_SCORE
+              )
+              .sort((a, b) => b.relevance - a.relevance);
+
+            chunks = scoredDbChunks.slice(0, 4).map(({ chunk: c }) => ({
+              id: c.id,
+              sourceType: c.sourceType,
+              sourceTitle: c.sourceTitle,
+              content: c.content,
+              audioUrl: c.audioUrl,
+            }));
+          }
+        }
+      } catch {
+        // Proceed to local corpus fallback
       }
-
-      if (effectiveCategory) {
-        conditions.push({ tags: { has: effectiveCategory } });
-      }
-
-      if (keywords.length > 0) {
-        conditions.push({
-          OR: keywords.flatMap((kw: string) => [
-            { content: { contains: kw, mode: "insensitive" } },
-            { sourceTitle: { contains: kw, mode: "insensitive" } },
-          ]),
-        });
-      }
-
-      const dbChunks = await prisma.knowledgeChunk.findMany({
-        where: conditions.length > 0 ? { OR: conditions } : undefined,
-        take: 8,
-        orderBy: isRibaShieldActive
-          ? [{ isRibaRelated: "desc" }, { createdAt: "desc" }]
-          : { createdAt: "desc" },
-      });
-
-      if (dbChunks.length > 0) {
-        chunks = dbChunks.slice(0, 4).map((c) => ({
-          id: c.id,
-          sourceType: c.sourceType,
-          sourceTitle: c.sourceTitle,
-          content: c.content,
-          audioUrl: c.audioUrl,
-        }));
-      }
-    } catch {
-      // Proceed to local corpus fallback
     }
   }
 
-  // Ensure rich multi-source balance (QURAN, HADITH/SIYER/DUA, HALIS_AYDEMIR, and Bakara 275-279 when Riba Shield active)
-  const localMatches = searchLocalKnowledgeCorpus({
-    userMessage,
-    filterCategory: effectiveCategory ?? null,
-    filterNafs: null,
-    forceRiba: isRibaShieldActive,
-    matchCount: 4,
-    intentMode,
-  });
-
-  if (chunks.length === 0) {
+  // Yalnızca gerçek alaka eşiği (>= MIN_LOCAL_RAG_SCORE) sağlandığında yerel kasadan eşleşme getir;
+  // eşik altındaysa zorla rastgele ayet/hadis çekilmez (chunks = []).
+  if (chunks.length === 0 && (!vectorRpcSucceededEmpty || isRibaShieldActive)) {
+    const localMatches = searchLocalKnowledgeCorpus({
+      userMessage,
+      filterCategory: effectiveCategory ?? null,
+      filterNafs: null,
+      forceRiba: isRibaShieldActive,
+      matchCount: 4,
+      minSimilarity: MIN_LOCAL_RAG_SCORE,
+      intentMode,
+    });
     chunks = localMatches.map((m) => ({
       id: m.id,
       sourceType: m.sourceType,
@@ -366,9 +419,15 @@ export async function retrieveCelikKasaContext(params: {
       content: m.content,
       audioUrl: m.audioUrl,
     }));
-  } else {
-    // If ILIM_VE_SIYER mode, guarantee a top matching Siyer chunk is present
-    if (intentMode === "ILIM_VE_SIYER") {
+  } else if (chunks.length > 0) {
+    // If ILIM_VE_SIYER mode and no Siyer chunk was returned by pgvector RPC, guarantee one via fallback
+    if (intentMode === "ILIM_VE_SIYER" && !chunks.some((c) => c.sourceType === "SIYER")) {
+      const localMatches = searchLocalKnowledgeCorpus({
+        userMessage,
+        filterCategory: "SIYER_ORNEKLERI",
+        matchCount: 1,
+        intentMode,
+      });
       const siyerMatch = localMatches.find((m) => m.sourceType === "SIYER");
       if (siyerMatch && !chunks.some((c) => c.id === siyerMatch.id)) {
         chunks.unshift({
@@ -381,8 +440,13 @@ export async function retrieveCelikKasaContext(params: {
       }
     }
 
-    // Guarantee Bakara 275-279 is first when Riba Shield is active
-    if (isRibaShieldActive) {
+    // Guarantee Bakara 275-279 is first when Riba Shield is active and not already present
+    if (isRibaShieldActive && !chunks.some((c) => c.sourceTitle.includes("275") || c.content.includes("275"))) {
+      const localMatches = searchLocalKnowledgeCorpus({
+        userMessage,
+        forceRiba: true,
+        matchCount: 1,
+      });
       const bakaraMatch = localMatches.find(
         (m) =>
           m.isRibaRelated &&

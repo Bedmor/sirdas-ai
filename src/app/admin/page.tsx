@@ -72,13 +72,13 @@ export default function AdminOverviewPage() {
   }, []);
 
   const metricValues = {
-    totalUsers: stats?.users.total ?? 428,
-    activeUsersToday: stats?.users.activeToday ?? 142,
-    activeConversations: stats?.conversations?.active ?? stats?.users.activeToday ?? 142,
-    todayMessages: stats?.messages.today ?? 3120,
-    totalMessages: stats?.messages.total ?? 142850,
-    poolBalance: stats?.donations.poolBalance ?? 24300,
-    sponsoredMessagesCount: stats?.donations.sponsoredMessagesCount ?? 142850,
+    totalUsers: stats?.users.total ?? 0,
+    activeUsersToday: stats?.users.activeToday ?? 0,
+    activeConversations: stats?.conversations?.active ?? 0,
+    todayMessages: stats?.messages.today ?? 0,
+    totalMessages: stats?.messages.total ?? 0,
+    poolBalance: stats?.donations.poolBalance ?? 0,
+    sponsoredMessagesCount: stats?.donations.sponsoredMessagesCount ?? 0,
   };
 
   return (
@@ -96,7 +96,7 @@ export default function AdminOverviewPage() {
             Sistem Genel Bakış &amp; Canlı Metrikler
           </h1>
           <p className="text-xs text-muted-foreground max-w-2xl">
-            Manevi Pusula bilişsel çekirdeği (Jev 1.14 + Gemini 2.5 Flash), Çelik Kasa RAG mimarisi ve
+            Manevi Pusula bilişsel mimarisi (Gemini 3.8 Flash + Sistem 1 Refleks Kalkanı), Çelik Kasa RAG ve
             Askıda Pusula infak havuzunun anlık durumu.
           </p>
         </div>
@@ -118,7 +118,7 @@ export default function AdminOverviewPage() {
 
       {/* Two Column Grid: Recent Messages Stream & Recent Donations */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column (2 Cols): Recent Messages Stream with Jev & Gemini Audit Badges */}
+        {/* Left Column (2 Cols): Recent Messages Stream with Audit Badges */}
         <div className="lg:col-span-2 rounded-2xl border border-emerald-950/80 bg-[#0d1411]/90 backdrop-blur-md p-6 shadow-[0_4px_24px_rgba(0,0,0,0.3)] space-y-4">
           <div className="flex items-center justify-between border-b border-emerald-950/60 pb-4">
             <div className="space-y-0.5">
@@ -127,7 +127,7 @@ export default function AdminOverviewPage() {
                 Son Dertleşme Akışı ve Bilişsel Denetim
               </h2>
               <p className="text-xs text-muted-foreground">
-                Gelen mesajların Jev System 1 ve Gemini 2.5 Flash anayasa denetim karnesi.
+                Gelen mesajların Sistem 1 Refleks Süzgeci ve Gemini 3.8 Flash anayasa denetim karnesi.
               </p>
             </div>
 
@@ -241,10 +241,10 @@ export default function AdminOverviewPage() {
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
           </div>
           <div className="text-sm font-bold text-foreground">
-            Jev 1.14 + Gemini 2.5 Flash
+            Gemini 3.8 Flash
           </div>
           <div className="text-[11px] text-muted-foreground leading-relaxed">
-            Context Cache: Değişmez Anayasa (5 Süzgeç, &lt;50ms Teşhis)
+            Yedek Havuz: 3.5 Flash &amp; 3.5 Flash Lite (&lt;800ms Akış)
           </div>
         </div>
 
@@ -260,7 +260,7 @@ export default function AdminOverviewPage() {
             Supabase pgvector (768d)
           </div>
           <div className="text-[11px] text-muted-foreground leading-relaxed">
-            HNSW Cosine + Hibrit RPC Filtresi (Bakara 275-279 Riba Kalkanı)
+            gemini-embedding-001 + HNSW Cosine (Bakara 275-279 Riba Kalkanı)
           </div>
         </div>
 
@@ -276,7 +276,7 @@ export default function AdminOverviewPage() {
             Cloudflare R2 (0 Egress)
           </div>
           <div className="text-[11px] text-muted-foreground leading-relaxed">
-            libopus 32k .ogg Yüksek Kalite Ses Formatı
+            libopus 32k .ogg Halis Aydemir Tefekkür Sohbet Kesitleri
           </div>
         </div>
 
@@ -284,7 +284,7 @@ export default function AdminOverviewPage() {
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
               <ShieldCheck className="h-3.5 w-3.5" />
-              Manevi Süzgeç &amp; Kalkan
+              Manevi Refleks &amp; Kalkan
             </span>
             <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
           </div>
@@ -292,7 +292,7 @@ export default function AdminOverviewPage() {
             5 Sarsılmaz Süzgeç Denetimi
           </div>
           <div className="text-[11px] text-muted-foreground leading-relaxed">
-            Fetva Engeli (Alo 190), Riba Kalkanı ve Kriz Emniyet Hattı (112)
+            0ms Deterministik Kalkan, Fetva Engeli (Alo 190) ve Kriz Hattı (112)
           </div>
         </div>
       </div>

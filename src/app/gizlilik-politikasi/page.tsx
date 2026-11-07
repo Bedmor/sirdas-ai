@@ -147,7 +147,7 @@ export default function PrivacyPolicyPage() {
                     <span>Kendi İradesiyle Paylaşım ve Kimliksizleştirme İlkesi</span>
                   </div>
                   <p className="text-xs text-slate-300 font-light leading-relaxed">
-                    Hukuk disiplininde temel kuraldır: Kişi kendi hür iradesiyle ve anonimleştirilmiş bir ortamda durumunu anlatıyorsa ve sistem bunu kimliğiyle (ad, soyad, T.C. kimlik numarası, ikametgah, telefon rehberi) asla eşleştirmiyorsa, ortada hukuken bir veri ihlali doğmaz. Manevi Pusula Web arayüzü sıfır kimlik bilgisi (zero-PII) prensibiyle çalışır; ziyaretçiye yalnızca rastgele tekil istemci anahtarı atanır.
+                    Hukuk disiplininde temel kuraldır: Kişi kendi hür iradesiyle ve anonimleştirilmiş bir ortamda durumunu anlatıyorsa ve sistem bunu kimliğiyle <strong className="font-bold text-white">(ad, soyad, T.C. kimlik numarası, ikametgah, telefon rehberi)</strong> asla eşleştirmiyorsa, ortada hukuken bir veri ihlali doğmaz. Manevi Pusula Web arayüzü sıfır kimlik bilgisi (zero-PII) prensibiyle çalışır; ziyaretçiye yalnızca rastgele tekil istemci anahtarı atanır.
                   </p>
                 </div>
 

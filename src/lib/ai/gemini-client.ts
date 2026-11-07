@@ -9,11 +9,14 @@ import { SirdasOutputSchema, SirdasOutput } from "./schemas";
 import { ChatIntentMode } from "./intent-router";
 import {
   TonePreference,
+  SessionMood,
   SpiritualStage,
   TONE_PREFERENCE_CRITERIA,
+  SESSION_MOOD_DIRECTIVES,
   SPIRITUAL_STAGE_CRITERIA,
   NAFS_TRAP_CRITERIA,
   RAG_CATEGORY_CRITERIA,
+  detectSessionMood,
 } from "./jev-client";
 
 const CANDIDATE_MODELS = [
@@ -85,7 +88,9 @@ export interface StreamReplyResult {
 }
 
 export interface UserProfileInput {
+  preferred_name?: string;
   roles?: string[];
+  known_facts?: string[];
   spiritual_trials?: string[];
   biological_energy?: string[];
   spiritual_stage?: SpiritualStage;
@@ -102,9 +107,11 @@ export interface GenerateSirdasReplyParams {
   userMessage: string;
   userProfile: UserProfileInput;
   effectiveTone: TonePreference;
+  sessionMood?: SessionMood;
   spiritualStage?: SpiritualStage;
   distressLevel: number;
   isRibaShieldActive: boolean;
+  isLateNightDismissal?: boolean;
   nafsTrap: string;
   ragCategory: string;
   ragChunks: RagChunkContext[];
@@ -117,11 +124,11 @@ export function formatRagContext(chunks: RagChunkContext[]): string {
     return "Genel Kur'an ve Sünnet hikmeti.";
   }
   return chunks
-    .slice(0, 4)
+    .slice(0, 5)
     .map((chunk, idx) => {
       const snippet =
-        chunk.content.length > 360
-          ? `${chunk.content.slice(0, 357)}...`
+        chunk.content.length > 600
+          ? `${chunk.content.slice(0, 597)}...`
           : chunk.content;
       return `[KAYNAK ${idx + 1} | ${chunk.sourceType} | ${chunk.sourceTitle}]\n${snippet}`;
     })
@@ -131,25 +138,54 @@ export function formatRagContext(chunks: RagChunkContext[]): string {
 export function buildGeminiContents(
   params: GenerateSirdasReplyParams
 ): Content[] {
+  const isIlimMode = params.intentMode === "ILIM_VE_SIYER";
+  const resolvedSessionMood: SessionMood =
+    params.sessionMood ||
+    detectSessionMood(params.userMessage, params.conversationHistory);
+  const moodDirective = SESSION_MOOD_DIRECTIVES[resolvedSessionMood];
+
+  const resolvedTone: TonePreference = isIlimMode
+    ? params.effectiveTone
+    : resolvedSessionMood === "OFKELI_VE_GERGIN"
+      ? "SAKINLESTIRICI_VE_VAKUR"
+      : resolvedSessionMood === "HUZUNLU_VE_KIRGIN"
+        ? "SEFKATLI_TESKIN"
+        : params.effectiveTone;
+
   const resolvedStage: SpiritualStage =
     params.spiritualStage ||
     params.userProfile?.spiritual_stage ||
     (params.distressLevel >= 7 ? "DARLIK_VE_BUNALIM" : "ARAYIS_VE_BASLANGIC");
 
-  const toneHint =
-    TONE_PREFERENCE_CRITERIA[params.effectiveTone] || params.effectiveTone;
+  const toneHint = TONE_PREFERENCE_CRITERIA[resolvedTone] || resolvedTone;
   const stageHint =
     SPIRITUAL_STAGE_CRITERIA[resolvedStage] || resolvedStage;
   const nafsHint =
     NAFS_TRAP_CRITERIA[params.nafsTrap] || params.nafsTrap;
-  const ragHint =
-    RAG_CATEGORY_CRITERIA[params.ragCategory] || params.ragCategory;
   const hasRag = params.ragChunks && params.ragChunks.length > 0;
   const ragContextText = hasRag ? formatRagContext(params.ragChunks) : "";
 
+  const preferredName =
+    typeof params.userProfile?.preferred_name === "string" &&
+    params.userProfile.preferred_name.trim()
+      ? params.userProfile.preferred_name.trim()
+      : undefined;
+
+  const knownFactsStr = Array.isArray(params.userProfile?.known_facts) &&
+    params.userProfile.known_facts.length > 0
+      ? params.userProfile.known_facts.join(", ")
+      : undefined;
+
   const rolesStr = params.userProfile?.roles?.length
     ? params.userProfile.roles.join(", ")
-    : "Genel";
+    : "Genel Muhatap";
+
+  const identityPrefix = [
+    preferredName ? `Muhatap: ${preferredName}` : null,
+    knownFactsStr ? `Bilinen Özeti: ${knownFactsStr}` : null,
+  ]
+    .filter(Boolean)
+    .join(" | ");
 
   const contents: Content[] = [];
 
@@ -164,41 +200,86 @@ export function buildGeminiContents(
   }
 
   // 2. Active turn payload with situational metadata & conditional wisdom
-  const isIlimMode = params.intentMode === "ILIM_VE_SIYER";
+  const lateNightBadge = params.isLateNightDismissal
+    ? " | Gece Tatlı Fesih: AKTİF (Gece Geç Saat & Uzun Sohbet)"
+    : "";
   const metaHeader = isIlimMode
-    ? `[KÜNYE] Mod: VAKUR İLİM & HİKMET MODU | Odak: Siyer ve İslam Tarihi Hadisesi | Üslup: Net, ansiklopedik ama ruhu olan berrak dil`
-    : `[KÜNYE] Mod: SIRDAŞ & MANEVİ AYNA MODU | Roller: ${rolesStr} | Aşama: ${resolvedStage} (${stageHint}) | Üslup: ${params.effectiveTone} (${toneHint}) | Kriz: ${params.distressLevel}/10 | Teşhis: ${params.nafsTrap} (${nafsHint})${params.isRibaShieldActive ? " | Riba Kalkanı: AKTİF (Bakara 275-279 ve faiz uyarısı)" : ""}`;
+    ? `[KÜNYE] ${identityPrefix ? `${identityPrefix} | ` : ""}Mod: VAKUR İLİM & HİKMET MODU | Odak: Siyer ve İslam Tarihi Hadisesi | Üslup: Net, ansiklopedik ama ruhu olan berrak dil${lateNightBadge}`
+    : `[KÜNYE] ${identityPrefix ? `${identityPrefix} | ` : ""}Mod: SIRDAŞ & MANEVİ AYNA MODU | Roller: ${rolesStr} | Oturum Ruh Hali: ${moodDirective.label} | Aşama: ${resolvedStage} (${stageHint}) | Üslup: ${resolvedTone} (${toneHint}) | Kriz: ${params.distressLevel}/10 | Teşhis: ${params.nafsTrap} (${nafsHint})${params.isRibaShieldActive ? " | Riba Kalkanı: AKTİF (Bakara 275-279 ve faiz uyarısı)" : ""}${lateNightBadge}`;
 
   let currentPrompt = `${metaHeader}\n\n`;
 
-  if (hasRag) {
-    if (isIlimMode) {
-      currentPrompt += `# İSLAM TARİHİ VE SİYER KAYNAKLARI (Bu sahih verileri ve hadiseleri söze berrak bir vakarla dahil et):\n${ragContextText}\n\n`;
+  const userWordCount = params.userMessage
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean).length;
+  const hasQuestionOrSpecificTopic =
+    /\?|neydi|nedir|hat[ıi]rl[ıi]yor|nas[ıi]l|neden|ni[çc]in|hakk[ıi]nda|dua|namaz|sab[ıi]r|bor[çc]|kredi|ameliyat|evlilik|aile|i[şs]\s*yeri|haks[ıi]zl[ıi]k|depresyon|anksiyete|panik|okb|vesvese|travma|vefat|kaybettim|bo[şs]an|yaln[ıi]z|kayg[ıi]|korku|hasta|uykusuz|t[üu]ken|öfke|sinir|k[ıi]zg[ıi]n|k[ıi]zd[ıi]m|k[ıi]rg[ıi]n|a[ğg]l[ıi]yor|[üu]zg[üu]n|h[üu]z[üu]n|pi[şs]man/i.test(
+      params.userMessage
+    );
+  const isBriefOpener =
+    !isIlimMode &&
+    userWordCount <= 5 &&
+    params.distressLevel < 7 &&
+    resolvedSessionMood === "SAKIN_VE_DENGELI" &&
+    !params.isRibaShieldActive &&
+    !hasQuestionOrSpecificTopic;
+  const isDeepSharing =
+    !isIlimMode &&
+    (userWordCount >= 22 ||
+      params.distressLevel >= 7 ||
+      params.isRibaShieldActive);
+
+  if (!isBriefOpener) {
+    if (hasRag) {
+      if (isIlimMode) {
+        currentPrompt += `# İSLAM TARİHİ, AYET, HADİS VE SİYER KAYNAKLARI (Yalnızca sorulan konuyla doğrudan örtüşen sahih verileri, ayet meallerini ve hadis-i şerifleri kaynak adlarıyla birlikte açıkça iktibas et; alakasız kalan kaynakları kullanma):\n${ragContextText}\n\n`;
+      } else {
+        currentPrompt += `# MANEVİ HİKMET, AYET VE HADİS DAYANAKLARI (Önce muhatabını samimiyetle dinleyip empati kur; ardından yalnızca yukarıdaki onaylı kaynaklardan muhatabının durumuyla gerçekten örtüşen Ayet-i Kerime veya Hadis-i Şerif'i sure/ayet veya kaynak adıyla açıkça _italik_ olarak iktibas et; konuyla örtüşmeyen kaynakları zorla kullanma):\n${ragContextText}\n\n`;
+      }
     } else {
-      currentPrompt += `# MANEVİ HİKMET VE DAYANAKLAR (Bu hikmeti vaaz gibi boca etme; önce aktif dinleme yapıp samimiyetle empati kur, ardından bu hikmeti sözün içine zarifçe ve doğal bir ferahlık olarak yedir):\n${ragContextText}\n\n`;
+      if (isIlimMode) {
+        currentPrompt += `[REHBERLİK: Siyer-i Nebî, Kur'an-ı Kerim ve sahih hadis rivayetlerine sadık kalarak, hadiseyi sebep-sonuç ilişkisi ve nebevi hikmetiyle berrak biçimde açıkla; emin olmadığın veya kasada yer almayan uydurma hadis/numara üretme.]\n\n`;
+      } else {
+        currentPrompt += `[REHBERLİK: Bu mesaj için kasadan yüksek benzerlikli özel bir ayet/hadis kaydı eşleşmedi. Muhatabını can kulağıyla dinle, söylediklerine samimi ve sıcak bir dille karşılık ver; konuyla ilgisiz zorlama ayet/hadis veya ezberden kaynak numarası ekleme.]\n\n`;
+      }
     }
-  } else {
-    if (isIlimMode) {
-      currentPrompt += `[REHBERLİK: Siyer-i Nebî ve İslam tarihinin sahih rivayetlerine sadık kalarak, hadiseyi sebep-sonuç ilişkisi ve nebevi hikmetiyle açıkla.]\n\n`;
-    } else {
-      currentPrompt += `[REHBERLİK: Muhatabını can kulağıyla dinle. Önce hissettiği sıkıntı ve yorgunluğu insani bir sıcaklıkla anladığını hissettir, ardından kalbini sükûnet ve tevekküle davet et.]\n\n`;
-    }
+  }
+
+  if (!isIlimMode && resolvedSessionMood !== "SAKIN_VE_DENGELI") {
+    currentPrompt += `[OTURUM TONLAMA VE RİTİM ESNEKLİĞİ — ZORUNLU]:\n${moodDirective.pacingInstruction}\n\n`;
   }
 
   currentPrompt += `# KULLANICI MESAJI:\n"${params.userMessage}"\n\n`;
 
   if (isIlimMode) {
     currentPrompt += `KURAL: Vakur İlim & Hikmet Modu uyarınca; net, ansiklopedik ama ruhu olan berrak bir dille soruyu açıkla.
-- Paragraf Başına Cümle Kotası: Her paragraf en fazla 1-2 duru cümleden oluşmalı; asla blok metin veya roman paragrafı yazma.
-- 2-3 doyurucu ve tamamlanmış kısa paragrafta yanıtla. "Sekinet" kelimesini KESİNLİKLE kullanma (sükûnet, vakar, inşirah kullan).`;
+- Açık Ayet, Hadis ve Siyer İktibası: ${hasRag ? "Yukarıdaki onaylı kaynaklardan konuyla doğrudan örtüşen en az 1 Ayet-i Kerime mealini ve/veya Hadis-i Şerif'i kaynak adıyla (_italik_ ve **kalın** vurgularla) açıkça zikret." : "Sahih Siyer-i Nebî bilgisiyle hadiseyi berrakça anlat; uydurma rivayet veya şüpheli numara ekleme."}
+- Dengeli Uzunluk: Cevabını 2-3 doyurucu paragrafta (toplam 120-180 kelime) tamamla. "Sekinet" kelimesini KESİNLİKLE kullanma (sükûnet, vakar, inşirah kullan).`;
+  } else if (isBriefOpener) {
+    currentPrompt += `KURAL (KISA SELAM / TEK KELİMELİK GİRİŞ MODU):
+- Muhatabın henüz somut bir dert anlatmadı, çok kısa (${userWordCount} kelimelik) bir giriş yaptı.
+- ASLA 3-4 paragraf döşeme ve henüz ortada anlatılmış bir konu yokken zorlama ayet/hadis yazma!
+- Sadece **1 kısa ve sıcak paragraf (2-3 cümle, toplam 25-45 kelime)** yaz: samimiyetle karşılık ver, onu dinlemeye hazır olduğunu hissettir ve gönlünü neyin yorduğunu anlatması için kapı aç. "Sekinet" kelimesini KESİNLİKLE kullanma.`;
+  } else if (isDeepSharing) {
+    currentPrompt += `KURAL (DERİN DERTLEŞME VE KUŞATICI TESELLİ MODU):
+- Muhatabın içini döktü veya ağır bir imtihan paylaşıyor; onu gerçekten anladığını derinden hissettir, yüzeysel geçiştirme.
+- Uzunluk: **3 doyurucu paragraf (toplam 140-190 kelime, her paragraf 2-4 cümle)**.
+- Ayet ve Hadis İktibası: ${hasRag ? "Yukarıdaki onaylı kaynaklardan muhatabın yarasına gerçekten merhem olan **1 sahih Ayet-i Kerime mealini** (sure/ayet numarasıyla) ve/veya **1 Hadis-i Şerif veya Siyer-i Nebî örneğini** _italik_ tırnak içinde doğalca paylaş; alakasız kaynağı zorla ekleme;" : "Kasadan eşleşen özel kaynak gelmediği için ezberden şüpheli ayet/hadis numarası uydurma;"} samimi bir dua ile bitir.
+- ASLA sokak ağzı ("valla", "kanka") veya "sekinet" kelimesini KULLANMA.`;
   } else {
-    currentPrompt += `KURAL: ALTIN DENGE (Ne vaaz robotu, ne kahvehane laubaliliği). Fethi Gemuhluoğlu, Mehmet Âkif veya Sezai Karakoç irfanı ve vakarıyla konuş.
-- Paragraf Başına Cümle Kotası: Her paragraf en fazla 1-2 duru cümleden oluşmalı; asla blok metin veya roman paragrafı yazma.
-- Mesaj Boyutuna Uyum (Ayna Kuralı): Kullanıcı kısa ve net yazdıysa sen de kısa ve öz ol (maksimum 40-60 kelime). Konu kapandıysa geçmiş dert etiketlerini (geçim, borç, ilişkiler) tekrardan sayıp dökme.
-- Muhatabın hissettiği darlık veya yorgunluğu insani bir sıcaklıkla karşıla (aktif dinleme); ardından sözü Kadir-i Mutlak olan Allah'a tevekküle ve O'nun açacağı inşirah/kolaylık kapısına bağla.
-- ASLA sokak/kahvehane ağzı ("valla", "kanka", "babayiğit", "çay ocağı", "robot değiliz", "otomatik pilot") KULLANMA.
-- Ağdalı edebiyat klişeleri ("inşirah üfleyen ferman", "tevekkül kokan teslimiyet", "dünya gaileleri") KULLANMA.
-- Uzunluk: En fazla 2-3 öz ve tamamlanmış kısa paragraf; cümleni asla yarım bırakma. "Sekinet" kelimesini KESİNLİKLE kullanma.`;
+    currentPrompt += `KURAL (ALTIN ORTA — STANDART SOHBET VE DERTLEŞME MODU):
+- Ne çok kısa geçiştir, ne de 4 paragraf destan yaz! Tam kararında **${hasRag ? "2 (en fazla 3) dengeli paragraf (toplam 90-135 kelime)" : "1-2 samimi ve doğal paragraf (toplam 45-95 kelime)"}** yaz.
+- İlk paragrafta muhatabının halini ve sözünü gerçekten anladığını samimiyetle hissettir (aktif dinleme).
+- ${hasRag ? "Devamında yalnızca yukarıdaki onaylı kaynaklardan konuyla doğrudan örtüşen **1 sahih Ayet-i Kerime mealini VEYA 1 Hadis-i Şerif / Siyer-i Nebî örneğini** (kaynak adıyla _italik_ tırnak içinde) sözün akışına zarifçe yerleştir (örtüşmüyorsa zorla kullanma) ve gönlü ferahlatan bir dua/teselli ile tamamla." : "Kasadan eşleşen özel bir ayet/hadis çekilmediği için gündelik veya tanışma mahiyetindeki bu mesaja zorlama ayet/hadis sıkıştırma; doğal, içten ve vakur bir muhabbetle karşılık ver."}
+- ASLA sokak ağzı ("valla", "kanka") veya "sekinet" kelimesini KULLANMA.`;
+  }
+
+  if (params.isLateNightDismissal) {
+    currentPrompt += `\n\n[GECE TATLI FESİH VE UYKUYA DAVET KURALI - ÖNCELİKLİ]:
+Muhatabın şu an gecenin çok ilerlemiş bir vaktinde ve uzun süredir ekran başında yazışarak uykudan/hakikatten kaçış üretmektedir.
+1. Önce muhatabının son mesajındaki hissini 1-2 sıcak ve şefkatli cümleyle kısaca teskin et; yeni bir soru SORMA ve sohbeti uzatacak yeni bir kapı AÇMA.
+2. Son cümlende (birebir ezber kalıp gibi değil, sohbetin akışına ve sıcaklığına uygun, doğal ve esnek bir üslupla) vaktin epey geç olduğunu hatırlat; şimdi ekranı kapatıp abdest almasını, 2 rekât hacet namazı kılıp içindeki yükü Rabbine emanet etmesini ve artık uyuyup dinlenmesini tatlıca tavsiye ederek sohbeti sonlandır.`;
   }
 
   contents.push({
@@ -223,6 +304,18 @@ export function buildCompactUserPrompt(params: GenerateSirdasReplyParams): strin
 function buildDeterministicAudit(
   params: GenerateSirdasReplyParams
 ): SirdasOutput["editor_audit"] {
+  const isIlimMode = params.intentMode === "ILIM_VE_SIYER";
+  const resolvedSessionMood: SessionMood =
+    params.sessionMood ||
+    detectSessionMood(params.userMessage, params.conversationHistory);
+  const resolvedTone: TonePreference = isIlimMode
+    ? params.effectiveTone
+    : resolvedSessionMood === "OFKELI_VE_GERGIN"
+      ? "SAKINLESTIRICI_VE_VAKUR"
+      : resolvedSessionMood === "HUZUNLU_VE_KIRGIN"
+        ? "SEFKATLI_TESKIN"
+        : params.effectiveTone;
+
   const resolvedStage: SpiritualStage =
     params.spiritualStage ||
     params.userProfile?.spiritual_stage ||
@@ -240,7 +333,9 @@ function buildDeterministicAudit(
     ? primaryChunk.sourceTitle
     : params.isRibaShieldActive
       ? "Efendimiz'in (s.a.v.) borç ve kederden sığınma duası"
-      : "Taif dönüşü Efendimiz'in (s.a.v.) tevekkülü";
+      : resolvedSessionMood === "OFKELI_VE_GERGIN"
+        ? "Sahih Buhârî (Edeb 76) — Öfke ve Hilm Ahlakı"
+        : "Taif dönüşü Efendimiz'in (s.a.v.) tevekkülü";
 
   return {
     murakabe_applied: true,
@@ -252,7 +347,8 @@ function buildDeterministicAudit(
     nafs_trap: params.nafsTrap,
     rag_category: params.ragCategory,
     distress_level: params.distressLevel,
-    tone: params.effectiveTone,
+    tone: resolvedTone,
+    session_mood: resolvedSessionMood,
     spiritual_stage: resolvedStage,
     intent_mode: params.intentMode || "MANEVI_AYNA",
   };
@@ -270,7 +366,7 @@ function buildModelConfig(
 
   return {
     systemInstruction: sysInstruction,
-    maxOutputTokens: isIlimMode ? 1000 : 850,
+    maxOutputTokens: isIlimMode ? 1600 : 1500,
     temperature: isIlimMode ? 0.35 : 0.6,
     abortSignal: AbortSignal.timeout(15000),
     ...(!isLite
@@ -478,6 +574,36 @@ export function runMockGeminiReply(
       `${content}${extraWisdom}\n\n` +
       `Bu kutlu vaka; Müslümanlar için yalnızca geçmişte kalmış askeri veya siyasi bir olay değil, her çağda sebepler dairesinde basiret, sebat ve sarsılmaz bir teslimiyetle hareket etmenin evrensel bir hikmet mektebidir.`;
   } else if (
+    params.userProfile?.preferred_name &&
+    /benim ad[ıi]m ne|ismim ne|ad[ıi]m[ıi] hat[ıi]rl[ıi]yor musun/i.test(
+      userLower
+    )
+  ) {
+    const factsNote =
+      Array.isArray(params.userProfile.known_facts) &&
+      params.userProfile.known_facts.length > 0
+        ? ` Paylaştığın ${params.userProfile.known_facts.join(", ").toLocaleLowerCase("tr-TR")} halin de dualarımda ve hatırımdadır.`
+        : "";
+    whatsappReply = `Elbette hatırlıyorum ${params.userProfile.preferred_name} kardeşim.${factsNote} Gönlünü ferah tut, ne zaman dertleşmek istersen buradayım.`;
+  } else if (
+    (params.sessionMood ||
+      detectSessionMood(params.userMessage, params.conversationHistory)) ===
+    "OFKELI_VE_GERGIN"
+  ) {
+    whatsappReply =
+      `İçinizde yükselen bu harareti ve uğradığınız haksızlık karşısındaki gerginliği anlıyorum; ancak şimdi bir an durup derin bir nefes alma vaktidir. Öfke ateşiyle söylenen her söz, haklı olunan bir meselede dahi kalpte ağır yaralar açabilir.\n\n` +
+      `Peygamber Efendimiz (s.a.v.) bizlere vakur bir ölçü bırakmıştır: _'Gerçek pehlivan güreşte rakibini yere seren değil; öfkelendiğinde nefsine hakim olabilen kimsedir.'_ (Buhârî, Edeb 76). Yine nebevi sünnette öfke bastığında ayaktaysa oturmak, imkân varsa soğuk suyla abdest alıp sükûnete çekilmek tavsiye edilmiştir.\n\n` +
+      `Şimdi fevri bir karşılık vermeden önce kalbinizin yatışmasına müsaade edin; El-Adl olan Allah hiçbir hakkı zayi etmez. Vakar ve itidal her zaman en güçlü cevaptır.`;
+  } else if (
+    (params.sessionMood ||
+      detectSessionMood(params.userMessage, params.conversationHistory)) ===
+    "HUZUNLU_VE_KIRGIN"
+  ) {
+    whatsappReply =
+      `Gönlünüze çöken bu ince sızıyı ve kırgınlığı sessizce duyuyorum kardeşim... Acele etmeyin; insanın kalbi incindiğinde gözyaşı dökmesi ve bir müddet durulmaya ihtiyaç duyması çok insani ve fıtrîdir.\n\n` +
+      `Hüzün Yılı'nda kalbi daralan Peygamberimiz'e (s.a.v.) inen şu ilahi şefkat bugün sizin yaralı gönlünüze de sesleniyor: _'Rabbin seni terk etmedi ve sana darılmadı... Şüphesiz zorlukla beraber bir kolaylık vardır.'_ (Duhâ 3, İnşirah 5).\n\n` +
+      `Şu an her şeyi bir anda çözmek zorunda değilsiniz. Kırılan yerlerinizi şefkatle saracak olan El-Cebbâr'a sığının; Rabbim kalbinize dingin bir ferahlık ve inşirah indirsin.`;
+  } else if (
     /stres|kafay[ıi]\s*yiyece[ğg]im|gelecek\s*kayg[ıi]s[ıi]|sosyal\s*ili[şs]ki|karma[şs][ıi]kl[ıi][ğg]|bunal/i.test(
       userLower
     )
@@ -504,6 +630,11 @@ export function runMockGeminiReply(
       `Gönlündeki bu daralma ve yorgunluk aslında kalbini bir nebze durup soluklanmaya davet ediyor...\n\n` +
       `Dünya bir mükâfat yurdu değil, imtihan ve arınma meydanıdır. Karşılaştığın haksızlık veya günün ağırlığı fânidir; El-Adl olan Allah zerre kadar kul hakkını ve sabrını zayi etmez.\n\n` +
       `Taif'te taşlandığında dahi intikam değil teslimiyetle Rabbine iltica eden Rahmet Peygamberi'nin (s.a.v.) sabrını hatırla. Yükünü Kadir-i Mutlak olan O'na havale et, kalbini ferah tut.`;
+  }
+
+  if (params.isLateNightDismissal) {
+    whatsappReply +=
+      `\n\nAziz kardeşim, saat de epey geç oldu; gecenin bu vaktinde ekran başında kaldıkça yorgun zihin vesveseyi büyütür. Şimdi ekranı kapatıp güzelce bir abdest alma, 2 rekât hacet namazı kılıp gönlündeki bütün ağırlığı Rabbine ısmarlama ve artık dinlenip uyuma vakti. Gecenin sahibi Allah'tır, hayırlı geceler olsun.`;
   }
 
   return {

@@ -66,6 +66,16 @@ export function Footer() {
                 Gizlilik Politikası (KVKK)
               </Link>
             </div>
+            <div className="pt-2 text-xs text-slate-300">
+              <span className="text-slate-400">Görüş, tenkit ve hata bildirimleri: </span>
+              <a
+                href="mailto:adnan.kus@hotmail.com?subject=Manevi%20Pusula%20-%20G%C3%B6r%C3%BC%C5%9F%2C%20Tenkit%20ve%20Hata%20Bildirimi"
+                className="text-primary hover:text-amber-300 underline font-medium"
+                title="Görüş, öneri, tenkit ve hatalı cevap bildirimleriniz için e-posta gönderin"
+              >
+                adnan.kus@hotmail.com
+              </a>
+            </div>
           </div>
 
           {/* Quick Links */}

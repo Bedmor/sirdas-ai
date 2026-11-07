@@ -132,9 +132,10 @@ export async function matchKnowledgeChunks(
       }
     }
 
+    const threshold = params.match_threshold ?? 0.52;
     const { data, error } = await supabase.rpc("match_knowledge_chunks", {
       query_embedding: embeddingPayload,
-      match_threshold: params.match_threshold ?? 0.3,
+      match_threshold: threshold,
       match_count: params.match_count ?? 4,
       filter_category: params.filter_category ?? null,
       filter_nafs: params.filter_nafs ?? null,
@@ -158,12 +159,18 @@ export async function matchKnowledgeChunks(
       return { data: null, error: new Error(error.message) };
     }
 
-    if (Array.isArray(data) && data.length > 0) {
-      return { data: data as KnowledgeChunkMatch[], error: null };
+    if (Array.isArray(data)) {
+      const filtered = (data as KnowledgeChunkMatch[]).filter(
+        (row) =>
+          (params.force_riba && row.is_riba_related) ||
+          typeof row.similarity !== "number" ||
+          row.similarity >= threshold
+      );
+      return { data: filtered, error: null };
     }
 
     return {
-      data: buildLocalFallbackMatches(params),
+      data: [],
       error: null,
     };
   } catch {

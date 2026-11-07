@@ -10,6 +10,7 @@ import {
 } from "@/lib/ai/gemini-client";
 import {
   evaluateSpiritualGuardrails,
+  filterUsedSourcesByReply,
   retrieveCelikKasaContext,
   persistConversationTurn,
   UnifiedEditorAudit,
@@ -293,12 +294,14 @@ export async function POST(req: NextRequest) {
                   queryEmbedding,
                   jevResult,
                 });
-              ragChunkIds = chunks.map((c) => c.id);
 
               const resolvedTone =
-                jevResult.distress_level >= 8
-                  ? "SEFKATLI_TESKIN"
-                  : jevResult.recommended_tone || "SEFKATLI_TESKIN";
+                jevResult.session_mood === "OFKELI_VE_GERGIN"
+                  ? "SAKINLESTIRICI_VE_VAKUR"
+                  : jevResult.session_mood === "HUZUNLU_VE_KIRGIN" ||
+                      jevResult.distress_level >= 8
+                    ? "SEFKATLI_TESKIN"
+                    : jevResult.recommended_tone || "SEFKATLI_TESKIN";
               const resolvedStage =
                 jevResult.distress_level >= 8
                   ? "DARLIK_VE_BUNALIM"
@@ -313,6 +316,7 @@ export async function POST(req: NextRequest) {
                   spiritual_stage: resolvedStage,
                 },
                 effectiveTone: resolvedTone,
+                sessionMood: jevResult.session_mood,
                 spiritualStage: resolvedStage,
                 distressLevel: jevResult.distress_level,
                 isRibaShieldActive,
@@ -376,8 +380,14 @@ export async function POST(req: NextRequest) {
                 controller.enqueue(encoder.encode(frame));
               }
 
+              const usedChunks = filterUsedSourcesByReply(
+                chunks,
+                accumulatedReply
+              );
+              ragChunkIds = usedChunks.map((c) => c.id);
+
               if (streamFinalResult?.selectedAudioChunkId) {
-                const found = chunks.find(
+                const found = usedChunks.find(
                   (c) => c.id === streamFinalResult?.selectedAudioChunkId
                 );
                 audioUrlSent = found?.audioUrl ?? null;
@@ -496,12 +506,14 @@ export async function POST(req: NextRequest) {
         queryEmbedding,
         jevResult,
       });
-      ragChunkIds = chunks.map((c) => c.id);
 
       const resolvedTone =
-        jevResult.distress_level >= 8
-          ? "SEFKATLI_TESKIN"
-          : jevResult.recommended_tone || "SEFKATLI_TESKIN";
+        jevResult.session_mood === "OFKELI_VE_GERGIN"
+          ? "SAKINLESTIRICI_VE_VAKUR"
+          : jevResult.session_mood === "HUZUNLU_VE_KIRGIN" ||
+              jevResult.distress_level >= 8
+            ? "SEFKATLI_TESKIN"
+            : jevResult.recommended_tone || "SEFKATLI_TESKIN";
       const resolvedStage =
         jevResult.distress_level >= 8
           ? "DARLIK_VE_BUNALIM"
@@ -516,6 +528,7 @@ export async function POST(req: NextRequest) {
           spiritual_stage: resolvedStage,
         },
         effectiveTone: resolvedTone,
+        sessionMood: jevResult.session_mood,
         spiritualStage: resolvedStage,
         distressLevel: jevResult.distress_level,
         isRibaShieldActive,
@@ -527,8 +540,11 @@ export async function POST(req: NextRequest) {
       replyText = sirdasReply.reply_text || sirdasReply.whatsapp_reply || "";
       editorAudit = sirdasReply.editor_audit;
 
+      const usedChunks = filterUsedSourcesByReply(chunks, replyText);
+      ragChunkIds = usedChunks.map((c) => c.id);
+
       if (sirdasReply.selected_audio_chunk_id) {
-        const matched = chunks.find(
+        const matched = usedChunks.find(
           (c) => c.id === sirdasReply.selected_audio_chunk_id
         );
         if (matched?.audioUrl) {

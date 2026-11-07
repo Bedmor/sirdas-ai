@@ -45,7 +45,7 @@ export function Navbar() {
         {/* Desktop Navigation */}
         <nav aria-label="Ana Gezinti" className="hidden lg:flex items-center gap-8">
           <Link
-            className="text-sm text-primary hover:text-amber-300 font-medium transition-colors py-1 px-2 rounded-md focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
+            className="text-sm text-primary hover:text-amber-300 font-medium transition-colors py-1 px-2 rounded-md focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412] animate-pulse"
             href="/"
           >
             Tefekkür Odası
@@ -105,7 +105,7 @@ export function Navbar() {
           <Link
             href="/"
             onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 rounded-md text-sm font-medium text-slate-200 hover:text-primary hover:bg-surface-container"
+            className="block px-3 py-2 rounded-md text-sm font-medium text-primary hover:text-amber-300 hover:bg-surface-container animate-pulse"
           >
             Tefekkür Odası
           </Link>

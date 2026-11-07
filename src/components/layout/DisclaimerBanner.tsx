@@ -13,10 +13,9 @@ export function DisclaimerBanner({ className = "" }: { className?: string }) {
             Manevi Sınırlar &amp; Beyan:
           </span>
           <p className="text-[11px] text-slate-300 leading-snug truncate" lang="tr">
-            Manevi Pusula bir hoca, fetva makamı veya psikolojik klinik mercii değildir; dini ve hukuki
-            bağlayıcılığı yoktur. Fıkhi hükümler için{" "}
-            <strong className="text-white font-medium">Alo 190</strong>, acil ve kriz durumlarında{" "}
-            <strong className="text-white font-medium">112 Acil</strong> hattı esastır.
+            Manevi Pusula fetva mercii değildir, hata yapabilir; bağlayıcılığı yoktur. Fıkhi hükümler için{" "}
+            <strong className="text-white font-medium">Alo 190</strong>, kriz ve acil durumlarda{" "}
+            <strong className="text-white font-medium">112 Acil</strong> esastır.
           </p>
         </div>
 

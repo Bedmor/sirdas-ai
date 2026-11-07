@@ -1,6 +1,7 @@
 export interface JevAnalysisRequest {
   userMessage: string;
   userContextSnippet?: string;
+  sessionHistory?: ReadonlyArray<{ role: string; content: string }>;
 }
 
 export type NafsTrap =
@@ -57,10 +58,20 @@ export type RagCategory =
 
 export type TonePreference =
   | "SEFKATLI_TESKIN"
+  | "SAKINLESTIRICI_VE_VAKUR"
   | "DIRILIS_VE_GAYRET"
   | "NET_VE_MUALLIM"
   | "HIKMETLI_SUKUT"
   | "TAVIZSIZ_MUALLIM";
+
+export type SessionMood =
+  | "HUZUNLU_VE_KIRGIN"
+  | "OFKELI_VE_GERGIN"
+  | "KAYGILI_VE_DARALMIS"
+  | "YORGUN_VE_TUKENMIS"
+  | "PISMAN_VE_MAHCUP"
+  | "KARARLI_VE_GAYRETLI"
+  | "SAKIN_VE_DENGELI";
 
 export type SpiritualStage =
   | "ARAYIS_VE_BASLANGIC"
@@ -77,6 +88,7 @@ export interface JevAnalysisResult {
   rag_category: RagCategory;
   distress_level: number;
   recommended_tone?: TonePreference;
+  session_mood?: SessionMood;
   spiritual_stage?: SpiritualStage;
   is_violence_or_abuse?: number;
   violence_type?: "perpetrator" | "victim";
@@ -154,15 +166,70 @@ export const RAG_CATEGORY_CRITERIA: Record<string, string> = {
 };
 
 export const TONE_PREFERENCE_CRITERIA: Record<TonePreference, string> = {
-  SEFKATLI_TESKIN: "Yaralı, tükenmiş gönüllere şefkat ve İnşirah esintisi",
+  SEFKATLI_TESKIN:
+    "Hüzünlü, kırgın ve yaralı gönüllere yavaş tempolu, yumuşak, şefkatli ve İnşirah esintili teselli dili",
+  SAKINLESTIRICI_VE_VAKUR:
+    "Öfkeli, gergin ve feveran halindeki muhataba ateşi söndüren, serinkanlı, sakinleştirici ve nebevi vakar taşıyan dengeleyici üslup",
   DIRILIS_VE_GAYRET:
-    "Uyuşukluk ve atalet içindekilere sorumluluk hatırlatan dinamik üslup",
+    "Uyuşukluk, atalet veya niyet aşamasındakilere sorumluluk ve ümit aşılayan dinamik üslup",
   NET_VE_MUALLIM:
-    "Hakkı dosdoğru, tavizsiz ve eğip bükmeden önüne koyan vakar",
+    "Hakkı dosdoğru, tavizsiz ve eğip bükmeden berrakça ortaya koyan vakar",
   HIKMETLI_SUKUT:
-    "Çok konuşmak yerine az, öz bir ayet ve derin bir soruyla düşündüren arifane dil",
+    "Çok konuşmak yerine az, öz bir ayet ve derin bir tefekkürle düşündüren arifane dil",
   TAVIZSIZ_MUALLIM:
     "Nefsle doğrudan yüzleştiren tavizsiz ve vakur muallim üslubu",
+};
+
+export const SESSION_MOOD_DIRECTIVES: Record<
+  SessionMood,
+  {
+    label: string;
+    recommendedTone: TonePreference;
+    pacingInstruction: string;
+  }
+> = {
+  HUZUNLU_VE_KIRGIN: {
+    label: "Hüzünlü / Kırgın (Yavaş & Şefkatli Tonlama)",
+    recommendedTone: "SEFKATLI_TESKIN",
+    pacingInstruction:
+      "Muhatap şu an hüzünlü, kırgın veya kederli bir ruh halinde. Cümle ritmini YAVAŞLAT; dingin, acele etmeyen, yumuşak geçişli ve çok şefkatli bir ton kullan. Hemen çözüm veya ödev dayatma; önce acısını ve kırgınlığını sessiz bir merhametle sar, ardından şefkatle teselli et.",
+  },
+  OFKELI_VE_GERGIN: {
+    label: "Öfkeli / Gergin (Sakinleştirici & Vakur Tonlama)",
+    recommendedTone: "SAKINLESTIRICI_VE_VAKUR",
+    pacingInstruction:
+      "Muhatap şu an öfkeli, kızgın veya haksızlık karşısında hararetli bir ruh halinde. SAKİNLEŞTİRİCİ VE VAKUR bir ton kullan: ne öfkesini körükleyip yangına körükle git, ne de üstten parmak sallayıp yargıla. Serinkanlı, ağırbaşlı, tansiyonu düşüren ve derin bir nefes aldıran itidal diliyle konuş; nebevi hilm ve öfke anında sükûnet sünnetini vakurca hatırlat.",
+  },
+  KAYGILI_VE_DARALMIS: {
+    label: "Kaygılı / Daralmış (Emniyet Veren Dingin Tonlama)",
+    recommendedTone: "SEFKATLI_TESKIN",
+    pacingInstruction:
+      "Muhatap şu an kaygılı ve daralmış durumda. Panik ve telaş havasını dağıtan tane tane, emniyet telkin eden, yavaş ve güven veren şefkatli bir tonlama kullan.",
+  },
+  YORGUN_VE_TUKENMIS: {
+    label: "Yorgun / Tükenmiş (Yormayan & Saran Tonlama)",
+    recommendedTone: "SEFKATLI_TESKIN",
+    pacingInstruction:
+      "Muhatap ruhen ve zihnen yorgun/tükenmiş durumda. Zihni uzun kurallarla yormayan, omuzdan yük indiren, dinlendirici, yavaş ve sarıp sarmalayan bir şefkat dili kullan.",
+  },
+  PISMAN_VE_MAHCUP: {
+    label: "Pişman / Muhasebede (Kuşatıcı & Ümitvar Tonlama)",
+    recommendedTone: "SEFKATLI_TESKIN",
+    pacingInstruction:
+      "Muhatap pişmanlık ve mahcubiyet içinde. Kınamayan, utandırmayan; tevbe kapısının genişliğini ve İlahi rahmeti yumuşak bir vakarla hissettiren ümitvar bir ton kullan.",
+  },
+  KARARLI_VE_GAYRETLI: {
+    label: "Niyetli / Gayretli (Canlandırıcı & İstikamet Veren Tonlama)",
+    recommendedTone: "DIRILIS_VE_GAYRET",
+    pacingInstruction:
+      "Muhatap hayırlı bir niyet ve gayret içinde. Bu güzel yönelişi destekleyen, ümit ve azim aşılayan sıcak ve diriltici bir üslup kullan.",
+  },
+  SAKIN_VE_DENGELI: {
+    label: "Sakin / Dengeli (Doğal & Hikmetli Tonlama)",
+    recommendedTone: "SEFKATLI_TESKIN",
+    pacingInstruction:
+      "Muhatap dengeli bir tefekkür ve sohbet halinde. Samimi, duru ve vakur bir hasbihal ritmi kullan.",
+  },
 };
 
 export const SPIRITUAL_STAGE_CRITERIA: Record<SpiritualStage, string> = {
@@ -179,7 +246,7 @@ export const SPIRITUAL_STAGE_CRITERIA: Record<SpiritualStage, string> = {
 };
 
 export const FATWA_REJECTION_MESSAGE =
-  "Ben fıkhi bir merci veya fetva makamı değilim. Bu sorunuzun şer'i/hukuki hükmü (helal/haram/caiz/boşanma/miras) için Diyanet İşleri Başkanlığı'na (Alo 190) veya liyakatli ehliyet sahibi müftülüklere danışabilirsiniz.\n\n" +
+  "Ben bir yapay zekâyım ve fetva mercii değilim; durumunuzun özel şartlarını eksik değerlendirmiş veya yanlış bilgi vermiş olabilirim. Bu sorunuzun şer'i/fıkhi hükmü (ibadet sıhhati, helal/haram, caiz, boşanma, miras vb.) için lütfen Diyanet İşleri Başkanlığı'nı (Alo 190 Fetva Hattı) arayınız veya ehliyetli müftülüklere danışınız.\n\n" +
   "Ancak bu sürecin ruhunuzda, ailenizde veya iç dünyanızda oluşturduğu ağırlık, imtihan ve tevekkül boyutu üzerine dertleşebiliriz.";
 
 export const CRISIS_EMERGENCY_MESSAGE =
@@ -222,9 +289,20 @@ export const FATWA_KEYWORDS: ReadonlyArray<string> = [
   "abdest bozulur mu",
   "abdesti bozar mı",
   "abdestimi bozar mı",
+  "abdest geçerli mi",
+  "abdestim geçerli mi",
+  "abdest kabul olur mu",
+  "abdestim kabul olur mu",
+  "abdest sahih mi",
+  "abdestte farz mı",
+  "abdestte sünnet mi",
   "orucum bozuldu",
   "orucu bozar mı",
   "orucumu bozar mı",
+  "oruç geçerli mi",
+  "orucum geçerli mi",
+  "oruç kabul olur mu",
+  "orucum kabul olur mu",
   "fetva",
   "hükmü nedir",
   "fıkhi hükmü",
@@ -233,12 +311,38 @@ export const FATWA_KEYWORDS: ReadonlyArray<string> = [
   "dinen günah mı",
   "gusül gerekir mi",
   "gusul gerekir mi",
+  "gusül geçerli mi",
+  "guslüm geçerli mi",
+  "gusül kabul olur mu",
+  "gusül bozulur mu",
+  "burna su",
+  "burnuma su",
+  "ağza su",
+  "ağzıma su",
+  "mazmaza",
+  "istinşak",
+  "özür sahibi",
+  "sahib-i özür",
+  "özür hali",
+  "özür kanı",
+  "özür abdesti",
+  "istihaze",
+  "dişim kanadı",
+  "burnum kanadı",
   "zekat",
   "zekât",
   "kefaret",
   "yemin kefareti",
   "sehiv secdesi",
   "namazı bozar mı",
+  "namazım bozulur mu",
+  "namaz geçerli mi",
+  "namazım geçerli mi",
+  "namaz kabul olur mu",
+  "namazım kabul olur mu",
+  "namaz sahih mi",
+  "farz mı sünnet mi",
+  "sünnet mi farz mı",
   "imam nikahı",
   "mehir",
   "iddet",
@@ -553,9 +657,20 @@ export const HEURISTIC_TOPIC_RULES: ReadonlyArray<HeuristicTopicRule> = [
     spiritualStage: "DARLIK_VE_BUNALIM",
   },
   {
-    keywords: ["öfke", "haksız", "kin"],
+    keywords: [
+      "öfke",
+      "sinir",
+      "kızgın",
+      "kızdım",
+      "haksız",
+      "kin",
+      "nefret",
+      "çileden",
+      "tahammülüm kalmadı",
+    ],
     nafsTrap: "INTIKAM_VE_HASET",
     ragCategory: "OFKE_VE_AHLAK",
+    recommendedTone: "SAKINLESTIRICI_VE_VAKUR",
   },
   {
     keywords: ["elalem", "insanlar", "rezil"],

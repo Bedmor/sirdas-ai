@@ -9,6 +9,9 @@ import {
   Search,
   HeartPulse,
   Brain,
+  User,
+  Bot,
+  Layers,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -106,37 +109,46 @@ const DEMO_AUDIT_MESSAGES: AuditMessage[] = [
 
 export default function AuditLogsPage() {
   const [messages, setMessages] = useState<AuditMessage[]>([]);
-  const [filterMurakabe, setFilterMurakabe] = useState<"all" | "yes" | "no">(
-    "all"
-  );
-  const [filterRiba, setFilterRiba] = useState<"all" | "yes" | "no">("all");
-  const [filterFatwa, setFilterFatwa] = useState<"all" | "yes">("all");
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<"USER" | "ASSISTANT" | "all">("USER");
   const [filterDistress, setFilterDistress] = useState<
     "all" | "high" | "medium" | "low"
   >("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const res = await fetch("/api/admin/stats");
-        const json = await res.json();
-        if (json.success && json.data.recentMessages) {
-          const auditOnly = (json.data.recentMessages as AuditMessage[]).filter(
-            (m) => m.role === "ASSISTANT" || m.editorAudit != null
-          );
-          setMessages(auditOnly);
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/admin/audit-logs?limit=150");
+      const json = await res.json();
+      if (json.success && Array.isArray(json.messages)) {
+        setMessages(json.messages as AuditMessage[]);
+      } else {
+        // Fallback to stats endpoint if audit-logs fails
+        const statsRes = await fetch("/api/admin/stats");
+        const statsJson = await statsRes.json();
+        if (statsJson.success && statsJson.data?.recentMessages) {
+          setMessages(statsJson.data.recentMessages as AuditMessage[]);
         }
-      } catch (e) {
-        console.error("Audit log fetch error:", e);
       }
+    } catch (e) {
+      console.error("Audit log fetch error:", e);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     loadData();
   }, []);
 
-  const displayMessages: AuditMessage[] =
-    messages.length > 0 ? messages : DEMO_AUDIT_MESSAGES;
+  const displayMessages: AuditMessage[] = messages;
+
+  const userCount = displayMessages.filter((m) => m.role === "USER").length;
+  const assistantCount = displayMessages.filter(
+    (m) => m.role === "ASSISTANT"
+  ).length;
 
   const highDistressCount = displayMessages.filter(
     (m) => getDistress(m) >= 8
@@ -151,19 +163,7 @@ export default function AuditLogsPage() {
   const totalCount = displayMessages.length || 1;
 
   const filtered = displayMessages.filter((msg) => {
-    if (filterMurakabe === "yes" && !msg.editorAudit?.murakabe_applied)
-      return false;
-    if (filterMurakabe === "no" && msg.editorAudit?.murakabe_applied)
-      return false;
-
-    if (filterRiba === "yes" && !msg.editorAudit?.riba_warning_included)
-      return false;
-    if (filterRiba === "no" && msg.editorAudit?.riba_warning_included)
-      return false;
-
-    if (filterFatwa === "yes" && getIsFatwa(msg) < 0.7) {
-      return false;
-    }
+    if (activeTab !== "all" && msg.role !== activeTab) return false;
 
     const distress = getDistress(msg);
     if (filterDistress === "high" && distress < 8) return false;
@@ -195,7 +195,7 @@ export default function AuditLogsPage() {
               variant="gold"
               className="text-[11px] bg-amber-500/15 text-amber-300 border border-amber-500/30 font-mono"
             >
-              System 1 + System 2 Denetimi
+              Sistem 1 Refleks + Sistem 2 Gemini
             </Badge>
             <span className="text-xs text-muted-foreground flex items-center gap-1">
               <Sparkles className="h-3 w-3 text-emerald-400" />
@@ -203,30 +203,37 @@ export default function AuditLogsPage() {
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold font-serif tracking-tight text-foreground">
-            Jev &amp; Gemini Audit Denetim Günlüğü
+            Bilişsel Denetim ve Audit Günlüğü
           </h1>
           <p className="text-xs text-muted-foreground max-w-2xl">
-            5 Sarsılmaz Manevi Süzgeç (Murakabe, Rıza, Tevekkül, Talâk 2-3,
-            İmtihan), Riba Kalkanı, Fetva Engeli ve Nefis Tuzağı kararlarının
-            anlık bilişsel telemetri dökümü.
+            Sistem 1 Refleks sınıflandırması ve Gemini 3.8 Flash güvenlik/kalite kontrolleri anlık telemetri dökümü.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 bg-emerald-950/40 px-3 py-1.5 rounded-xl border border-emerald-900/40 text-xs">
-          <Brain className="h-4 w-4 text-emerald-400" />
-          <span className="text-muted-foreground">Aktif Model:</span>
-          <span className="text-foreground font-mono font-semibold">
-            Gemini 2.5 Flash
-          </span>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={loadData}
+            disabled={loading}
+            className="px-3 py-1.5 rounded-xl border border-emerald-900/60 bg-emerald-950/30 hover:bg-emerald-900/40 text-emerald-300 text-xs font-medium transition-colors"
+          >
+            {loading ? "Yenileniyor..." : "Yenile"}
+          </button>
+          <div className="flex items-center gap-2 bg-emerald-950/40 px-3 py-1.5 rounded-xl border border-emerald-900/40 text-xs">
+            <Brain className="h-4 w-4 text-emerald-400" />
+            <span className="text-muted-foreground">Aktif Model:</span>
+            <span className="text-foreground font-mono font-semibold">
+              Gemini 3.8 Flash
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Jev Crisis Score Distribution Overview Strip */}
+      {/* Distress Score Distribution Overview Strip */}
       <div className="p-5 rounded-2xl border border-emerald-950/80 bg-[#0d1411]/90 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.3)] space-y-3">
         <div className="flex items-center justify-between text-xs">
           <span className="font-semibold text-foreground flex items-center gap-2">
             <HeartPulse className="h-4 w-4 text-rose-400" />
-            Jev Kriz &amp; Ruhsal Sıkıntı (Distress) Dağılımı
+            Sistem 1 Kriz &amp; Ruhsal Sıkıntı (Distress) Dağılımı
           </span>
           <span className="text-muted-foreground font-mono text-[11px]">
             Toplam {displayMessages.length} denetim oturumu
@@ -288,7 +295,7 @@ export default function AuditLogsPage() {
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-emerald-400" />
               <span className="text-xs text-emerald-300 font-medium">
-                Sükûnet &amp; İrşad (&lt; 5)
+                Dengeli &amp; Normal (&lt; 5)
               </span>
             </div>
             <span className="text-xs font-mono font-bold text-emerald-400">
@@ -299,96 +306,112 @@ export default function AuditLogsPage() {
         </div>
       </div>
 
-      {/* Filter Toolbar */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 p-4 rounded-2xl border border-emerald-950/80 bg-[#0d1411]/90 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
-        <div>
-          <label className="text-[11px] font-semibold text-muted-foreground block mb-1.5">
-            Murakabe Filtresi
-          </label>
-          <select
-            value={filterMurakabe}
-            onChange={(e) =>
-              setFilterMurakabe(e.target.value as "all" | "yes" | "no")
-            }
-            className="w-full h-9 rounded-lg border border-emerald-950 bg-emerald-950/40 text-foreground px-2.5 text-xs focus:ring-1 focus:ring-emerald-500 focus:outline-none"
-          >
-            <option value="all">Tümü (Murakabe)</option>
-            <option value="yes">Murakabe Uygulandı (✓)</option>
-            <option value="no">Anomali / Eksik (✗)</option>
-          </select>
+      {/* Tab Navigation & Search Toolbar */}
+      <div className="space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          {/* Role Tabs */}
+          <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-emerald-950/40 border border-emerald-900/40 w-fit">
+            <button
+              onClick={() => setActiveTab("USER")}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium transition-all ${
+                activeTab === "USER"
+                  ? "bg-emerald-600/30 text-emerald-200 border border-emerald-500/40 shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <User className="h-3.5 w-3.5 text-emerald-400" />
+              <span>Kullanıcı Mesajları (Sorular)</span>
+              <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-emerald-950 text-emerald-300 font-mono border border-emerald-800/50">
+                {userCount}
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("ASSISTANT")}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium transition-all ${
+                activeTab === "ASSISTANT"
+                  ? "bg-amber-600/30 text-amber-200 border border-amber-500/40 shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Bot className="h-3.5 w-3.5 text-amber-400" />
+              <span>Manevi Pusula Yanıtları (Ajan)</span>
+              <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-amber-950 text-amber-300 font-mono border border-amber-800/50">
+                {assistantCount}
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("all")}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium transition-all ${
+                activeTab === "all"
+                  ? "bg-emerald-950 text-emerald-300 border border-emerald-700/60 shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Layers className="h-3.5 w-3.5 text-muted-foreground" />
+              <span>Tüm Akış</span>
+              <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-emerald-950/80 text-muted-foreground font-mono">
+                {displayMessages.length}
+              </span>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground font-mono">
+              Filtrelenen: <strong className="text-foreground">{filtered.length}</strong> / {displayMessages.length}
+            </span>
+          </div>
         </div>
 
-        <div>
-          <label className="text-[11px] font-semibold text-muted-foreground block mb-1.5">
-            Riba (Faiz) Kalkanı
-          </label>
-          <select
-            value={filterRiba}
-            onChange={(e) =>
-              setFilterRiba(e.target.value as "all" | "yes" | "no")
-            }
-            className="w-full h-9 rounded-lg border border-emerald-950 bg-emerald-950/40 text-foreground px-2.5 text-xs focus:ring-1 focus:ring-amber-500 focus:outline-none"
-          >
-            <option value="all">Tümü (Riba)</option>
-            <option value="yes">Riba Uyarısı Verildi</option>
-            <option value="no">Normal Sohbet</option>
-          </select>
-        </div>
+        {/* Toolbar: Distress & Search */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 p-4 rounded-2xl border border-emerald-950/80 bg-[#0d1411]/90 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+          <div>
+            <label className="text-[11px] font-semibold text-muted-foreground block mb-1.5">
+              Kriz / Distress Skoru
+            </label>
+            <select
+              value={filterDistress}
+              onChange={(e) =>
+                setFilterDistress(
+                  e.target.value as "all" | "high" | "medium" | "low"
+                )
+              }
+              className="w-full h-9 rounded-lg border border-emerald-950 bg-emerald-950/40 text-foreground px-2.5 text-xs focus:ring-1 focus:ring-amber-500 focus:outline-none"
+            >
+              <option value="all">Tüm Kriz Dereceleri</option>
+              <option value="high">Yüksek Kriz (&ge; 8 / 112 Koruması)</option>
+              <option value="medium">Orta Baskı (5 - 7)</option>
+              <option value="low">Sükûnet (&lt; 5)</option>
+            </select>
+          </div>
 
-        <div>
-          <label className="text-[11px] font-semibold text-muted-foreground block mb-1.5">
-            Fetva Durumu
-          </label>
-          <select
-            value={filterFatwa}
-            onChange={(e) => setFilterFatwa(e.target.value as "all" | "yes")}
-            className="w-full h-9 rounded-lg border border-emerald-950 bg-emerald-950/40 text-foreground px-2.5 text-xs focus:ring-1 focus:ring-rose-500 focus:outline-none"
-          >
-            <option value="all">Tümü (Fetva)</option>
-            <option value="yes">Fetva Sorusu Bloke Edildi (Alo 190)</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="text-[11px] font-semibold text-muted-foreground block mb-1.5">
-            Kriz / Distress Skoru
-          </label>
-          <select
-            value={filterDistress}
-            onChange={(e) =>
-              setFilterDistress(
-                e.target.value as "all" | "high" | "medium" | "low"
-              )
-            }
-            className="w-full h-9 rounded-lg border border-emerald-950 bg-emerald-950/40 text-foreground px-2.5 text-xs focus:ring-1 focus:ring-amber-500 focus:outline-none"
-          >
-            <option value="all">Tümü (Distress)</option>
-            <option value="high">Yüksek Kriz (&ge; 8 / 112 Koruması)</option>
-            <option value="medium">Orta Baskı (5 - 7)</option>
-            <option value="low">Sükûnet (&lt; 5)</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="text-[11px] font-semibold text-muted-foreground block mb-1.5">
-            Arama
-          </label>
-          <div className="relative">
-            <Input
-              type="text"
-              placeholder="Mesaj veya tel ara..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="h-9 text-xs pl-7 border-emerald-950 bg-emerald-950/40 text-foreground placeholder:text-muted-foreground/60"
-            />
-            <Search className="h-3.5 w-3.5 text-muted-foreground absolute left-2.5 top-3" />
+          <div className="md:col-span-2">
+            <label className="text-[11px] font-semibold text-muted-foreground block mb-1.5">
+              İçerik veya Telefon Arama
+            </label>
+            <div className="relative">
+              <Input
+                type="text"
+                placeholder="Mesaj metni veya kullanıcı telefonu ara..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="h-9 text-xs pl-7 border-emerald-950 bg-emerald-950/40 text-foreground placeholder:text-muted-foreground/60"
+              />
+              <Search className="h-3.5 w-3.5 text-muted-foreground absolute left-2.5 top-3" />
+            </div>
           </div>
         </div>
       </div>
 
       {/* Log Feed */}
       <div className="space-y-4">
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div className="p-14 text-center text-xs text-muted-foreground rounded-2xl border border-emerald-950/80 bg-[#0d1411]/90 flex flex-col items-center justify-center gap-2">
+            <div className="h-6 w-6 rounded-full border-2 border-emerald-500/20 border-t-emerald-500 animate-spin" />
+            <span>Denetim kayıtları veritabanından getiriliyor...</span>
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="p-14 text-center text-xs text-muted-foreground rounded-2xl border border-emerald-950/80 bg-[#0d1411]/90">
             Seçilen filtre kriterlerine uygun denetim kaydı bulunamadı.
           </div>
@@ -420,32 +443,28 @@ export default function AuditLogsPage() {
                         {msg.userPhone}
                       </span>
                       <span className="text-emerald-950">&bull;</span>
+                      <Badge
+                        variant={msg.role === "USER" ? "outline" : "default"}
+                        className={`text-[10px] px-2 py-0.5 ${
+                          msg.role === "USER"
+                            ? "border-emerald-900/60 text-muted-foreground"
+                            : "bg-emerald-950 text-emerald-300 border border-emerald-800/50"
+                        }`}
+                      >
+                        {msg.role === "USER" ? "Kullanıcı" : "Manevi Pusula"}
+                      </Badge>
+                      <span className="text-emerald-950">&bull;</span>
                       <span className="text-[11px] text-muted-foreground font-mono">
                         {new Date(msg.createdAt).toLocaleTimeString("tr-TR")}
                       </span>
 
-                      {msg.editorAudit?.murakabe_applied && (
-                        <Badge
-                          variant="emerald"
-                          className="text-[10px] bg-emerald-950/60 text-emerald-300 border border-emerald-800/50"
-                        >
-                          Murakabe ✓
-                        </Badge>
-                      )}
-                      {msg.editorAudit?.riba_warning_included && (
-                        <Badge
-                          variant="gold"
-                          className="text-[10px] bg-amber-950/60 text-amber-300 border border-amber-600/40"
-                        >
-                          Riba Uyarısı Aktif
-                        </Badge>
-                      )}
+                      {/* Sistem kontrol bayrakları: Murakabe, Riba, Fetva, Distress ve editorAudit */}
                       {isFatwa && (
                         <Badge
                           variant="destructive"
                           className="text-[10px] bg-rose-950/60 text-rose-300 border border-rose-800/50"
                         >
-                          Fetva Engeli (Alo 190)
+                          Alo 190 Danışma
                         </Badge>
                       )}
                       {msg.audioSent && (
@@ -462,21 +481,21 @@ export default function AuditLogsPage() {
                           variant="destructive"
                           className="text-[10px] bg-rose-950/70 text-rose-300 border border-rose-600/50 font-mono"
                         >
-                          Kriz: {distress}/10 (112/182)
+                          Kriz: {distress}/10 (112)
                         </Badge>
                       ) : distress >= 5 ? (
                         <Badge
                           variant="gold"
                           className="text-[10px] bg-amber-950/70 text-amber-300 border border-amber-600/50 font-mono"
                         >
-                          Baskı: {distress}/10
+                          Yoğunluk: {distress}/10
                         </Badge>
                       ) : (
                         <Badge
                           variant="outline"
                           className="text-[10px] border-emerald-900/60 text-emerald-300 font-mono"
                         >
-                          Sükûn: {distress}/10
+                          Dengeli: {distress}/10
                         </Badge>
                       )}
                     </div>

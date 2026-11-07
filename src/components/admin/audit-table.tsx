@@ -8,6 +8,16 @@ export interface AuditRecord {
   content: string;
   createdAt: string;
   userPhone: string;
+  userProfile?: {
+    preferred_name?: string;
+    roles?: string[];
+    known_facts?: string[];
+    spiritual_stage?: string;
+    profile_completion?: number;
+    interaction_count?: number;
+  } | null;
+  onboardingStep?: number;
+  onboardingCompleted?: boolean;
   audioSent?: boolean;
   jevMetadata?: any;
   editorAudit?: {
@@ -55,6 +65,16 @@ export function AuditTable({ records, loading = false }: AuditTableProps) {
               <span className="font-mono text-[11px] text-emerald-400/90 font-medium">
                 {msg.userPhone}
               </span>
+              {msg.userProfile?.spiritual_stage && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#0a1c1e] text-[#cca762] border border-[#cca762]/30 text-[10px] font-medium">
+                  <span>{msg.userProfile.spiritual_stage}</span>
+                  {typeof msg.userProfile.profile_completion === "number" && (
+                    <span className="text-emerald-400 font-mono">
+                      • %{msg.userProfile.profile_completion}
+                    </span>
+                  )}
+                </span>
+              )}
               <Badge
                 variant={msg.role === "USER" ? "outline" : "default"}
                 className={`text-[10px] px-2 py-0.5 ${

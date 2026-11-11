@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { SourceBookModal } from "./source-book-modal";
 import { filterUsedSourcesByReply } from "@/lib/ai/source-citation-filter";
+import { TextShimmer } from "@/components/ui/text-shimmer";
+import { motion, AnimatePresence } from "motion/react";
 
 export interface ChatSourceBadge {
   id: string;
@@ -320,6 +322,8 @@ export function SirdasChatWorkspace() {
   const [hasGivenConsent, setHasGivenConsent] = useState<boolean>(true);
   const [isConsentModalOpen, setIsConsentModalOpen] = useState<boolean>(false);
   const [isResetModalOpen, setIsResetModalOpen] = useState<boolean>(false);
+  const [consentTrigger, setConsentTrigger] = useState<"header" | "sidebar">("header");
+  const [resetTrigger, setResetTrigger] = useState<"header" | "sidebar">("header");
   const [isPurging, setIsPurging] = useState<boolean>(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
@@ -1063,7 +1067,7 @@ export function SirdasChatWorkspace() {
 
   return (
     <div
-      className="flex h-dvh w-full overflow-hidden bg-[#040F0F] text-[#e1e9e8] spiritual-bg-pattern"
+      className="flex h-dvh w-full overflow-hidden bg-surface text-on-surface spiritual-bg-pattern font-sans"
       style={{ colorScheme: "dark" }}
     >
       {/* MOBILE BACKDROP */}
@@ -1075,29 +1079,29 @@ export function SirdasChatWorkspace() {
         />
       )}
 
-      {/* COLLAPSIBLE SIDEBAR */}
+      {/* COLLAPSIBLE SIDEBAR (MATERIAL 3 EXPRESSIVE NAVIGATION DRAWER / RAIL) */}
       <aside
         aria-label="Sohbet Geçmişi ve Yan Menü"
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col bg-[#091119] border-r border-[#1d3336]/60 transition-[width,transform] duration-350 ease-[cubic-bezier(0.32,0.72,0,1)] lg:static ${
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col bg-surface-container-low border-r border-outline-variant/40 transition-[width,transform] duration-300 ease-m3e-spring-smooth lg:static ${
           mobileDrawerOpen
             ? "translate-x-0 w-[280px]"
             : "-translate-x-full lg:translate-x-0"
-        } ${sidebarOpen ? "lg:w-[280px]" : "lg:w-[68px]"}`}
+        } ${sidebarOpen ? "lg:w-[280px]" : "lg:w-[72px]"}`}
       >
         {/* Sidebar Top Header */}
         <div
-          className={`flex h-16 items-center border-b border-[#1d3336]/60 ${
+          className={`flex h-16 items-center border-b border-outline-variant/40 ${
             sidebarOpen || mobileDrawerOpen
-              ? "justify-between px-3.5"
+              ? "justify-between px-4"
               : "justify-center px-2"
           }`}
         >
-          <div className="flex items-center gap-2.5 overflow-hidden">
+          <div className="flex items-center gap-3 overflow-hidden">
             <button
               aria-label={
                 sidebarOpen ? "Yan menüyü daralt" : "Yan menüyü genişlet"
               }
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[#8b9ea0] hover:bg-[#0e2224] hover:text-[#e1e9e8] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cca762]"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-on-surface-variant hover:bg-on-surface/8 hover:text-on-surface hover:scale-105 active:scale-90 transition-all duration-200 ease-m3e-spring-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               onClick={() => {
                 if (window.innerWidth < 1024) {
                   setMobileDrawerOpen(false);
@@ -1112,7 +1116,7 @@ export function SirdasChatWorkspace() {
                 className="h-5 w-5"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="1.75"
+                strokeWidth="1.8"
                 viewBox="0 0 24 24"
               >
                 <path
@@ -1123,7 +1127,7 @@ export function SirdasChatWorkspace() {
               </svg>
             </button>
             {(sidebarOpen || mobileDrawerOpen) && (
-              <span className="font-heading text-lg font-semibold tracking-tight text-[#e1e9e8] truncate">
+              <span className="font-heading text-lg font-medium tracking-tight text-on-surface truncate">
                 Manevi Pusula
               </span>
             )}
@@ -1132,13 +1136,13 @@ export function SirdasChatWorkspace() {
           {(sidebarOpen || mobileDrawerOpen) && (
             <Link
               href="/tanitim"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#8b9ea0] hover:bg-[#0e2224] hover:text-[#cca762] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cca762]"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-on-surface-variant hover:bg-on-surface/8 hover:text-primary hover:scale-105 active:scale-90 transition-all duration-200 ease-m3e-spring-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               title="Tanıtım & Ana Sayfaya Dön"
               aria-label="Tanıtım & Ana Sayfaya Dön"
             >
               <svg
                 aria-hidden="true"
-                className="h-4 w-4"
+                className="h-5 w-5"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="1.8"
@@ -1154,14 +1158,14 @@ export function SirdasChatWorkspace() {
           )}
         </div>
 
-        {/* New Conversation Button */}
-        <div className="p-3">
+        {/* New Conversation Button (Material 3 Expressive Squircle Extended FAB / Mini FAB) */}
+        <div className="p-3 flex items-center justify-center">
           <button
             aria-label="Yeni dertleşme başlat"
-            className={`flex w-full items-center gap-3 rounded-xl bg-[#0e2224] hover:bg-[#132c2e] border border-[#1d3336] text-[#e5cca0] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cca762] ${
+            className={`group flex items-center justify-center gap-2.5 bg-secondary-container hover:bg-secondary-container/90 border border-secondary/35 text-on-secondary-container shadow-m3-2 hover:shadow-m3-3 transition-all duration-300 ease-m3e-spring-bouncy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
               sidebarOpen || mobileDrawerOpen
-                ? "px-3.5 py-2.5 justify-start"
-                : "p-2.5 justify-center"
+                ? "w-full h-12 px-4 rounded-[24px] font-medium hover:scale-[1.02] active:scale-[0.96]"
+                : "w-12 h-12 rounded-[20px] hover:scale-110 active:scale-90"
             }`}
             onClick={handleNewChat}
             title="Yeni Dertleşme Başlat"
@@ -1169,10 +1173,10 @@ export function SirdasChatWorkspace() {
           >
             <svg
               aria-hidden="true"
-              className="h-5 w-5 shrink-0 text-[#cca762]"
+              className="h-5 w-5 shrink-0 text-secondary group-hover:rotate-90 transition-transform duration-300 ease-m3e-spring-bouncy"
               fill="none"
               stroke="currentColor"
-              strokeWidth="1.8"
+              strokeWidth="2.2"
               viewBox="0 0 24 24"
             >
               <path
@@ -1182,28 +1186,28 @@ export function SirdasChatWorkspace() {
               />
             </svg>
             {(sidebarOpen || mobileDrawerOpen) && (
-              <span className="text-sm font-medium truncate">
+              <span className="text-sm font-medium tracking-wide truncate">
                 Yeni Dertleşme
               </span>
             )}
           </button>
         </div>
 
-        {/* Thread History List */}
+        {/* Thread History List (Material 3 Expressive Segmented List) */}
         {sidebarOpen || mobileDrawerOpen ? (
           <div
-            className="flex-1 overflow-y-auto px-3 py-2 space-y-1"
+            className="flex-1 overflow-y-auto px-3 py-2 space-y-1.5"
             style={{
               scrollbarWidth: "thin",
-              scrollbarColor: "#1d3336 #091119",
+              scrollbarColor: "#1d3336 #09181a",
             }}
           >
-            <div className="px-2 pb-1.5 pt-1 text-xs font-medium text-[#8b9ea0]">
+            <div className="px-3 pb-1 pt-1 text-xs font-semibold text-on-surface-variant/80 tracking-wide uppercase">
               Geçmiş Sohbetler
             </div>
 
             {threads.length === 0 ? (
-              <p className="px-2 py-4 text-xs text-[#8b9ea0]/70 leading-relaxed">
+              <p className="px-3 py-4 text-xs text-on-surface-variant/70 leading-relaxed">
                 Henüz kayıtlı bir sohbetiniz bulunmuyor. Dilediğiniz vakit
                 içinizi dökebilirsiniz.
               </p>
@@ -1213,10 +1217,10 @@ export function SirdasChatWorkspace() {
                 return (
                   <div
                     key={thread.id}
-                    className={`group flex items-center justify-between rounded-lg px-3 py-2 transition-colors cursor-pointer ${
+                    className={`group relative flex items-center justify-between px-3.5 py-2.5 transition-all duration-200 cursor-pointer ${
                       isSelected
-                        ? "bg-[#0e2224] text-[#cca762] border border-[#1d3336]/60"
-                        : "text-[#8b9ea0] hover:bg-[#0e2224]/50 hover:text-[#e1e9e8]"
+                        ? "rounded-[20px] bg-surface-container-highest text-primary-fixed-dim border border-primary/25 shadow-m3-1 font-medium"
+                        : "rounded-[16px] text-on-surface-variant hover:bg-surface-container hover:text-on-surface hover:translate-x-1 ease-m3e-spring-fast"
                     }`}
                     onClick={() => handleSelectThread(thread.id)}
                     role="button"
@@ -1230,14 +1234,17 @@ export function SirdasChatWorkspace() {
                     title={thread.title}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
+                      {isSelected && (
+                        <span className="w-1.5 h-4.5 rounded-full bg-primary shrink-0 shadow-sm" />
+                      )}
                       <svg
                         aria-hidden="true"
                         className={`h-4 w-4 shrink-0 ${
-                          isSelected ? "text-[#cca762]" : "text-[#5a6e70]"
+                          isSelected ? "text-primary" : "text-on-surface-variant/70"
                         }`}
                         fill="none"
                         stroke="currentColor"
-                        strokeWidth="1.75"
+                        strokeWidth="1.8"
                         viewBox="0 0 24 24"
                       >
                         <path
@@ -1251,7 +1258,7 @@ export function SirdasChatWorkspace() {
 
                     <button
                       aria-label="Sohbeti sil"
-                      className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 rounded text-[#5a6e70] hover:text-[#ffb4ab] transition-opacity"
+                      className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1.5 rounded-full text-on-surface-variant/70 hover:text-error hover:bg-error-container/60 hover:scale-110 active:scale-90 transition-all duration-200 ease-m3e-spring-fast"
                       onClick={(e) => handleDeleteThread(e, thread.id)}
                       type="button"
                     >
@@ -1280,24 +1287,24 @@ export function SirdasChatWorkspace() {
         )}
 
         {/* Memory Security, Profile & Privacy Actions (Sol Alt) */}
-        <div className="p-3 border-t border-[#1d3336]/60 space-y-2">
+        <div className="p-3 border-t border-outline-variant/40 space-y-2">
           {sidebarOpen || mobileDrawerOpen ? (
             <>
-              {/* Sade Sırdaş Profilim Satırı */}
+              {/* Sade Sırdaş Profilim Satırı (M3 Surface Card) */}
               <button
                 type="button"
                 onClick={handleOpenProfileModal}
-                className="w-full flex items-center justify-between gap-2.5 rounded-xl bg-[#0e2224] hover:bg-[#132c2e] border border-[#1d3336] px-3 py-2.5 text-left transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cca762]"
+                className="w-full flex items-center justify-between gap-3 rounded-2xl bg-surface-container hover:bg-surface-container-high border border-outline-variant/40 p-3 text-left transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-xs"
                 title="Sırdaş Profilimi ve Tutulan Notları Görüntüle"
               >
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#081517] border border-[#cca762]/30 text-[#cca762] text-xs font-semibold">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-container-highest border border-primary/30 text-primary text-xs font-semibold">
                     {userProfile.preferred_name ? (
                       userProfile.preferred_name.charAt(0).toLocaleUpperCase("tr-TR")
                     ) : (
                       <svg
                         aria-hidden="true"
-                        className="h-3.5 w-3.5"
+                        className="h-4 w-4"
                         fill="none"
                         stroke="currentColor"
                         strokeWidth="1.8"
@@ -1312,10 +1319,10 @@ export function SirdasChatWorkspace() {
                     )}
                   </div>
                   <div className="min-w-0">
-                    <div className="text-xs font-medium text-[#e1e9e8] truncate group-hover:text-[#cca762] transition-colors">
+                    <div className="text-xs font-medium text-on-surface truncate group-hover:text-primary transition-colors">
                       {userProfile.preferred_name || "Sırdaş Profilim"}
                     </div>
-                    <div className="text-xs text-[#8b9ea0] truncate">
+                    <div className="text-xs text-on-surface-variant truncate">
                       {(userProfile.known_facts || []).length > 0
                         ? `${(userProfile.known_facts || []).length} kalıcı not`
                         : SPIRITUAL_STAGE_LABELS[
@@ -1326,7 +1333,7 @@ export function SirdasChatWorkspace() {
                 </div>
                 <svg
                   aria-hidden="true"
-                  className="h-4 w-4 shrink-0 text-[#8b9ea0] group-hover:text-[#cca762] transition-colors"
+                  className="h-4 w-4 shrink-0 text-on-surface-variant group-hover:text-primary transition-colors"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="1.8"
@@ -1341,65 +1348,70 @@ export function SirdasChatWorkspace() {
               </button>
 
               <div className="flex items-center gap-2 w-full">
-                {/* 1. Hafıza & Gizlilik Ayarları Butonu (Sol Alt) */}
-              <button
-                aria-label="Hafıza ve gizlilik ayarlarını aç"
-                className="flex-1 flex h-10 items-center justify-center rounded-xl bg-[#0e2224] hover:bg-[#132c2e] border border-[#1d3336] text-[#cca762] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cca762]"
-                onClick={() => setIsSettingsModalOpen(true)}
-                title="Hafıza ve Gizlilik Ayarları (Otomatik İmha, Hareketsizlik, TTL)"
-                type="button"
-              >
-                <svg
-                  aria-hidden="true"
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  viewBox="0 0 24 24"
+                {/* 1. Hafıza & Gizlilik Ayarları Butonu (M3 Tonal Button) */}
+                <motion.button
+                  layoutId={isSettingsModalOpen ? "settings-dialog" : undefined}
+                  aria-label="Hafıza ve gizlilik ayarlarını aç"
+                  className="flex-1 flex h-10 items-center justify-center rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/40 text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-xs cursor-pointer"
+                  onClick={() => setIsSettingsModalOpen(true)}
+                  title="Hafıza ve Gizlilik Ayarları (Hareketsizlik, TTL)"
+                  type="button"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-              </button>
+                  <svg
+                    aria-hidden="true"
+                    className="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
+                </motion.button>
 
-              {/* 2. Benlik Hafızamı Sıfırla Butonu */}
-              <button
-                aria-label="Benlik hafızamı sıfırla ve tüm verilerimi sil"
-                className="flex-1 flex h-10 items-center justify-center rounded-xl bg-[#201013] hover:bg-[#2d1418] border border-[#ffb4ab]/30 text-[#ffb4ab] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffb4ab]"
-                onClick={() => setIsResetModalOpen(true)}
-                title="Benlik Hafızamı Sıfırla / Tüm Verilerimi Sil (KVKK Unutulma Hakkı)"
-                type="button"
-              >
-                <svg
-                  aria-hidden="true"
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  viewBox="0 0 24 24"
+                {/* 2. Benlik Hafızamı Sıfırla Butonu (M3 Error Tonal Button) */}
+                <motion.button
+                  layoutId={isResetModalOpen && resetTrigger === "sidebar" ? "reset-dialog-sidebar" : undefined}
+                  aria-label="Benlik hafızamı sıfırla ve tüm verilerimi sil"
+                  className="flex-1 flex h-10 items-center justify-center rounded-full bg-error-container hover:bg-error-container/80 border border-error/20 text-on-error-container transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error shadow-xs cursor-pointer"
+                  onClick={() => {
+                    setResetTrigger("sidebar");
+                    setIsResetModalOpen(true);
+                  }}
+                  title="Benlik Hafızamı Sıfırla / Tüm Verilerimi Sil (KVKK Unutulma Hakkı)"
+                  type="button"
                 >
-                  <path
-                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
+                  <svg
+                    aria-hidden="true"
+                    className="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </motion.button>
               </div>
             </>
           ) : (
             <div className="flex flex-col items-center gap-2">
               <button
                 aria-label="Sırdaş profilimi görüntüle"
-                className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#0e2224] hover:bg-[#132c2e] border border-[#1d3336] text-[#cca762] text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cca762]"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/40 text-primary text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-xs"
                 onClick={handleOpenProfileModal}
                 title="Sırdaş Profilim"
                 type="button"
@@ -1423,9 +1435,10 @@ export function SirdasChatWorkspace() {
                   </svg>
                 )}
               </button>
-              <button
+              <motion.button
+                layoutId={isSettingsModalOpen ? "settings-dialog" : undefined}
                 aria-label="Hafıza ve gizlilik ayarlarını aç"
-                className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#0e2224] hover:bg-[#132c2e] border border-[#1d3336] text-[#cca762] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cca762]"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/40 text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-xs cursor-pointer"
                 onClick={() => setIsSettingsModalOpen(true)}
                 title="Hafıza ve Gizlilik Ayarları"
                 type="button"
@@ -1449,53 +1462,57 @@ export function SirdasChatWorkspace() {
                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                   />
                 </svg>
-              </button>
+              </motion.button>
             </div>
           )}
         </div>
 
         {/* Sidebar Bottom Links & Emergency Lines */}
-        <div className="border-t border-[#1d3336]/60 p-3 space-y-2.5">
+        <div className="border-t border-outline-variant/40 p-3 space-y-2.5">
           {sidebarOpen || mobileDrawerOpen ? (
             <>
               <div className="flex items-center gap-2">
                 <a
                   aria-label="Diyanet Alo 190 Fetva Hattı"
-                  className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-[#0e2224] hover:bg-[#132c2e] border border-[#1d3336] px-2.5 py-1.5 text-xs font-medium text-[#8b9ea0] hover:text-[#e1e9e8] transition-colors"
+                  className="flex-1 flex items-center justify-center gap-1.5 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/40 px-3 py-1.5 text-xs font-medium text-on-surface-variant hover:text-on-surface transition-colors shadow-xs"
                   href="tel:190"
                 >
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#cca762]" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                   <span>Alo 190 Fetva</span>
                 </a>
                 <a
                   aria-label="112 Acil Çağrı Merkezi"
-                  className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-[#331418] hover:bg-[#481c22] border border-[#ffb4ab]/25 px-2.5 py-1.5 text-xs font-medium text-[#ffdad6] transition-colors"
+                  className="flex-1 flex items-center justify-center gap-1.5 rounded-full bg-error-container hover:bg-error-container/80 border border-error/20 px-3 py-1.5 text-xs font-medium text-on-error-container transition-colors shadow-xs"
                   href="tel:112"
                 >
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#ffb4ab]" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-error" />
                   <span>112 Acil</span>
                 </a>
               </div>
 
-              <div className="flex items-center justify-between px-1 pt-1 text-xs text-[#8b9ea0]/75">
+              <div className="flex items-center justify-between px-2 pt-1 text-xs text-on-surface-variant/80">
                 <Link
-                  className="hover:text-[#cca762] transition-colors"
+                  className="hover:text-primary transition-colors"
                   href="/sorumluluk-reddi"
                 >
                   Sınırlar &amp; Beyan
                 </Link>
                 <span>•</span>
-                <button
+                <motion.button
+                  layoutId={isConsentModalOpen && consentTrigger === "sidebar" ? "kvkk-dialog-sidebar" : undefined}
                   type="button"
-                  onClick={() => setIsConsentModalOpen(true)}
-                  className="hover:text-[#cca762] transition-colors cursor-pointer"
+                  onClick={() => {
+                    setConsentTrigger("sidebar");
+                    setIsConsentModalOpen(true);
+                  }}
+                  className="hover:text-primary transition-colors cursor-pointer"
                   title="KVKK Açık Rıza ve Özel Nitelikli Veri Sözleşmesini Görüntüle"
                 >
                   KVKK
-                </button>
+                </motion.button>
                 <span>•</span>
                 <Link
-                  className="hover:text-[#cca762] transition-colors"
+                  className="hover:text-primary transition-colors"
                   href="/askida-sirdas"
                 >
                   Askıda Pusula
@@ -1505,10 +1522,10 @@ export function SirdasChatWorkspace() {
               <div className="pt-1 px-1">
                 <a
                   href="mailto:adnan.kus@hotmail.com?subject=Manevi%20Pusula%20-%20G%C3%B6r%C3%BC%C5%9F%2C%20%C3%96neri%20ve%20Tenkit"
-                  className="flex items-center justify-center gap-1.5 w-full py-1 text-[11px] text-[#8b9ea0]/80 hover:text-[#cca762] transition-colors rounded hover:bg-[#0e2224]/50"
+                  className="flex items-center justify-center gap-1.5 w-full py-1.5 text-xs text-on-surface-variant/80 hover:text-primary transition-colors rounded-full hover:bg-on-surface/8"
                   title="Görüş, öneri ve tenkitlerinizi bize iletin: adnan.kus@hotmail.com"
                 >
-                  <svg className="w-3.5 h-3.5 text-[#cca762]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
+                  <svg className="w-3.5 h-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
                   </svg>
                   <span>Görüş &amp; Tenkit Bildir</span>
@@ -1519,17 +1536,17 @@ export function SirdasChatWorkspace() {
             <div className="flex flex-col items-center gap-2">
               <a
                 aria-label="Görüş, Öneri ve Tenkit (adnan.kus@hotmail.com)"
-                className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#0e2224] border border-[#1d3336] text-[#cca762] hover:text-[#dec288]"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-container border border-outline-variant/40 text-primary hover:text-primary-fixed-dim transition-colors shadow-xs"
                 href="mailto:adnan.kus@hotmail.com?subject=Manevi%20Pusula%20-%20G%C3%B6r%C3%BC%C5%9F%2C%20%C3%96neri%20ve%20Tenkit"
                 title="Görüş & Tenkit: adnan.kus@hotmail.com"
               >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
                 </svg>
               </a>
               <a
                 aria-label="Alo 190 Fetva Hattı"
-                className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#0e2224] border border-[#1d3336] text-[10px] font-semibold text-[#cca762]"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-container border border-outline-variant/40 text-[11px] font-semibold text-primary transition-colors shadow-xs"
                 href="tel:190"
                 title="Alo 190 Diyanet Fetva Hattı"
               >
@@ -1537,7 +1554,7 @@ export function SirdasChatWorkspace() {
               </a>
               <a
                 aria-label="112 Acil Çağrı Merkezi"
-                className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#331418] border border-[#ffb4ab]/25 text-[10px] font-semibold text-[#ffdad6]"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-error-container border border-error/20 text-[11px] font-semibold text-on-error-container transition-colors shadow-xs"
                 href="tel:112"
                 title="112 Acil Çağrı Merkezi"
               >
@@ -1548,14 +1565,14 @@ export function SirdasChatWorkspace() {
         </div>
       </aside>
 
-      {/* MAIN CONVERSATION STAGE */}
+      {/* MAIN CONVERSATION STAGE (M3 EXPRESSIVE ELEVATED CANVAS) */}
       <div className="flex flex-1 flex-col min-w-0 h-full relative">
-        {/* Minimal Top Header */}
-        <header className="flex h-16 shrink-0 items-center justify-between px-4 sm:px-6 border-b border-[#1d3336]/60 bg-[rgb(14_34_36_/_0.9)] backdrop-blur-xs z-20">
+        {/* Minimal Top Header (M3 Expressive Top App Bar & Split Action Cluster) */}
+        <header className="flex h-16 shrink-0 items-center justify-between px-4 sm:px-6 border-b border-outline-variant/40 bg-surface/85 backdrop-blur-md z-20">
           <div className="flex items-center gap-3">
             <button
               aria-label="Menüyü aç"
-              className="flex lg:hidden h-9 w-9 items-center justify-center rounded-lg text-[#8b9ea0] hover:bg-[#0e2224] hover:text-[#e1e9e8]"
+              className="flex lg:hidden h-10 w-10 items-center justify-center rounded-full text-on-surface-variant hover:bg-on-surface/8 hover:text-on-surface hover:scale-105 active:scale-90 transition-all duration-200 ease-m3e-spring-fast"
               onClick={() => setMobileDrawerOpen(true)}
               type="button"
             >
@@ -1564,7 +1581,7 @@ export function SirdasChatWorkspace() {
                 className="h-5 w-5"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="1.75"
+                strokeWidth="1.8"
                 viewBox="0 0 24 24"
               >
                 <path
@@ -1575,34 +1592,35 @@ export function SirdasChatWorkspace() {
               </svg>
             </button>
 
-            <div className="flex items-center gap-2.5">
-              <div className="h-12   w-12 rounded-full bg-[#0e2224] border border-[#1d3336] overflow-hidden shrink-0 flex items-center justify-center">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-[18px] bg-surface-container-high border border-outline-variant/50 overflow-hidden shrink-0 flex items-center justify-center shadow-xs">
                 <Image
                   alt="Manevi Pusula"
                   className="h-full w-full object-cover"
-                  height={48}
+                  height={40}
                   priority
                   src="/icon.png"
-                  width={48}
+                  width={40}
                 />
               </div>
               <div className="flex flex-col">
-                <span className="font-heading text-base font-medium text-[#e1e9e8] leading-tight">
+                <span className="font-heading text-base font-medium text-on-surface leading-tight">
                   {activeThread ? activeThread.title : "Manevi Pusula"}
                 </span>
-                <span className="text-xs text-[#8b9ea0]">
+                <span className="text-xs text-on-surface-variant">
                   Kur&apos;an ve Sünnet Rehberliğinde Tefekkür Odası
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* M3 Expressive Connected Split Action Cluster */}
+          <div className="flex items-center gap-1.5 p-1 rounded-full bg-surface-container/90 border border-outline-variant/50 shadow-xs">
             <Link
               href="/tanitim"
               className={`${
                 sidebarOpen ? "flex lg:hidden" : "flex"
-              } h-9 w-9 items-center justify-center rounded-lg bg-[#0e2224] hover:bg-[#132c2e] border border-[#1d3336] text-[#8b9ea0] hover:text-[#cca762] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cca762]`}
+              } h-9 w-9 items-center justify-center rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container-highest transition-all duration-200 ease-m3e-spring-fast active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary`}
               title="Tanıtım & Ana Sayfaya Dön"
               aria-label="Tanıtım & Ana Sayfaya Dön"
             >
@@ -1621,28 +1639,36 @@ export function SirdasChatWorkspace() {
                 />
               </svg>
             </Link>
-            <button
+            <motion.button
+              layoutId={isConsentModalOpen && consentTrigger === "header" ? "kvkk-dialog-header" : undefined}
               type="button"
-              onClick={() => setIsConsentModalOpen(true)}
+              onClick={() => {
+                setConsentTrigger("header");
+                setIsConsentModalOpen(true);
+              }}
               className={`${
                 sidebarOpen ? "hidden sm:inline-flex lg:hidden" : "hidden sm:inline-flex"
-              } items-center gap-1.5 rounded-lg bg-[#0e2224] hover:bg-[#132c2e] border border-[#1d3336] px-2.5 py-1.5 text-xs text-[#8b9ea0] hover:text-[#cca762] transition-colors`}
+              } items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs text-on-surface-variant hover:text-primary hover:bg-surface-container-highest transition-all duration-200 ease-m3e-spring-fast active:scale-95 font-medium cursor-pointer`}
               title="KVKK Kalkanı ve Özel Nitelikli Kişisel Veri Metni"
             >
-              <span className="h-2 w-2 rounded-full bg-[#459b95]" />
-              <span className="font-medium">KVKK Kalkanı</span>
-            </button>
-            <button
+              <span className="h-2 w-2 rounded-full bg-secondary" />
+              <span>KVKK Kalkanı</span>
+            </motion.button>
+            <motion.button
+              layoutId={isResetModalOpen && resetTrigger === "header" ? "reset-dialog-header" : undefined}
               type="button"
-              onClick={() => setIsResetModalOpen(true)}
+              onClick={() => {
+                setResetTrigger("header");
+                setIsResetModalOpen(true);
+              }}
               className={`${
                 sidebarOpen ? "hidden sm:inline-flex lg:hidden" : "hidden sm:inline-flex"
-              } items-center gap-1.5 rounded-lg bg-[#201013] hover:bg-[#2d1418] border border-[#ffb4ab]/30 px-2.5 py-1.5 text-xs text-[#ffdad6] hover:text-white transition-colors`}
+              } items-center gap-1.5 rounded-full bg-error-container hover:bg-error-container/80 border border-error/20 px-3.5 py-1.5 text-xs text-on-error-container font-medium transition-all duration-200 ease-m3e-spring-fast active:scale-95 shadow-xs cursor-pointer`}
               title="Benlik Hafızamı Sıfırla / Tüm Verilerimi Sil (KVKK Unutulma Hakkı)"
             >
               <svg
                 aria-hidden="true"
-                className="h-3.5 w-3.5 text-[#ffb4ab]"
+                className="h-3.5 w-3.5 text-error"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="1.8"
@@ -1655,7 +1681,7 @@ export function SirdasChatWorkspace() {
                 />
               </svg>
               <span>Hafızamı Sıfırla</span>
-            </button>
+            </motion.button>
           </div>
         </header>
 
@@ -1670,12 +1696,12 @@ export function SirdasChatWorkspace() {
           }}
         >
           {!hasMessages ? (
-            /* SERENE EMPTY STATE — NO STARTER PROMPT CARDS */
+            /* SERENE EMPTY STATE — NO STARTER PROMPT CARDS (Respects AGENTS.md) */
             <div className="mx-auto flex h-full max-w-[680px] flex-col items-center justify-center text-center py-12">
-              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#0e2224] border border-[#1d3336]">
+              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-[24px] bg-surface-container-high border border-outline-variant/40 shadow-m3-2 hover:scale-105 transition-transform duration-300 ease-m3e-spring-bouncy">
                 <Image
                   alt="Manevi Pusula"
-                  className="h-11 w-11 rounded-full object-cover"
+                  className="h-11 w-11 rounded-[16px] object-cover"
                   height={44}
                   src="/icon.png"
                   width={44}
@@ -1683,14 +1709,14 @@ export function SirdasChatWorkspace() {
               </div>
 
               <h1
-                className="font-heading text-3xl sm:text-4xl font-medium text-[#e1e9e8] tracking-tight leading-snug mb-4"
+                className="font-heading text-3xl sm:text-4xl font-normal text-on-surface tracking-tight leading-snug mb-4"
                 lang="tr"
               >
                 Selamün aleyküm kardeşim, gönlünü ne meşgul ediyor?
               </h1>
 
               <p
-                className="text-[15px] text-[#8b9ea0] leading-relaxed max-w-[54ch]"
+                className="text-[15px] text-on-surface-variant leading-relaxed max-w-[54ch]"
                 lang="tr"
               >
                 İçini daraltan imtihanı, kederi veya tefekkür etmek istediğin
@@ -1717,7 +1743,7 @@ export function SirdasChatWorkspace() {
                   <React.Fragment key={msg.id}>
                     {isNewDateGroup && dateLabel && (
                       <div className="sticky top-2 z-10 my-4 flex justify-center pointer-events-none">
-                        <span className="inline-flex items-center rounded-full bg-[#0a1c1e]/90 border border-[#1d3336]/80 px-3.5 py-1 text-[11px] font-medium tracking-wide text-[#cca762] shadow-sm backdrop-blur-md">
+                        <span className="inline-flex items-center rounded-full bg-surface-container-high/90 border border-outline-variant/60 px-4 py-1 text-[11px] font-medium tracking-wide text-primary shadow-m3-1 backdrop-blur-md">
                           {dateLabel}
                         </span>
                       </div>
@@ -1725,7 +1751,7 @@ export function SirdasChatWorkspace() {
 
                     {msg.role === "user" ? (
                       <div className="flex justify-end animate-in fade-in duration-300">
-                        <div className="max-w-[85%] sm:max-w-[78%] rounded-2xl rounded-tr-xs bg-[#0e2726] border border-[#459b95]/35 px-5 py-3.5 text-[#e1e9e8] shadow-xs">
+                        <div className="max-w-[85%] sm:max-w-[78%] rounded-[26px] rounded-br-[6px] bg-secondary-container border border-secondary/30 px-5 py-4 text-on-surface shadow-m3-1 hover:shadow-m3-2 transition-all duration-300 ease-m3e-spring-smooth">
                           <p
                             className="text-[15px] leading-relaxed whitespace-pre-wrap"
                             lang="tr"
@@ -1733,7 +1759,7 @@ export function SirdasChatWorkspace() {
                             {msg.content}
                           </p>
                           {timeString && (
-                            <div className="mt-1 flex justify-end text-[10px] text-[#459b95]/80 select-none">
+                            <div className="mt-1 flex justify-end text-[10px] text-on-secondary-container/80 select-none">
                               <time dateTime={msg.createdAt}>{timeString}</time>
                             </div>
                           )}
@@ -1744,28 +1770,28 @@ export function SirdasChatWorkspace() {
                         aria-label="Manevi Pusula Yanıtı"
                         className="flex items-start gap-3.5 sm:gap-4 animate-in fade-in duration-300"
                       >
-                        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0e2224] border border-[#1d3336] overflow-hidden">
+                        <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[18px] bg-surface-container-high border border-outline-variant/50 overflow-hidden shadow-xs">
                           <Image
                             alt="Manevi Pusula"
                             className="h-full w-full object-cover"
-                            height={32}
+                            height={40}
                             src="/icon.png"
-                            width={32}
+                            width={40}
                           />
                         </div>
 
                         <div className="flex-1 min-w-0 space-y-3.5">
-                          <div className="rounded-2xl rounded-tl-xs bg-[#0a1c1e] border border-[#1d3336] px-5 py-4">
+                          <div className="rounded-[26px] rounded-bl-[6px] bg-surface-container border border-outline-variant/40 px-5 py-4 shadow-m3-1 text-on-surface hover:shadow-m3-2 transition-all duration-300 ease-m3e-spring-smooth">
                             {msg.intentMode === "ILIM_VE_SIYER" && (
-                              <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-md bg-[#0e2726] border border-[#459b95]/30 px-2 py-0.5 text-[11px] font-medium text-[#7dd3c8]">
-                                <span className="h-1.5 w-1.5 rounded-full bg-[#459b95]" />
+                              <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-secondary-container/80 border border-secondary/30 px-3.5 py-1 text-[11px] font-medium text-on-secondary-container">
+                                <span className="h-1.5 w-1.5 rounded-full bg-secondary" />
                                 <span>Vakur İlim &amp; Hikmet Modu</span>
                               </div>
                             )}
                             {renderFormattedMessage(msg.content)}
                           </div>
 
-                          {/* Retrieved Çelik Kasa Source Badges (Only sources genuinely cited/used in reply) */}
+                          {/* Retrieved Çelik Kasa Source Badges (Material 3 Expressive Chips) */}
                           {verifiedSources.length > 0 && (
                             <div
                               aria-label="İktibas Edilen Hikmet Kaynakları"
@@ -1777,20 +1803,20 @@ export function SirdasChatWorkspace() {
                                   key={src.id}
                                   onClick={() => setActiveDetailSource(src)}
                                   title="Detaylı âyet, hadis veya sohbet metnini incelemek için tıklayın"
-                                  className="group inline-flex items-center gap-1.5 rounded-lg bg-[#0e2224] hover:bg-[#133235] border border-[#1d3336] hover:border-[#cca762]/60 px-2.5 py-1 text-xs text-[#8b9ea0] hover:text-[#e1e9e8] transition-all cursor-pointer shadow-xs active:scale-[0.98]"
+                                  className="group inline-flex items-center gap-2 rounded-full hover:rounded-[14px] bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant/50 hover:border-primary/60 px-4 py-1.5 text-xs text-on-surface-variant hover:text-on-surface transition-all duration-300 ease-m3e-spring-fast cursor-pointer shadow-xs hover:shadow-m3-1 active:scale-95"
                                 >
                                   <span
                                     aria-hidden="true"
-                                    className="h-1.5 w-1.5 rounded-full bg-[#cca762] group-hover:scale-125 transition-transform"
+                                    className="h-1.5 w-1.5 rounded-full bg-primary group-hover:scale-125 transition-transform duration-200"
                                   />
-                                  <span className="font-medium text-[#e5cca0] group-hover:text-amber-300 transition-colors">
+                                  <span className="font-medium text-primary-fixed-dim transition-colors">
                                     {getSourceTypeLabel(src.sourceType)}:
                                   </span>
                                   <span className="truncate max-w-[200px] sm:max-w-[260px]">
                                     {src.sourceTitle}
                                   </span>
                                   <svg
-                                    className="w-3 h-3 text-[#cca762]/60 group-hover:text-[#cca762] ml-0.5 shrink-0 transition-transform group-hover:translate-x-0.5"
+                                    className="w-3.5 h-3.5 text-primary/70 group-hover:text-primary shrink-0 transition-transform duration-200 group-hover:translate-x-0.5"
                                     fill="none"
                                     viewBox="0 0 24 24"
                                     stroke="currentColor"
@@ -1802,13 +1828,11 @@ export function SirdasChatWorkspace() {
                             </div>
                           )}
 
-                          {/* Halis Aydemir Audio Snippet Player */}
+                          {/* Halis Aydemir Audio Snippet Player (M3 Expressive Surface Card) */}
                           {msg.audioUrl && (
-                            <div className="rounded-xl bg-[#0e2224] border border-[#1d3336] p-3.5 flex flex-col gap-2">
-                              <div className="flex items-center justify-between text-xs text-[#e5cca0]">
-                                <span className="font-medium">
-                                  Sesli Tefekkür Kesiti
-                                </span>
+                            <div className="rounded-[22px] bg-surface-container-high border border-outline-variant/40 p-4 flex flex-col gap-2.5 shadow-xs">
+                              <div className="flex items-center justify-between text-xs text-primary-fixed-dim font-medium">
+                                <span>Sesli Tefekkür Kesiti</span>
                               </div>
                               <audio
                                 className="w-full h-9"
@@ -1822,11 +1846,11 @@ export function SirdasChatWorkspace() {
                           )}
 
                           {/* Message Action Bar & Timestamp */}
-                          <div className="flex items-center justify-between pt-0.5 text-xs text-[#8b9ea0]/75">
-                            <div className="flex items-center gap-2">
+                          <div className="flex items-center justify-between pt-0.5 text-xs text-on-surface-variant/75">
+                            <div className="flex items-center gap-1.5">
                               <button
                                 aria-label="Yanıtı kopyala"
-                                className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-[#8b9ea0]/75 hover:bg-[#0e2224] hover:text-[#e1e9e8] transition-colors"
+                                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs text-on-surface-variant/80 hover:bg-on-surface/8 hover:text-on-surface hover:scale-105 active:scale-95 transition-all duration-200 ease-m3e-spring-fast"
                                 onClick={() => handleCopyMessage(msg.id, msg.content)}
                                 type="button"
                               >
@@ -1851,7 +1875,7 @@ export function SirdasChatWorkspace() {
 
                               <a
                                 href={`mailto:adnan.kus@hotmail.com?subject=${encodeURIComponent("Manevi Pusula - Hatalı Cevap / Tenkit Bildirimi")}&body=${encodeURIComponent(`Mesaj Tarihi: ${msg.createdAt}\nMesaj ID: ${msg.id}\nYanıt Kesiti:\n${msg.content.slice(0, 300)}...\n\n--- Görüş, Tenkit veya Hatalı Yanıt Düzeltme Öneriniz ---\n`)}`}
-                                className="inline-flex items-center justify-center rounded-md p-1 text-[#8b9ea0]/75 hover:bg-[#0e2224] hover:text-[#cca762] transition-colors"
+                                className="inline-flex items-center justify-center rounded-full p-1.5 text-on-surface-variant/80 hover:bg-on-surface/8 hover:text-primary hover:scale-110 active:scale-95 transition-all duration-200 ease-m3e-spring-fast"
                                 title="Hatalı cevap veya tenkit bildir (adnan.kus@hotmail.com)"
                                 aria-label="Hatalı cevap veya tenkit bildir"
                               >
@@ -1875,7 +1899,7 @@ export function SirdasChatWorkspace() {
                             {timeString && (
                               <time
                                 dateTime={msg.createdAt}
-                                className="text-[10px] text-[#8b9ea0]/60 select-none mr-1"
+                                className="text-[10px] text-on-surface-variant/60 select-none mr-1"
                               >
                                 {timeString}
                               </time>
@@ -1894,32 +1918,35 @@ export function SirdasChatWorkspace() {
                   aria-live="polite"
                   className="flex items-start gap-3.5 sm:gap-4"
                 >
-                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0e2224] border border-[#cca762]/50 overflow-hidden">
+                  <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[18px] bg-surface-container-high border border-primary/40 overflow-hidden shadow-xs">
                     <Image
                       alt="Manevi Pusula"
                       className="h-full w-full object-cover"
-                      height={32}
+                      height={40}
                       src="/icon.png"
-                      width={32}
+                      width={40}
                     />
                   </div>
 
                   <div className="flex-1 min-w-0 space-y-3">
-                    <div className="rounded-2xl rounded-tl-xs bg-[#0a1c1e] border border-[#1d3336] px-5 py-4">
+                    <div className="rounded-[26px] rounded-bl-[6px] bg-surface-container border border-outline-variant/40 px-5 py-4 shadow-m3-1 text-on-surface">
                       {streamingIntentMode === "ILIM_VE_SIYER" && (
-                        <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-md bg-[#0e2726] border border-[#459b95]/30 px-2 py-0.5 text-[11px] font-medium text-[#7dd3c8]">
-                          <span className="h-1.5 w-1.5 rounded-full bg-[#459b95]" />
+                        <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-secondary-container/80 border border-secondary/30 px-3.5 py-1 text-[11px] font-medium text-on-secondary-container">
+                          <span className="h-1.5 w-1.5 rounded-full bg-secondary" />
                           <span>Vakur İlim &amp; Hikmet Modu</span>
                         </div>
                       )}
                       {streamingText ? (
                         renderFormattedMessage(streamingText)
                       ) : (
-                        <div className="flex items-center gap-2.5 text-sm text-[#8b9ea0]">
-                          <span className="h-2 w-2 rounded-full bg-[#cca762] animate-pulse" />
-                          <span className="animate-in fade-in duration-300">
+                        <div className="flex items-center gap-2.5 text-sm">
+                          <span className="h-2 w-2 rounded-full bg-primary animate-pulse shrink-0" />
+                          <TextShimmer
+                            className="font-medium text-sm [--base-color:#91a8a6] [--base-gradient-color:#cca762] dark:[--base-color:#91a8a6] dark:[--base-gradient-color:#cca762]"
+                            duration={2.2}
+                          >
                             {contemplationPhrase}
-                          </span>
+                          </TextShimmer>
                         </div>
                       )}
                     </div>
@@ -1932,20 +1959,20 @@ export function SirdasChatWorkspace() {
                             key={src.id}
                             onClick={() => setActiveDetailSource(src)}
                             title="Detaylı âyet, hadis veya sohbet metnini incelemek için tıklayın"
-                            className="group inline-flex items-center gap-1.5 rounded-lg bg-[#0e2224] hover:bg-[#133235] border border-[#1d3336] hover:border-[#cca762]/60 px-2.5 py-1 text-xs text-[#8b9ea0] hover:text-[#e1e9e8] transition-all cursor-pointer shadow-xs active:scale-[0.98]"
+                            className="group inline-flex items-center gap-2 rounded-full hover:rounded-[14px] bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant/50 hover:border-primary/50 px-4 py-1.5 text-xs text-on-surface-variant hover:text-on-surface transition-all duration-300 ease-m3e-spring-fast cursor-pointer shadow-xs active:scale-[0.98]"
                           >
                             <span
                               aria-hidden="true"
-                              className="h-1.5 w-1.5 rounded-full bg-[#cca762] group-hover:scale-125 transition-transform"
+                              className="h-1.5 w-1.5 rounded-full bg-primary group-hover:scale-125 transition-transform duration-200"
                             />
-                            <span className="font-medium text-[#e5cca0] group-hover:text-amber-300 transition-colors">
+                            <span className="font-medium text-primary-fixed-dim transition-colors">
                               {getSourceTypeLabel(src.sourceType)}:
                             </span>
                             <span className="truncate max-w-[200px] sm:max-w-[260px]">
                               {src.sourceTitle}
                             </span>
                             <svg
-                              className="w-3 h-3 text-[#cca762]/60 group-hover:text-[#cca762] ml-0.5 shrink-0 transition-transform group-hover:translate-x-0.5"
+                              className="w-3.5 h-3.5 text-primary/70 group-hover:text-primary shrink-0 transition-transform duration-200 group-hover:translate-x-0.5"
                               fill="none"
                               viewBox="0 0 24 24"
                               stroke="currentColor"
@@ -1962,7 +1989,7 @@ export function SirdasChatWorkspace() {
 
               {errorMsg && (
                 <div
-                  className="rounded-xl bg-[#331418] border border-[#ffb4ab]/30 px-4 py-3 text-xs text-[#ffdad6]"
+                  className="rounded-[22px] bg-error-container border border-error/30 px-5 py-3.5 text-xs text-on-error-container shadow-xs"
                   role="alert"
                 >
                   {errorMsg}
@@ -1974,17 +2001,17 @@ export function SirdasChatWorkspace() {
           )}
         </main>
 
-        {/* BOTTOM GEMINI-STYLE FLOATING INPUT DOCK */}
-        <div className="shrink-0 bg-[#040F0F]/95 backdrop-blur-xs px-4 pb-4 pt-2 sm:px-6">
+        {/* BOTTOM MATERIAL 3 EXPRESSIVE FLOATING TOOLBAR / INPUT DOCK */}
+        <div className="shrink-0 bg-surface/90 backdrop-blur-md px-4 pb-4 pt-2 sm:px-6">
           <div className="mx-auto max-w-[720px]">
             <form
-              className="relative flex items-end gap-2 rounded-2xl bg-[#0a1c1e] border border-[#1d3336] focus-within:border-[#f0d098] px-4 py-3 transition-colors"
+              className="relative flex items-end gap-3 rounded-[32px] bg-surface-container-high/95 backdrop-blur-xl border border-outline-variant/60 focus-within:border-primary/90 focus-within:ring-4 focus-within:ring-primary/15 shadow-m3-3 focus-within:shadow-m3-4 px-5 py-3.5 transition-all duration-300 ease-m3e-spring-smooth"
               onSubmit={handleSubmit}
             >
               <textarea
                 ref={textareaRef}
                 aria-label="Manevi Pusula ile dertleşme mesajınızı yazın"
-                className="flex-1 bg-transparent text-[15px] leading-relaxed text-[#e1e9e8] placeholder-[#8b9ea0]/60 focus:outline-none resize-none"
+                className="flex-1 bg-transparent text-[15px] leading-relaxed text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none resize-none"
                 disabled={isLoading || isStreaming}
                 id="sirdas-chat-input"
                 maxLength={1200}
@@ -2017,7 +2044,7 @@ export function SirdasChatWorkspace() {
 
               <button
                 aria-label="Mesajı gönder"
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#cca762] hover:bg-[#dec288] disabled:opacity-40 text-[#1b1406] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cca762]"
+                className="group flex h-11 w-11 shrink-0 items-center justify-center rounded-[22px] hover:rounded-full bg-primary hover:bg-primary-fixed-dim disabled:opacity-30 disabled:scale-100 text-on-primary font-semibold shadow-m3-2 hover:shadow-m3-3 hover:scale-105 active:scale-90 transition-all duration-300 ease-m3e-spring-bouncy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 disabled={
                   isLoading || isStreaming || inputMessage.trim().length < 2
                 }
@@ -2026,7 +2053,7 @@ export function SirdasChatWorkspace() {
               >
                 <svg
                   aria-hidden="true"
-                  className="h-5 w-5"
+                  className="h-5 w-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-200 ease-m3e-spring-fast"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
@@ -2042,25 +2069,25 @@ export function SirdasChatWorkspace() {
             </form>
 
             <p
-              className="mt-2 text-center text-[11px] text-[#8b9ea0]/75 flex items-center justify-center flex-wrap gap-x-1.5 gap-y-0.5 leading-tight"
+              className="mt-2.5 text-center text-[11px] text-on-surface-variant/75 flex items-center justify-center flex-wrap gap-x-1.5 gap-y-0.5 leading-tight"
               lang="tr"
             >
               <span>Manevi Pusula fetva mercii değildir, hata yapabilir.</span>
-              <span className="hidden sm:inline text-[#8b9ea0]/40">•</span>
+              <span className="hidden sm:inline text-on-surface-variant/40">•</span>
               <span>
                 Fıkıh:{" "}
                 <a
-                  className="font-medium text-[#e5cca0] hover:text-[#cca762] underline underline-offset-2"
+                  className="font-medium text-primary-fixed-dim hover:text-primary underline underline-offset-2"
                   href="tel:190"
                 >
                   Alo 190
                 </a>
               </span>
-              <span className="text-[#8b9ea0]/40">•</span>
+              <span className="text-on-surface-variant/40">•</span>
               <span>
                 Acil:{" "}
                 <a
-                  className="font-medium text-[#ffdad6] hover:text-[#ffb4ab] underline underline-offset-2"
+                  className="font-medium text-error hover:text-error/80 underline underline-offset-2"
                   href="tel:112"
                 >
                   112
@@ -2071,16 +2098,16 @@ export function SirdasChatWorkspace() {
         </div>
       </div>
 
-      {/* FLOATING SUCCESS TOAST NOTIFICATION */}
+      {/* FLOATING SUCCESS TOAST NOTIFICATION (M3 SNACKBAR) */}
       {toastMsg && (
         <div
           role="status"
           aria-live="polite"
-          className="fixed top-6 right-6 z-50 flex items-center gap-2.5 rounded-xl bg-[#0f2d24] border border-[#459b95] px-4 py-3 text-xs text-[#d2f8ea] shadow-2xl animate-in fade-in slide-in-from-top-4"
+          className="fixed top-6 right-6 z-50 flex items-center gap-3 rounded-full bg-surface-container-highest border border-outline-variant/60 px-5 py-3 text-xs text-on-surface shadow-m3-3 animate-in fade-in slide-in-from-top-4"
         >
           <svg
             aria-hidden="true"
-            className="h-4 w-4 text-[#4ade80] shrink-0"
+            className="h-4 w-4 text-secondary shrink-0"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -2096,44 +2123,61 @@ export function SirdasChatWorkspace() {
         </div>
       )}
 
-      {/* 1. KVKK KALKANI: AÇIK RIZA & ÖZEL NİTELİKLİ VERİ SÖZLEŞMESİ POP-UP */}
-      {isConsentModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="kvkk-modal-title"
-        >
-          <div className="relative w-full max-w-xl rounded-2xl bg-[#091416] border border-[#cca762]/50 p-6 sm:p-7 shadow-2xl text-[#e1e9e8] space-y-5 max-h-[92vh] overflow-y-auto animate-in zoom-in-95">
+      {/* 1. KVKK KALKANI: AÇIK RIZA & ÖZEL NİTELİKLİ VERİ SÖZLEŞMESİ (FLUID MORPHING DIALOG) */}
+      <AnimatePresence>
+        {isConsentModalOpen && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="kvkk-modal-title"
+          >
+            <motion.div
+              className="fixed inset-0 bg-black/80 backdrop-blur-md"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setIsConsentModalOpen(false)}
+            />
+            <motion.div
+              layoutId={consentTrigger === "header" ? "kvkk-dialog-header" : "kvkk-dialog-sidebar"}
+              transition={{
+                type: "spring",
+                damping: 26,
+                stiffness: 220,
+              }}
+              className="relative w-full max-w-xl rounded-[36px] bg-surface-container-high border border-outline-variant/60 p-6 sm:p-8 shadow-m3-5 text-on-surface space-y-5 max-h-[92vh] overflow-y-auto z-10"
+            >
             {/* Header */}
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 rounded-full bg-[#182823] border border-[#459b95]/40 px-3 py-1 text-xs text-[#a2e8dd]">
-                <span className="h-2 w-2 rounded-full bg-[#459b95] animate-pulse" />
+              <div className="inline-flex items-center gap-2 rounded-full bg-secondary-container border border-secondary/30 px-3.5 py-1 text-xs text-on-secondary-container">
+                <span className="h-2 w-2 rounded-full bg-secondary animate-pulse" />
                 <span className="font-medium">Hukuki Zırh • KVKK Kalkanı</span>
               </div>
               <h2
                 id="kvkk-modal-title"
-                className="font-heading text-xl sm:text-2xl font-semibold text-[#f5ebd7] tracking-tight"
+                className="font-heading text-xl sm:text-2xl font-semibold text-primary-fixed tracking-tight"
               >
                 Açık Rıza ve Özel Nitelikli Kişisel Veri Sözleşmesi
               </h2>
-              <p className="text-xs text-[#8b9ea0] leading-relaxed">
+              <p className="text-xs text-on-surface-variant leading-relaxed">
                 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) uyarınca
                 manevi rehberlik mahremiyeti ve yasal güvenceniz
               </p>
             </div>
 
-            {/* 3 Pillars Content */}
+            {/* 3 Pillars Content (M3 Surface Cards) */}
             <div className="space-y-3.5 text-xs">
               {/* 1. Açık Rıza Metni */}
-              <div className="rounded-xl border border-[#cca762]/50 bg-[#16201a] p-4 space-y-2">
-                <div className="flex items-center gap-2 text-[#cca762] font-semibold text-[13px]">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#cca762]/20 text-[#cca762] text-[11px] font-bold">
+              <div className="rounded-[22px] border border-primary/30 bg-surface-container p-4 space-y-2 shadow-xs">
+                <div className="flex items-center gap-2 text-primary font-semibold text-[13px]">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/20 text-primary text-[11px] font-bold">
                     1
                   </span>
                   <span>Açık Rıza Metni (Pop-up Onayı)</span>
                 </div>
-                <p className="text-[#f0e6d2] font-medium leading-relaxed italic pl-7 text-[13px]">
+                <p className="text-primary-fixed-dim font-medium leading-relaxed italic pl-7 text-[13px]">
                   &ldquo;Size daha iyi bir manevi rehberlik sunabilmek adına,
                   aktardığınız anonimleştirilmiş durum özetlerinin şifrelenerek
                   hafızada tutulmasını kabul ediyorsunuz.&rdquo;
@@ -2141,32 +2185,32 @@ export function SirdasChatWorkspace() {
               </div>
 
               {/* 2. Kendi İradesiyle Paylaşım İlkesi */}
-              <div className="rounded-xl border border-[#1d3336] bg-[#0c181a] p-3.5 space-y-1.5">
-                <div className="flex items-center gap-2 text-[#7dd3c8] font-semibold text-[13px]">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#459b95]/20 text-[#7dd3c8] text-[11px] font-bold">
+              <div className="rounded-[22px] border border-outline-variant/40 bg-surface-container p-4 space-y-1.5 shadow-xs">
+                <div className="flex items-center gap-2 text-on-secondary-container font-semibold text-[13px]">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container text-[11px] font-bold">
                     2
                   </span>
                   <span>Kendi İradesiyle Paylaşım İlkesi (Hukuki Zırh)</span>
                 </div>
-                <p className="text-[#a0b5b7] leading-relaxed pl-7">
+                <p className="text-on-surface-variant leading-relaxed pl-7">
                   Türkiye&apos;de Kişisel Verileri Koruma Kanunu&apos;na (KVKK
                   md. 6) göre dini inanç, ruhsal durum ve ailevi bilgiler{" "}
-                  <strong className="text-[#e1e9e8]">
+                  <strong className="text-on-surface">
                     &ldquo;Özel Nitelikli Kişisel Veri&rdquo;
                   </strong>{" "}
                   sınıfına girer. Hukukta temel kuraldır; kişi kendi rızasıyla
                   ve anonim bir ortamda durumunu anlatıyorsa ve sistem bunu
                   kimliğiyle eşleştirmiyorsa burada veri ihlali doğmaz. Manevi
-                  Pusula kimlik bilgisi <strong className="font-bold text-[#e1e9e8]">(ad, soyad, T.C. kimlik numarası, ikametgah, telefon rehberi)</strong> talep
+                  Pusula kimlik bilgisi <strong className="font-bold text-on-surface">(ad, soyad, T.C. kimlik numarası, ikametgah, telefon rehberi)</strong> talep
                   etmez; tamamen rastgele üretilmiş anonim oturum
                   anahtarıyla çalışır.
                 </p>
               </div>
 
               {/* 3. Tek Tıkla Hafızamı Sil */}
-              <div className="rounded-xl border border-[#1d3336] bg-[#0c181a] p-3.5 space-y-1.5">
-                <div className="flex items-center gap-2 text-[#ffb4ab] font-semibold text-[13px]">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#ffb4ab]/20 text-[#ffb4ab] text-[11px] font-bold">
+              <div className="rounded-[22px] border border-outline-variant/40 bg-surface-container p-4 space-y-1.5 shadow-xs">
+                <div className="flex items-center gap-2 text-error font-semibold text-[13px]">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-error-container text-on-error-container text-[11px] font-bold">
                     3
                   </span>
                   <span>
@@ -2174,9 +2218,9 @@ export function SirdasChatWorkspace() {
                     Forgotten)
                   </span>
                 </div>
-                <p className="text-[#a0b5b7] leading-relaxed pl-7">
+                <p className="text-on-surface-variant leading-relaxed pl-7">
                   Dilediğiniz an sol menüde veya ekranın üst kısmında yer alan{" "}
-                  <strong className="text-[#ffdad6]">
+                  <strong className="text-on-error-container">
                     &ldquo;Benlik Hafızamı Sıfırla / Tüm Verilerimi Sil&rdquo;
                   </strong>{" "}
                   butonuna basabilirsiniz. Butona bastığınız an arka plandaki
@@ -2188,18 +2232,18 @@ export function SirdasChatWorkspace() {
             </div>
 
             {/* Footer Actions */}
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#1d3336]/60">
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-outline-variant/40">
               <Link
                 href="/gizlilik-politikasi#ozel-nitelikli-veri"
                 target="_blank"
-                className="text-xs text-[#cca762] hover:text-[#dec288] underline underline-offset-4"
+                className="text-xs text-primary hover:text-primary-fixed-dim underline underline-offset-4"
               >
                 Detaylı Aydınlatma Metnini İncele →
               </Link>
               <button
                 type="button"
                 onClick={handleAcceptConsent}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#cca762] hover:bg-[#dec288] text-[#1b1406] font-semibold px-5 py-2.5 text-xs sm:text-sm transition-colors shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cca762]"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-primary hover:bg-primary-fixed-dim text-on-primary font-semibold px-6 py-2.5 text-xs sm:text-sm transition-all duration-200 ease-m3e-spring-bouncy shadow-m3-2 hover:shadow-m3-3 hover:scale-[1.02] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
                 <span>Okudum, Açık Rıza Veriyorum ve Başla</span>
                 <svg
@@ -2217,23 +2261,43 @@ export function SirdasChatWorkspace() {
                 </svg>
               </button>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
+    </AnimatePresence>
 
-      {/* 2. BENLİK HAFIZAMI SIFIRLA / TÜM VERİLERİMİ SİL CONFIRM MODAL */}
-      {isResetModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="reset-modal-title"
-        >
-          <div className="relative w-full max-w-md rounded-2xl bg-[#0d1618] border border-[#ffb4ab]/40 p-6 shadow-2xl text-[#e1e9e8] space-y-4 animate-in zoom-in-95">
+      {/* 2. BENLİK HAFIZAMI SIFIRLA / TÜM VERİLERİMİ SİL CONFIRM MODAL (FLUID MORPHING DIALOG) */}
+      <AnimatePresence>
+        {isResetModalOpen && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="reset-modal-title"
+          >
+            <motion.div
+              className="fixed inset-0 bg-black/80 backdrop-blur-md"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => {
+                if (!isPurging) setIsResetModalOpen(false);
+              }}
+            />
+            <motion.div
+              layoutId={resetTrigger === "header" ? "reset-dialog-header" : "reset-dialog-sidebar"}
+              transition={{
+                type: "spring",
+                damping: 26,
+                stiffness: 220,
+              }}
+              className="relative w-full max-w-md rounded-[36px] bg-surface-container-high border border-error/30 p-6 sm:p-8 shadow-m3-5 text-on-surface space-y-4 z-10"
+            >
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#331418] border border-[#ffb4ab]/30 text-[#ffb4ab]">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[20px] bg-error-container border border-error/30 text-on-error-container shadow-xs">
                 <svg
-                  className="h-5 w-5"
+                  className="h-6 w-6 text-error"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
@@ -2249,37 +2313,37 @@ export function SirdasChatWorkspace() {
               <div>
                 <h2
                   id="reset-modal-title"
-                  className="font-heading text-lg font-semibold text-[#ffdad6]"
+                  className="font-heading text-lg font-semibold text-on-error-container"
                 >
                   Benlik Hafızasını ve Tüm Verileri Sil
                 </h2>
-                <span className="text-[11px] text-[#ffb4ab]/80">
+                <span className="text-[11px] text-error">
                   KVKK Unutulma Hakkı (Right to be Forgotten)
                 </span>
               </div>
             </div>
 
-            <div className="space-y-2 text-xs text-[#a0b5b7] leading-relaxed">
+            <div className="space-y-2 text-xs text-on-surface-variant leading-relaxed">
               <p>Bu işlem geri alınamaz. Onayladığınız takdirde:</p>
-              <ul className="list-disc pl-5 space-y-1 text-[#e1e9e8]/90">
+              <ul className="list-disc pl-5 space-y-1 text-on-surface/90">
                 <li>Cihazınızdaki tüm geçmiş sohbet kayıtları,</li>
                 <li>Sunucuda tutulan anonim durum özetleri ve mesajlar,</li>
                 <li>
                   Arka plandaki 4 bloklu dijital ikiz profil kaydınız (JSON),
                 </li>
               </ul>
-              <p className="pt-1 text-[#ffb4ab]">
+              <p className="pt-1 text-error font-medium">
                 PostgreSQL veri tabanından kalıcı olarak silinecek ve oturumunuz
                 tamamen sıfırlanacaktır.
               </p>
             </div>
 
-            <div className="pt-2 flex items-center justify-end gap-2.5">
+            <div className="pt-2 flex items-center justify-end gap-3">
               <button
                 type="button"
                 disabled={isPurging}
                 onClick={() => setIsResetModalOpen(false)}
-                className="rounded-xl bg-[#0e2224] hover:bg-[#132c2e] border border-[#1d3336] px-4 py-2 text-xs font-medium text-[#8b9ea0] hover:text-[#e1e9e8] transition-colors"
+                className="rounded-full bg-surface-container hover:bg-surface-container-highest border border-outline-variant/40 px-5 py-2.5 text-xs font-medium text-on-surface-variant hover:text-on-surface hover:scale-[1.02] active:scale-95 transition-all duration-200 ease-m3e-spring-fast shadow-xs"
               >
                 Vazgeç
               </button>
@@ -2287,7 +2351,7 @@ export function SirdasChatWorkspace() {
                 type="button"
                 disabled={isPurging}
                 onClick={() => handlePurgeAllData()}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-[#93000a] hover:bg-[#b3261e] text-white px-4 py-2 text-xs font-semibold transition-colors disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-full bg-error hover:bg-error/90 text-on-error px-5 py-2.5 text-xs font-semibold shadow-m3-2 hover:scale-[1.02] active:scale-95 transition-all duration-200 ease-m3e-spring-bouncy disabled:opacity-50"
               >
                 {isPurging ? (
                   <>
@@ -2299,33 +2363,47 @@ export function SirdasChatWorkspace() {
                 )}
               </button>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
+    </AnimatePresence>
 
-      {/* 3. HAFIZA & GİZLİLİK AYARLARI MODALI (OTOMATİK İMHA KALKANI) */}
-      {isSettingsModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="settings-modal-title"
-        >
-          <div className="relative w-full max-w-lg rounded-2xl bg-[#091416] border border-[#cca762]/50 p-6 shadow-2xl text-[#e1e9e8] space-y-5 max-h-[92vh] overflow-y-auto animate-in zoom-in-95">
+      {/* 3. HAFIZA & GİZLİLİK AYARLARI MODALI (FLUID MORPHING DIALOG) */}
+      <AnimatePresence>
+        {isSettingsModalOpen && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="settings-modal-title"
+          >
+            <motion.div
+              className="fixed inset-0 bg-black/80 backdrop-blur-md"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setIsSettingsModalOpen(false)}
+            />
+            <motion.div
+              layoutId="settings-dialog"
+              transition={{
+                type: "spring",
+                damping: 26,
+                stiffness: 220,
+              }}
+              className="relative w-full max-w-lg rounded-[36px] bg-surface-container-high border border-outline-variant/60 p-6 sm:p-8 shadow-m3-5 text-on-surface space-y-5 max-h-[92vh] overflow-y-auto z-10"
+            >
             {/* Modal Header */}
             <div className="flex items-start justify-between gap-3">
               <div>
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-[#182823] border border-[#459b95]/40 px-2.5 py-0.5 text-[11px] text-[#a2e8dd] mb-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#459b95]" />
-                  <span>Otomatik İmha Kalkanı</span>
-                </div>
                 <h2
                   id="settings-modal-title"
-                  className="font-heading text-xl font-semibold text-[#f5ebd7]"
+                  className="font-heading text-xl font-semibold text-primary-fixed"
                 >
                   Hafıza ve Gizlilik Ayarları
                 </h2>
-                <p className="text-xs text-[#8b9ea0]">
+                <p className="text-xs text-on-surface-variant">
                   Sohbet verisi ve benlik hafızanız için otomatik imha
                   kurallarını seçin.
                 </p>
@@ -2333,7 +2411,7 @@ export function SirdasChatWorkspace() {
               <button
                 type="button"
                 onClick={() => setIsSettingsModalOpen(false)}
-                className="rounded-lg p-1 text-[#8b9ea0] hover:bg-[#0e2224] hover:text-[#e1e9e8] transition-colors"
+                className="rounded-full p-2 text-on-surface-variant hover:bg-on-surface/8 hover:text-on-surface hover:scale-105 active:scale-90 transition-all duration-200 ease-m3e-spring-fast"
                 aria-label="Ayarları kapat"
               >
                 <svg
@@ -2352,20 +2430,20 @@ export function SirdasChatWorkspace() {
               </button>
             </div>
 
-            {/* 3 Short & Crisp Options */}
+            {/* 3 Short & Crisp Options (M3 Surface Cards) */}
             <div className="space-y-4 text-xs">
               {/* Option 1: Sayfayı/Uygulamayı Kapattığı An */}
-              <div className="rounded-xl border border-[#1d3336] bg-[#0c181a] p-4 space-y-2">
+              <div className="rounded-[22px] border border-outline-variant/40 bg-surface-container p-4 space-y-2 shadow-xs">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#cca762]/20 text-[#cca762] text-[11px] font-bold">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/20 text-primary text-[11px] font-bold">
                       1
                     </span>
-                    <span className="font-semibold text-[13px] text-[#e1e9e8]">
+                    <span className="font-semibold text-[13px] text-on-surface">
                       Sekme / Uygulama Kapanışında İmha
                     </span>
                   </div>
-                  {/* Toggle switch */}
+                  {/* M3 Switch Component */}
                   <button
                     type="button"
                     role="switch"
@@ -2375,15 +2453,15 @@ export function SirdasChatWorkspace() {
                         autoPurgeOnClose: !privacySettings.autoPurgeOnClose,
                       })
                     }
-                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cca762] ${
+                    className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-300 ease-m3e-spring-smooth focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                       privacySettings.autoPurgeOnClose
-                        ? "bg-[#cca762]"
-                        : "bg-[#1d3336]"
+                        ? "bg-primary"
+                        : "bg-surface-container-highest"
                     }`}
                   >
                     <span
                       aria-hidden="true"
-                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-[#040F0F] shadow-lg ring-0 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                      className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-surface shadow-md ring-0 transition-transform duration-300 ease-m3e-spring-bouncy ${
                         privacySettings.autoPurgeOnClose
                           ? "translate-x-5"
                           : "translate-x-0"
@@ -2391,7 +2469,7 @@ export function SirdasChatWorkspace() {
                     />
                   </button>
                 </div>
-                <p className="text-[#8b9ea0] leading-relaxed pl-7">
+                <p className="text-on-surface-variant leading-relaxed pl-7">
                   Sekmeyi kapattığınız veya uygulamadan çıktığınız an, arka
                   plana sinyal gönderilerek sohbet ve benlik hafızası
                   milisaniyeler içinde imha edilir.
@@ -2400,8 +2478,8 @@ export function SirdasChatWorkspace() {
                   <span
                     className={`text-[11px] font-medium ${
                       privacySettings.autoPurgeOnClose
-                        ? "text-[#cca762]"
-                        : "text-[#8b9ea0]/70"
+                        ? "text-primary"
+                        : "text-on-surface-variant/70"
                     }`}
                   >
                     Durum:{" "}
@@ -2413,20 +2491,20 @@ export function SirdasChatWorkspace() {
               </div>
 
               {/* Option 2: Belirli Bir Süre Hareketsizlik */}
-              <div className="rounded-xl border border-[#1d3336] bg-[#0c181a] p-4 space-y-2.5">
+              <div className="rounded-[22px] border border-outline-variant/40 bg-surface-container p-4 space-y-2.5 shadow-xs">
                 <div className="flex items-center gap-2">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#459b95]/20 text-[#7dd3c8] text-[11px] font-bold">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container text-[11px] font-bold">
                     2
                   </span>
-                  <span className="font-semibold text-[13px] text-[#e1e9e8]">
+                  <span className="font-semibold text-[13px] text-on-surface">
                     Hareketsizlik Zaman Aşımı (Inactivity Timeout)
                   </span>
                 </div>
-                <p className="text-[#8b9ea0] leading-relaxed pl-7">
+                <p className="text-on-surface-variant leading-relaxed pl-7">
                   Uygulama açık unutulup işlem yapılmazsa, belirlenen süre
                   dolduğunda güvenlik gereği hafıza otomatik sıfırlanır.
                 </p>
-                <div className="pl-7 flex flex-wrap gap-1.5 pt-1">
+                <div className="pl-7 flex flex-wrap gap-2 pt-1">
                   {[
                     { label: "Kapalı", value: 0 },
                     { label: "15 Dk", value: 15 },
@@ -2441,10 +2519,10 @@ export function SirdasChatWorkspace() {
                           inactivityTimeoutMinutes: opt.value,
                         })
                       }
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                      className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all shadow-xs ${
                         privacySettings.inactivityTimeoutMinutes === opt.value
-                          ? "bg-[#cca762] text-[#1b1406] font-semibold"
-                          : "bg-[#0e2224] text-[#8b9ea0] hover:text-[#e1e9e8] border border-[#1d3336]"
+                          ? "bg-primary text-on-primary font-semibold shadow-m3-1 scale-105"
+                          : "bg-surface-container-high text-on-surface-variant hover:text-on-surface border border-outline-variant/40"
                       }`}
                     >
                       {opt.label}
@@ -2454,21 +2532,21 @@ export function SirdasChatWorkspace() {
               </div>
 
               {/* Option 3: Zaman Ayarlı Kendini İmhâ (TTL) */}
-              <div className="rounded-xl border border-[#1d3336] bg-[#0c181a] p-4 space-y-2.5">
+              <div className="rounded-[22px] border border-outline-variant/40 bg-surface-container p-4 space-y-2.5 shadow-xs">
                 <div className="flex items-center gap-2">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#ffb4ab]/20 text-[#ffb4ab] text-[11px] font-bold">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-error-container text-on-error-container text-[11px] font-bold">
                     3
                   </span>
-                  <span className="font-semibold text-[13px] text-[#e1e9e8]">
+                  <span className="font-semibold text-[13px] text-on-surface">
                     Zaman Ayarlı Kendini İmhâ (TTL)
                   </span>
                 </div>
-                <p className="text-[#8b9ea0] leading-relaxed pl-7">
+                <p className="text-on-surface-variant leading-relaxed pl-7">
                   Veri tabanındaki kayıtlar için son kullanma tarihi tanımlanır;
                   süre dolduğunda arka plandaki hafıza kaydı kendi kendine
                   siler.
                 </p>
-                <div className="pl-7 flex flex-wrap gap-1.5 pt-1">
+                <div className="pl-7 flex flex-wrap gap-2 pt-1">
                   {[
                     { label: "12 Saat", value: 12 },
                     { label: "24 Saat (Önerilen)", value: 24 },
@@ -2483,10 +2561,10 @@ export function SirdasChatWorkspace() {
                           ttlHours: opt.value,
                         })
                       }
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                      className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all shadow-xs ${
                         privacySettings.ttlHours === opt.value
-                          ? "bg-[#cca762] text-[#1b1406] font-semibold"
-                          : "bg-[#0e2224] text-[#8b9ea0] hover:text-[#e1e9e8] border border-[#1d3336]"
+                          ? "bg-primary text-on-primary font-semibold shadow-m3-1 scale-105"
+                          : "bg-surface-container-high text-on-surface-variant hover:text-on-surface border border-outline-variant/40"
                       }`}
                     >
                       {opt.label}
@@ -2497,7 +2575,7 @@ export function SirdasChatWorkspace() {
             </div>
 
             {/* Modal Actions */}
-            <div className="pt-2 flex items-center justify-between border-t border-[#1d3336]/60">
+            <div className="pt-2 flex items-center justify-between border-t border-outline-variant/40">
               <button
                 type="button"
                 onClick={() => {
@@ -2505,7 +2583,7 @@ export function SirdasChatWorkspace() {
                   setToastMsg("Varsayılan gizlilik ayarları yüklendi.");
                   setTimeout(() => setToastMsg(null), 3000);
                 }}
-                className="text-xs text-[#8b9ea0] hover:text-[#cca762] transition-colors"
+                className="text-xs text-on-surface-variant hover:text-primary transition-colors"
               >
                 Varsayılanlara Sıfırla
               </button>
@@ -2516,33 +2594,34 @@ export function SirdasChatWorkspace() {
                   setToastMsg("✅ Hafıza ve gizlilik ayarlarınız kaydedildi.");
                   setTimeout(() => setToastMsg(null), 3000);
                 }}
-                className="rounded-xl bg-[#cca762] hover:bg-[#dec288] text-[#1b1406] font-semibold px-4 py-2 text-xs transition-colors"
+                className="rounded-full bg-primary hover:bg-primary-fixed-dim text-on-primary font-semibold px-6 py-2.5 text-xs shadow-m3-2 transition-all duration-200 ease-m3e-spring-bouncy hover:scale-[1.02] active:scale-95"
               >
                 Kaydet ve Kapat
               </button>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
+    </AnimatePresence>
 
-      {/* Salt Okunur Sırdaş Profilim Modalı */}
+      {/* Salt Okunur Sırdaş Profilim Modalı (MATERIAL 3 EXPRESSIVE DIALOG) */}
       <dialog
         ref={profileDialogRef}
         {...({ closedby: "any" } as React.DialogHTMLAttributes<HTMLDialogElement>)}
         aria-labelledby="profile-modal-title"
-        className="m-auto w-full max-w-lg max-h-[88vh] overflow-y-auto rounded-2xl border border-[#1d3336] bg-[#081517] p-6 text-[#e1e9e8] focus:outline-none"
+        className="m-auto w-full max-w-lg max-h-[88vh] overflow-y-auto rounded-[36px] border border-outline-variant/60 bg-surface-container-high p-6 sm:p-8 text-on-surface shadow-m3-5 focus:outline-none animate-m3e-spring"
       >
         <div className="space-y-5">
           {/* Başlık */}
-          <div className="flex items-start justify-between gap-4 border-b border-[#1d3336]/70 pb-4">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0e2224] border border-[#cca762]/35 text-[#cca762] text-sm font-semibold">
+          <div className="flex items-start justify-between gap-4 border-b border-outline-variant/40 pb-4">
+            <div className="flex items-center gap-3.5 min-w-0">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface-container-highest border border-primary/30 text-primary text-sm font-semibold shadow-xs">
                 {userProfile.preferred_name ? (
                   userProfile.preferred_name.charAt(0).toLocaleUpperCase("tr-TR")
                 ) : (
                   <svg
                     aria-hidden="true"
-                    className="h-4 w-4"
+                    className="h-5 w-5"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="1.8"
@@ -2559,13 +2638,13 @@ export function SirdasChatWorkspace() {
               <div className="min-w-0">
                 <h2
                   id="profile-modal-title"
-                  className="font-heading text-lg font-semibold text-[#e1e9e8] truncate"
+                  className="font-heading text-lg font-semibold text-on-surface truncate"
                 >
                   {userProfile.preferred_name
                     ? `${userProfile.preferred_name} • Sırdaş Profilim`
                     : "Sırdaş Profilim"}
                 </h2>
-                <p className="text-xs text-[#9cb0b2] mt-0.5 leading-relaxed">
+                <p className="text-xs text-on-surface-variant mt-0.5 leading-relaxed">
                   Hasbihallerinizden otomatik olarak öğrenilen ve size özel tutulan hafıza özeti.
                 </p>
               </div>
@@ -2573,7 +2652,7 @@ export function SirdasChatWorkspace() {
             <button
               type="button"
               onClick={handleCloseProfileModal}
-              className="rounded-lg p-1.5 text-[#9cb0b2] hover:bg-[#132c2e] hover:text-[#e1e9e8] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cca762]"
+              className="rounded-full p-2 text-on-surface-variant hover:bg-on-surface/8 hover:text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               aria-label="Profili kapat"
             >
               <svg
@@ -2594,17 +2673,17 @@ export function SirdasChatWorkspace() {
           </div>
 
           {/* Kimlik & Manevi Seyir Özeti (Salt Okunur) */}
-          <div className="space-y-3 border-b border-[#1d3336]/70 pb-4 text-xs">
+          <div className="space-y-3 border-b border-outline-variant/40 pb-4 text-xs">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <div className="text-xs text-[#9cb0b2]">Hitap İsmi</div>
-                <div className="mt-1 text-sm font-medium text-[#e1e9e8]">
+              <div className="rounded-2xl bg-surface-container border border-outline-variant/40 p-3 shadow-xs">
+                <div className="text-xs text-on-surface-variant">Hitap İsmi</div>
+                <div className="mt-1 text-sm font-medium text-on-surface">
                   {userProfile.preferred_name || "Henüz paylaşılmadı"}
                 </div>
               </div>
-              <div>
-                <div className="text-xs text-[#9cb0b2]">Manevi Seyir Evresi</div>
-                <div className="mt-1 text-sm font-medium text-[#cca762]">
+              <div className="rounded-2xl bg-surface-container border border-outline-variant/40 p-3 shadow-xs">
+                <div className="text-xs text-on-surface-variant">Manevi Seyir Evresi</div>
+                <div className="mt-1 text-sm font-medium text-primary">
                   {SPIRITUAL_STAGE_LABELS[
                     userProfile.spiritual_stage || "ARAYIS_VE_BASLANGIC"
                   ]?.title || "Arayış ve Başlangıç"}
@@ -2614,14 +2693,14 @@ export function SirdasChatWorkspace() {
 
             {(userProfile.roles || []).length > 0 && (
               <div className="pt-1">
-                <div className="text-xs text-[#9cb0b2] mb-1.5">
+                <div className="text-xs text-on-surface-variant mb-1.5">
                   Tanınan Hayat Bağlamı
                 </div>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-2">
                   {(userProfile.roles || []).map((roleKey) => (
                     <span
                       key={roleKey}
-                      className="rounded-md bg-[#0e2224] border border-[#1d3336] px-2.5 py-1 text-xs text-[#e1e9e8]"
+                      className="rounded-full bg-surface-container border border-outline-variant/40 px-3 py-1 text-xs text-on-surface shadow-xs"
                     >
                       {ROLE_LABELS[roleKey] || roleKey}
                     </span>
@@ -2634,31 +2713,31 @@ export function SirdasChatWorkspace() {
           {/* Sırdaş'ın Tuttuğu Kalıcı Notlar */}
           <div className="space-y-2.5">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-semibold text-[#e1e9e8]">
+              <h3 className="text-xs font-semibold text-on-surface">
                 Sırdaş&apos;ın Tuttuğu Kalıcı Notlar
               </h3>
-              <span className="text-xs text-[#9cb0b2]">
+              <span className="text-xs text-on-surface-variant">
                 {(userProfile.known_facts || []).length} kayıt
               </span>
             </div>
 
             {(userProfile.known_facts || []).length > 0 ? (
-              <ul className="space-y-1.5">
+              <ul className="space-y-2">
                 {(userProfile.known_facts || []).map((fact, idx) => (
                   <li
                     key={idx}
-                    className="flex items-start gap-2 rounded-lg bg-[#0c181a] border border-[#1d3336]/80 px-3 py-2 text-xs text-[#e1e9e8] leading-relaxed"
+                    className="flex items-start gap-2.5 rounded-2xl bg-surface-container border border-outline-variant/40 px-3.5 py-2.5 text-xs text-on-surface leading-relaxed shadow-xs"
                   >
                     <span
                       aria-hidden="true"
-                      className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#cca762]"
+                      className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
                     />
                     <span>{fact}</span>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-xs text-[#9cb0b2] leading-relaxed py-2">
+              <p className="text-xs text-on-surface-variant leading-relaxed py-2">
                 Sohbet içinde paylaştığınız yaşam durumları, ruhsal hassasiyetleriniz, sağlık süreçleriniz ve dua niyetleriniz burada kendiliğinden birikir.
               </p>
             )}
@@ -2667,15 +2746,15 @@ export function SirdasChatWorkspace() {
           {/* Alt Bilgi & Kapat */}
           <form
             method="dialog"
-            className="flex items-center justify-between gap-4 border-t border-[#1d3336]/70 pt-4"
+            className="flex items-center justify-between gap-4 border-t border-outline-variant/40 pt-4"
           >
-            <span className="text-xs text-[#9cb0b2] leading-snug">
+            <span className="text-xs text-on-surface-variant leading-snug">
               Dilediğiniz an sol alttaki silme butonuyla tüm hafızayı sıfırlayabilirsiniz.
             </span>
             <button
               type="submit"
               autoFocus
-              className="shrink-0 rounded-xl bg-[#cca762] hover:bg-[#dec288] text-[#1b1406] font-semibold px-4 py-2 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#cca762]"
+              className="shrink-0 rounded-full bg-primary hover:bg-primary-fixed-dim text-on-primary font-semibold px-5 py-2 text-xs transition-all shadow-m3-2 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               Kapat
             </button>

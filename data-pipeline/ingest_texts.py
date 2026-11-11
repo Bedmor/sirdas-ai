@@ -214,7 +214,11 @@ def load_thematic_corpus(file_path: Path) -> List[Dict[str, Any]]:
                 content = f"Dua ve Zikir: \"{item.get('dua_turkce', '')}\"{kaynak_part}{serh_part}{hikmet_part}"
             elif "turkce_meal" in item:
                 kaynak_info = f" [Kaynak: {item.get('kaynak', '')}, Derece: {item.get('sahihlik_derecesi', 'Sahih')}]" if item.get("kaynak") else ""
-                content = f"Resûlullah (s.a.v.) buyurdu: \"{item.get('turkce_meal', '')}\"{kaynak_info}"
+                ravi_part = f"\n\nRavi: {item['ravi']}" if item.get("ravi") else ""
+                vurud_part = f"\n\nSebeb-i Vürûd: {item['sebeb_i_vurud']}" if item.get("sebeb_i_vurud") else ""
+                serh_part = f"\n\nHadis Şerhi: {item['hadis_serhi']}" if item.get("hadis_serhi") else ""
+                hikmet_part = f"\n\nManevi Hikmet: {item['manevi_hikmet']}" if item.get("manevi_hikmet") else ""
+                content = f"Resûlullah (s.a.v.) buyurdu: \"{item.get('turkce_meal', '')}\"{kaynak_info}{ravi_part}{vurud_part}{serh_part}{hikmet_part}"
             elif "ozet_metin" in item:
                 hikmet_part = f"\n\nManevi Hikmet ve Çözüm: {item['manevi_hikmet']}" if item.get("manevi_hikmet") else ""
                 content = f"{item.get('ozet_metin', '')}{hikmet_part}"

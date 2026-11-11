@@ -3,7 +3,6 @@ node_modules/
 .pnp
 .pnp.js
 .agents/
-AGENT.md
 *.md
 # Next.js build output
 .next/

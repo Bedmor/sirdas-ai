@@ -278,7 +278,37 @@ export const TURKISH_STOP_WORDS = new Set<string>([
   "calisiyorum",
   "istiyorum",
   "bilmiyorum",
+  "merhaba",
+  "merhabalar",
+  "selam",
+  "selamlar",
+  "selamün",
+  "selamun",
+  "aleyküm",
+  "aleykum",
+  "günaydın",
+  "gunaydin",
+  "akşamlar",
+  "aksamlar",
+  "geceler",
+  "nasılsın",
+  "nasilsin",
+  "nasılsınız",
+  "nasilsiniz",
+  "naber",
+  "memnun",
+  "hoşbulduk",
+  "hosbulduk",
 ]);
+
+function stripLightTurkishSuffix(word: string): string {
+  // Yalnızca çekim eklerini (hal, iyelik, çoğul, şahıs) soyar; "merhaba"->"merha" veya "yazılımcı"->"yazıl" gibi kök bozan kesmeler yapmaz.
+  const stripped = word.replace(
+    /(?:lardan|lerden|ların|lerin|ları|leri|ndan|nden|dan|den|tan|ten|nda|nde|da|de|ta|te|nın|nin|nun|nün|ım|im|um|üm|ın|in|un|ün|lar|ler|ya|ye|yı|yi|yu|yü)$/u,
+    ""
+  );
+  return stripped.length >= 4 ? stripped : word;
+}
 
 /**
  * Extracts meaningful domain keywords (stems >= 3 chars, excluding stop-words).
@@ -286,7 +316,9 @@ export const TURKISH_STOP_WORDS = new Set<string>([
 export function extractMeaningfulKeywords(text: string, maxWords = 8): string[] {
   if (!text) return [];
   const words = text
-    .toLowerCase()
+    .normalize("NFC")
+    .toLocaleLowerCase("tr-TR")
+    .replace(/\u0307/g, "")
     .replace(/[^\p{L}\p{N}\s]/gu, " ")
     .split(/\s+/)
     .map((w) => w.trim())
@@ -294,10 +326,15 @@ export function extractMeaningfulKeywords(text: string, maxWords = 8): string[] 
 
   const unique: string[] = [];
   for (const w of words) {
-    // Also add a 5-char Turkish stem for agglutinative suffix tolerance (e.g. "borcum" -> "borc", "öfkeleniyorum" -> "öfkel")
-    const stem = w.length >= 6 ? w.slice(0, 5) : w;
+    const stem = stripLightTurkishSuffix(w);
     if (!unique.includes(w)) unique.push(w);
-    if (stem.length >= 4 && !unique.includes(stem)) unique.push(stem);
+    if (
+      stem.length >= 4 &&
+      !TURKISH_STOP_WORDS.has(stem) &&
+      !unique.includes(stem)
+    ) {
+      unique.push(stem);
+    }
     if (unique.length >= maxWords) break;
   }
   return unique;
@@ -683,7 +720,11 @@ export function getLocalKnowledgeCorpus(): LocalKnowledgeChunk[] {
             const kaynakInfo = item.kaynak
               ? ` [Kaynak: ${item.kaynak}, Derece: ${item.sahihlik_derecesi || "Sahih"}]`
               : "";
-            content = `Resûlullah (s.a.v.) buyurdu: "${item.turkce_meal}"${kaynakInfo}`;
+            const raviPart = item.ravi ? `\n\nRavi: ${item.ravi}` : "";
+            const vurudPart = item.sebeb_i_vurud ? `\n\nSebeb-i Vürûd: ${item.sebeb_i_vurud}` : "";
+            const serhPart = item.hadis_serhi ? `\n\nHadis Şerhi: ${item.hadis_serhi}` : "";
+            const hikmetPart = item.manevi_hikmet ? `\n\nManevi Hikmet: ${item.manevi_hikmet}` : "";
+            content = `Resûlullah (s.a.v.) buyurdu: "${item.turkce_meal}"${kaynakInfo}${raviPart}${vurudPart}${serhPart}${hikmetPart}`;
           } else if ("ozet_metin" in item) {
             const hikmetPart = item.manevi_hikmet
               ? `\n\nManevi Hikmet ve Çözüm: ${item.manevi_hikmet}`
@@ -828,6 +869,12 @@ const SPIRITUAL_CONCEPT_BRIDGES: ReadonlyArray<{
     targetTerms: ["kolaylık", "inşirah", "sabır", "terk etmedi"],
     targetTags: ["TESKIN_VE_TESELLI", "SABIR_VE_MUSIBET"],
   },
+  {
+    trigger:
+      /(?<![\p{L}\p{N}])(?:dışla[\p{L}]*|dışlandım|taşla[\p{L}]*|kimsem\s*yok|terk\s*edildim)(?![\p{L}\p{N}])/iu,
+    targetTerms: ["taif", "taşlanma", "siyer", "teslimiyet"],
+    targetTags: ["SIYER_ORNEKLERI", "SIYERDE_DARLIK_DONEMLERI", "TESKIN_VE_TESELLI"],
+  },
 ];
 
 function normalizeAsciiToken(s: string): string {
@@ -844,11 +891,25 @@ function normalizeAsciiToken(s: string): string {
     .replace(/ç/g, "c");
 }
 
+const VALID_TURKISH_INFLECTION_TAILS =
+  /^(?:i|u|a|e|im|in|um|un|imiz|iniz|umuz|unuz|lar|ler|lari|leri|dan|den|tan|ten|ndan|nden|da|de|ta|te|nda|nde|nin|nun|in|un|ya|ye|yi|yu|dir|tir|dur|tur|li|lu|lik|luk|siz|suz|di|du|ti|tu|mis|mus|yan|yen|yarak|yerek|yip|yup|nip|nup|nma|nme|nmasi|nmesi|lan|len)$/;
+
 function hasPrefixWordMatch(normalizedTokens: string[], kwNorm: string): boolean {
   if (!kwNorm || kwNorm.length < 3) return false;
-  return normalizedTokens.some((tok) =>
-    kwNorm.length <= 4 ? tok === kwNorm || tok.startsWith(kwNorm) && tok.length <= kwNorm.length + 3 : tok.startsWith(kwNorm)
-  );
+  const kwStem =
+    kwNorm.length >= 5 ? kwNorm.slice(0, 5) : kwNorm.length >= 4 ? kwNorm.slice(0, 4) : kwNorm;
+  return normalizedTokens.some((tok) => {
+    if (tok === kwNorm) return true;
+    if (tok.startsWith(kwNorm)) {
+      const tail = tok.slice(kwNorm.length);
+      if (VALID_TURKISH_INFLECTION_TAILS.test(tail)) return true;
+    }
+    if (kwStem.length >= 4 && tok.startsWith(kwStem)) {
+      const tail = tok.slice(kwStem.length);
+      if (VALID_TURKISH_INFLECTION_TAILS.test(tail)) return true;
+    }
+    return false;
+  });
 }
 
 export function scoreChunkRelevance(
@@ -856,8 +917,8 @@ export function scoreChunkRelevance(
   input: HybridSearchInput,
   keywords: string[]
 ): number {
-  // Alaka eşiği için taban skor 0.0'dır: gerçek kelime/kavram/kategori örtüşmesi yoksa
-  // rastgele ayet/hadis çekilmemesi için skor yükselmez.
+  // Alaka eşiği için taban skor 0.0'dır: gerçek kelime veya manevi kavram örtüşmesi yoksa
+  // varsayılan kategori etiketleri tek başına rastgele ayet/hadis çekemez.
   let score = 0.0;
 
   if (input.forceRiba && chunk.isRibaRelated) {
@@ -868,24 +929,6 @@ export function scoreChunkRelevance(
     ) {
       score += 0.2;
     }
-  }
-
-  if (
-    input.filterCategory &&
-    chunk.tags.some(
-      (t) => t.toUpperCase() === input.filterCategory?.toUpperCase()
-    )
-  ) {
-    score += 0.2;
-  }
-
-  if (
-    input.filterNafs &&
-    chunk.nafsTraps.some(
-      (n) => n.toUpperCase() === input.filterNafs?.toUpperCase()
-    )
-  ) {
-    score += 0.18;
   }
 
   const titleAndTagsNorm = normalizeAsciiToken(
@@ -902,7 +945,6 @@ export function scoreChunkRelevance(
     .split(/\s+/)
     .filter(Boolean);
 
-  // Aynı kelimenin hem kendisi hem 5 harfli kökü listede olabildiği için kök bazında tekilleştir
   const matchedRoots = new Set<string>();
   let titleHits = 0;
   let contentHits = 0;
@@ -926,35 +968,66 @@ export function scoreChunkRelevance(
     score += 0.45 + Math.min(0.3, (titleHits - 1) * 0.18);
   }
   if (contentHits > 0) {
-    score += (contentHits === 1 ? 0.24 : 0.44) + Math.min(0.24, Math.max(0, contentHits - 2) * 0.12);
+    score +=
+      (contentHits === 1 ? 0.26 : 0.46) +
+      Math.min(0.24, Math.max(0, contentHits - 2) * 0.12);
   }
 
   // Duygusal / Manevi kavram köprüsü (kullanıcı doğrudan ayet kelimesini geçirmese de gerçek bir dert anlattığında)
+  let conceptScore = 0;
   const rawMsg = input.userMessage || "";
   if (rawMsg) {
     for (const bridge of SPIRITUAL_CONCEPT_BRIDGES) {
       if (!bridge.trigger.test(rawMsg)) continue;
       const tagHit = bridge.targetTags.some((tg) => chunk.tags.includes(tg));
-      const termHit = bridge.targetTerms.some((tm) =>
-        contentNorm.includes(normalizeAsciiToken(tm)) ||
-        titleAndTagsNorm.includes(normalizeAsciiToken(tm))
+      const termHit = bridge.targetTerms.some(
+        (tm) =>
+          contentNorm.includes(normalizeAsciiToken(tm)) ||
+          titleAndTagsNorm.includes(normalizeAsciiToken(tm))
       );
       if (tagHit && termHit) {
-        score += 0.48;
+        conceptScore += 0.48;
       } else if (termHit) {
-        score += 0.36;
+        conceptScore += 0.36;
       } else if (tagHit) {
-        score += 0.24;
+        conceptScore += 0.26;
       }
     }
   }
+  score += conceptScore;
 
-  // İlim ve Siyer modunda yalnızca zaten konuyla örtüşen (skor > 0) Siyer/Hadis kayıtlarına öncelik ver
-  if (input.intentMode === "ILIM_VE_SIYER" && score >= 0.24) {
-    if (chunk.sourceType === "SIYER") {
-      score += 0.22;
-    } else if (chunk.sourceType === "HADITH") {
-      score += 0.12;
+  const hasSubstantiveSignal =
+    titleHits > 0 ||
+    contentHits > 0 ||
+    conceptScore > 0 ||
+    Boolean(input.forceRiba && chunk.isRibaRelated);
+
+  // Kategori ve nefis tuzağı puanları yalnızca gerçek kelime/kavram sinyali varsa sıralamayı güçlendirir
+  if (hasSubstantiveSignal) {
+    if (
+      input.filterCategory &&
+      chunk.tags.some(
+        (t) => t.toUpperCase() === input.filterCategory?.toUpperCase()
+      )
+    ) {
+      score += 0.18;
+    }
+
+    if (
+      input.filterNafs &&
+      chunk.nafsTraps.some(
+        (n) => n.toUpperCase() === input.filterNafs?.toUpperCase()
+      )
+    ) {
+      score += 0.14;
+    }
+
+    if (input.intentMode === "ILIM_VE_SIYER") {
+      if (chunk.sourceType === "SIYER") {
+        score += 0.22;
+      } else if (chunk.sourceType === "HADITH") {
+        score += 0.12;
+      }
     }
   }
 

@@ -460,9 +460,9 @@ export function isSourceUsedInReply(
     }
   }
 
-  // 3. Hadis Bab / Numara Atfı (ör. "Buhârî (Edeb 76)" -> yanıtta "edeb 76" geçmesi)
+  // 3. Hadis Bab / Numara Atfı (ör. "Buhârî, Edeb 76" veya "Buhârî (Edeb 76)" -> yanıtta "edeb 76" geçmesi)
   const hadithSubRefMatch = (source.sourceTitle || "").match(
-    /\(([^)]+?)\s+(\d{1,4})\)/
+    /(?:,\s*|\()([^\d,()]{2,28}?)\s+(\d{1,4})(?:\)|$|,)/
   );
   if (hadithSubRefMatch) {
     const babNorm = normalizeForCitationMatch(hadithSubRefMatch[1]);
@@ -517,5 +517,22 @@ export function filterUsedSourcesByReply<T extends FilterableSourceItem>(
   if (!Array.isArray(sources) || sources.length === 0 || !replyText) {
     return [];
   }
-  return sources.filter((src) => isSourceUsedInReply(src, replyText));
+  const matched = sources.filter((src) => isSourceUsedInReply(src, replyText));
+  const seenCanonicalTitles = new Set<string>();
+  const deduplicated: T[] = [];
+
+  for (const item of matched) {
+    const canonicalTitle = normalizeForCitationMatch(
+      (item.sourceTitle || "").replace(/\s*-\s*tefsir\s+ve\s+hikmet$/i, "")
+    );
+    if (canonicalTitle && seenCanonicalTitles.has(canonicalTitle)) {
+      continue;
+    }
+    if (canonicalTitle) {
+      seenCanonicalTitles.add(canonicalTitle);
+    }
+    deduplicated.push(item);
+  }
+
+  return deduplicated;
 }

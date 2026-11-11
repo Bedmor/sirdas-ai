@@ -284,34 +284,43 @@ export async function retrieveCelikKasaContext(params: {
       : undefined;
 
   const MIN_VECTOR_THRESHOLD = 0.52;
-  let vectorRpcSucceededEmpty = false;
+  const hasValidEmbedding =
+    Array.isArray(queryEmbedding) &&
+    queryEmbedding.length > 0 &&
+    queryEmbedding.some((v) => typeof v === "number" && v !== 0);
 
-  try {
-    const rpcResponse = await matchKnowledgeChunks({
-      query_embedding: queryEmbedding,
-      match_threshold: MIN_VECTOR_THRESHOLD,
-      match_count: 4,
-      filter_category: effectiveCategory,
-      filter_nafs: undefined,
-      force_riba: isRibaShieldActive,
-      user_message: userMessage,
-    });
+  if (hasValidEmbedding) {
+    try {
+      const rpcResponse = await matchKnowledgeChunks({
+        query_embedding: queryEmbedding,
+        match_threshold: MIN_VECTOR_THRESHOLD,
+        match_count: 4,
+        filter_category: effectiveCategory,
+        filter_nafs: undefined,
+        force_riba: isRibaShieldActive,
+        user_message: userMessage,
+      });
 
-    if (!rpcResponse.error && Array.isArray(rpcResponse.data)) {
-      if (rpcResponse.data.length > 0) {
-        chunks = rpcResponse.data.map((r: SupabaseRagRow & { similarity?: number; is_riba_related?: boolean }) => ({
-          id: r.id,
-          sourceType: r.source_type,
-          sourceTitle: r.source_title,
-          content: r.content,
-          audioUrl: r.audio_url ?? null,
-        }));
-      } else {
-        vectorRpcSucceededEmpty = true;
+      if (
+        !rpcResponse.error &&
+        Array.isArray(rpcResponse.data) &&
+        rpcResponse.data.length > 0
+      ) {
+        chunks = rpcResponse.data.map(
+          (
+            r: SupabaseRagRow & { similarity?: number; is_riba_related?: boolean }
+          ) => ({
+            id: r.id,
+            sourceType: r.source_type,
+            sourceTitle: r.source_title,
+            content: r.content,
+            audioUrl: r.audio_url ?? null,
+          })
+        );
       }
+    } catch {
+      // Fallback to Prisma / local corpus search below
     }
-  } catch {
-    // Fallback to Prisma / local corpus search below
   }
 
   if (chunks.length === 0) {
@@ -402,7 +411,7 @@ export async function retrieveCelikKasaContext(params: {
 
   // Yalnızca gerçek alaka eşiği (>= MIN_LOCAL_RAG_SCORE) sağlandığında yerel kasadan eşleşme getir;
   // eşik altındaysa zorla rastgele ayet/hadis çekilmez (chunks = []).
-  if (chunks.length === 0 && (!vectorRpcSucceededEmpty || isRibaShieldActive)) {
+  if (chunks.length === 0) {
     const localMatches = searchLocalKnowledgeCorpus({
       userMessage,
       filterCategory: effectiveCategory ?? null,

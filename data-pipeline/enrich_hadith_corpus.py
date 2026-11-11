@@ -87,7 +87,7 @@ HADITH_DETAILS = {
         "ravi": "Enes b. Mâlik (r.a.)",
         "sebeb_i_vurud": "Evladını kaybedip kabri başında feryat eden bir kadına Efendimiz'in 'Allah'tan kork ve sabret' tavsiyesinde bulunması hadisesinde irad edilmiştir.",
         "hadis_serhi": "Zaman geçtikten sonra herkes çaresizce sakinleşir; lakin Allah katında ecri sonsuz olan sabır, musibetin ilk şok ve acı anında feryat etmeyip dilini ve kalbini şikayetten muhafaza etmektir.",
-        "manevi_hikmet": "İlk sarsıntıda isyan etmeyen kalbe Allah inşirah ve sekinet indirir."
+        "manevi_hikmet": "İlk sarsıntıda isyan etmeyen kalbe Allah inşirah, itminan ve sarsılmaz bir metanet indirir."
     },
     "hadis_013_buhari_diken_kefaret": {
         "ravi": "Ebû Hüreyre ve Ebû Saîd el-Hudrî (r.a.)",

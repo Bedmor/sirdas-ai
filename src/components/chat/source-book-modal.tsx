@@ -126,21 +126,21 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="source-book-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md animate-in fade-in duration-300"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-md animate-in fade-in duration-300"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-2xl bg-[#071315] border-2 border-[#cca762]/50 shadow-[0_0_50px_rgba(204,167,98,0.12)] overflow-hidden animate-in zoom-in-95">
-        {/* Book Header / Top Bar */}
-        <div className="relative px-5 py-4 border-b border-[#cca762]/30 bg-gradient-to-r from-[#08181b] via-[#0e272b] to-[#08181b] flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#cca762]/15 text-[#cca762] border border-[#cca762]/40 text-lg shadow-inner">
+      <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-[36px] bg-surface-container-high border border-outline-variant/60 shadow-m3-5 overflow-hidden animate-m3e-spring">
+        {/* Book Header / Top Bar (M3 App Bar) */}
+        <div className="relative px-6 py-4 border-b border-outline-variant/40 bg-surface-container flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-3.5">
+            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary-container text-on-secondary-container border border-secondary/30 text-lg shadow-xs">
               {isQuran ? "📖" : hadithDetail ? "📜" : siyerDetail ? "🧭" : "💡"}
             </span>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#cca762]">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-primary">
                   {isQuran
                     ? "Mushaf-ı Şerîf & Tefsîr Kitabı"
                     : hadithDetail
@@ -149,13 +149,13 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
                     ? "Siyer-i Nebî Kroniği"
                     : "Hikmet Kaynağı"}
                 </span>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#133235] text-[#93b3b0] border border-[#1d4448]">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-secondary-container text-on-secondary-container border border-secondary/30">
                   Çelik Kasa RAG Sahih Mührü
                 </span>
               </div>
               <h2
                 id="source-book-modal-title"
-                className="text-base sm:text-lg font-heading font-semibold text-[#f5ebd8] line-clamp-1"
+                className="text-base sm:text-lg font-heading font-medium text-on-surface line-clamp-1"
               >
                 {detail?.title || source.sourceTitle}
               </h2>
@@ -165,15 +165,15 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
           <div className="flex items-center gap-2">
             {/* Font Size Zoom for reading comfort */}
             {isQuran && (
-              <div className="hidden sm:flex items-center bg-[#091a1d] rounded-lg border border-[#1d3d42] p-0.5 text-xs">
+              <div className="hidden sm:flex items-center bg-surface-container-highest rounded-full border border-outline-variant/50 p-0.5 text-xs">
                 <button
                   type="button"
                   title="Yazı boyutunu küçült"
                   onClick={() => setFontSizeLevel("normal")}
-                  className={`px-2 py-1 rounded text-xs transition-colors ${
+                  className={`px-2.5 py-1 rounded-full text-xs transition-colors ${
                     fontSizeLevel === "normal"
-                      ? "bg-[#cca762] text-[#1b1406] font-bold"
-                      : "text-[#8b9ea0] hover:text-[#e1e9e8]"
+                      ? "bg-primary text-on-primary font-bold shadow-xs"
+                      : "text-on-surface-variant hover:text-on-surface"
                   }`}
                 >
                   A-
@@ -182,10 +182,10 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
                   type="button"
                   title="Normal yazı boyutu"
                   onClick={() => setFontSizeLevel("large")}
-                  className={`px-2 py-1 rounded text-xs transition-colors ${
+                  className={`px-2.5 py-1 rounded-full text-xs transition-colors ${
                     fontSizeLevel === "large"
-                      ? "bg-[#cca762] text-[#1b1406] font-bold"
-                      : "text-[#8b9ea0] hover:text-[#e1e9e8]"
+                      ? "bg-primary text-on-primary font-bold shadow-xs"
+                      : "text-on-surface-variant hover:text-on-surface"
                   }`}
                 >
                   A
@@ -194,10 +194,10 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
                   type="button"
                   title="Yazı boyutunu büyüt"
                   onClick={() => setFontSizeLevel("xlarge")}
-                  className={`px-2 py-1 rounded text-xs transition-colors ${
+                  className={`px-2.5 py-1 rounded-full text-xs transition-colors ${
                     fontSizeLevel === "xlarge"
-                      ? "bg-[#cca762] text-[#1b1406] font-bold"
-                      : "text-[#8b9ea0] hover:text-[#e1e9e8]"
+                      ? "bg-primary text-on-primary font-bold shadow-xs"
+                      : "text-on-surface-variant hover:text-on-surface"
                   }`}
                 >
                   A+
@@ -209,7 +209,7 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
               type="button"
               onClick={onClose}
               aria-label="Kapat"
-              className="rounded-xl p-2 text-[#8b9ea0] hover:text-[#e1e9e8] hover:bg-[#133235] transition-colors cursor-pointer border border-transparent hover:border-[#224b50]"
+              className="rounded-full p-2 text-on-surface-variant hover:text-on-surface hover:bg-on-surface/8 transition-all duration-200 ease-m3e-spring-bouncy hover:scale-110 active:scale-90 cursor-pointer"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -218,17 +218,17 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
           </div>
         </div>
 
-        {/* Tab Navigation (Mushaf / Meâl / Tefsir / Tam Sayfa) */}
+        {/* Tab Navigation (Mushaf / Meâl / Tefsir / Tam Sayfa) (M3 Primary Tabs) */}
         {(isQuran || hadithDetail) && (
-          <div className="px-5 py-2.5 bg-[#0a1a1c] border-b border-[#1b3438] flex items-center justify-between gap-2 overflow-x-auto shrink-0">
-            <div className="flex items-center gap-1 sm:gap-2">
+          <div className="px-6 py-2.5 bg-surface-container-low border-b border-outline-variant/40 flex items-center justify-between gap-2 overflow-x-auto shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <button
                 type="button"
                 onClick={() => setActiveTab("all")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                   activeTab === "all"
-                    ? "bg-[#cca762] text-[#1a1306] shadow-md"
-                    : "text-[#8b9ea0] hover:text-[#e1e9e8] hover:bg-[#10272b]"
+                    ? "bg-primary text-on-primary shadow-m3-1 font-semibold"
+                    : "text-on-surface-variant hover:text-on-surface hover:bg-on-surface/8"
                 }`}
               >
                 🌟 Kitap Sayfası (Kombine)
@@ -236,10 +236,10 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
               <button
                 type="button"
                 onClick={() => setActiveTab("arabic")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                   activeTab === "arabic"
-                    ? "bg-[#cca762] text-[#1a1306] shadow-md"
-                    : "text-[#8b9ea0] hover:text-[#e1e9e8] hover:bg-[#10272b]"
+                    ? "bg-primary text-on-primary shadow-m3-1 font-semibold"
+                    : "text-on-surface-variant hover:text-on-surface hover:bg-on-surface/8"
                 }`}
               >
                 {isQuran ? "📖 Mushaf (Arapça)" : "📜 Hadis-i Şerîf (Arapça)"}
@@ -247,10 +247,10 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
               <button
                 type="button"
                 onClick={() => setActiveTab("meal")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                   activeTab === "meal"
-                    ? "bg-[#cca762] text-[#1a1306] shadow-md"
-                    : "text-[#8b9ea0] hover:text-[#e1e9e8] hover:bg-[#10272b]"
+                    ? "bg-primary text-on-primary shadow-m3-1 font-semibold"
+                    : "text-on-surface-variant hover:text-on-surface hover:bg-on-surface/8"
                 }`}
               >
                 {isQuran ? "📜 Meâl-i Şerîf" : "📖 Tercüme-i Âlî"}
@@ -258,10 +258,10 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
               <button
                 type="button"
                 onClick={() => setActiveTab("tefsir")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                   activeTab === "tefsir"
-                    ? "bg-[#cca762] text-[#1a1306] shadow-md"
-                    : "text-[#8b9ea0] hover:text-[#e1e9e8] hover:bg-[#10272b]"
+                    ? "bg-primary text-on-primary shadow-m3-1 font-semibold"
+                    : "text-on-surface-variant hover:text-on-surface hover:bg-on-surface/8"
                 }`}
               >
                 {isQuran ? "💡 Tefsîr & Nüzûl Hikmeti" : "💡 Esbâb-ı Vürûd & Şerh"}

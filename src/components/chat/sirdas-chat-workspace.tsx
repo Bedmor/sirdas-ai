@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { YaziBoyutuDugmesi } from "@/components/ui/yazi-boyutu";
 import { SourceBookModal } from "./source-book-modal";
 import {
   SafetyNoticeBox,
@@ -1591,8 +1592,8 @@ export function SirdasChatWorkspace() {
       {/* MAIN CONVERSATION STAGE (M3 EXPRESSIVE ELEVATED CANVAS) */}
       <div className="flex flex-1 flex-col min-w-0 h-full relative">
         {/* Minimal Top Header (M3 Expressive Top App Bar & Split Action Cluster) */}
-        <header className="flex h-16 shrink-0 items-center justify-between px-4 sm:px-6 border-b border-outline-variant/40 bg-surface/85 backdrop-blur-md z-20">
-          <div className="flex items-center gap-3">
+        <header className="flex h-16 shrink-0 items-center justify-between gap-2 px-3 sm:px-6 sm:px-6 border-b border-outline-variant/40 bg-surface/85 backdrop-blur-md z-20">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <button
               aria-label="Menüyü aç"
               className="flex lg:hidden h-10 w-10 items-center justify-center rounded-full text-on-surface-variant hover:bg-on-surface/8 hover:text-on-surface hover:scale-105 active:scale-90 transition-all duration-200 ease-m3e-spring-fast"
@@ -1615,8 +1616,8 @@ export function SirdasChatWorkspace() {
               </svg>
             </button>
 
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-[18px] bg-surface-container-high border border-outline-variant/50 overflow-hidden shrink-0 flex items-center justify-center shadow-xs">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="hidden min-[400px]:flex h-10 w-10 rounded-[18px] bg-surface-container-high border border-outline-variant/50 overflow-hidden shrink-0 items-center justify-center shadow-xs">
                 <Image
                   alt="Manevi Pusula"
                   className="h-full w-full object-cover"
@@ -1626,11 +1627,11 @@ export function SirdasChatWorkspace() {
                   width={40}
                 />
               </div>
-              <div className="flex flex-col">
-                <span className="font-heading text-base font-medium text-on-surface leading-tight">
+              <div className="flex min-w-0 flex-col">
+                <span className="font-heading text-base font-medium text-on-surface leading-tight truncate pt-0.5">
                   {activeThread ? activeThread.title : "Manevi Pusula"}
                 </span>
-                <span className="text-xs text-on-surface-variant">
+                <span className="text-xs text-on-surface-variant truncate">
                   Kur&apos;an ve Sünnet Rehberliğinde Tefekkür Odası
                 </span>
               </div>
@@ -1638,7 +1639,8 @@ export function SirdasChatWorkspace() {
           </div>
 
           {/* M3 Expressive Connected Split Action Cluster */}
-          <div className="flex items-center gap-1.5 p-1 rounded-full bg-surface-container/90 border border-outline-variant/50 shadow-xs">
+          <div className="flex shrink-0 items-center gap-1.5 p-1 rounded-full bg-surface-container/90 border border-outline-variant/50 shadow-xs">
+            <YaziBoyutuDugmesi className="border-0 bg-transparent" />
             <Link
               href="/tanitim"
               className={`${

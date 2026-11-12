@@ -21,7 +21,7 @@ const config: Config = {
         "surface-container-high": "#132c2e",
         "surface-container-highest": "#1a383b",
         "on-surface": "#e1e9e8",
-        "on-surface-variant": "#8b9ea0",
+        "on-surface-variant": "#b8c7c9",
         primary: {
           DEFAULT: "#cca762",
           foreground: "#1b1406",
@@ -66,7 +66,7 @@ const config: Config = {
         },
         muted: {
           DEFAULT: "#0e2224",
-          foreground: "#8b9ea0",
+          foreground: "#b8c7c9",
         },
         accent: {
           DEFAULT: "#132c2e",

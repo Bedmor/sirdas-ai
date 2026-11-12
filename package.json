@@ -19,7 +19,8 @@
     "test:verify:phase3": "tsx scripts/verify-phase3.ts",
     "test:verify:phase5": "tsx scripts/verify-phase5.ts",
     "test:pipeline": "PYTHONPATH=data-pipeline /home/besim/.conda/envs/lyriccat/bin/python -m unittest discover -s data-pipeline/ -p 'test_*.py'",
-    "test:e2e": "tsx scripts/e2e-runner.ts"
+    "test:e2e": "tsx scripts/e2e-runner.ts",
+    "test:araclar": "tsx --test tests/araclar/*.test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.750.0",

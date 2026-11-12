@@ -103,6 +103,14 @@ export function Footer() {
               <li>
                 <Link
                   className="hover:text-on-surface transition-colors rounded focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none"
+                  href="/araclar"
+                >
+                  Manevi Araçlar (Namaz Vakitleri, Kıble, Zikirmatik)
+                </Link>
+              </li>
+              <li>
+                <Link
+                  className="hover:text-on-surface transition-colors rounded focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none"
                   href="/askida-sirdas"
                 >
                   Askıda Pusula

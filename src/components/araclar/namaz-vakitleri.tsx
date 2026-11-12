@@ -9,19 +9,28 @@ import {
   siradakiVakit,
   type VakitYaniti,
 } from "@/lib/araclar/namaz-vakitleri";
+import { ILLER, ilBul } from "@/lib/araclar/iller";
 
 type Secenek = { id: string; ad: string };
 type Kayit = { il: Secenek; ilce: Secenek };
 
 const ANAHTAR = "manevi-pusula:namaz-vakitleri:secim:v1";
 const VARSAYILAN_IL: Secenek = { id: "539", ad: "İstanbul" };
+const IL_SECENEKLERI: Secenek[] = ILLER.map((x) => ({ id: x.id, ad: x.ad }));
+
+/** Kaynağa ulaşılamazsa ilçe seçimi il merkezine düşer. */
+function yalnizMerkez(il: Secenek): Secenek[] {
+  const kayit = ilBul(il.id);
+  return kayit ? [{ id: kayit.merkezIlceId, ad: kayit.ad }] : [];
+}
 
 function kayitOku(): Kayit | null {
   try {
     const ham = window.localStorage.getItem(ANAHTAR);
     if (!ham) return null;
     const k = JSON.parse(ham) as Kayit;
-    if (/^\d+$/.test(k?.il?.id) && /^\d+$/.test(k?.ilce?.id)) return k;
+    const il = ilBul(String(k?.il?.id ?? ""));
+    if (il && /^\d+$/.test(k?.ilce?.id)) return { il: { id: il.id, ad: il.ad }, ilce: k.ilce };
   } catch {
     // yok say
   }
@@ -58,7 +67,7 @@ const selectSinifi =
   "w-full min-w-0 appearance-none rounded-2xl border border-outline-variant/60 bg-surface-container px-4 py-3 pr-10 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50";
 
 export function NamazVakitleri() {
-  const [iller, setIller] = useState<Secenek[]>([]);
+  const iller = IL_SECENEKLERI;
   const [ilceler, setIlceler] = useState<Secenek[]>([]);
   const [il, setIl] = useState<Secenek | null>(null);
   const [ilce, setIlce] = useState<Secenek | null>(null);
@@ -67,6 +76,8 @@ export function NamazVakitleri() {
   const [yukleniyor, setYukleniyor] = useState(false);
   const [konumBekliyor, setKonumBekliyor] = useState(false);
   const [simdi, setSimdi] = useState<Date | null>(null);
+  /** Vakitler il seçimiyle mi, konumla mı alındı (açıklama notu için). */
+  const [mod, setMod] = useState<"il" | "konum">("il");
 
   // Saat (her saniye)
   useEffect(() => {
@@ -79,8 +90,17 @@ export function NamazVakitleri() {
     setYukleniyor(true);
     setHata(null);
     try {
-      const v = await getJson<VakitYaniti>(`/api/namaz-vakitleri?ilce=${encodeURIComponent(secilenIlce.id)}`);
-      setVeri({ ...v, yer: secilenIlce.ad === secilenIl.ad ? secilenIl.ad : `${secilenIlce.ad}, ${secilenIl.ad}` });
+      const v = await getJson<VakitYaniti>(
+        `/api/namaz-vakitleri?il=${encodeURIComponent(secilenIl.id)}&ilce=${encodeURIComponent(secilenIlce.id)}`
+      );
+      const yer =
+        v.kaynak === "hesap"
+          ? `${secilenIl.ad} (il merkezi)`
+          : secilenIlce.ad === secilenIl.ad
+            ? secilenIl.ad
+            : `${secilenIlce.ad}, ${secilenIl.ad}`;
+      setVeri({ ...v, yer });
+      setMod("il");
       kayitYaz({ il: secilenIl, ilce: secilenIlce });
     } catch (e) {
       setHata(e instanceof Error ? e.message : "Vakit bilgisi alınamadı.");
@@ -92,33 +112,32 @@ export function NamazVakitleri() {
   const ilceleriGetir = useCallback(
     async (secilenIl: Secenek, tercihIlceId?: string) => {
       setIlceler([]);
+      let liste: Secenek[];
       try {
-        const liste = await getJson<Secenek[]>(`/api/namaz-vakitleri?tip=ilceler&il=${encodeURIComponent(secilenIl.id)}`);
-        setIlceler(liste);
-        const merkez =
-          liste.find((x) => x.id === tercihIlceId) ||
-          liste.find((x) => x.ad.toLocaleLowerCase("tr-TR") === secilenIl.ad.toLocaleLowerCase("tr-TR")) ||
-          liste[0];
-        if (merkez) {
-          setIlce(merkez);
-          vakitleriGetir(merkez, secilenIl);
-        }
-      } catch (e) {
-        setHata(e instanceof Error ? e.message : "İlçe listesi alınamadı.");
+        liste = await getJson<Secenek[]>(`/api/namaz-vakitleri?tip=ilceler&il=${encodeURIComponent(secilenIl.id)}`);
+        if (!Array.isArray(liste) || liste.length === 0) liste = yalnizMerkez(secilenIl);
+      } catch {
+        liste = yalnizMerkez(secilenIl);
+      }
+      setIlceler(liste);
+      const merkez =
+        liste.find((x) => x.id === tercihIlceId) ||
+        liste.find((x) => x.ad.toLocaleLowerCase("tr-TR") === secilenIl.ad.toLocaleLowerCase("tr-TR")) ||
+        liste[0];
+      if (merkez) {
+        setIlce(merkez);
+        vakitleriGetir(merkez, secilenIl);
       }
     },
     [vakitleriGetir]
   );
 
-  // İlk açılış: il listesi + son seçim (yoksa İstanbul)
+  // İlk açılış: son seçim (yoksa İstanbul). İl listesi statik.
   useEffect(() => {
     const kayit = kayitOku();
     const baslangicIl = kayit?.il ?? VARSAYILAN_IL;
     setIl(baslangicIl);
     ilceleriGetir(baslangicIl, kayit?.ilce.id);
-    getJson<Secenek[]>("/api/namaz-vakitleri?tip=iller")
-      .then(setIller)
-      .catch((e) => setHata(e instanceof Error ? e.message : "İl listesi alınamadı."));
   }, [ilceleriGetir]);
 
   const konumlaBul = () => {
@@ -136,6 +155,7 @@ export function NamazVakitleri() {
             `/api/namaz-vakitleri?lat=${latitude.toFixed(2)}&lng=${longitude.toFixed(2)}`
           );
           setVeri(v);
+          setMod("konum");
         } catch (e) {
           setHata(e instanceof Error ? e.message : "Vakit bilgisi alınamadı.");
         } finally {
@@ -168,7 +188,6 @@ export function NamazVakitleri() {
               <select
                 className={selectSinifi}
                 value={il?.id ?? ""}
-                disabled={iller.length === 0}
                 onChange={(e) => {
                   const secilen = iller.find((x) => x.id === e.target.value);
                   if (!secilen) return;
@@ -177,7 +196,6 @@ export function NamazVakitleri() {
                   ilceleriGetir(secilen);
                 }}
               >
-                {iller.length === 0 && il && <option value={il.id}>{il.ad}</option>}
                 {iller.map((x) => (
                   <option key={x.id} value={x.id}>
                     {x.ad}
@@ -298,7 +316,9 @@ export function NamazVakitleri() {
             <p className="text-[11px] text-on-surface-variant leading-relaxed">
               Kaynak: {veri.kaynakAdi}.
               {veri.kaynak === "hesap"
-                ? " Konuma göre hesaplanan vakitler, Diyanet tablosundan 1-2 dakika farklı olabilir. En kesin sonuç için il ve ilçe seçin."
+                ? mod === "konum"
+                  ? " Konuma göre hesaplanan vakitler, Diyanet tablosundan ±1 dakika farklı olabilir. En kesin sonuç için il ve ilçe seçin."
+                  : " Diyanet tablosuna şu an ulaşılamadığı için vakitler il merkezine göre hesaplandı; Diyanet tablosundan ±1 dakika farklı olabilir ve ilçe seçimi il merkezi olarak kabul edilir."
                 : ""}
             </p>
           </>

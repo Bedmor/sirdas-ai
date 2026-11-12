@@ -4,6 +4,11 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { SourceBookModal } from "./source-book-modal";
+import {
+  SafetyNoticeBox,
+  SafetyNoticeData,
+  isSafetyNoticeData,
+} from "./safety-notice-box";
 import { filterUsedSourcesByReply } from "@/lib/ai/source-citation-filter";
 import { TextShimmer } from "@/components/ui/text-shimmer";
 import { motion, AnimatePresence } from "motion/react";
@@ -25,6 +30,7 @@ export interface ChatMessageItem {
   audioUrl?: string | null;
   status?: "processed" | "fatwa_blocked" | "crisis_redirected";
   intentMode?: "MANEVI_AYNA" | "ILIM_VE_SIYER";
+  safety?: SafetyNoticeData | null;
 }
 
 export interface ChatConversationThread {
@@ -882,6 +888,7 @@ export function SirdasChatWorkspace() {
           | "processed"
           | "fatwa_blocked"
           | "crisis_redirected" = "processed";
+        let capturedSafety: SafetyNoticeData | null = null;
 
         while (true) {
           const { done, value } = await reader.read();
@@ -915,6 +922,9 @@ export function SirdasChatWorkspace() {
                 if (parsed.status) {
                   capturedStatus = parsed.status;
                 }
+                if (isSafetyNoticeData(parsed.safety)) {
+                  capturedSafety = parsed.safety;
+                }
                 if (parsed.intentMode) {
                   capturedIntentMode = parsed.intentMode;
                   setStreamingIntentMode(parsed.intentMode);
@@ -945,6 +955,9 @@ export function SirdasChatWorkspace() {
                 }
                 if (parsed.status) {
                   capturedStatus = parsed.status;
+                }
+                if (isSafetyNoticeData(parsed.safety)) {
+                  capturedSafety = parsed.safety;
                 }
                 if (parsed.intentMode) {
                   capturedIntentMode = parsed.intentMode;
@@ -982,6 +995,7 @@ export function SirdasChatWorkspace() {
             audioUrl: capturedAudioUrl,
             status: capturedStatus,
             intentMode: capturedIntentMode,
+            safety: capturedSafety,
           };
 
           const finalThreads = updatedThreads.map((t) =>
@@ -1025,6 +1039,7 @@ export function SirdasChatWorkspace() {
             audioUrl: json.audioUrl || null,
             status: json.status || "processed",
             intentMode: json.intentMode,
+            safety: isSafetyNoticeData(json.safety) ? json.safety : null,
           };
           const finalThreads = updatedThreads.map((t) =>
             t.id === currentThreadId
@@ -1790,6 +1805,11 @@ export function SirdasChatWorkspace() {
                             )}
                             {renderFormattedMessage(msg.content)}
                           </div>
+
+                          {/* Güvenlik Ön Süzgeci: kriz / sağlık / çocuk / fetva uyarı kutusu (tel: bağlantılı) */}
+                          {msg.safety && isSafetyNoticeData(msg.safety) && (
+                            <SafetyNoticeBox notice={msg.safety} />
+                          )}
 
                           {/* Retrieved Çelik Kasa Source Badges (Material 3 Expressive Chips) */}
                           {verifiedSources.length > 0 && (

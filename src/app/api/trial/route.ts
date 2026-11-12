@@ -16,6 +16,8 @@ import {
   UnifiedEditorAudit,
 } from "@/lib/ai/rag-pipeline";
 import { sanitizeIncomingUserMessage } from "@/lib/ai/pii-anonymizer";
+import { runSafetyTriage } from "@/lib/safety/triage";
+import { buildSafetyIntercept } from "@/lib/safety/intercept";
 import {
   TRIAL_COOKIE_NAME,
   inMemoryUsedFingerprints,
@@ -235,6 +237,9 @@ export async function POST(req: NextRequest) {
     const anonymization = sanitizeIncomingUserMessage(rawMessage);
     const safeMessage = anonymization.sanitizedText;
 
+    // Deterministik güvenlik ön süzgeci (kriz, sağlık, çocuk yaşı): modelden önce çalışır
+    const safetyTriage = runSafetyTriage(rawMessage);
+
     const signedToken = createSignedTrialToken(fp);
     const acceptHeader = req.headers.get("accept") || "";
     const userAgent = req.headers.get("user-agent") || "";
@@ -267,7 +272,9 @@ export async function POST(req: NextRequest) {
               userContextSnippet: JSON.stringify({ source: "web_landing_trial" }),
             });
 
-            const intercept = evaluateSpiritualGuardrails(safeMessage, jevResult);
+            const intercept =
+              buildSafetyIntercept(safetyTriage, jevResult) ??
+              evaluateSpiritualGuardrails(safeMessage, jevResult);
 
             if (intercept) {
               statusType = intercept.status;
@@ -482,7 +489,9 @@ export async function POST(req: NextRequest) {
       userContextSnippet: JSON.stringify({ source: "web_landing_trial" }),
     });
 
-    const intercept = evaluateSpiritualGuardrails(safeMessage, jevResult);
+    const intercept =
+      buildSafetyIntercept(safetyTriage, jevResult) ??
+      evaluateSpiritualGuardrails(safeMessage, jevResult);
 
     let replyText = "";
     let editorAudit: UnifiedEditorAudit | Record<string, unknown>;

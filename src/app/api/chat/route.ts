@@ -30,6 +30,13 @@ import {
   purgeExpiredSirdasRecords,
   SIRDAS_CLIENT_COOKIE,
 } from "@/lib/auth/better-auth-ready";
+import {
+  appendSafetyFootnote,
+  isSafetyTriageRule,
+  resolveSafetyNotice,
+  runSafetyTriage,
+} from "@/lib/safety/triage";
+import { buildSafetyIntercept } from "@/lib/safety/intercept";
 
 type GuardrailFlags = Record<string, boolean>;
 
@@ -388,6 +395,10 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // Deterministik güvenlik ön süzgeci (kriz, sağlık, çocuk yaşı, fetva sınırı).
+    // Modelden önce, yalnızca bu istekteki mesaj üzerinde yerel olarak çalışır.
+    const safetyTriage = runSafetyTriage(rawMessage);
+
     const rawHistory: unknown[] = Array.isArray(body.history)
       ? body.history
       : [];
@@ -586,10 +597,9 @@ export async function POST(req: NextRequest) {
               jevResult,
             });
 
-            const intercept = evaluateSpiritualGuardrails(
-              safeMessage,
-              jevResult
-            );
+            const intercept =
+              buildSafetyIntercept(safetyTriage, jevResult) ??
+              evaluateSpiritualGuardrails(safeMessage, jevResult);
 
             if (intercept) {
               statusType = intercept.status;
@@ -597,7 +607,8 @@ export async function POST(req: NextRequest) {
               extraFlags = intercept.extraFlags;
               if (
                 intercept.status === "processed" &&
-                intercept.ruleId !== "CONVERSATIONAL_CLOSING_THANKS"
+                intercept.ruleId !== "CONVERSATIONAL_CLOSING_THANKS" &&
+                !isSafetyTriageRule(intercept.ruleId)
               ) {
                 const matchedVaultChunks = filterUsedSourcesByReply(
                   getLocalKnowledgeCorpus(),
@@ -621,11 +632,16 @@ export async function POST(req: NextRequest) {
                 intentMode,
                 jevResult,
                 sources: [],
+                safety: resolveSafetyNotice(safetyTriage, statusType),
               })}\n\n`;
               controller.enqueue(encoder.encode(metaFrame));
 
-              const tokens = intercept.replyText.match(/\S+\s*/g) || [
+              const interceptReply = appendSafetyFootnote(
                 intercept.replyText,
+                safetyTriage
+              );
+              const tokens = interceptReply.match(/\S+\s*/g) || [
+                interceptReply,
               ];
               for (const token of tokens) {
                 accumulatedReply += token;
@@ -654,6 +670,7 @@ export async function POST(req: NextRequest) {
                 intentMode,
                 jevResult,
                 sources: [],
+                safety: resolveSafetyNotice(safetyTriage, statusType),
               })}\n\n`;
               controller.enqueue(encoder.encode(metaFrame));
 
@@ -709,6 +726,24 @@ export async function POST(req: NextRequest) {
                   text: accumulatedReply,
                 })}\n\n`;
                 controller.enqueue(encoder.encode(frame));
+              }
+
+              // Fetva sınırı / sağlık dipnotu (yanıtta yoksa) akışın sonuna eklenir
+              const footnotedReply = appendSafetyFootnote(
+                accumulatedReply,
+                safetyTriage
+              );
+              if (footnotedReply !== accumulatedReply) {
+                const noteToken = `\n\n${safetyTriage?.footnote ?? ""}`;
+                accumulatedReply = footnotedReply;
+                controller.enqueue(
+                  encoder.encode(
+                    `event: token\ndata: ${JSON.stringify({
+                      token: noteToken,
+                      text: accumulatedReply,
+                    })}\n\n`
+                  )
+                );
               }
 
               // Sadece AI'ın ürettiği nihai cevap metniyle gerçekten örtüşen / atıf yapılan kaynakları göster
@@ -782,6 +817,7 @@ export async function POST(req: NextRequest) {
               editorAudit,
               sources,
               audioUrl: audioUrlSent,
+              safety: resolveSafetyNotice(safetyTriage, statusType),
             });
             controller.enqueue(
               encoder.encode(`event: done\ndata: ${donePayload}\n\n`)
@@ -848,7 +884,9 @@ export async function POST(req: NextRequest) {
       jevResult,
     });
 
-    const intercept = evaluateSpiritualGuardrails(safeMessage, jevResult);
+    const intercept =
+      buildSafetyIntercept(safetyTriage, jevResult) ??
+      evaluateSpiritualGuardrails(safeMessage, jevResult);
     let replyText = "";
     let editorAudit: UnifiedEditorAudit | Record<string, unknown>;
     let audioUrlSent: string | null = null;
@@ -860,12 +898,13 @@ export async function POST(req: NextRequest) {
 
     if (intercept) {
       statusType = intercept.status;
-      replyText = intercept.replyText;
+      replyText = appendSafetyFootnote(intercept.replyText, safetyTriage);
       editorAudit = intercept.editorAudit;
       extraFlags = intercept.extraFlags;
       if (
         intercept.status === "processed" &&
-        intercept.ruleId !== "CONVERSATIONAL_CLOSING_THANKS"
+        intercept.ruleId !== "CONVERSATIONAL_CLOSING_THANKS" &&
+        !isSafetyTriageRule(intercept.ruleId)
       ) {
         const matchedVaultChunks = filterUsedSourcesByReply(
           getLocalKnowledgeCorpus(),
@@ -930,7 +969,10 @@ export async function POST(req: NextRequest) {
         intentMode,
       });
 
-      replyText = sirdasOutput.reply_text || sirdasOutput.whatsapp_reply || "";
+      replyText = appendSafetyFootnote(
+        sirdasOutput.reply_text || sirdasOutput.whatsapp_reply || "",
+        safetyTriage
+      );
 
       // Sadece AI'ın ürettiği nihai cevap metniyle gerçekten örtüşen / atıf yapılan kaynakları göster
       const usedChunks = filterUsedSourcesByReply(chunks, replyText);
@@ -996,6 +1038,7 @@ export async function POST(req: NextRequest) {
       editorAudit,
       sources,
       audioUrl: audioUrlSent,
+      safety: resolveSafetyNotice(safetyTriage, statusType),
     });
 
     res.cookies.set(SIRDAS_CLIENT_COOKIE, actor.clientId, {

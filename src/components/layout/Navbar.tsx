@@ -57,6 +57,12 @@ export function Navbar() {
           </Link>
           <Link
             className="text-sm text-slate-300 hover:text-primary transition-colors py-1 px-2 rounded-md focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
+            href="/araclar"
+          >
+            Manevi Araçlar
+          </Link>
+          <Link
+            className="text-sm text-slate-300 hover:text-primary transition-colors py-1 px-2 rounded-md focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
             href="/tanitim#sohbet-ornekleri"
           >
             Örnek Senaryolar
@@ -109,6 +115,13 @@ export function Navbar() {
                   className="block px-3 py-2 rounded-xl text-sm font-medium text-primary hover:text-amber-300 hover:bg-surface-container animate-pulse"
                 >
                   Tefekkür Odası
+                </Link>
+                <Link
+                  href="/araclar"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-3 py-2 rounded-xl text-sm font-medium text-slate-200 hover:text-primary hover:bg-surface-container transition-colors"
+                >
+                  Manevi Araçlar
                 </Link>
                 <Link
                   href="/tanitim#sohbet-ornekleri"

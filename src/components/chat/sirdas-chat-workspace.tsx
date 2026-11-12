@@ -1534,6 +1534,14 @@ export function SirdasChatWorkspace() {
                 </Link>
               </div>
 
+              <Link
+                href="/araclar"
+                className="flex items-center justify-center gap-1.5 w-full py-1.5 text-xs text-on-surface-variant/80 hover:text-primary transition-colors rounded-full hover:bg-on-surface/8"
+              >
+                <i aria-hidden="true" className="ph ph-compass text-sm text-secondary"></i>
+                <span>Manevi Araçlar: Vakitler, Kıble, Zikirmatik</span>
+              </Link>
+
               <div className="pt-1 px-1">
                 <a
                   href="mailto:adnan.kus@hotmail.com?subject=Manevi%20Pusula%20-%20G%C3%B6r%C3%BC%C5%9F%2C%20%C3%96neri%20ve%20Tenkit"

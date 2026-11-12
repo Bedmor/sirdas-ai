@@ -1,0 +1,170 @@
+{
+  "kaynak": "quran.com API v4 - Resource ID 77 (Diyanet)",
+  "not": "Metinler quran_full_corpus.json dosyasından birebir alınmıştır (Diyanet meali). Seçim listesi hoca kontrolüne açıktır.",
+  "dilimler": {
+    "seher": [
+      {
+        "anahtar": "51:17-18",
+        "sure": "Zâriyât",
+        "sureNo": 51,
+        "ayet": "17-18",
+        "arapca": "كَانُوا۟ قَلِيلًا مِّنَ ٱلَّيْلِ مَا يَهْجَعُونَ وَبِٱلْأَسْحَارِ هُمْ يَسْتَغْفِرُونَ",
+        "meal": "Onlar, geceleri az uyuyanlardı. Seher vakitlerinde bağışlanma dilerlerdi."
+      },
+      {
+        "anahtar": "3:16-17",
+        "sure": "Âl-i İmrân",
+        "sureNo": 3,
+        "ayet": "16-17",
+        "arapca": "ٱلَّذِينَ يَقُولُونَ رَبَّنَآ إِنَّنَآ ءَامَنَّا فَٱغْفِرْ لَنَا ذُنُوبَنَا وَقِنَا عَذَابَ ٱلنَّارِ ٱلصَّـٰبِرِينَ وَٱلصَّـٰدِقِينَ وَٱلْقَـٰنِتِينَ وَٱلْمُنفِقِينَ وَٱلْمُسْتَغْفِرِينَ بِٱلْأَسْحَارِ",
+        "meal": "Onlar ki, \"Rabbimiz! Biz şüphesiz inandık, bunun için günahlarımızı bize bağışla ve bizi ateşin azabından koru\" diyen, sabreden, doğru olan, gönülden kulluk eden, hayra sarfeden ve seher vakitlerinde bağışlanma dileyenlerdir."
+      },
+      {
+        "anahtar": "17:79",
+        "sure": "İsrâ",
+        "sureNo": 17,
+        "ayet": "79",
+        "arapca": "وَمِنَ ٱلَّيْلِ فَتَهَجَّدْ بِهِۦ نَافِلَةً لَّكَ عَسَىٰٓ أَن يَبْعَثَكَ رَبُّكَ مَقَامًا مَّحْمُودًا",
+        "meal": "Geceleyin uyanıp, yalnız sana mahsus olarak fazladan namaz kıl. Belki de Rabbin seni övülecek makama yükseltir."
+      },
+      {
+        "anahtar": "73:6",
+        "sure": "Müzzemmil",
+        "sureNo": 73,
+        "ayet": "6",
+        "arapca": "إِنَّ نَاشِئَةَ ٱلَّيْلِ هِىَ أَشَدُّ وَطْـًٔا وَأَقْوَمُ قِيلًا",
+        "meal": "şüphesiz, gece kalkışı daha tesirli ve o zaman okumak daha elverişlidir."
+      }
+    ],
+    "sabah": [
+      {
+        "anahtar": "6:96",
+        "sure": "En'âm",
+        "sureNo": 6,
+        "ayet": "96",
+        "arapca": "فَالِقُ ٱلْإِصْبَاحِ وَجَعَلَ ٱلَّيْلَ سَكَنًا وَٱلشَّمْسَ وَٱلْقَمَرَ حُسْبَانًا ۚ ذَٰلِكَ تَقْدِيرُ ٱلْعَزِيزِ ٱلْعَلِيمِ",
+        "meal": "Tanyerini ağartan, geceyi dinlenme zamanı, güneş ve ayı vakit ölçüsü kılandır. Bu, Güçlü olan'ın, Bilen'in nizamıdır."
+      },
+      {
+        "anahtar": "30:17-18",
+        "sure": "Rûm",
+        "sureNo": 30,
+        "ayet": "17-18",
+        "arapca": "فَسُبْحَـٰنَ ٱللَّهِ حِينَ تُمْسُونَ وَحِينَ تُصْبِحُونَ وَلَهُ ٱلْحَمْدُ فِى ٱلسَّمَـٰوَٰتِ وَٱلْأَرْضِ وَعَشِيًّا وَحِينَ تُظْهِرُونَ",
+        "meal": "Akşamlarken ve sabahlarken, öğle ve ikindi vaktinde Allah'ı -ki göklerde ve yerde hamd O'na mahsustur- tesbih edin, namaz kılın."
+      },
+      {
+        "anahtar": "76:25",
+        "sure": "İnsân",
+        "sureNo": 76,
+        "ayet": "25",
+        "arapca": "وَٱذْكُرِ ٱسْمَ رَبِّكَ بُكْرَةً وَأَصِيلًا",
+        "meal": "Rabbinin adını sabah akşam an."
+      }
+    ],
+    "kusluk": [
+      {
+        "anahtar": "93:1-3",
+        "sure": "Duhâ",
+        "sureNo": 93,
+        "ayet": "1-3",
+        "arapca": "وَٱلضُّحَىٰ وَٱلَّيْلِ إِذَا سَجَىٰ مَا وَدَّعَكَ رَبُّكَ وَمَا قَلَىٰ",
+        "meal": "Kuşluk vaktine and olsun; Sükun erdiği zaman geceye and olsun ki, Rabbin seni ne bıraktı ve ne de sana darıldı."
+      },
+      {
+        "anahtar": "24:36",
+        "sure": "Nûr",
+        "sureNo": 24,
+        "ayet": "36",
+        "arapca": "فِى بُيُوتٍ أَذِنَ ٱللَّهُ أَن تُرْفَعَ وَيُذْكَرَ فِيهَا ٱسْمُهُۥ يُسَبِّحُ لَهُۥ فِيهَا بِٱلْغُدُوِّ وَٱلْـَٔاصَالِ",
+        "meal": "Allah'ın yüksek tutulmasına ve içlerinde adının anılmasına izin verdiği evlerde, insanlar sabah akşam O'nu tesbih ederler."
+      }
+    ],
+    "ikindi": [
+      {
+        "anahtar": "103:1-3",
+        "sure": "Asr",
+        "sureNo": 103,
+        "ayet": "1-3",
+        "arapca": "وَٱلْعَصْرِ إِنَّ ٱلْإِنسَـٰنَ لَفِى خُسْرٍ إِلَّا ٱلَّذِينَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّـٰلِحَـٰتِ وَتَوَاصَوْا۟ بِٱلْحَقِّ وَتَوَاصَوْا۟ بِٱلصَّبْرِ",
+        "meal": "İkindi vaktine (Asra; çağa) and olsun ki, İnsan hiç şüphesiz hüsran içindedir. Ancak inanıp yararlı iş işleyenler, birbirlerine gerçeği tavsiye edenler ve sabırlı olmayı tavsiye edenler bunun dışındadır."
+      },
+      {
+        "anahtar": "20:130",
+        "sure": "Tâhâ",
+        "sureNo": 20,
+        "ayet": "130",
+        "arapca": "فَٱصْبِرْ عَلَىٰ مَا يَقُولُونَ وَسَبِّحْ بِحَمْدِ رَبِّكَ قَبْلَ طُلُوعِ ٱلشَّمْسِ وَقَبْلَ غُرُوبِهَا ۖ وَمِنْ ءَانَآئِ ٱلَّيْلِ فَسَبِّحْ وَأَطْرَافَ ٱلنَّهَارِ لَعَلَّكَ تَرْضَىٰ",
+        "meal": "Onların dediklerine sabret; güneşin doğmasından ve batmasından önce Rabbini hamd ile tesbih et; gece saatlerinde ve gündüzleri de tesbih et ki Rabbinin rızasına eresin."
+      },
+      {
+        "anahtar": "50:39",
+        "sure": "Kâf",
+        "sureNo": 50,
+        "ayet": "39",
+        "arapca": "فَٱصْبِرْ عَلَىٰ مَا يَقُولُونَ وَسَبِّحْ بِحَمْدِ رَبِّكَ قَبْلَ طُلُوعِ ٱلشَّمْسِ وَقَبْلَ ٱلْغُرُوبِ",
+        "meal": "Söylediklerine sabret; Rabbini, güneşin doğmasından önce ve batışından önce överek tesbih et."
+      }
+    ],
+    "aksam": [
+      {
+        "anahtar": "11:114",
+        "sure": "Hûd",
+        "sureNo": 11,
+        "ayet": "114",
+        "arapca": "وَأَقِمِ ٱلصَّلَوٰةَ طَرَفَىِ ٱلنَّهَارِ وَزُلَفًا مِّنَ ٱلَّيْلِ ۚ إِنَّ ٱلْحَسَنَـٰتِ يُذْهِبْنَ ٱلسَّيِّـَٔاتِ ۚ ذَٰلِكَ ذِكْرَىٰ لِلذَّٰكِرِينَ",
+        "meal": "Gündüzün iki ucunda ve gecenin gündüze yakın zamanlarında namaz kıl. Doğrusu iyilikler kötülükleri giderir. Bu, öğüt kabul edenlere bir öğüttür."
+      },
+      {
+        "anahtar": "28:73",
+        "sure": "Kasas",
+        "sureNo": 28,
+        "ayet": "73",
+        "arapca": "وَمِن رَّحْمَتِهِۦ جَعَلَ لَكُمُ ٱلَّيْلَ وَٱلنَّهَارَ لِتَسْكُنُوا۟ فِيهِ وَلِتَبْتَغُوا۟ مِن فَضْلِهِۦ وَلَعَلَّكُمْ تَشْكُرُونَ",
+        "meal": "Allah dinlenmeniz için geceyi ve lütfedip verdiği rızkı aramanız için gündüzü meydana getirmiştir. Bunlar, O'nun rahmetinden ötürüdür. Belki artık şükredersiniz."
+      }
+    ],
+    "gece": [
+      {
+        "anahtar": "92:1-2",
+        "sure": "Leyl",
+        "sureNo": 92,
+        "ayet": "1-2",
+        "arapca": "وَٱلَّيْلِ إِذَا يَغْشَىٰ وَٱلنَّهَارِ إِذَا تَجَلَّىٰ",
+        "meal": "Kararıp ortalığı bürüdüğü zaman geceye and olsun. Açılıp aydınlattığı zaman gündüze and olsun."
+      },
+      {
+        "anahtar": "76:26",
+        "sure": "İnsân",
+        "sureNo": 76,
+        "ayet": "26",
+        "arapca": "وَمِنَ ٱلَّيْلِ فَٱسْجُدْ لَهُۥ وَسَبِّحْهُ لَيْلًا طَوِيلًا",
+        "meal": "Geceleyin O'na secde et; O'nu geceleri uzun uzun tesbih et."
+      },
+      {
+        "anahtar": "25:64",
+        "sure": "Furkân",
+        "sureNo": 25,
+        "ayet": "64",
+        "arapca": "وَٱلَّذِينَ يَبِيتُونَ لِرَبِّهِمْ سُجَّدًا وَقِيَـٰمًا",
+        "meal": "Onlar, gecelerini Rableri için kıyama durarak ve secdeye vararak geçirirler."
+      },
+      {
+        "anahtar": "73:1-4",
+        "sure": "Müzzemmil",
+        "sureNo": 73,
+        "ayet": "1-4",
+        "arapca": "يَـٰٓأَيُّهَا ٱلْمُزَّمِّلُ قُمِ ٱلَّيْلَ إِلَّا قَلِيلًا نِّصْفَهُۥٓ أَوِ ٱنقُصْ مِنْهُ قَلِيلًا أَوْ زِدْ عَلَيْهِ وَرَتِّلِ ٱلْقُرْءَانَ تَرْتِيلًا",
+        "meal": "Ey örtünüp bürünen! Gecenin yarısında, istersen biraz sonra, istersen biraz önce bir müddet için kalk ve ağır ağır Kuran oku."
+      },
+      {
+        "anahtar": "52:48-49",
+        "sure": "Tûr",
+        "sureNo": 52,
+        "ayet": "48-49",
+        "arapca": "وَٱصْبِرْ لِحُكْمِ رَبِّكَ فَإِنَّكَ بِأَعْيُنِنَا ۖ وَسَبِّحْ بِحَمْدِ رَبِّكَ حِينَ تَقُومُ وَمِنَ ٱلَّيْلِ فَسَبِّحْهُ وَإِدْبَـٰرَ ٱلنُّجُومِ",
+        "meal": "Rabbinin hükmü yerine gelinceye kadar sabret; doğrusu sen, Bizim nezaretimiz altındasın; kalkarken Rabbini överek tesbih et; Geceleyin ve yıldızlar kaybolurken de O'nu tesbih et."
+      }
+    ]
+  }
+}

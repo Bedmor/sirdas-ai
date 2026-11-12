@@ -209,7 +209,7 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
               type="button"
               onClick={onClose}
               aria-label="Kapat"
-              className="rounded-full p-2 text-on-surface-variant hover:text-on-surface hover:bg-on-surface/8 transition-all duration-200 ease-m3e-spring-bouncy hover:scale-110 active:scale-90 cursor-pointer"
+              className="rounded-full p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-all duration-200 ease-m3e-spring-bouncy hover:scale-110 active:scale-90 cursor-pointer"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -228,7 +228,7 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
                 className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                   activeTab === "all"
                     ? "bg-primary text-on-primary shadow-m3-1 font-semibold"
-                    : "text-on-surface-variant hover:text-on-surface hover:bg-on-surface/8"
+                    : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest"
                 }`}
               >
                 🌟 Kitap Sayfası (Kombine)
@@ -239,7 +239,7 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
                 className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                   activeTab === "arabic"
                     ? "bg-primary text-on-primary shadow-m3-1 font-semibold"
-                    : "text-on-surface-variant hover:text-on-surface hover:bg-on-surface/8"
+                    : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest"
                 }`}
               >
                 {isQuran ? "📖 Mushaf (Arapça)" : "📜 Hadis-i Şerîf (Arapça)"}
@@ -250,7 +250,7 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
                 className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                   activeTab === "meal"
                     ? "bg-primary text-on-primary shadow-m3-1 font-semibold"
-                    : "text-on-surface-variant hover:text-on-surface hover:bg-on-surface/8"
+                    : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest"
                 }`}
               >
                 {isQuran ? "📜 Meâl-i Şerîf" : "📖 Tercüme-i Âlî"}
@@ -261,7 +261,7 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
                 className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
                   activeTab === "tefsir"
                     ? "bg-primary text-on-primary shadow-m3-1 font-semibold"
-                    : "text-on-surface-variant hover:text-on-surface hover:bg-on-surface/8"
+                    : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest"
                 }`}
               >
                 {isQuran ? "💡 Tefsîr & Nüzûl Hikmeti" : "💡 Esbâb-ı Vürûd & Şerh"}
@@ -269,7 +269,7 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
             </div>
 
             {quranDetail && (
-              <div className="hidden md:flex items-center gap-3 text-[11px] text-[#91a8a6]">
+              <div className="hidden md:flex items-center gap-3 text-[11px] text-on-surface-variant">
                 <span>{quranDetail.revelationPlaceTr}</span>
                 <span>•</span>
                 <span>{quranDetail.versesRange}</span>
@@ -283,9 +283,9 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
             )}
 
             {hadithDetail && (
-              <div className="hidden md:flex items-center gap-2.5 text-[11px] text-[#91a8a6]">
+              <div className="hidden md:flex items-center gap-2.5 text-[11px] text-on-surface-variant">
                 {hadithDetail.ravi && (
-                  <span className="text-[#cca762] font-medium">
+                  <span className="text-primary font-medium">
                     Râvi: {hadithDetail.ravi}
                   </span>
                 )}
@@ -297,11 +297,11 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
         )}
 
         {/* Book Body (Scrollable Container) */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-7 space-y-6 bg-[#061214] custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-7 space-y-6 bg-surface-container-lowest custom-scrollbar">
           {isLoading && !detail ? (
             <div className="py-16 text-center space-y-4">
-              <div className="inline-block animate-spin h-8 w-8 rounded-full border-2 border-[#cca762] border-t-transparent" />
-              <p className="text-xs text-[#cca762] font-medium tracking-wide">
+              <div className="inline-block animate-spin h-8 w-8 rounded-full border-2 border-primary border-t-transparent" />
+              <p className="text-xs text-primary font-medium tracking-wide">
                 Çelik Kasa Sahih Mushaf Kitabı Açılıyor...
               </p>
             </div>
@@ -311,10 +311,10 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
             /* ============================================================== */
             <div className="space-y-6">
               {/* Surah Illuminated Banner */}
-              <div className="rounded-2xl bg-gradient-to-b from-[#0b2226] to-[#07171a] border border-[#cca762]/35 p-5 text-center relative overflow-hidden shadow-lg">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#cca762] to-transparent opacity-60" />
+              <div className="rounded-2xl bg-gradient-to-b from-surface-container to-surface-container-low border border-primary/35 p-5 text-center relative overflow-hidden shadow-lg">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-60" />
                 
-                <div className="flex flex-wrap items-center justify-center gap-2 mb-2 text-xs text-[#cca762]">
+                <div className="flex flex-wrap items-center justify-center gap-2 mb-2 text-xs text-primary">
                   <span className="font-semibold uppercase tracking-widest">
                     {quranDetail.surahNumber}. Sure: {quranDetail.surahNameTr} Suresi
                   </span>
@@ -325,7 +325,7 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
                 </div>
 
                 {/* Surah Arabic Calligraphy Title */}
-                <h3 className="text-2xl sm:text-3xl font-arabic text-[#fbe0a1] my-1 tracking-normal" dir="rtl" lang="ar">
+                <h3 className="text-2xl sm:text-3xl font-arabic text-primary-fixed-dim my-1 tracking-normal" dir="rtl" lang="ar">
                   {quranDetail.surahNameAr}
                 </h3>
 
@@ -334,7 +334,7 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
                   <p
                     dir="rtl"
                     lang="ar"
-                    className="font-arabic text-xl sm:text-2xl text-[#dfc384] pt-2 tracking-normal select-none"
+                    className="font-arabic text-xl sm:text-2xl text-primary-fixed-dim pt-2 tracking-normal select-none"
                   >
                     {quranDetail.bismillahArabic}
                   </p>
@@ -343,10 +343,10 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
 
               {/* Audio Recitation (if available) */}
               {quranDetail.audioUrl && (
-                <div className="rounded-xl bg-[#0c2024] border border-[#cca762]/30 p-3.5 flex flex-col gap-2 shadow-inner">
-                  <div className="flex items-center justify-between text-xs text-[#cca762] font-medium">
+                <div className="rounded-xl bg-surface-container border border-primary/30 p-3.5 flex flex-col gap-2 shadow-inner">
+                  <div className="flex items-center justify-between text-xs text-primary font-medium">
                     <span className="flex items-center gap-1.5">
-                      <svg className="w-4 h-4 text-[#cca762]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
                       </svg>
                       Sesli Kıraat / Tefekkür Dinletisi
@@ -360,18 +360,18 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
 
               {/* SECTION A: ARABIC MUSHAF VIEW */}
               {(activeTab === "all" || activeTab === "arabic") && (
-                <div className="rounded-2xl bg-[#050f11] border-2 border-[#cca762]/30 p-5 sm:p-7 shadow-xl relative">
-                  <div className="flex items-center justify-between border-b border-[#1b3438] pb-3 mb-4">
+                <div className="rounded-2xl bg-surface-container-lowest border-2 border-primary/30 p-5 sm:p-7 shadow-xl relative">
+                  <div className="flex items-center justify-between border-b border-outline-variant pb-3 mb-4">
                     <div className="flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full bg-[#cca762]" />
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#cca762]">
+                      <span className="h-2 w-2 rounded-full bg-primary" />
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-primary">
                         Mushaf-ı Şerîf Hattı (Arapça Lafız)
                       </h4>
                     </div>
                     <button
                       type="button"
                       onClick={() => handleCopy(quranDetail.combinedArabic, "arabic")}
-                      className="text-xs text-[#cca762] hover:text-[#dec288] transition-colors cursor-pointer flex items-center gap-1 font-medium"
+                      className="text-xs text-primary hover:text-primary-fixed-dim transition-colors cursor-pointer flex items-center gap-1 font-medium"
                     >
                       {copiedSection === "arabic" ? "✓ Kopyalandı" : "Metni Kopyala"}
                     </button>
@@ -380,13 +380,13 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
                   <div
                     dir="rtl"
                     lang="ar"
-                    className={`font-arabic text-[#fbe0a1] text-right select-text tracking-normal ${getArabicFontSize()}`}
+                    className={`font-arabic text-primary-fixed-dim text-right select-text tracking-normal ${getArabicFontSize()}`}
                   >
                     {quranDetail.verses.map((v) => (
                       <span key={v.number} className="inline">
                         <span className="leading-loose">{v.arabic}</span>
                         <span
-                          className="inline-flex items-center justify-center mx-2 px-2.5 py-0.5 rounded-full border border-[#cca762]/70 bg-[#cca762]/20 text-[#fbe0a1] text-xs sm:text-sm font-sans font-bold select-none align-middle shadow-xs"
+                          className="inline-flex items-center justify-center mx-2 px-2.5 py-0.5 rounded-full border border-primary/70 bg-primary/20 text-primary-fixed-dim text-xs sm:text-sm font-sans font-bold select-none align-middle shadow-xs"
                           dir="ltr"
                           title={`${v.number}. Âyet`}
                         >
@@ -401,30 +401,30 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
 
               {/* SECTION B: TURKISH MEAL VIEW */}
               {(activeTab === "all" || activeTab === "meal") && (
-                <div className="rounded-2xl bg-[#091a1d] border border-[#1d3d42] p-5 sm:p-7 shadow-md">
-                  <div className="flex items-center justify-between border-b border-[#1b3438] pb-3 mb-4">
+                <div className="rounded-2xl bg-surface-container-low border border-outline-variant p-5 sm:p-7 shadow-md">
+                  <div className="flex items-center justify-between border-b border-outline-variant pb-3 mb-4">
                     <div className="flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full bg-[#459b95]" />
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#7dd3c8]">
+                      <span className="h-2 w-2 rounded-full bg-secondary" />
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-on-secondary-container">
                         Türkçe Meâl-i Âlîsi (Kelime ve Cümle Anlamı)
                       </h4>
                     </div>
                     <button
                       type="button"
                       onClick={() => handleCopy(quranDetail.combinedMeal, "meal")}
-                      className="text-xs text-[#7dd3c8] hover:text-emerald-300 transition-colors cursor-pointer flex items-center gap-1 font-medium"
+                      className="text-xs text-on-secondary-container hover:text-emerald-300 transition-colors cursor-pointer flex items-center gap-1 font-medium"
                     >
                       {copiedSection === "meal" ? "✓ Kopyalandı" : "Meâli Kopyala"}
                     </button>
                   </div>
 
-                  <div className="space-y-3.5 text-[#e1e9e8] leading-relaxed text-[15px] sm:text-base select-text">
+                  <div className="space-y-3.5 text-on-surface leading-relaxed text-[15px] sm:text-base select-text">
                     {quranDetail.verses.map((v) => (
                       <div key={v.number} className="flex gap-2.5 items-start">
-                        <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-[#0e272b] border border-[#234b50] text-[11px] font-bold text-[#cca762] shrink-0 mt-0.5">
+                        <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-surface-container-high border border-outline-variant text-[11px] font-bold text-primary shrink-0 mt-0.5">
                           {v.number}
                         </span>
-                        <p className="italic text-[#d9e3e1]">
+                        <p className="italic text-on-surface">
                           &ldquo;{v.translation}&rdquo;
                         </p>
                       </div>
@@ -435,35 +435,35 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
 
               {/* SECTION C: TEFSIR & NUZUL & HIKMET VIEW */}
               {(activeTab === "all" || activeTab === "tefsir") && (
-                <div className="rounded-2xl bg-[#08181b] border border-[#cca762]/30 p-5 sm:p-7 space-y-4 shadow-lg">
-                  <div className="flex items-center justify-between border-b border-[#1b3438] pb-3 mb-2">
+                <div className="rounded-2xl bg-surface-container-low border border-primary/30 p-5 sm:p-7 space-y-4 shadow-lg">
+                  <div className="flex items-center justify-between border-b border-outline-variant pb-3 mb-2">
                     <div className="flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full bg-[#cca762]" />
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#cca762]">
+                      <span className="h-2 w-2 rounded-full bg-primary" />
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-primary">
                         Tefsîr-i Şerîf & Esbâb-ı Nüzûl İzahı
                       </h4>
                     </div>
-                    <span className="text-[11px] text-[#8b9ea0]">
+                    <span className="text-[11px] text-on-surface-variant">
                       {quranDetail.tefsir.kaynak}
                     </span>
                   </div>
 
                   {/* Nüzul Sebebi Context (If exists) */}
                   {quranDetail.tefsir.nuzulSebebi && (
-                    <div className="rounded-xl bg-[#0b2124] border border-[#1b3e44] p-4 text-xs leading-relaxed text-[#c6d7d5]">
-                      <div className="text-[11px] font-bold uppercase tracking-wider text-[#cca762] mb-1.5 flex items-center gap-1.5">
-                        <svg className="w-3.5 h-3.5 text-[#cca762]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="rounded-xl bg-surface-container border border-outline-variant p-4 text-xs leading-relaxed text-on-surface-variant">
+                      <div className="text-[11px] font-bold uppercase tracking-wider text-primary mb-1.5 flex items-center gap-1.5">
+                        <svg className="w-3.5 h-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         Esbâb-ı Nüzûl (Âyetin İniş Hadisesi):
                       </div>
-                      <p className="text-[#d8e3e1]">{quranDetail.tefsir.nuzulSebebi}</p>
+                      <p className="text-on-surface">{quranDetail.tefsir.nuzulSebebi}</p>
                     </div>
                   )}
 
                   {/* Classical Commentary */}
-                  <div className="text-[14px] sm:text-[15px] leading-relaxed text-[#dbe5e3] space-y-3 select-text">
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-[#cca762]">
+                  <div className="text-[14px] sm:text-[15px] leading-relaxed text-on-surface space-y-3 select-text">
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-primary">
                       Müfessirun İzahı ve Şerh:
                     </div>
                     {quranDetail.tefsir.tefsirMetni.split(/\n{2,}|\n/).map((paragraph, pIdx) => (
@@ -475,12 +475,12 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
 
                   {/* Manevi Hikmet / İkaz Box */}
                   {quranDetail.tefsir.maneviHikmet && (
-                    <div className="rounded-xl bg-[#0e272b] border border-[#cca762]/30 p-4 space-y-1.5">
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-[#cca762] uppercase tracking-wider">
+                    <div className="rounded-xl bg-surface-container-high border border-primary/30 p-4 space-y-1.5">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-primary uppercase tracking-wider">
                         <span>💡</span>
                         <span>Manevî Hikmet & Nefis Tezkiyesi Dersi:</span>
                       </div>
-                      <p className="text-xs sm:text-sm text-[#e0ecea] leading-relaxed italic">
+                      <p className="text-xs sm:text-sm text-on-surface leading-relaxed italic">
                         {quranDetail.tefsir.maneviHikmet}
                       </p>
                     </div>
@@ -494,23 +494,23 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
             /* ============================================================== */
             <div className="space-y-6">
               {/* Hadith Top Header */}
-              <div className="rounded-2xl bg-gradient-to-b from-[#0b2226] to-[#07171a] border border-[#cca762]/35 p-5 text-center shadow-lg relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#cca762] to-transparent opacity-60" />
+              <div className="rounded-2xl bg-gradient-to-b from-surface-container to-surface-container-low border border-primary/35 p-5 text-center shadow-lg relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-60" />
                 <div className="flex flex-wrap items-center justify-center gap-2 mb-2 text-xs">
-                  <span className="inline-flex items-center px-3 py-0.5 rounded-full text-[11px] font-semibold bg-[#cca762]/15 text-[#cca762] border border-[#cca762]/30">
+                  <span className="inline-flex items-center px-3 py-0.5 rounded-full text-[11px] font-semibold bg-primary/15 text-primary border border-primary/30">
                     {hadithDetail.sahihlikDerecesi}
                   </span>
                   {hadithDetail.ravi && (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#133235] text-[#93b3b0] border border-[#1d4448]">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-surface-container-high text-on-surface-variant border border-outline-variant">
                       Râvi: {hadithDetail.ravi}
                     </span>
                   )}
                 </div>
-                <h3 className="text-xl sm:text-2xl font-heading font-semibold text-[#f5ebd8]">
+                <h3 className="text-xl sm:text-2xl font-heading font-semibold text-on-surface">
                   {hadithDetail.kaynak}
                 </h3>
                 {hadithDetail.kitapBolumu && (
-                  <p className="text-xs text-[#8b9ea0] mt-1">
+                  <p className="text-xs text-on-surface-variant mt-1">
                     {hadithDetail.kitapBolumu} {hadithDetail.babNo ? `• Bab ${hadithDetail.babNo}` : ""}
                   </p>
                 )}
@@ -518,18 +518,18 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
 
               {/* SECTION A: ARABIC HADITH TEXT */}
               {(activeTab === "all" || activeTab === "arabic") && hadithDetail.arabicText && (
-                <div className="rounded-2xl bg-[#050f11] border-2 border-[#cca762]/30 p-5 sm:p-7 shadow-xl">
-                  <div className="flex items-center justify-between border-b border-[#1b3438] pb-3 mb-4">
+                <div className="rounded-2xl bg-surface-container-lowest border-2 border-primary/30 p-5 sm:p-7 shadow-xl">
+                  <div className="flex items-center justify-between border-b border-outline-variant pb-3 mb-4">
                     <div className="flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full bg-[#cca762]" />
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#cca762]">
+                      <span className="h-2 w-2 rounded-full bg-primary" />
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-primary">
                         Lafz-ı Hadis (Arapça Metin)
                       </h4>
                     </div>
                     <button
                       type="button"
                       onClick={() => handleCopy(hadithDetail.arabicText || "", "hadith-arabic")}
-                      className="text-xs text-[#cca762] hover:text-[#dec288] transition-colors cursor-pointer flex items-center gap-1 font-medium"
+                      className="text-xs text-primary hover:text-primary-fixed-dim transition-colors cursor-pointer flex items-center gap-1 font-medium"
                     >
                       {copiedSection === "hadith-arabic" ? "✓ Kopyalandı" : "Metni Kopyala"}
                     </button>
@@ -537,7 +537,7 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
                   <div
                     dir="rtl"
                     lang="ar"
-                    className={`font-arabic text-[#fbe0a1] text-right select-text tracking-normal ${getArabicFontSize()}`}
+                    className={`font-arabic text-primary-fixed-dim text-right select-text tracking-normal ${getArabicFontSize()}`}
                   >
                     {hadithDetail.arabicText}
                   </div>
@@ -546,21 +546,21 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
 
               {/* SECTION B: TURKISH TRANSLATION & RAVI */}
               {(activeTab === "all" || activeTab === "meal") && (
-                <div className="rounded-2xl bg-[#091a1d] border border-[#1d3d42] p-5 sm:p-7 space-y-3 shadow-md">
-                  <div className="flex items-center justify-between border-b border-[#1b3438] pb-3 mb-2">
+                <div className="rounded-2xl bg-surface-container-low border border-outline-variant p-5 sm:p-7 space-y-3 shadow-md">
+                  <div className="flex items-center justify-between border-b border-outline-variant pb-3 mb-2">
                     <div className="flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full bg-[#459b95]" />
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#7dd3c8]">
+                      <span className="h-2 w-2 rounded-full bg-secondary" />
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-on-secondary-container">
                         Türkçe Tercüme-i Şerîf
                       </h4>
                     </div>
                     {hadithDetail.ravi && (
-                      <span className="text-xs text-[#cca762] font-medium">
+                      <span className="text-xs text-primary font-medium">
                         Râvi: {hadithDetail.ravi}
                       </span>
                     )}
                   </div>
-                  <blockquote className="text-[15px] sm:text-base text-[#e1e9e8] italic leading-relaxed border-l-2 border-[#cca762] pl-4 select-text">
+                  <blockquote className="text-[15px] sm:text-base text-on-surface italic leading-relaxed border-l-2 border-primary pl-4 select-text">
                     &ldquo;{hadithDetail.turkishMeal}&rdquo;
                   </blockquote>
                 </div>
@@ -568,36 +568,36 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
 
               {/* SECTION C: ESBAB-I VURUD & KLASIK SERH */}
               {(activeTab === "all" || activeTab === "tefsir") && (
-                <div className="rounded-2xl bg-[#08181b] border border-[#cca762]/30 p-5 sm:p-7 space-y-4 shadow-lg">
-                  <div className="flex items-center justify-between border-b border-[#1b3438] pb-3 mb-2">
+                <div className="rounded-2xl bg-surface-container-low border border-primary/30 p-5 sm:p-7 space-y-4 shadow-lg">
+                  <div className="flex items-center justify-between border-b border-outline-variant pb-3 mb-2">
                     <div className="flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full bg-[#cca762]" />
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-[#cca762]">
+                      <span className="h-2 w-2 rounded-full bg-primary" />
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-primary">
                         Esbâb-ı Vürûd & Hadis Şerhi
                       </h4>
                     </div>
-                    <span className="text-[11px] text-[#8b9ea0]">
+                    <span className="text-[11px] text-on-surface-variant">
                       Kütüb-i Sitte & İmam Nevevî Şerhi
                     </span>
                   </div>
 
                   {/* Esbâb-ı Vürûd (Hadisin İrad Buyrulma Hadisesi) */}
                   {hadithDetail.esbabIVurud && (
-                    <div className="rounded-xl bg-[#0b2124] border border-[#1b3e44] p-4 text-xs leading-relaxed text-[#c6d7d5]">
-                      <div className="text-[11px] font-bold uppercase tracking-wider text-[#cca762] mb-1.5 flex items-center gap-1.5">
-                        <svg className="w-3.5 h-3.5 text-[#cca762]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="rounded-xl bg-surface-container border border-outline-variant p-4 text-xs leading-relaxed text-on-surface-variant">
+                      <div className="text-[11px] font-bold uppercase tracking-wider text-primary mb-1.5 flex items-center gap-1.5">
+                        <svg className="w-3.5 h-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         Esbâb-ı Vürûd (Hadisin Söyleniş Hadisesi / Bağlamı):
                       </div>
-                      <p className="text-[#d8e3e1]">{hadithDetail.esbabIVurud}</p>
+                      <p className="text-on-surface">{hadithDetail.esbabIVurud}</p>
                     </div>
                   )}
 
                   {/* Classical Hadith Commentary */}
                   {hadithDetail.serh && (
-                    <div className="text-[14px] sm:text-[15px] leading-relaxed text-[#dbe5e3] space-y-2 select-text">
-                      <div className="text-[11px] font-bold uppercase tracking-wider text-[#cca762]">
+                    <div className="text-[14px] sm:text-[15px] leading-relaxed text-on-surface space-y-2 select-text">
+                      <div className="text-[11px] font-bold uppercase tracking-wider text-primary">
                         Muhaddisîn Tahlili ve Şerh:
                       </div>
                       <p className="leading-relaxed">{hadithDetail.serh}</p>
@@ -606,12 +606,12 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
 
                   {/* Manevi Hikmet / Amel Dersi */}
                   {hadithDetail.maneviHikmet && (
-                    <div className="rounded-xl bg-[#0e272b] border border-[#cca762]/30 p-4 space-y-1.5">
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-[#cca762] uppercase tracking-wider">
+                    <div className="rounded-xl bg-surface-container-high border border-primary/30 p-4 space-y-1.5">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-primary uppercase tracking-wider">
                         <span>💡</span>
                         <span>Manevî Hikmet & Kalp Ameli Dersi:</span>
                       </div>
-                      <p className="text-xs sm:text-sm text-[#e0ecea] leading-relaxed italic">
+                      <p className="text-xs sm:text-sm text-on-surface leading-relaxed italic">
                         {hadithDetail.maneviHikmet}
                       </p>
                     </div>
@@ -624,29 +624,29 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
             /* 3. SIYER BOOK PRESENTATION                                      */
             /* ============================================================== */
             <div className="space-y-6">
-              <div className="rounded-2xl bg-[#0b2226] border border-[#cca762]/30 p-5 text-center">
-                <span className="text-xs font-semibold text-[#cca762] tracking-wider uppercase">
+              <div className="rounded-2xl bg-surface-container border border-primary/30 p-5 text-center">
+                <span className="text-xs font-semibold text-primary tracking-wider uppercase">
                   {siyerDetail.donem}
                 </span>
-                <h3 className="text-xl sm:text-2xl font-heading font-semibold text-[#f5ebd8] mt-1">
+                <h3 className="text-xl sm:text-2xl font-heading font-semibold text-on-surface mt-1">
                   {siyerDetail.olayAdi}
                 </h3>
               </div>
 
-              <div className="rounded-2xl bg-[#091a1d] border border-[#1d3d42] p-6 space-y-3">
-                <div className="text-[11px] font-bold uppercase tracking-wider text-[#cca762]">
+              <div className="rounded-2xl bg-surface-container-low border border-outline-variant p-6 space-y-3">
+                <div className="text-[11px] font-bold uppercase tracking-wider text-primary">
                   Tarihî Sahne & Nebevî Hadise:
                 </div>
-                <p className="text-sm sm:text-base leading-relaxed text-[#dbe5e3] select-text">
+                <p className="text-sm sm:text-base leading-relaxed text-on-surface select-text">
                   {siyerDetail.ozetMetin}
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-[#08181b] border border-[#cca762]/30 p-6 space-y-2">
-                <div className="text-[11px] font-bold uppercase tracking-wider text-[#7dd3c8]">
+              <div className="rounded-2xl bg-surface-container-low border border-primary/30 p-6 space-y-2">
+                <div className="text-[11px] font-bold uppercase tracking-wider text-on-secondary-container">
                   Müminin Çıkaracağı İbret & Teselli:
                 </div>
-                <p className="text-sm leading-relaxed text-[#e0ecea] italic">
+                <p className="text-sm leading-relaxed text-on-surface italic">
                   {siyerDetail.maneviHikmet}
                 </p>
               </div>
@@ -656,18 +656,18 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
             /* 4. HALIS AYDEMIR SOHBET PRESENTATION                            */
             /* ============================================================== */
             <div className="space-y-6">
-              <div className="rounded-2xl bg-[#0b2226] border border-[#cca762]/30 p-5 text-center">
-                <span className="text-xs font-semibold text-[#cca762] tracking-wider uppercase">
+              <div className="rounded-2xl bg-surface-container border border-primary/30 p-5 text-center">
+                <span className="text-xs font-semibold text-primary tracking-wider uppercase">
                   Dr. Halis Aydemir • Tefekkür Sohbeti
                 </span>
-                <h3 className="text-xl sm:text-2xl font-heading font-semibold text-[#f5ebd8] mt-1">
+                <h3 className="text-xl sm:text-2xl font-heading font-semibold text-on-surface mt-1">
                   {halisDetail.sohbetKonusu}
                 </h3>
               </div>
 
               {halisDetail.audioUrl && (
-                <div className="rounded-xl bg-[#0c2024] border border-[#cca762]/30 p-4 space-y-2">
-                  <div className="text-xs font-medium text-[#cca762] flex items-center gap-1.5">
+                <div className="rounded-xl bg-surface-container border border-primary/30 p-4 space-y-2">
+                  <div className="text-xs font-medium text-primary flex items-center gap-1.5">
                     <span>🎙️</span>
                     <span>Sesli Sohbet Kesiti Dinle:</span>
                   </div>
@@ -677,11 +677,11 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
                 </div>
               )}
 
-              <div className="rounded-2xl bg-[#091a1d] border border-[#1d3d42] p-6 space-y-3">
-                <div className="text-[11px] font-bold uppercase tracking-wider text-[#cca762]">
+              <div className="rounded-2xl bg-surface-container-low border border-outline-variant p-6 space-y-3">
+                <div className="text-[11px] font-bold uppercase tracking-wider text-primary">
                   Sohbet Deşifresi ve Tefekkür Metni:
                 </div>
-                <div className="text-sm sm:text-base leading-relaxed text-[#dbe5e3] select-text space-y-2.5">
+                <div className="text-sm sm:text-base leading-relaxed text-on-surface select-text space-y-2.5">
                   {halisDetail.desifreMetni.split(/\n+/).map((line, idx) => (
                     <p key={idx}>{line.trim()}</p>
                   ))}
@@ -689,7 +689,7 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
               </div>
 
               {halisDetail.maneviMesaj && (
-                <div className="rounded-xl bg-[#08181b] border border-[#cca762]/30 p-4 text-xs text-[#cca762] italic">
+                <div className="rounded-xl bg-surface-container-low border border-primary/30 p-4 text-xs text-primary italic">
                   💡 {halisDetail.maneviMesaj}
                 </div>
               )}
@@ -699,11 +699,11 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
             /* 5. GENERIC FALLBACK                                             */
             /* ============================================================== */
             <div className="space-y-4">
-              <div className="rounded-2xl bg-[#091a1d] border border-[#1d3d42] p-6">
-                <div className="text-xs text-[#cca762] font-semibold uppercase tracking-wider mb-2">
+              <div className="rounded-2xl bg-surface-container-low border border-outline-variant p-6">
+                <div className="text-xs text-primary font-semibold uppercase tracking-wider mb-2">
                   {genericDetail?.sourceType || "KAYNAK METNİ"}
                 </div>
-                <p className="text-sm leading-relaxed text-[#e1e9e8]">
+                <p className="text-sm leading-relaxed text-on-surface">
                   {genericDetail?.content || source.content}
                 </p>
               </div>
@@ -711,7 +711,7 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
           )}
 
           {/* Bottom Security / Authenticity Seal */}
-          <div className="rounded-xl bg-[#040e10] border border-[#12282b] p-3.5 flex items-center gap-3 text-xs text-[#7e9694]">
+          <div className="rounded-xl bg-surface-container-lowest border border-surface-container-high p-3.5 flex items-center gap-3 text-xs text-on-surface-variant">
             <svg className="w-4 h-4 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
@@ -722,7 +722,7 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
         </div>
 
         {/* Book Footer / Action Bar */}
-        <div className="px-5 py-3.5 border-t border-[#cca762]/30 bg-gradient-to-r from-[#08181b] via-[#0b2124] to-[#08181b] flex items-center justify-between shrink-0">
+        <div className="px-5 py-3.5 border-t border-primary/30 bg-gradient-to-r from-surface-container-low via-surface-container to-surface-container-low flex items-center justify-between shrink-0">
           <button
             type="button"
             onClick={() => {
@@ -741,7 +741,7 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
               }
               handleCopy(fullText, "all");
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-[#cca762] hover:bg-[#cca762]/15 transition-colors border border-[#cca762]/35 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-primary hover:bg-primary/15 transition-colors border border-primary/35 cursor-pointer"
           >
             {copiedSection === "all" ? (
               <>
@@ -763,7 +763,7 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl bg-[#cca762] hover:bg-[#dec288] text-[#1b1406] font-semibold px-5 py-2 text-xs transition-colors cursor-pointer shadow-md active:scale-95"
+            className="rounded-xl bg-primary hover:bg-primary-fixed-dim text-on-primary font-semibold px-5 py-2 text-xs transition-colors cursor-pointer shadow-md active:scale-95"
           >
             Kitabı Kapat
           </button>

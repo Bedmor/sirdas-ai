@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Amiri, Noto_Naskh_Arabic, Space_Grotesk, Roboto_Slab } from "next/font/google";
 import "./globals.css";
-import { yaziBoyutuBetigi } from "@/components/ui/yazi-boyutu";
+import { yaziBoyutuBetigi, temaBetigi } from "@/lib/gorunum-betikleri";
 
 const amiri = Amiri({
   subsets: ["arabic", "latin"],
@@ -65,7 +65,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: yaziBoyutuBetigi }} />
+        <script dangerouslySetInnerHTML={{ __html: yaziBoyutuBetigi + temaBetigi }} />
       </head>
       <body
         className={`${amiri.variable} ${notoNaskhArabic.variable} ${spaceGrotesk.variable} ${robotoSlab.variable} bg-background font-body text-on-surface antialiased min-h-screen selection:bg-secondary-container selection:text-on-secondary-container spiritual-bg-pattern`}

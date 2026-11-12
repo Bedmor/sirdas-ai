@@ -98,7 +98,7 @@ export function Hero() {
           </div>
 
           {/* Mobile App Pill / Announcement */}
-          <div className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-5 py-4 rounded-xl border border-emerald-900/60 bg-[#0d1411]/80 backdrop-blur-md text-foreground font-medium text-sm shadow-sm">
+          <div className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-5 py-4 rounded-xl border border-emerald-900/60 bg-surface-container-low/80 backdrop-blur-md text-foreground font-medium text-sm shadow-sm">
             <Smartphone className="h-4 w-4 text-primary" />
             <span className="text-slate-300">Mobil Uygulama:</span>
             <span className="text-amber-400 font-semibold text-xs bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30">
@@ -116,7 +116,7 @@ export function Hero() {
 
         {/* Prestigious Highlights Bar */}
         <div className="pt-12 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto border-t border-emerald-900/40 text-center">
-          <div className="p-4 rounded-xl bg-[#0d1411]/40 border border-emerald-950/60 backdrop-blur-sm">
+          <div className="p-4 rounded-xl bg-surface-container-low/40 border border-emerald-950/60 backdrop-blur-sm">
             <div className="text-2xl sm:text-3xl font-bold text-amber-400 font-serif">
               142.000+
             </div>
@@ -124,7 +124,7 @@ export function Hero() {
               Manevi Teskin Mesajı
             </div>
           </div>
-          <div className="p-4 rounded-xl bg-[#0d1411]/40 border border-emerald-950/60 backdrop-blur-sm">
+          <div className="p-4 rounded-xl bg-surface-container-low/40 border border-emerald-950/60 backdrop-blur-sm">
             <div className="text-2xl sm:text-3xl font-bold text-amber-400 font-serif">
               %100 Ücretsiz
             </div>
@@ -132,7 +132,7 @@ export function Hero() {
               Askıda İnfak Modeli
             </div>
           </div>
-          <div className="p-4 rounded-xl bg-[#0d1411]/40 border border-emerald-950/60 backdrop-blur-sm">
+          <div className="p-4 rounded-xl bg-surface-container-low/40 border border-emerald-950/60 backdrop-blur-sm">
             <div className="text-2xl sm:text-3xl font-bold text-amber-400 font-serif">
               5 Süzgeç
             </div>
@@ -140,7 +140,7 @@ export function Hero() {
               Sarsılmaz Sistem Anayasası
             </div>
           </div>
-          <div className="p-4 rounded-xl bg-[#0d1411]/40 border border-emerald-950/60 backdrop-blur-sm">
+          <div className="p-4 rounded-xl bg-surface-container-low/40 border border-emerald-950/60 backdrop-blur-sm">
             <div className="text-2xl sm:text-3xl font-bold text-amber-400 font-serif">
               Alo 190
             </div>

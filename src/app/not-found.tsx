@@ -9,7 +9,7 @@ export default function NotFound() {
       </p>
       <Link
         href="/"
-        className="px-6 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-medium transition-colors"
+        className="px-6 py-3 rounded-xl bg-secondary-container hover:bg-secondary-container/80 text-on-secondary-container font-medium transition-colors"
       >
         Ana Sayfaya Dön
       </Link>

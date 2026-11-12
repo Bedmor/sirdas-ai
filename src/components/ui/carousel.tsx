@@ -204,7 +204,7 @@ export function CarouselIndicator({
               'h-2 rounded-full transition-all duration-300 ease-m3e-spring-smooth cursor-pointer',
               index === i
                 ? 'w-6 bg-primary shadow-xs'
-                : 'w-2 bg-on-surface-variant/30 hover:bg-on-surface-variant/60',
+                : 'w-2 bg-outline-variant/50 hover:bg-outline',
               classNameButton
             )}
           />

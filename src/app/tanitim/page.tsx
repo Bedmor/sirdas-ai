@@ -42,7 +42,7 @@ export default function TanitimLandingPage() {
               <div className="flex flex-wrap items-center justify-center gap-4">
                 <Link
                   aria-label="Manevi Pusula Sohbet Arayüzünde Dertleşmeye Başla"
-                  className="inline-flex items-center gap-2.5 bg-secondary-container hover:bg-[#117a51] text-white px-6 py-3 rounded-full text-sm font-semibold tracking-wide transition-all shadow-lg hover:shadow-secondary/10 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
+                  className="inline-flex items-center gap-2.5 bg-secondary-container hover:bg-secondary-container/80 text-white px-6 py-3 rounded-full text-sm font-semibold tracking-wide transition-all shadow-lg hover:shadow-secondary/10 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   href="/"
                 >
                   <i
@@ -53,7 +53,7 @@ export default function TanitimLandingPage() {
                   <i aria-hidden="true" className="ph ph-arrow-right text-xs"></i>
                 </Link>
                 <a
-                  className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 text-sm text-slate-200 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 text-sm text-slate-200 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   href="#sohbet-ornekleri"
                 >
                   <i
@@ -260,7 +260,7 @@ export default function TanitimLandingPage() {
               </p>
               <Link
                 aria-label="Manevi Pusula Tefekkür Odasında Hemen Sohbete Başla"
-                className="inline-flex items-center gap-2.5 bg-secondary-container hover:bg-[#117a51] text-white px-7 py-3.5 rounded-full text-xs font-semibold tracking-wide transition-all shadow-lg shadow-secondary/10 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
+                className="inline-flex items-center gap-2.5 bg-secondary-container hover:bg-secondary-container/80 text-white px-7 py-3.5 rounded-full text-xs font-semibold tracking-wide transition-all shadow-lg shadow-secondary/10 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 href="/"
               >
                 <i

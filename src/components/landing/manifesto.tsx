@@ -74,7 +74,7 @@ export function Manifesto() {
           return (
             <div
               key={filter.name}
-              className="relative group rounded-2xl border border-amber-500/25 bg-gradient-to-b from-[#0e1713]/90 via-[#0a110e]/90 to-[#070c09]/95 p-8 shadow-[0_8px_30px_rgba(0,0,0,0.4)] hover:shadow-[0_14px_40px_-5px_rgba(217,119,6,0.18)] hover:border-amber-400/55 transition-all duration-300 flex flex-col justify-between backdrop-blur-md"
+              className="relative group rounded-2xl border border-amber-500/25 bg-gradient-to-b from-surface-container-low/90 via-surface-container-low/90 to-surface-dim/95 p-8 shadow-[0_8px_30px_rgba(0,0,0,0.4)] hover:shadow-[0_14px_40px_-5px_rgba(217,119,6,0.18)] hover:border-amber-400/55 transition-all duration-300 flex flex-col justify-between backdrop-blur-md"
             >
               {/* Subtle top gold sheen highlight */}
               <div
@@ -123,7 +123,7 @@ export function Manifesto() {
         })}
 
         {/* 6th Card: Crowning Siyer ve Ashab Mührü (Prestigious Master Seal) */}
-        <div className="relative group lg:col-span-3 rounded-2xl border-2 border-amber-500/45 bg-gradient-to-br from-[#121c16]/95 via-[#18231c]/90 to-[#0e1713]/95 p-8 sm:p-10 shadow-[0_12px_45px_-5px_rgba(217,119,6,0.22)] backdrop-blur-md overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
+        <div className="relative group lg:col-span-3 rounded-2xl border-2 border-amber-500/45 bg-gradient-to-br from-surface-container-low/95 via-surface-container/90 to-surface-container-low/95 p-8 sm:p-10 shadow-[0_12px_45px_-5px_rgba(217,119,6,0.22)] backdrop-blur-md overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
           {/* Subtle Islamic Rosette Watermark */}
           <div
             aria-hidden="true"

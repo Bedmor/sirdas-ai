@@ -18,25 +18,25 @@ const KIND_STYLES: Record<
   { box: string; title: string; button: string }
 > = {
   crisis: {
-    box: "bg-red-950/60 border-red-500/50",
+    box: "mp-kriz bg-red-950/60 border-red-500/50",
     title: "text-red-100",
     button:
-      "bg-red-600 hover:bg-red-500 text-white border-red-400/60",
+      "bg-[#b91c1c] hover:bg-[#991b1b] text-[#fff] border-red-400/60",
   },
   health: {
-    box: "bg-[#14232b]/90 border-blue-400/40",
+    box: "bg-blue-950/90 border-blue-400/40",
     title: "text-blue-100",
     button:
-      "bg-blue-700 hover:bg-blue-600 text-white border-blue-400/50",
+      "bg-[#1d4ed8] hover:bg-[#1e40af] text-[#fff] border-blue-400/50",
   },
   child: {
     box: "bg-amber-950/60 border-amber-400/40",
     title: "text-amber-100",
     button:
-      "bg-amber-600 hover:bg-amber-500 text-white border-amber-300/50",
+      "bg-[#b45309] hover:bg-[#92400e] text-[#fff] border-amber-300/50",
   },
   fatwa: {
-    box: "bg-[#183125]/80 border-secondary/40",
+    box: "bg-secondary-container/80 border-secondary/40",
     title: "text-on-surface",
     button:
       "bg-surface-container-high hover:bg-surface-container-highest text-on-surface border-outline-variant/60",

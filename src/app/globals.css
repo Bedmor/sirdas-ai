@@ -114,8 +114,8 @@
 
   /* Browser Surfaces Craft */
   ::selection {
-    background-color: rgba(204, 167, 98, 0.28);
-    color: #f7eed8;
+    background-color: rgb(var(--c-primary) / 0.28);
+    color: rgb(var(--c-on-surface));
   }
 
   ::-webkit-scrollbar {
@@ -123,15 +123,15 @@
     height: 8px;
   }
   ::-webkit-scrollbar-track {
-    background: #040F0F;
+    background: rgb(var(--c-zemin));
   }
   ::-webkit-scrollbar-thumb {
-    background: #1d3336;
+    background: rgb(var(--c-outline-variant));
     border-radius: 9999px;
-    border: 2px solid #040F0F;
+    border: 2px solid rgb(var(--c-zemin));
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #2a484c;
+    background: rgb(var(--c-outline));
   }
 }
 
@@ -301,7 +301,7 @@
 
 /* Subtle geometric Selçuklu girih pattern overlay */
 .spiritual-bg-pattern {
-  background-color: #040F0F;
+  background-color: rgb(var(--c-zemin));
   background-image: url("/islamic-pattern.png");
   background-repeat: repeat;
   background-size: 120px 120px;
@@ -337,7 +337,7 @@ dialog::backdrop,
 dialog[open]::backdrop {
   overflow: hidden;
   overscroll-behavior: contain;
-  background-color: rgba(2, 8, 9, 0.78);
+  background-color: rgb(2 8 9 / 0.6);
   backdrop-filter: blur(4px);
   animation: smoothBackdropFade 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -371,7 +371,384 @@ html[data-yazi="3"] { font-size: 137.5%; }
 .text-on-surface-variant\/60,
 .text-on-surface-variant\/70,
 .text-on-surface-variant\/75,
-.text-on-surface-variant\/80 { color: rgb(184 199 201 / 0.92); }
-.placeholder\:text-on-surface-variant\/60::placeholder { color: rgb(184 199 201 / 0.8); }
-.text-outline { color: #bba57a; }
-.text-slate-400 { color: #b4c0cf; }
+.text-on-surface-variant\/80 { color: rgb(var(--c-on-surface-variant) / 0.92); }
+.placeholder\:text-on-surface-variant\/60::placeholder { color: rgb(var(--c-on-surface-variant) / 0.8); }
+html:not([data-theme="gunduz"]):not([data-theme="yuksek"]) .text-outline { color: #bba57a; }
+html:not([data-theme="gunduz"]):not([data-theme="yuksek"]) .text-slate-400 { color: #b4c0cf; }
+
+/* ------------------------------------------------------------------
+   TEMALAR: Gece (varsayılan) / Gündüz / Yüksek zıtlık
+   html[data-theme] sayfa boyanmadan önce <head> betiğiyle konur.
+   Renkler "R G B" kanalı olarak tutulur; Tailwind /opaklık ekleri çalışır.
+------------------------------------------------------------------- */
+:root {
+  color-scheme: dark;
+  --c-background:4 15 15;
+  --c-foreground:225 233 232;
+  --c-surface:10 28 30;
+  --c-surface-dim:4 11 12;
+  --c-surface-bright:26 56 59;
+  --c-surface-container-lowest:6 17 18;
+  --c-surface-container-low:9 24 26;
+  --c-surface-container:14 34 36;
+  --c-surface-container-high:19 44 46;
+  --c-surface-container-highest:26 56 59;
+  --c-on-surface:225 233 232;
+  --c-on-surface-variant:184 199 201;
+  --c-primary:204 167 98;
+  --c-on-primary:27 20 6;
+  --c-primary-container:61 46 17;
+  --c-on-primary-container:250 233 201;
+  --c-primary-fixed:250 233 201;
+  --c-primary-fixed-dim:229 204 160;
+  --c-on-primary-fixed:36 24 4;
+  --c-on-primary-fixed-variant:82 56 13;
+  --c-secondary:69 155 149;
+  --c-on-secondary:4 28 26;
+  --c-secondary-container:18 56 53;
+  --c-on-secondary-container:163 236 229;
+  --c-secondary-fixed:178 242 235;
+  --c-secondary-fixed-dim:69 155 149;
+  --c-on-secondary-fixed:0 32 29;
+  --c-on-secondary-fixed-variant:9 80 76;
+  --c-tertiary:217 119 6;
+  --c-on-tertiary:43 20 0;
+  --c-tertiary-container:69 36 3;
+  --c-on-tertiary-container:255 220 194;
+  --c-outline:138 120 82;
+  --c-outline-variant:29 51 54;
+  --c-error:255 180 171;
+  --c-on-error:105 0 5;
+  --c-error-container:66 20 23;
+  --c-on-error-container:255 218 214;
+  --c-beyaz:255 255 255;
+  --c-zemin:4 15 15;
+  --pl-slate-50:248 250 252;
+  --pl-slate-100:241 245 249;
+  --pl-slate-200:226 232 240;
+  --pl-slate-300:203 213 225;
+  --pl-slate-400:148 163 184;
+  --pl-slate-500:100 116 139;
+  --pl-slate-600:71 85 105;
+  --pl-slate-700:51 65 85;
+  --pl-slate-800:30 41 59;
+  --pl-slate-900:15 23 42;
+  --pl-slate-950:2 6 23;
+  --pl-emerald-50:236 253 245;
+  --pl-emerald-100:209 250 229;
+  --pl-emerald-200:167 243 208;
+  --pl-emerald-300:110 231 183;
+  --pl-emerald-400:52 211 153;
+  --pl-emerald-500:16 185 129;
+  --pl-emerald-600:5 150 105;
+  --pl-emerald-700:4 120 87;
+  --pl-emerald-800:6 95 70;
+  --pl-emerald-900:6 78 59;
+  --pl-emerald-950:2 44 34;
+  --pl-amber-50:255 251 235;
+  --pl-amber-100:254 243 199;
+  --pl-amber-200:253 230 138;
+  --pl-amber-300:252 211 77;
+  --pl-amber-400:251 191 36;
+  --pl-amber-500:245 158 11;
+  --pl-amber-600:217 119 6;
+  --pl-amber-700:180 83 9;
+  --pl-amber-800:146 64 14;
+  --pl-amber-900:120 53 15;
+  --pl-amber-950:69 26 3;
+  --pl-red-50:254 242 242;
+  --pl-red-100:254 226 226;
+  --pl-red-200:254 202 202;
+  --pl-red-300:252 165 165;
+  --pl-red-400:248 113 113;
+  --pl-red-500:239 68 68;
+  --pl-red-600:220 38 38;
+  --pl-red-700:185 28 28;
+  --pl-red-800:153 27 27;
+  --pl-red-900:127 29 29;
+  --pl-red-950:69 10 10;
+  --pl-teal-50:240 253 250;
+  --pl-teal-100:204 251 241;
+  --pl-teal-200:153 246 228;
+  --pl-teal-300:94 234 212;
+  --pl-teal-400:45 212 191;
+  --pl-teal-500:20 184 166;
+  --pl-teal-600:13 148 136;
+  --pl-teal-700:15 118 110;
+  --pl-teal-800:17 94 89;
+  --pl-teal-900:19 78 74;
+  --pl-teal-950:4 47 46;
+  --pl-blue-50:239 246 255;
+  --pl-blue-100:219 234 254;
+  --pl-blue-200:191 219 254;
+  --pl-blue-300:147 197 253;
+  --pl-blue-400:96 165 250;
+  --pl-blue-500:59 130 246;
+  --pl-blue-600:37 99 235;
+  --pl-blue-700:29 78 216;
+  --pl-blue-800:30 64 175;
+  --pl-blue-900:30 58 138;
+  --pl-blue-950:23 37 84;
+  --mp-alfa-yazi: 0;
+  --mp-alfa-cizgi: 0;
+}
+html[data-theme="gunduz"] {
+  color-scheme: light;
+  --c-background:246 241 230;
+  --c-foreground:23 35 36;
+  --c-surface:251 248 240;
+  --c-surface-dim:236 229 214;
+  --c-surface-bright:255 255 255;
+  --c-surface-container-lowest:255 255 255;
+  --c-surface-container-low:244 238 226;
+  --c-surface-container:237 229 212;
+  --c-surface-container-high:229 219 198;
+  --c-surface-container-highest:220 207 182;
+  --c-on-surface:23 35 36;
+  --c-on-surface-variant:54 71 74;
+  --c-primary:122 90 20;
+  --c-on-primary:255 255 255;
+  --c-primary-container:240 224 189;
+  --c-on-primary-container:59 42 8;
+  --c-primary-fixed:74 54 8;
+  --c-primary-fixed-dim:107 76 15;
+  --c-on-primary-fixed:255 255 255;
+  --c-on-primary-fixed-variant:240 224 189;
+  --c-secondary:31 111 105;
+  --c-on-secondary:255 255 255;
+  --c-secondary-container:207 233 229;
+  --c-on-secondary-container:11 61 57;
+  --c-secondary-fixed:11 61 57;
+  --c-secondary-fixed-dim:31 111 105;
+  --c-on-secondary-fixed:255 255 255;
+  --c-on-secondary-fixed-variant:207 233 229;
+  --c-tertiary:163 82 0;
+  --c-on-tertiary:255 255 255;
+  --c-tertiary-container:253 227 200;
+  --c-on-tertiary-container:74 36 0;
+  --c-outline:94 80 52;
+  --c-outline-variant:168 151 111;
+  --c-error:179 38 30;
+  --c-on-error:255 255 255;
+  --c-error-container:253 226 223;
+  --c-on-error-container:107 15 10;
+  --c-beyaz:23 35 36;
+  --c-zemin:246 241 230;
+  --pl-slate-50:2 6 23;
+  --pl-slate-100:15 23 42;
+  --pl-slate-200:30 41 59;
+  --pl-slate-300:30 41 59;
+  --pl-slate-400:51 65 85;
+  --pl-slate-500:71 85 105;
+  --pl-slate-600:51 65 85;
+  --pl-slate-700:203 213 225;
+  --pl-slate-800:226 232 240;
+  --pl-slate-900:241 245 249;
+  --pl-slate-950:248 250 252;
+  --pl-emerald-50:2 44 34;
+  --pl-emerald-100:6 78 59;
+  --pl-emerald-200:6 95 70;
+  --pl-emerald-300:6 95 70;
+  --pl-emerald-400:4 120 87;
+  --pl-emerald-500:5 150 105;
+  --pl-emerald-600:4 120 87;
+  --pl-emerald-700:110 231 183;
+  --pl-emerald-800:167 243 208;
+  --pl-emerald-900:209 250 229;
+  --pl-emerald-950:236 253 245;
+  --pl-amber-50:69 26 3;
+  --pl-amber-100:120 53 15;
+  --pl-amber-200:146 64 14;
+  --pl-amber-300:146 64 14;
+  --pl-amber-400:146 64 14;
+  --pl-amber-500:180 83 9;
+  --pl-amber-600:180 83 9;
+  --pl-amber-700:252 211 77;
+  --pl-amber-800:253 230 138;
+  --pl-amber-900:254 243 199;
+  --pl-amber-950:255 251 235;
+  --pl-red-50:69 10 10;
+  --pl-red-100:127 29 29;
+  --pl-red-200:153 27 27;
+  --pl-red-300:153 27 27;
+  --pl-red-400:185 28 28;
+  --pl-red-500:220 38 38;
+  --pl-red-600:185 28 28;
+  --pl-red-700:252 165 165;
+  --pl-red-800:254 202 202;
+  --pl-red-900:254 226 226;
+  --pl-red-950:254 242 242;
+  --pl-teal-50:4 47 46;
+  --pl-teal-100:19 78 74;
+  --pl-teal-200:17 94 89;
+  --pl-teal-300:17 94 89;
+  --pl-teal-400:15 118 110;
+  --pl-teal-500:13 148 136;
+  --pl-teal-600:15 118 110;
+  --pl-teal-700:94 234 212;
+  --pl-teal-800:153 246 228;
+  --pl-teal-900:204 251 241;
+  --pl-teal-950:240 253 250;
+  --pl-blue-50:23 37 84;
+  --pl-blue-100:30 58 138;
+  --pl-blue-200:30 64 175;
+  --pl-blue-300:30 64 175;
+  --pl-blue-400:29 78 216;
+  --pl-blue-500:37 99 235;
+  --pl-blue-600:29 78 216;
+  --pl-blue-700:147 197 253;
+  --pl-blue-800:191 219 254;
+  --pl-blue-900:219 234 254;
+  --pl-blue-950:239 246 255;
+  --mp-alfa-yazi: 0.3;
+  --mp-alfa-cizgi: 0.35;
+}
+html[data-theme="yuksek"] {
+  color-scheme: dark;
+  --c-background:0 0 0;
+  --c-foreground:255 255 255;
+  --c-surface:0 0 0;
+  --c-surface-dim:0 0 0;
+  --c-surface-bright:26 26 26;
+  --c-surface-container-lowest:0 0 0;
+  --c-surface-container-low:10 10 10;
+  --c-surface-container:17 17 17;
+  --c-surface-container-high:22 22 22;
+  --c-surface-container-highest:31 31 31;
+  --c-on-surface:255 255 255;
+  --c-on-surface-variant:242 242 242;
+  --c-primary:255 214 10;
+  --c-on-primary:0 0 0;
+  --c-primary-container:42 35 0;
+  --c-on-primary-container:255 232 102;
+  --c-primary-fixed:255 232 102;
+  --c-primary-fixed-dim:255 214 10;
+  --c-on-primary-fixed:0 0 0;
+  --c-on-primary-fixed-variant:0 0 0;
+  --c-secondary:127 240 230;
+  --c-on-secondary:0 0 0;
+  --c-secondary-container:0 46 43;
+  --c-on-secondary-container:184 255 248;
+  --c-secondary-fixed:184 255 248;
+  --c-secondary-fixed-dim:127 240 230;
+  --c-on-secondary-fixed:0 0 0;
+  --c-on-secondary-fixed-variant:0 46 43;
+  --c-tertiary:255 179 71;
+  --c-on-tertiary:0 0 0;
+  --c-tertiary-container:42 21 0;
+  --c-on-tertiary-container:255 217 168;
+  --c-outline:255 255 255;
+  --c-outline-variant:208 208 208;
+  --c-error:255 138 128;
+  --c-on-error:0 0 0;
+  --c-error-container:58 0 0;
+  --c-on-error-container:255 255 255;
+  --c-beyaz:255 255 255;
+  --c-zemin:0 0 0;
+  --pl-slate-50:255 255 255;
+  --pl-slate-100:255 255 255;
+  --pl-slate-200:255 255 255;
+  --pl-slate-300:255 255 255;
+  --pl-slate-400:255 255 255;
+  --pl-slate-500:230 230 230;
+  --pl-slate-600:207 207 207;
+  --pl-slate-700:42 42 42;
+  --pl-slate-800:26 26 26;
+  --pl-slate-900:13 13 13;
+  --pl-slate-950:0 0 0;
+  --pl-emerald-50:230 255 245;
+  --pl-emerald-100:230 255 245;
+  --pl-emerald-200:200 255 233;
+  --pl-emerald-300:140 245 200;
+  --pl-emerald-400:140 245 200;
+  --pl-emerald-500:94 224 168;
+  --pl-emerald-600:11 107 66;
+  --pl-emerald-700:10 90 56;
+  --pl-emerald-800:6 40 26;
+  --pl-emerald-900:3 26 16;
+  --pl-emerald-950:0 0 0;
+  --pl-amber-50:255 248 204;
+  --pl-amber-100:255 243 176;
+  --pl-amber-200:255 235 128;
+  --pl-amber-300:255 229 102;
+  --pl-amber-400:255 214 10;
+  --pl-amber-500:255 214 10;
+  --pl-amber-600:138 85 0;
+  --pl-amber-700:107 66 0;
+  --pl-amber-800:58 36 0;
+  --pl-amber-900:31 20 0;
+  --pl-amber-950:0 0 0;
+  --pl-red-50:255 224 221;
+  --pl-red-100:255 224 221;
+  --pl-red-200:255 208 203;
+  --pl-red-300:255 180 171;
+  --pl-red-400:255 180 171;
+  --pl-red-500:255 122 110;
+  --pl-red-600:176 0 0;
+  --pl-red-700:138 0 0;
+  --pl-red-800:74 0 0;
+  --pl-red-900:42 0 0;
+  --pl-red-950:26 0 0;
+  --pl-teal-50:230 255 253;
+  --pl-teal-100:230 255 253;
+  --pl-teal-200:200 255 250;
+  --pl-teal-300:140 245 236;
+  --pl-teal-400:140 245 236;
+  --pl-teal-500:94 224 214;
+  --pl-teal-600:11 107 102;
+  --pl-teal-700:10 90 85;
+  --pl-teal-800:6 40 38;
+  --pl-teal-900:3 26 24;
+  --pl-teal-950:0 0 0;
+  --pl-blue-50:224 236 255;
+  --pl-blue-100:224 236 255;
+  --pl-blue-200:204 224 255;
+  --pl-blue-300:168 204 255;
+  --pl-blue-400:168 204 255;
+  --pl-blue-500:122 176 255;
+  --pl-blue-600:0 64 176;
+  --pl-blue-700:0 48 138;
+  --pl-blue-800:0 26 74;
+  --pl-blue-900:0 15 42;
+  --pl-blue-950:0 8 20;
+  --mp-alfa-yazi: 1;
+  --mp-alfa-cizgi: 1;
+}
+
+/* Açık ve yüksek zıtlık temalarında desen dokusu kapalı: yazının arkası sade kalsın */
+html[data-theme="gunduz"] .spiritual-bg-pattern,
+html[data-theme="yuksek"] .spiritual-bg-pattern { background-image: none; }
+
+html[data-theme="gunduz"] .glass-card {
+  background: linear-gradient(135deg, rgb(var(--c-surface-container-low)) 0%, rgb(var(--c-surface)) 100%);
+}
+html[data-theme="yuksek"] .glass-card { background: rgb(var(--c-surface-container)); }
+html[data-theme="yuksek"] .border-gold-leaf { border: 2px solid rgb(var(--c-primary)); box-shadow: none; }
+
+/* Koyu palet tonlarıyla çizilmiş çizgiler açık/yüksek temada görünür kalsın */
+html[data-theme="gunduz"] :is([class*="border-emerald-7"], [class*="border-emerald-8"], [class*="border-emerald-9"], [class*="border-slate-7"], [class*="border-slate-8"], [class*="border-slate-9"], [class*="border-amber-9"], [class*="border-teal-8"], [class*="border-teal-9"]) {
+  border-color: rgb(var(--c-outline-variant) / 0.8);
+}
+html[data-theme="yuksek"] :is([class*="border-emerald-"], [class*="border-slate-"], [class*="border-teal-"], [class*="border-amber-8"], [class*="border-amber-9"], [class*="border-white"]) {
+  border-color: rgb(var(--c-outline-variant));
+}
+
+/* Yüksek zıtlık: ince çizgiler kalın, odak halkası belirgin */
+html[data-theme="yuksek"] .border { border-width: 2px; }
+html[data-theme="yuksek"] .border-t { border-top-width: 2px; }
+html[data-theme="yuksek"] .border-b { border-bottom-width: 2px; }
+html[data-theme="yuksek"] .border-l { border-left-width: 2px; }
+html[data-theme="yuksek"] .border-r { border-right-width: 2px; }
+html[data-theme="yuksek"] :focus-visible { outline: 3px solid rgb(var(--c-primary)); outline-offset: 2px; }
+html[data-theme="yuksek"] .backdrop-blur-md,
+html[data-theme="yuksek"] .backdrop-blur-xl { backdrop-filter: none; }
+
+/* Kriz / acil kutuları her temada belirgin */
+html[data-theme="gunduz"] .mp-kriz { background-color: #fde2df; border-color: #b3261e; }
+html[data-theme="yuksek"] .mp-kriz { background-color: #000; border: 3px solid #ffd60a; }
+
+/* Sohbet alt simge çubuğu: dokunmatik ekranda klavye açıkken (yazma kutusu odakta) gizlenir */
+.mp-alt-cubuk { padding-bottom: env(safe-area-inset-bottom, 0px); }
+@media (pointer: coarse) {
+  .mp-dock:has(#sirdas-chat-input:focus) .mp-alt-cubuk { display: none; }
+}

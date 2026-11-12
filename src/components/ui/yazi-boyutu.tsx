@@ -3,12 +3,9 @@
 import React, { useEffect, useState } from "react";
 
 /** Yazı boyutu kademeleri: 0 = 16px, 1 = 18px (varsayılan), 2 = 20px, 3 = 22px */
-export const YAZI_KADEME_SAYISI = 4;
-export const YAZI_VARSAYILAN = 1;
-const ANAHTAR = "mp-yazi-boyutu";
+import { YAZI_ANAHTAR as ANAHTAR, YAZI_KADEME_SAYISI } from "@/lib/gorunum-betikleri";
 
-/** Sayfa boyanmadan önce <head> içinde çalışır; tercih edilen kademeyi hemen uygular. */
-export const yaziBoyutuBetigi = `(function(){try{var k=localStorage.getItem("${ANAHTAR}");if(k!==null&&/^[0-${YAZI_KADEME_SAYISI - 1}]$/.test(k)){document.documentElement.setAttribute("data-yazi",k);}}catch(e){}})();`;
+export const YAZI_VARSAYILAN = 1;
 
 function okuKademe(): number {
   if (typeof document === "undefined") return YAZI_VARSAYILAN;

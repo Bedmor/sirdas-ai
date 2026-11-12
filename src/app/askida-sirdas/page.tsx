@@ -167,7 +167,7 @@ function AskidaSirdasContent() {
             <button
               type="button"
               onClick={handleSimulatePaymentSuccess}
-              className="px-4 py-2 rounded-xl bg-primary hover:bg-[#c99e70] text-[#1b1207] text-xs font-bold transition-colors shadow-md"
+              className="px-4 py-2 rounded-xl bg-primary hover:bg-primary text-on-primary text-xs font-bold transition-colors shadow-md"
             >
               Ödemeyi Onayla (Başarılı)
             </button>

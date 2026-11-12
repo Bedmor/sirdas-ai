@@ -113,7 +113,7 @@ export function PoolCounter({
           <span className="text-xs font-semibold uppercase tracking-wider text-primary">
             Askıdaki Güncel Bakiye
           </span>
-          <div className="h-9 w-9 rounded-full bg-[#271d12] border border-primary/40 flex items-center justify-center text-primary shadow-inner">
+          <div className="h-9 w-9 rounded-full bg-primary-container border border-primary/40 flex items-center justify-center text-primary shadow-inner">
             <i className="ph ph-coins text-lg"></i>
           </div>
         </div>

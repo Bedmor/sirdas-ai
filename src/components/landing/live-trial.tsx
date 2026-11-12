@@ -50,7 +50,7 @@ export function LiveTrialSection({ waUrl }: { waUrl: string }) {
 
           <Link
             href={waUrl || "/"}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-secondary-container hover:bg-[#117a51] text-white text-xs font-semibold tracking-wide transition-colors"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-secondary-container hover:bg-secondary-container/80 text-white text-xs font-semibold tracking-wide transition-colors"
           >
             <span>Sohbete Başla</span>
             <i className="ph ph-arrow-right text-xs" />

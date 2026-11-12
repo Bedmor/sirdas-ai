@@ -1,5 +1,75 @@
 import type { Config } from "tailwindcss";
 
+/** Tema değişkeni: rgb kanalları CSS'te; "ek" verilirse o temada soluk (/40 gibi) kullanımlar da okunur kalır. */
+const v = (ad: string, ek?: string) =>
+  ek
+    ? `rgb(var(--c-${ad}) / min(1, calc(<alpha-value> + var(--${ek}, 0))))`
+    : `rgb(var(--c-${ad}) / <alpha-value>)`;
+
+const tokenRenkleri = {
+  background: v("background"),
+  foreground: v("foreground"),
+  surface: v("surface"),
+  "surface-dim": v("surface-dim"),
+  "surface-bright": v("surface-bright"),
+  "surface-container-lowest": v("surface-container-lowest"),
+  "surface-container-low": v("surface-container-low"),
+  "surface-container": v("surface-container"),
+  "surface-container-high": v("surface-container-high"),
+  "surface-container-highest": v("surface-container-highest"),
+  "on-surface": v("on-surface", "mp-alfa-yazi"),
+  "on-surface-variant": v("on-surface-variant", "mp-alfa-yazi"),
+  primary: { DEFAULT: v("primary"), foreground: v("on-primary") },
+  "primary-container": v("primary-container"),
+  "on-primary": v("on-primary"),
+  "on-primary-container": v("on-primary-container"),
+  "primary-fixed": v("primary-fixed"),
+  "primary-fixed-dim": v("primary-fixed-dim"),
+  "on-primary-fixed": v("on-primary-fixed"),
+  "on-primary-fixed-variant": v("on-primary-fixed-variant"),
+  secondary: { DEFAULT: v("secondary"), foreground: v("on-secondary") },
+  "secondary-container": v("secondary-container"),
+  "on-secondary": v("on-secondary"),
+  "on-secondary-container": v("on-secondary-container"),
+  "secondary-fixed": v("secondary-fixed"),
+  "secondary-fixed-dim": v("secondary-fixed-dim"),
+  "on-secondary-fixed": v("on-secondary-fixed"),
+  "on-secondary-fixed-variant": v("on-secondary-fixed-variant"),
+  tertiary: { DEFAULT: v("tertiary"), foreground: v("on-tertiary") },
+  "tertiary-container": v("tertiary-container"),
+  "on-tertiary-container": v("on-tertiary-container"),
+  outline: v("outline", "mp-alfa-cizgi"),
+  "outline-variant": v("outline-variant", "mp-alfa-cizgi"),
+  error: v("error"),
+  "on-error": v("on-error"),
+  "error-container": v("error-container"),
+  "on-error-container": v("on-error-container"),
+  card: { DEFAULT: v("surface"), foreground: v("on-surface") },
+  popover: { DEFAULT: v("surface"), foreground: v("on-surface") },
+  muted: { DEFAULT: v("surface-container"), foreground: v("on-surface-variant") },
+  accent: { DEFAULT: v("surface-container-high"), foreground: v("primary") },
+  destructive: { DEFAULT: v("error-container"), foreground: v("on-error-container") },
+  border: v("outline-variant", "mp-alfa-cizgi"),
+  input: v("outline-variant", "mp-alfa-cizgi"),
+  ring: v("primary"),
+  chart: {
+    "1": v("primary"),
+    "2": v("secondary"),
+    "3": v("tertiary"),
+    "4": v("secondary-fixed-dim"),
+    "5": v("outline"),
+  },
+};
+
+const TONLAR = ["50", "100", "200", "300", "400", "500", "600", "700", "800", "900", "950"];
+/** Kodda doğrudan kullanılan Tailwind paletleri de temaya bağlanır (Gündüz'de tersine döner). */
+const paletler = Object.fromEntries(
+  ["slate", "emerald", "amber", "red", "teal", "blue"].map((p) => [
+    p,
+    Object.fromEntries(TONLAR.map((t) => [t, `rgb(var(--pl-${p}-${t}) / <alpha-value>)`])),
+  ]),
+);
+
 const config: Config = {
   darkMode: ["class"],
   content: [
@@ -10,82 +80,10 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#040F0F",
-        foreground: "#e1e9e8",
-        surface: "#0a1c1e",
-        "surface-dim": "#040b0c",
-        "surface-bright": "#1a383b",
-        "surface-container-lowest": "#061112",
-        "surface-container-low": "#09181a",
-        "surface-container": "#0e2224",
-        "surface-container-high": "#132c2e",
-        "surface-container-highest": "#1a383b",
-        "on-surface": "#e1e9e8",
-        "on-surface-variant": "#b8c7c9",
-        primary: {
-          DEFAULT: "#cca762",
-          foreground: "#1b1406",
-        },
-        "primary-container": "#3d2e11",
-        "on-primary": "#1b1406",
-        "on-primary-container": "#fae9c9",
-        "primary-fixed": "#fae9c9",
-        "primary-fixed-dim": "#e5cca0",
-        "on-primary-fixed": "#241804",
-        "on-primary-fixed-variant": "#52380d",
-        secondary: {
-          DEFAULT: "#459b95",
-          foreground: "#041c1a",
-        },
-        "secondary-container": "#123835",
-        "on-secondary": "#041c1a",
-        "on-secondary-container": "#a3ece5",
-        "secondary-fixed": "#b2f2eb",
-        "secondary-fixed-dim": "#459b95",
-        "on-secondary-fixed": "#00201d",
-        "on-secondary-fixed-variant": "#09504c",
-        tertiary: {
-          DEFAULT: "#d97706",
-          foreground: "#2b1400",
-        },
-        "tertiary-container": "#452403",
-        "on-tertiary-container": "#ffdcc2",
-        outline: "#8a7852",
-        "outline-variant": "#1d3336",
-        error: "#ffb4ab",
-        "on-error": "#690005",
-        "error-container": "#421417",
-        "on-error-container": "#ffdad6",
-        card: {
-          DEFAULT: "#0a1c1e",
-          foreground: "#e1e9e8",
-        },
-        popover: {
-          DEFAULT: "#0a1c1e",
-          foreground: "#e1e9e8",
-        },
-        muted: {
-          DEFAULT: "#0e2224",
-          foreground: "#b8c7c9",
-        },
-        accent: {
-          DEFAULT: "#132c2e",
-          foreground: "#cca762",
-        },
-        destructive: {
-          DEFAULT: "#421417",
-          foreground: "#fca5a5",
-        },
-        border: "#1d3336",
-        input: "#1d3336",
-        ring: "#cca762",
-        chart: {
-          "1": "#cca762",
-          "2": "#459b95",
-          "3": "#94763a",
-          "4": "#56aca6",
-          "5": "#8a7852",
-        },
+        // Tüm renkler tema değişkenlerinden gelir (globals.css: Gece / Gündüz / Yüksek zıtlık)
+        ...tokenRenkleri,
+        ...paletler,
+        white: "rgb(var(--c-beyaz) / <alpha-value>)",
       },
       fontFamily: {
         heading: ["var(--font-heading)", "Roboto Slab", "serif"],

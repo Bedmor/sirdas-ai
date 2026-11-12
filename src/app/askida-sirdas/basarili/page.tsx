@@ -77,7 +77,7 @@ function SuccessContent() {
         </Link>
         <Link
           href="/askida-sirdas"
-          className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-primary hover:bg-[#c99e70] text-[#1b1207] text-xs font-bold transition-colors shadow-md"
+          className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-primary hover:bg-primary text-on-primary text-xs font-bold transition-colors shadow-md"
         >
           <i className="ph ph-hand-heart text-base"></i>
           <span>Askı Havuzunu Gör</span>

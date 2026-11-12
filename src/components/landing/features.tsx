@@ -43,7 +43,7 @@ export function Features() {
   ];
 
   return (
-    <section id="ozellikler" className="relative py-24 bg-[#0a0f0d] border-y border-emerald-950/80">
+    <section id="ozellikler" className="relative py-24 bg-surface-container-low border-y border-emerald-950/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center space-y-4 max-w-3xl mx-auto mb-20">
           <Badge variant="emerald" className="text-xs uppercase tracking-wider px-3.5 py-1">
@@ -66,7 +66,7 @@ export function Features() {
             return (
               <div
                 key={feat.title}
-                className="group relative p-8 rounded-2xl bg-gradient-to-b from-[#0e1713]/90 via-[#0a110e]/90 to-[#070c09]/95 border border-emerald-900/60 hover:border-amber-500/40 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.35)] hover:shadow-[0_12px_40px_-5px_rgba(5,150,105,0.18)] flex flex-col justify-between backdrop-blur-md"
+                className="group relative p-8 rounded-2xl bg-gradient-to-b from-surface-container-low/90 via-surface-container-low/90 to-surface-dim/95 border border-emerald-900/60 hover:border-amber-500/40 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.35)] hover:shadow-[0_12px_40px_-5px_rgba(5,150,105,0.18)] flex flex-col justify-between backdrop-blur-md"
               >
                 <div className="space-y-5">
                   <div className="flex items-center justify-between">

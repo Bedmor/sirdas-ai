@@ -262,7 +262,7 @@ export function DonationBox({
         <button
           type="submit"
           disabled={isSubmitting || currentAmount <= 0}
-          className="w-full inline-flex items-center justify-center gap-2 bg-primary hover:bg-[#c99e70] disabled:opacity-50 text-[#1b1207] py-3.5 px-6 rounded-xl text-sm font-bold tracking-wide transition-all duration-200 focus-visible:ring-2 focus-visible:ring-amber-500 shadow-lg cursor-pointer"
+          className="w-full inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary disabled:opacity-50 text-on-primary py-3.5 px-6 rounded-xl text-sm font-bold tracking-wide transition-all duration-200 focus-visible:ring-2 focus-visible:ring-amber-500 shadow-lg cursor-pointer"
         >
           <i className="ph ph-heart text-base"></i>
           <span>

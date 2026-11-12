@@ -145,7 +145,7 @@ export function ScenariosShowcase({
                       <button
                         aria-label="Sesli tefekkür kaydı önizlemesi (1 dakika 42 saniye)"
                         aria-pressed={isPlayingAudio ? "true" : "false"}
-                        className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-on-primary shadow-m3-1 hover:shadow-m3-2 hover:scale-110 active:scale-90 transition-all duration-300 ease-m3e-spring-bouncy flex-shrink-0 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412] cursor-pointer"
+                        className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-on-primary shadow-m3-1 hover:shadow-m3-2 hover:scale-110 active:scale-90 transition-all duration-300 ease-m3e-spring-bouncy flex-shrink-0 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-background cursor-pointer"
                         onClick={() => setIsPlayingAudio(!isPlayingAudio)}
                         type="button"
                       >
@@ -219,7 +219,7 @@ export function ScenariosShowcase({
         <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
           <Link
             aria-label="Tefekkür Odasında Manevi Pusula ile sohbete başla"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-secondary-container hover:bg-[#117a51] text-white px-5 py-2.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 ease-m3e-spring-smooth hover:scale-[1.02] active:scale-95 shadow-md hover:shadow-secondary/10"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-secondary-container hover:bg-secondary-container/80 text-white px-5 py-2.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 ease-m3e-spring-smooth hover:scale-[1.02] active:scale-95 shadow-md hover:shadow-secondary/10"
             href={waUrl || "/"}
           >
             <i className="ph ph-chat-circle-dots text-base text-secondary" />

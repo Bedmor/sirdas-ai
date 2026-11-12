@@ -75,7 +75,7 @@ export function AskidaSirdasSection() {
                   <button
                     aria-label={`${chip.amount} Türk Lirası ${chip.label}`}
                     aria-pressed={isSelected ? "true" : "false"}
-                    className={`infak-chip p-3 rounded-xl text-center transition-all border focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412] ${
+                    className={`infak-chip p-3 rounded-xl text-center transition-all border focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
                       isSelected
                         ? "active bg-surface-container-highest border-primary/60"
                         : "bg-surface-container border-outline-variant/40 hover:border-primary/50"
@@ -105,7 +105,7 @@ export function AskidaSirdasSection() {
                 </span>
                 <input
                   aria-label="Özel katkı tutarı (TL)"
-                  className="w-full bg-surface-container pl-8 pr-3 py-2.5 rounded-xl text-on-surface font-mono text-sm border border-outline-variant/50 focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
+                  className="w-full bg-surface-container pl-8 pr-3 py-2.5 rounded-xl text-on-surface font-mono text-sm border border-outline-variant/50 focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   id="custom-donation-input"
                   min="1"
                   onChange={(e) => setDonationAmount(e.target.value)}
@@ -116,7 +116,7 @@ export function AskidaSirdasSection() {
               </div>
               <button
                 aria-label="Belirlenen tutar ile Askıya Katıl"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary hover:bg-[#c99e70] text-[#1b1207] px-6 py-2.5 rounded-xl text-xs font-bold tracking-wide transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-[#101412]"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary text-on-primary px-6 py-2.5 rounded-xl text-xs font-bold tracking-wide transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 onClick={handleDonate}
                 type="button"
               >

@@ -241,7 +241,7 @@ export function MorphingDialogClose({
       type='button'
       aria-label='Kapat'
       key={`dialog-close-${uniqueId}`}
-      className={cn('rounded-full p-2 text-on-surface-variant hover:text-on-surface hover:bg-on-surface/8 transition-colors cursor-pointer', className)}
+      className={cn('rounded-full p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors cursor-pointer', className)}
     >
       {children || <XIcon className="h-5 w-5" />}
     </motion.button>

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { YaziBoyutuDugmesi } from "@/components/ui/yazi-boyutu";
+import { TemaSecici } from "@/components/ui/tema-secici";
 import { SourceBookModal } from "./source-book-modal";
 import {
   SafetyNoticeBox,
@@ -148,7 +149,7 @@ function renderFormattedMessage(text: string): React.ReactNode {
     return (
       <p
         key={pIdx}
-        className="text-[15px] leading-[1.75] text-[#e0e3df] mb-3.5 last:mb-0 max-w-[68ch]"
+        className="text-[15px] leading-[1.75] text-on-surface mb-3.5 last:mb-0 max-w-[68ch]"
         lang="tr"
       >
         {tokens.map((tok, tIdx) => {
@@ -299,6 +300,10 @@ function generateClientUuid(): string {
   }
   return `sirdas_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
+
+/** Alt simge çubuğu düğmesi: en az 48px dokunma hedefi */
+const ALT_CUBUK_DUGME =
+  "flex h-12 w-full items-center justify-center rounded-[20px] text-on-surface hover:text-primary hover:bg-surface-container-highest active:scale-95 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
 
 export function SirdasChatWorkspace() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -1084,7 +1089,6 @@ export function SirdasChatWorkspace() {
   return (
     <div
       className="flex h-dvh w-full overflow-hidden bg-surface text-on-surface spiritual-bg-pattern font-sans"
-      style={{ colorScheme: "dark" }}
     >
       {/* MOBILE BACKDROP */}
       {mobileDrawerOpen && (
@@ -1117,7 +1121,7 @@ export function SirdasChatWorkspace() {
               aria-label={
                 sidebarOpen ? "Yan menüyü daralt" : "Yan menüyü genişlet"
               }
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-on-surface-variant hover:bg-on-surface/8 hover:text-on-surface hover:scale-105 active:scale-90 transition-all duration-200 ease-m3e-spring-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface hover:scale-105 active:scale-90 transition-all duration-200 ease-m3e-spring-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               onClick={() => {
                 if (window.innerWidth < 1024) {
                   setMobileDrawerOpen(false);
@@ -1152,7 +1156,7 @@ export function SirdasChatWorkspace() {
           {(sidebarOpen || mobileDrawerOpen) && (
             <Link
               href="/tanitim"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-on-surface-variant hover:bg-on-surface/8 hover:text-primary hover:scale-105 active:scale-90 transition-all duration-200 ease-m3e-spring-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest hover:text-primary hover:scale-105 active:scale-90 transition-all duration-200 ease-m3e-spring-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               title="Tanıtım & Ana Sayfaya Dön"
               aria-label="Tanıtım & Ana Sayfaya Dön"
             >
@@ -1215,7 +1219,7 @@ export function SirdasChatWorkspace() {
             className="flex-1 overflow-y-auto px-3 py-2 space-y-1.5"
             style={{
               scrollbarWidth: "thin",
-              scrollbarColor: "#1d3336 #09181a",
+              scrollbarColor: "rgb(var(--c-outline-variant)) rgb(var(--c-surface-container-low))",
             }}
           >
             <div className="px-3 pb-1 pt-1 text-xs font-semibold text-on-surface-variant/80 tracking-wide uppercase">
@@ -1487,6 +1491,11 @@ export function SirdasChatWorkspace() {
         <div className="border-t border-outline-variant/40 p-3 space-y-2.5">
           {sidebarOpen || mobileDrawerOpen ? (
             <>
+              <div aria-label="Görünüm" role="group" className="rounded-[20px] bg-surface-container/70 border border-outline-variant/40 p-2">
+                <p className="px-1 pb-1 text-xs font-semibold text-on-surface-variant">Görünüm</p>
+                <TemaSecici />
+              </div>
+
               <div className="flex items-center gap-2">
                 <a
                   aria-label="Diyanet Alo 190 Fetva Hattı"
@@ -1537,7 +1546,7 @@ export function SirdasChatWorkspace() {
 
               <Link
                 href="/araclar"
-                className="flex items-center justify-center gap-1.5 w-full py-1.5 text-xs text-on-surface-variant/80 hover:text-primary transition-colors rounded-full hover:bg-on-surface/8"
+                className="flex items-center justify-center gap-1.5 w-full py-1.5 text-xs text-on-surface-variant/80 hover:text-primary transition-colors rounded-full hover:bg-surface-container-highest"
               >
                 <i aria-hidden="true" className="ph ph-compass text-sm text-secondary"></i>
                 <span>Manevi Araçlar: Vakitler, Kıble, Zikirmatik</span>
@@ -1546,7 +1555,7 @@ export function SirdasChatWorkspace() {
               <div className="pt-1 px-1">
                 <a
                   href="mailto:adnan.kus@hotmail.com?subject=Manevi%20Pusula%20-%20G%C3%B6r%C3%BC%C5%9F%2C%20%C3%96neri%20ve%20Tenkit"
-                  className="flex items-center justify-center gap-1.5 w-full py-1.5 text-xs text-on-surface-variant/80 hover:text-primary transition-colors rounded-full hover:bg-on-surface/8"
+                  className="flex items-center justify-center gap-1.5 w-full py-1.5 text-xs text-on-surface-variant/80 hover:text-primary transition-colors rounded-full hover:bg-surface-container-highest"
                   title="Görüş, öneri ve tenkitlerinizi bize iletin: adnan.kus@hotmail.com"
                 >
                   <svg className="w-3.5 h-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
@@ -1596,7 +1605,7 @@ export function SirdasChatWorkspace() {
           <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <button
               aria-label="Menüyü aç"
-              className="flex lg:hidden h-10 w-10 items-center justify-center rounded-full text-on-surface-variant hover:bg-on-surface/8 hover:text-on-surface hover:scale-105 active:scale-90 transition-all duration-200 ease-m3e-spring-fast"
+              className="flex lg:hidden h-10 w-10 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface hover:scale-105 active:scale-90 transition-all duration-200 ease-m3e-spring-fast"
               onClick={() => setMobileDrawerOpen(true)}
               type="button"
             >
@@ -1717,7 +1726,7 @@ export function SirdasChatWorkspace() {
           role="main"
           style={{
             scrollbarWidth: "thin",
-            scrollbarColor: "#1d3336 #040F0F",
+            scrollbarColor: "rgb(var(--c-outline-variant)) rgb(var(--c-zemin))",
           }}
         >
           {!hasMessages ? (
@@ -1880,7 +1889,7 @@ export function SirdasChatWorkspace() {
                             <div className="flex items-center gap-1.5">
                               <button
                                 aria-label="Yanıtı kopyala"
-                                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs text-on-surface-variant/80 hover:bg-on-surface/8 hover:text-on-surface hover:scale-105 active:scale-95 transition-all duration-200 ease-m3e-spring-fast"
+                                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs text-on-surface-variant/80 hover:bg-surface-container-highest hover:text-on-surface hover:scale-105 active:scale-95 transition-all duration-200 ease-m3e-spring-fast"
                                 onClick={() => handleCopyMessage(msg.id, msg.content)}
                                 type="button"
                               >
@@ -1905,7 +1914,7 @@ export function SirdasChatWorkspace() {
 
                               <a
                                 href={`mailto:adnan.kus@hotmail.com?subject=${encodeURIComponent("Manevi Pusula - Hatalı Cevap / Tenkit Bildirimi")}&body=${encodeURIComponent(`Mesaj Tarihi: ${msg.createdAt}\nMesaj ID: ${msg.id}\nYanıt Kesiti:\n${msg.content.slice(0, 300)}...\n\n--- Görüş, Tenkit veya Hatalı Yanıt Düzeltme Öneriniz ---\n`)}`}
-                                className="inline-flex items-center justify-center rounded-full p-1.5 text-on-surface-variant/80 hover:bg-on-surface/8 hover:text-primary hover:scale-110 active:scale-95 transition-all duration-200 ease-m3e-spring-fast"
+                                className="inline-flex items-center justify-center rounded-full p-1.5 text-on-surface-variant/80 hover:bg-surface-container-highest hover:text-primary hover:scale-110 active:scale-95 transition-all duration-200 ease-m3e-spring-fast"
                                 title="Hatalı cevap veya tenkit bildir (adnan.kus@hotmail.com)"
                                 aria-label="Hatalı cevap veya tenkit bildir"
                               >
@@ -1972,7 +1981,7 @@ export function SirdasChatWorkspace() {
                         <div className="flex items-center gap-2.5 text-sm">
                           <span className="h-2 w-2 rounded-full bg-primary animate-pulse shrink-0" />
                           <TextShimmer
-                            className="font-medium text-sm [--base-color:#91a8a6] [--base-gradient-color:#cca762] dark:[--base-color:#91a8a6] dark:[--base-gradient-color:#cca762]"
+                            className="font-medium text-sm [--base-color:rgb(var(--c-on-surface-variant))] [--base-gradient-color:rgb(var(--c-primary))] dark:[--base-color:rgb(var(--c-on-surface-variant))] dark:[--base-gradient-color:rgb(var(--c-primary))]"
                             duration={2.2}
                           >
                             {contemplationPhrase}
@@ -2032,7 +2041,7 @@ export function SirdasChatWorkspace() {
         </main>
 
         {/* BOTTOM MATERIAL 3 EXPRESSIVE FLOATING TOOLBAR / INPUT DOCK */}
-        <div className="shrink-0 bg-surface/90 backdrop-blur-md px-4 pb-4 pt-2 sm:px-6">
+        <div className="mp-dock shrink-0 bg-surface/90 backdrop-blur-md px-4 pb-2 lg:pb-4 pt-2 sm:px-6">
           <div className="mx-auto max-w-[720px]">
             <form
               className="relative flex items-end gap-3 rounded-[32px] bg-surface-container-high/95 backdrop-blur-xl border border-outline-variant/60 focus-within:border-primary/90 focus-within:ring-4 focus-within:ring-primary/15 shadow-m3-3 focus-within:shadow-m3-4 px-5 py-3.5 transition-all duration-300 ease-m3e-spring-smooth"
@@ -2125,6 +2134,67 @@ export function SirdasChatWorkspace() {
               </span>
             </p>
           </div>
+
+          {/* ALT SİMGE ÇUBUĞU: tek elle kullanım için (yalnız mobil/tablet; masaüstünde yan menü hep açık) */}
+          <nav
+            aria-label="Hızlı işlemler"
+            className="mp-alt-cubuk lg:hidden mx-auto mt-2 max-w-[720px]"
+          >
+            <ul className="grid grid-cols-4 gap-1 rounded-[24px] bg-surface-container-high border border-outline-variant/50 p-1">
+              <li>
+                <button
+                  type="button"
+                  aria-label="Menüyü aç"
+                  title="Menü"
+                  onClick={() => setMobileDrawerOpen(true)}
+                  className={ALT_CUBUK_DUGME}
+                >
+                  <svg aria-hidden="true" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
+                  </svg>
+                </button>
+              </li>
+              <li>
+                <Link
+                  href="/araclar/namaz-vakitleri"
+                  aria-label="Namaz vakitleri"
+                  title="Namaz vakitleri"
+                  className={ALT_CUBUK_DUGME}
+                >
+                  <svg aria-hidden="true" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M16 4.5v3M14.5 6h3" strokeLinecap="round" />
+                  </svg>
+                </Link>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  aria-label="Yeni sohbet"
+                  title="Yeni sohbet"
+                  onClick={handleNewChat}
+                  className={ALT_CUBUK_DUGME}
+                >
+                  <svg aria-hidden="true" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M12 20h8M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+              </li>
+              <li>
+                <a
+                  href="mailto:adnan.kus@hotmail.com?subject=Manevi%20Pusula%20-%20G%C3%B6r%C3%BC%C5%9F%2C%20%C3%96neri%20ve%20Tenkit"
+                  aria-label="Görüş bildir"
+                  title="Görüş bildir"
+                  className={ALT_CUBUK_DUGME}
+                >
+                  <svg aria-hidden="true" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.6A8 8 0 1 1 21 12Z" strokeLinejoin="round" />
+                    <path d="M8.5 12h.01M12 12h.01M15.5 12h.01" strokeLinecap="round" strokeWidth="2.6" />
+                  </svg>
+                </a>
+              </li>
+            </ul>
+          </nav>
         </div>
       </div>
 
@@ -2441,7 +2511,7 @@ export function SirdasChatWorkspace() {
               <button
                 type="button"
                 onClick={() => setIsSettingsModalOpen(false)}
-                className="rounded-full p-2 text-on-surface-variant hover:bg-on-surface/8 hover:text-on-surface hover:scale-105 active:scale-90 transition-all duration-200 ease-m3e-spring-fast"
+                className="rounded-full p-2 text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface hover:scale-105 active:scale-90 transition-all duration-200 ease-m3e-spring-fast"
                 aria-label="Ayarları kapat"
               >
                 <svg
@@ -2682,7 +2752,7 @@ export function SirdasChatWorkspace() {
             <button
               type="button"
               onClick={handleCloseProfileModal}
-              className="rounded-full p-2 text-on-surface-variant hover:bg-on-surface/8 hover:text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="rounded-full p-2 text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               aria-label="Profili kapat"
             >
               <svg

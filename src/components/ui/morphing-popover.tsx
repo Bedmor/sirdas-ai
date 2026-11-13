@@ -30,8 +30,10 @@ type MorphingPopoverContextValue = {
   isOpen: boolean;
   open: () => void;
   close: () => void;
+  toggle: () => void;
   uniqueId: string;
   variants?: Variants;
+  triggerRef: React.RefObject<HTMLDivElement | null>;
 };
 
 const MorphingPopoverContext =
@@ -48,6 +50,7 @@ function usePopoverLogic({
 } = {}) {
   const uniqueId = useId();
   const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
+  const triggerRef = useRef<HTMLDivElement | null>(null);
 
   const isOpen = controlledOpen ?? uncontrolledOpen;
 
@@ -65,7 +68,15 @@ function usePopoverLogic({
     onOpenChange?.(false);
   };
 
-  return { isOpen, open, close, uniqueId };
+  const toggle = () => {
+    if (isOpen) {
+      close();
+    } else {
+      open();
+    }
+  };
+
+  return { isOpen, open, close, toggle, uniqueId, triggerRef };
 }
 
 export type MorphingPopoverProps = {
@@ -150,12 +161,15 @@ export function MorphingPopoverTrigger({
 
   return (
     <motion.div
+      ref={context.triggerRef}
       key={context.uniqueId}
       layoutId={`popover-trigger-${context.uniqueId}`}
-      onClick={context.open}
+      onClick={context.toggle}
+      style={{ opacity: context.isOpen ? 0 : 1 }}
     >
       <motion.button
         {...props}
+        type='button'
         layoutId={`popover-label-${context.uniqueId}`}
         key={context.uniqueId}
         className={className}
@@ -167,6 +181,12 @@ export function MorphingPopoverTrigger({
     </motion.div>
   );
 }
+
+const DEFAULT_POPOVER_VARIANTS: Variants = {
+  initial: { opacity: 0, scale: 0.92 },
+  animate: { opacity: 1, scale: 1 },
+  exit: { opacity: 0, scale: 0.92 },
+};
 
 export type MorphingPopoverContentProps = {
   children: ReactNode;
@@ -185,7 +205,15 @@ export function MorphingPopoverContent({
     );
 
   const ref = useRef<HTMLDivElement>(null);
-  useClickOutside(ref, context.close);
+  useClickOutside(ref, (event) => {
+    if (
+      context.triggerRef.current &&
+      context.triggerRef.current.contains(event.target as Node)
+    ) {
+      return;
+    }
+    context.close();
+  });
 
   useEffect(() => {
     if (!context.isOpen) return;
@@ -199,13 +227,13 @@ export function MorphingPopoverContent({
   }, [context.isOpen, context.close]);
 
   return (
-    <AnimatePresence>
+    <AnimatePresence initial={false} mode='sync'>
       {context.isOpen && (
         <motion.div
           {...props}
           ref={ref}
           layoutId={`popover-trigger-${context.uniqueId}`}
-          key={context.uniqueId}
+          key={`popover-content-${context.uniqueId}`}
           id={`popover-content-${context.uniqueId}`}
           role='dialog'
           aria-modal='true'
@@ -216,7 +244,7 @@ export function MorphingPopoverContent({
           initial='initial'
           animate='animate'
           exit='exit'
-          variants={context.variants}
+          variants={context.variants || DEFAULT_POPOVER_VARIANTS}
         >
           {children}
         </motion.div>

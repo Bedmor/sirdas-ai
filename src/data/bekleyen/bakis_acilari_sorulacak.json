@@ -751,43 +751,6 @@
   ]
  },
  {
-  "no": 156,
-  "ad": "Uhud'un Sırrı ve Toplumsal Sorumluluk Merceği",
-  "etiketler": [
-   "uhud_sirri",
-   "toplumsal_sorumluluk",
-   "sucu_disarida_aramak",
-   "oz_aynamiza_bakmak"
-  ],
-  "tetikleyiciler": [
-   "suçu dışarı yıkmak",
-   "siz nasıl olursanız öyle yönetilirsiniz",
-   "ganimet muradı",
-   "heterojen zihniyet"
-  ],
-  "teshis": "Ümmetin yaşadığı çürümeyi dış güçlere yıkmanın kaçış olduğunu; \"Siz nasıl olursanız öyle yönetilirsiniz\" kanunu gereği toplumsal zilletin temelinin kalpte dünyayı merkeze koyan zihniyet olduğunu teşhis eder.",
-  "giris": "Ümmetin coğrafyasında yaşanan çürümeyi sadece yöneticilere veya dış güçlere yıkıp işin içinden sıyrılmanın büyük bir aldanış olduğunu fark et.",
-  "irtibat": "\"Siz nasıl olursanız öyle yönetilirsiniz\" ilahi kanunu gereği bugünkü zilletin temel sebebinin kalpteki dünya sevgisi ve Uhud'daki ganimet hırsına benzer savruluşlar olduğunu vurgula.",
-  "pusulaNotu": "Suçu dışarıda aramaktan vazgeçerek öz aynanıza bakın, ilahi kanunları okuyun ve kalpteki iman kalitesini yeniden inşa edin.",
-  "yasaklar": "Siyasi analizleri veya reel politik eleştirileri tamamen yasaklamayacak; asıl ıslahatın ve kurtuluşun toplumsal ve bireysel ahlaki/imani dönüşümden geçtiğini temellendirecek.",
-  "sorunlar": [
-   {
-    "tur": "kaynak",
-    "alan": "irtibat",
-    "alinti": "\"Siz nasıl olursanız öyle yönetilirsiniz\" ilahi kanunu gereği",
-    "neden": "Bu söz hadis kitaplarında zayıf senetle geçer (Beyhakî, Deylemî); kasada yok ve burada kesin \"ilahi kanun\" diye sunuluyor.",
-    "oneri": "Adnan Bey'e: söz çıkarılsın ya da Ra'd 11 (\"Bir toplum kendini değiştirmedikçe Allah onların durumunu değiştirmez\") ayetine dayandırılsın."
-   },
-   {
-    "tur": "grup",
-    "alan": "giris",
-    "alinti": "sadece yöneticilere veya dış güçlere yıkıp",
-    "neden": "Yöneticiler ve dış güçler üzerinden güncel siyasete kayabilecek bir çerçeve.",
-    "oneri": "Adnan Bey'e: siyasi çağrışım azaltılıp bireysel ıslah vurgusu öne alınsın."
-   }
-  ]
- },
- {
   "no": 182,
   "ad": "Hakiki Marifet ve Şükrün Acziyeti Merceği",
   "etiketler": [

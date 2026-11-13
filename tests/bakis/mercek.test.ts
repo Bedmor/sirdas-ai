@@ -77,8 +77,8 @@ test("benzerlik: kelime düzeyinde çalışır", () => {
 
 // --- Derleme (denetimden geçenler) --------------------------------------------
 
-test("derleme: 252 mercek, numaralar tekil, durumlar yalnızca TEMİZ / YUMUŞATILDI", () => {
-  assert.equal(MERCEKLER.length, 252);
+test("derleme: 238 mercek (14.11 Adnan Bey elemesi sonrası), numaralar tekil, durumlar yalnızca TEMİZ / YUMUŞATILDI", () => {
+  assert.equal(MERCEKLER.length, 238);
   const nolar = MERCEKLER.map((m) => m.no);
   assert.equal(new Set(nolar).size, nolar.length);
   for (const m of MERCEKLER) {
@@ -88,18 +88,55 @@ test("derleme: 252 mercek, numaralar tekil, durumlar yalnızca TEMİZ / YUMUŞAT
     }
     assert.ok(m.tetikleyiciler.length > 0, `${m.no} tetikleyici yok`);
   }
-  assert.equal(MERCEKLER.filter((m) => m.durum === "TEMIZ").length, 108);
-  assert.equal(MERCEKLER.filter((m) => m.durum === "YUMUSATILDI").length, 144);
+  assert.equal(MERCEKLER.filter((m) => m.durum === "TEMIZ").length, 105);
+  assert.equal(MERCEKLER.filter((m) => m.durum === "YUMUSATILDI").length, 133);
 });
 
-test("derleme: Adnan Bey'e SORULACAK 26 mercek derlemede YOK, ayrı dosyada bekliyor", () => {
-  assert.equal(bekleyen.length, 26);
+test("derleme: Adnan Bey'e SORULACAK 25 mercek derlemede YOK, ayrı dosyada bekliyor", () => {
+  assert.equal(bekleyen.length, 25);
   const derlemedekiler = new Set(MERCEKLER.map((m) => m.no));
   for (const b of bekleyen) assert.ok(!derlemedekiler.has(b.no), `SOR merceği ${b.no} derlemede`);
   // Örnek: tıp karşıtı ve kredi hükmü veren mercekler bekleyende
   for (const no of [3, 11, 79, 251, 279]) assert.ok(bekleyen.some((b) => b.no === no), `${no} bekleyende değil`);
-  // Toplam: 252 + 26 = 278 net mercek
-  assert.equal(MERCEKLER.length + bekleyen.length, 278);
+  // Toplam: 238 + 25 = 263 net mercek (yeni kılavuz, 14.11)
+  assert.equal(MERCEKLER.length + bekleyen.length, 263);
+});
+
+test("derleme: Adnan Bey'in 14.11'de çıkardığı mercekler derlemede ve bekleyende YOK", () => {
+  // "BANA GÖRE ÇIKARILACAKLAR" listesi (36 numara) + yeni kılavuzdan sessizce çıkan 40 ve 288
+  const adnanListesi = [
+    303, 302, 301, 300, 299, 298, 297, 296, 295, 294, 293, 292, 291, 290, 289, 287, 286, 285, 284, 283, 282,
+    266, 249, 260, 267, 254, 229, 176, 156, 153, 151, 87, 110, 5, 21, 28,
+  ];
+  assert.equal(new Set(adnanListesi).size, 36);
+  // 87'nin yalnızca ikinci (tekrar) kopyası çıkarıldı; asıl kopya yeni kılavuzda duruyor, korunur.
+  const korunan = new Set([87]);
+  const derlemedekiler = new Set(MERCEKLER.map((m) => m.no));
+  const bekleyendekiler = new Set(bekleyen.map((b) => b.no));
+  for (const no of [...adnanListesi.filter((n) => !korunan.has(n)), 40, 288]) {
+    assert.ok(!derlemedekiler.has(no), `${no} derlemede`);
+    assert.ok(!bekleyendekiler.has(no), `${no} bekleyende`);
+  }
+  // Çıkarılan tekrarların yeni kılavuzda duran asıl kopyaları derlemede kalır
+  for (const no of [87, 268, 269, 272, 273]) assert.ok(derlemedekiler.has(no), `asıl kopya ${no} yok`);
+  // Ada göre de kontrol: çıkan merceklerin adları derlemede geçmez
+  for (const ad of [
+    "Kriz Anı Refleksi ve Hakiki İstiaze Merceği",
+    "Kulun En Büyük Silahı: Hakiki İstiaze Merceği",
+    "Endişe, Stres ve Kontrol Çabasından Teslimiyete Merceği",
+    "Uçak Türbülansı ve Mutlak Kontrol Sahibi Merceği",
+    "Varlığın Hakiki Sahibini İdrak Etmek Merceği",
+    "Kalbin Tatmini Merceği",
+    "Gelecek Kaygısı ve Kalemi Tutana Güven Merceği",
+    "Kalabalıkta Yalnızlık ve Dostluk Kıtlığı Merceği",
+    "Gece Yarısı Zihni Yorgunluğu ve Vesvese Nöbetleri Merceği",
+    "Haklı Olduğunu Kanıtlama ve Susabilme Asaleti Merceği",
+    "Yaşlılık ve Fani Bedenin İntikali Merceği",
+    "Uhud'un Sırrı ve Toplumsal Sorumluluk Merceği",
+  ]) {
+    assert.ok(!MERCEKLER.some((m) => m.ad === ad), ad);
+    assert.ok(!bekleyen.some((m) => m.ad === ad), ad);
+  }
 });
 
 test("derleme: sert ve suçlayıcı talimatlar yumuşatıldı", () => {
@@ -132,7 +169,7 @@ test("seçici: konuya uygun merceği bulur", () => {
   assert.equal(secilen("Oruç tutuyorum ama sadece aç kalıyorum gibi geliyor, ibadetlerim formalite oldu")[0], 2);
   assert.equal(secilen("Kardeşimle miras yüzünden küstük, haklı çıkmak için tartışıp duruyoruz")[0], 245);
   assert.equal(secilen("Yaşlandım artık işe yaramıyorum, emekli oldum boşlukta hissediyorum")[0], 262);
-  assert.equal(secilen("Gece yatağa girince yarın borcu nasıl ödeyeceğim diye uyuyamıyorum")[0], 266);
+  assert.equal(secilen("Dükkanım batmak üzere, borçlarımı ödeyemezsem itibarım biter diye korkuyorum")[0], 244);
   assert.equal(secilen("Sosyal medyada herkesin hayatı mükemmel, kıyaslayıp kıskanıyorum")[0], 248);
   assert.equal(secilen("Çocuğuma çok bağırıyorum, ben ne dersem o olacak diyorum ama beni dinlemiyor")[0], 4);
 });
@@ -140,7 +177,7 @@ test("seçici: konuya uygun merceği bulur", () => {
 test("seçici: en fazla 2 mercek döner, enFazla 1 ise tek", () => {
   for (const m of [
     "Sosyal medyada herkesin hayatı mükemmel, kıyaslayıp kıskanıyorum",
-    "Gece yatağa girince yarın borcu nasıl ödeyeceğim diye uyuyamıyorum",
+    "Dükkanım batmak üzere, borçlarımı ödeyemezsem itibarım biter diye korkuyorum",
   ]) {
     assert.ok(mercekSec({ mesaj: m }).length <= 2);
     assert.ok(mercekSec({ mesaj: m, enFazla: 1 }).length <= 1);
@@ -165,7 +202,7 @@ test("seçici: eşleşme yoksa boş (gündelik mesajlar, selam)", () => {
 test("seçici: kriz, istismar ve sağlık mesajında mercek EKLENMEZ", () => {
   for (const m of [
     "Artık yaşamak istemiyorum, borçlarım yüzünden ölmek istiyorum",
-    "Kendime zarar vermek istiyorum, gece uyuyamıyorum borcu nasıl ödeyeceğim",
+    "Kendime zarar vermek istiyorum, dükkanım batmak üzere, borçlarımı ödeyemezsem itibarım biter",
     "Eşim bana vuruyor, haklı çıkmak için tartışıyoruz",
     "Göğsümde sıkışma var nefes alamıyorum, sosyal medyada herkes mutlu",
   ]) {
@@ -238,13 +275,13 @@ function sonKullaniciMetni(params: GenerateSirdasReplyParams): string {
 
 test("model girdisi: uygun mesajda o tura mercek bloğu eklenir, kriz ve ilim modunda eklenmez", () => {
   const normal = sonKullaniciMetni(
-    ornekParams({ userMessage: "Gece yatağa girince yarın borcu nasıl ödeyeceğim diye uyuyamıyorum" })
+    ornekParams({ userMessage: "Dükkanım batmak üzere, borçlarımı ödeyemezsem itibarım biter diye korkuyorum" })
   );
   assert.ok(normal.includes("[BAKIŞ AÇISI (MERCEK)"));
-  assert.ok(normal.includes("Gece Yarısı Zihni Yorgunluğu"));
+  assert.ok(normal.includes("İflas, Borç ve İtibar Korkusu"));
 
   const kriz = sonKullaniciMetni(
-    ornekParams({ userMessage: "Artık yaşamak istemiyorum, borcu nasıl ödeyeceğim diye uyuyamıyorum", distressLevel: 10 })
+    ornekParams({ userMessage: "Artık yaşamak istemiyorum, dükkanım batmak üzere, itibarım biter diye korkuyorum", distressLevel: 10 })
   );
   assert.ok(!kriz.includes("[BAKIŞ AÇISI (MERCEK)"));
 

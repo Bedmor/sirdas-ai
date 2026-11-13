@@ -1597,7 +1597,8 @@ export function SirdasChatWorkspace() {
 
               {/* Ayarlar: görünüm, yazı büyüklüğü, hafıza ve gizlilik, silme işlemleri tek yerde */}
               <motion.button
-                layoutId={isSettingsModalOpen ? "settings-dialog" : undefined}
+                layoutId="settings-dialog"
+                style={{ opacity: isSettingsModalOpen ? 0 : 1 }}
                 aria-label="Ayarları aç"
                 className="w-full flex min-h-14 items-center gap-3 rounded-[20px] bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 px-4 py-3 text-left text-base font-semibold text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-xs cursor-pointer"
                 onClick={() => setIsSettingsModalOpen(true)}
@@ -1656,7 +1657,8 @@ export function SirdasChatWorkspace() {
                 )}
               </button>
               <motion.button
-                layoutId={isSettingsModalOpen ? "settings-dialog" : undefined}
+                layoutId="settings-dialog"
+                style={{ opacity: isSettingsModalOpen ? 0 : 1 }}
                 aria-label="Ayarları aç"
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/40 text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-xs cursor-pointer"
                 onClick={() => setIsSettingsModalOpen(true)}
@@ -1740,7 +1742,8 @@ export function SirdasChatWorkspace() {
                   Şer&apos;i Hukuki Çerçeve
                 </Link>
                 <motion.button
-                  layoutId={isConsentModalOpen && consentTrigger === "sidebar" ? "kvkk-dialog-sidebar" : undefined}
+                  layoutId="kvkk-dialog-sidebar"
+                  style={{ opacity: isConsentModalOpen && consentTrigger === "sidebar" ? 0 : 1 }}
                   type="button"
                   onClick={() => {
                     setConsentTrigger("sidebar");
@@ -1889,7 +1892,8 @@ export function SirdasChatWorkspace() {
               </svg>
             </Link>
             <motion.button
-              layoutId={isConsentModalOpen && consentTrigger === "header" ? "kvkk-dialog-header" : undefined}
+              layoutId="kvkk-dialog-header"
+              style={{ opacity: isConsentModalOpen && consentTrigger === "header" ? 0 : 1 }}
               type="button"
               onClick={() => {
                 setConsentTrigger("header");
@@ -1904,7 +1908,8 @@ export function SirdasChatWorkspace() {
               <span>Mahremiyet Esasları</span>
             </motion.button>
             <motion.button
-              layoutId={isResetModalOpen && resetTrigger === "header" ? "reset-dialog-header" : undefined}
+              layoutId="reset-dialog-header"
+              style={{ opacity: isResetModalOpen && resetTrigger === "header" ? 0 : 1 }}
               type="button"
               onClick={() => {
                 setResetTrigger("header");
@@ -2459,28 +2464,29 @@ export function SirdasChatWorkspace() {
       )}
 
       {/* 1. KVKK KALKANI: AÇIK RIZA & ÖZEL NİTELİKLİ VERİ SÖZLEŞMESİ (FLUID MORPHING DIALOG) */}
-      <AnimatePresence>
+      <AnimatePresence initial={false} mode="sync">
         {isConsentModalOpen && (
-          <div
+          <motion.div
+            key="kvkk-modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
             role="dialog"
             aria-modal="true"
             aria-labelledby="kvkk-modal-title"
           >
-            <motion.div
+            <div
               className="fixed inset-0 bg-black/80 backdrop-blur-md"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
               onClick={() => setIsConsentModalOpen(false)}
             />
             <motion.div
               layoutId={consentTrigger === "header" ? "kvkk-dialog-header" : "kvkk-dialog-sidebar"}
               transition={{
                 type: "spring",
-                damping: 26,
-                stiffness: 220,
+                bounce: 0.1,
+                duration: 0.38,
               }}
               className="relative w-full max-w-xl rounded-[36px] bg-surface-container-high border border-outline-variant/60 p-6 sm:p-8 shadow-m3-5 text-on-surface space-y-5 max-h-[92vh] overflow-y-auto z-10"
             >
@@ -2597,7 +2603,7 @@ export function SirdasChatWorkspace() {
               </button>
             </div>
           </motion.div>
-        </div>
+        </motion.div>
       )}
     </AnimatePresence>
 
@@ -2671,20 +2677,21 @@ export function SirdasChatWorkspace() {
       </AnimatePresence>
 
       {/* 2. BENLİK HAFIZAMI SIFIRLA / TÜM VERİLERİMİ SİL CONFIRM MODAL (FLUID MORPHING DIALOG) */}
-      <AnimatePresence>
+      <AnimatePresence initial={false} mode="sync">
         {isResetModalOpen && (
-          <div
+          <motion.div
+            key="reset-modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
             role="dialog"
             aria-modal="true"
             aria-labelledby="reset-modal-title"
           >
-            <motion.div
+            <div
               className="fixed inset-0 bg-black/80 backdrop-blur-md"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
               onClick={() => {
                 if (!isPurging) setIsResetModalOpen(false);
               }}
@@ -2693,8 +2700,8 @@ export function SirdasChatWorkspace() {
               layoutId={resetTrigger === "header" ? "reset-dialog-header" : "reset-dialog-sidebar"}
               transition={{
                 type: "spring",
-                damping: 26,
-                stiffness: 220,
+                bounce: 0.1,
+                duration: 0.38,
               }}
               className="relative w-full max-w-md rounded-[36px] bg-surface-container-high border border-error/30 p-6 sm:p-8 shadow-m3-5 text-on-surface space-y-4 z-10"
             >
@@ -2768,33 +2775,34 @@ export function SirdasChatWorkspace() {
               </button>
             </div>
           </motion.div>
-        </div>
+        </motion.div>
       )}
     </AnimatePresence>
 
       {/* 3. AYARLAR MODALI: görünüm, yazı büyüklüğü, hafıza ve gizlilik, silme işlemleri */}
-      <AnimatePresence>
+      <AnimatePresence initial={false} mode="sync">
         {isSettingsModalOpen && (
-          <div
+          <motion.div
+            key="settings-modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
             role="dialog"
             aria-modal="true"
             aria-labelledby="settings-modal-title"
           >
-            <motion.div
+            <div
               className="fixed inset-0 bg-black/80 backdrop-blur-md"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
               onClick={() => setIsSettingsModalOpen(false)}
             />
             <motion.div
               layoutId="settings-dialog"
               transition={{
                 type: "spring",
-                damping: 26,
-                stiffness: 220,
+                bounce: 0.1,
+                duration: 0.38,
               }}
               className="relative w-full max-w-lg rounded-[36px] bg-surface-container-high border border-outline-variant/60 p-6 sm:p-8 shadow-m3-5 text-on-surface space-y-5 max-h-[92vh] overflow-y-auto z-10"
             >
@@ -3049,7 +3057,7 @@ export function SirdasChatWorkspace() {
               </button>
             </div>
           </motion.div>
-        </div>
+        </motion.div>
       )}
     </AnimatePresence>
 

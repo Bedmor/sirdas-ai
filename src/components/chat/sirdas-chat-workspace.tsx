@@ -34,7 +34,7 @@ import {
   cihazdanTemizle,
 } from "@/lib/cihaz-temizle";
 import { metniBloklaraAyir } from "@/lib/sohbet/metin-bicim";
-import { hizliYanitlar } from "@/lib/sohbet/hizli-yanitlar";
+import { geceGecMi, hizliYanitlar } from "@/lib/sohbet/hizli-yanitlar";
 import {
   CevapGeriBildirimi,
   gorusEpostaBaglantisi,
@@ -42,6 +42,13 @@ import {
 } from "./cevap-geri-bildirimi";
 import { ZamanKarsilama } from "./zaman-karsilama";
 import { HizliYanitDugmeleri } from "./hizli-yanit-dugmeleri";
+import { YersizUyariBaglantisi } from "./yersiz-uyari-baglantisi";
+import {
+  denetimIzleriniAyikla,
+  uyariTetiklendi,
+  yersizBildirimGovdesi,
+  type DenetimIzi,
+} from "@/lib/denetim/yersiz-uyari";
 
 export interface ChatSourceBadge {
   id: string;
@@ -63,6 +70,12 @@ export interface ChatMessageItem {
   safety?: SafetyNoticeData | null;
   /** Kalite kapısı: "Faydalı oldu / Olmadı" (yalnız bu cihazda saklanır) */
   geriBildirim?: GeriBildirim;
+  /** Sunucudaki asistan mesaj numarası (yalnız kalıcı oturumlarda gelir) */
+  sunucuMesajId?: string | null;
+  /** Tetiklenen denetim olayları: yalnız tür ve kural kodu, içerik yok */
+  denetim?: DenetimIzi[];
+  /** "Bu uyarı yersiz miydi?" bu cevap için bildirildi mi */
+  uyariBildirildi?: boolean;
 }
 
 export interface ChatConversationThread {
@@ -565,6 +578,9 @@ export function SirdasChatWorkspace() {
       yeniKimlik = generateClientUuid();
     }
     setClientId(yeniKimlik);
+    // Hafızam da bu cihazdan silindi; ekrandaki durumu sıfırla
+    setHafiza(BOS_HAFIZA);
+    setIsHafizamOpen(false);
 
     setUserProfile({
       roles: [],
@@ -1017,6 +1033,8 @@ export function SirdasChatWorkspace() {
           | "fatwa_blocked"
           | "crisis_redirected" = "processed";
         let capturedSafety: SafetyNoticeData | null = null;
+        let capturedDenetim: DenetimIzi[] = [];
+        let capturedSunucuMesajId: string | null = null;
 
         while (true) {
           const { done, value } = await reader.read();
@@ -1090,6 +1108,10 @@ export function SirdasChatWorkspace() {
                 if (parsed.intentMode) {
                   capturedIntentMode = parsed.intentMode;
                 }
+                capturedDenetim = denetimIzleriniAyikla(parsed.denetim);
+                if (typeof parsed.assistantMessageId === "string") {
+                  capturedSunucuMesajId = parsed.assistantMessageId;
+                }
                 if (
                   parsed.userProfile &&
                   typeof parsed.userProfile === "object"
@@ -1124,6 +1146,8 @@ export function SirdasChatWorkspace() {
             status: capturedStatus,
             intentMode: capturedIntentMode,
             safety: capturedSafety,
+            sunucuMesajId: capturedSunucuMesajId,
+            denetim: capturedDenetim,
           };
 
           const finalThreads = updatedThreads.map((t) =>
@@ -1168,6 +1192,9 @@ export function SirdasChatWorkspace() {
             status: json.status || "processed",
             intentMode: json.intentMode,
             safety: isSafetyNoticeData(json.safety) ? json.safety : null,
+            sunucuMesajId:
+              typeof json.assistantMessageId === "string" ? json.assistantMessageId : null,
+            denetim: denetimIzleriniAyikla(json.denetim),
           };
           const finalThreads = updatedThreads.map((t) =>
             t.id === currentThreadId
@@ -1212,6 +1239,41 @@ export function SirdasChatWorkspace() {
         : t,
     );
     saveThreadsToStorage(sonraki);
+  };
+
+  /** "Bu uyarı yersiz miydi?": yalnız evet bilgisi ve kural kodu sunucuya gider. */
+  const handleYersizUyari = async (msg: ChatMessageItem): Promise<boolean> => {
+    try {
+      const res = await fetch("/api/chat/denetim-bildirimi", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(clientId ? { "x-sirdas-client-id": clientId } : {}),
+        },
+        body: JSON.stringify(
+          yersizBildirimGovdesi({
+            sunucuMesajId: msg.sunucuMesajId,
+            izler: msg.denetim,
+            clientId,
+          }),
+        ),
+      });
+      if (!res.ok) return false;
+    } catch {
+      return false;
+    }
+    const sonraki = threads.map((t) =>
+      t.id === activeThreadId
+        ? {
+            ...t,
+            messages: t.messages.map((m) =>
+              m.id === msg.id ? { ...m, uyariBildirildi: true } : m,
+            ),
+          }
+        : t,
+    );
+    saveThreadsToStorage(sonraki);
+    return true;
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -2139,6 +2201,14 @@ export function SirdasChatWorkspace() {
                             epostaHref={gorusEpostaBaglantisi(msg)}
                           />
 
+                          {/* Yanlış alarm bildirimi: yalnız uyarı/süzgeç devreye girdiyse */}
+                          {uyariTetiklendi(msg.denetim) && (
+                            <YersizUyariBaglantisi
+                              bildirildi={msg.uyariBildirildi}
+                              onBildir={() => handleYersizUyari(msg)}
+                            />
+                          )}
+
                           {/* Etkileşim ve yönlendirme düğmeleri: yalnız son cevabın altında */}
                           {index === activeMessages.length - 1 && !isLoading && !isStreaming && (
                             <HizliYanitDugmeleri
@@ -2147,6 +2217,10 @@ export function SirdasChatWorkspace() {
                                 intentMode: msg.intentMode,
                                 guvenlikTuru: msg.safety && isSafetyNoticeData(msg.safety) ? msg.safety.kind : null,
                                 status: msg.status,
+                                geceGec: geceGecMi(),
+                                kullaniciSonMesaj: [...activeMessages.slice(0, index)]
+                                  .reverse()
+                                  .find((m) => m.role === "user")?.content,
                               })}
                               onSec={(metin) => handleSubmit(undefined, metin)}
                               devreDisi={isLoading || isStreaming}
@@ -2616,8 +2690,8 @@ export function SirdasChatWorkspace() {
                 id="cihaz-temizle-aciklama"
                 className="text-base leading-relaxed text-on-surface"
               >
-                Bu cihazdaki sohbet geçmişi silinecek. Yanınızdaki biri artık
-                göremez. Emin misiniz?
+                Bu cihazdaki sohbet geçmişi ve Hafızam silinecek. Yanınızdaki
+                biri artık göremez. Emin misiniz?
               </p>
               <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                 <button

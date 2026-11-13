@@ -8,8 +8,11 @@ import {
   CLIENT_ID_STORAGE_KEY,
   CONSENT_STORAGE_KEY,
   SETTINGS_STORAGE_KEY,
+  HAFIZA_STORAGE_KEY,
+  CIHAZDAN_SILINECEK_ANAHTARLAR,
   type AnahtarDeposu,
 } from "../../src/lib/cihaz-temizle";
+import { BOS_HAFIZA, hafizaOku, hafizaYaz } from "../../src/lib/hafiza";
 import { TEMA_ANAHTAR, YAZI_ANAHTAR } from "../../src/lib/gorunum-betikleri";
 
 class SahteDepo implements AnahtarDeposu {
@@ -30,6 +33,10 @@ function doluDepo(): SahteDepo {
   d.setItem(THREADS_STORAGE_KEY, JSON.stringify([{ id: "t1", title: "Eski sohbet", messages: [] }]));
   d.setItem(PROFILE_STORAGE_KEY, JSON.stringify({ preferred_name: "Ahmet" }));
   d.setItem(CLIENT_ID_STORAGE_KEY, "eski-kimlik-123456");
+  hafizaYaz(d, {
+    ...BOS_HAFIZA,
+    emanetler: [{ id: "e1", tur: "ZIKIR", metin: "Hasbünallah ve nimel vekil", eklenme: new Date().toISOString() }],
+  });
   d.setItem(CONSENT_STORAGE_KEY, JSON.stringify({ accepted: true }));
   d.setItem(SETTINGS_STORAGE_KEY, JSON.stringify({ ttlHours: 0 }));
   d.setItem(TEMA_ANAHTAR, "gunduz");
@@ -96,4 +103,15 @@ test("boş depoda da çalışır", () => {
   cihazdanTemizle(d, () => "kimlik-12345678");
   assert.equal(d.getItem(CLIENT_ID_STORAGE_KEY), "kimlik-12345678");
   assert.equal(d.veri.size, 1);
+});
+
+test("Hafızam (emanetler) da bu cihazdan silinir", () => {
+  assert.ok(CIHAZDAN_SILINECEK_ANAHTARLAR.includes(HAFIZA_STORAGE_KEY));
+  assert.equal(HAFIZA_STORAGE_KEY, "sirdas_hafiza_v1");
+  const d = doluDepo();
+  assert.equal(hafizaOku(d).emanetler.length, 1);
+  cihazdanTemizle(d, () => "yeni-kimlik-abcdef");
+  assert.equal(d.getItem(HAFIZA_STORAGE_KEY), null);
+  // Temizlikten sonra okunan hafıza boş başlar
+  assert.equal(hafizaOku(d).emanetler.length, 0);
 });

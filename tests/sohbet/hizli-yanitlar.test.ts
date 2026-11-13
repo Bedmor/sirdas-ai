@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { hizliYanitlar } from "../../src/lib/sohbet/hizli-yanitlar";
+import { geceGecMi, hizliYanitlar } from "../../src/lib/sohbet/hizli-yanitlar";
 
 const etiketler = (x: { etiket: string }[]) => x.map((y) => y.etiket);
 
@@ -46,4 +46,29 @@ test("Boş cevapta düğme yok; metinlerde emoji ve uzun tire yok", () => {
     ...hizliYanitlar({ icerik: "a", guvenlikTuru: "fatwa" }),
   ];
   for (const h of hepsi) assert.doesNotMatch(h.etiket + h.gonderilecek, /[–—]|\p{Extended_Pictographic}/u);
+});
+
+test("Gece geç saatte 'Bugün ne yapabilirim?' ve 'Biraz daha anlat' çıkmaz", () => {
+  const d = etiketler(hizliYanitlar({ icerik: "Sabır güzeldir.", intentMode: "MANEVI_AYNA", geceGec: true }));
+  assert.ok(!d.includes("Bugün ne yapabilirim?"));
+  assert.ok(!d.includes("Biraz daha anlat"));
+  assert.deepEqual(d, ["Uyumadan önce bir dua", "Yarın ne yapabilirim?"]);
+  const ilim = etiketler(hizliYanitlar({ icerik: "Hicret...", intentMode: "ILIM_VE_SIYER", geceGec: true }));
+  assert.ok(!ilim.includes("Biraz daha anlat"));
+});
+
+test("Gece saati aralığı üslup süzgeciyle aynı (00:30-04:59)", () => {
+  const saat = (s: number, d: number) => new Date(2026, 10, 13, s, d);
+  assert.equal(geceGecMi(saat(0, 29)), false);
+  assert.equal(geceGecMi(saat(0, 30)), true);
+  assert.equal(geceGecMi(saat(3, 0)), true);
+  assert.equal(geceGecMi(saat(4, 59)), true);
+  assert.equal(geceGecMi(saat(5, 0)), false);
+  assert.equal(geceGecMi(saat(14, 0)), false);
+});
+
+test("Kullanıcı vedalaştıysa düğme çıkmaz (kapanış iyiliği, kanca yok)", () => {
+  assert.deepEqual(hizliYanitlar({ icerik: "Allah razı olsun.", kullaniciSonMesaj: "Çok teşekkür ederim" }), []);
+  assert.deepEqual(hizliYanitlar({ icerik: "Hayırlı geceler.", kullaniciSonMesaj: "iyi geceler" }), []);
+  assert.ok(hizliYanitlar({ icerik: "Sabır güzeldir.", kullaniciSonMesaj: "İşimi kaybettim" }).length > 0);
 });

@@ -211,3 +211,35 @@ model Donation {
   @@index([status, createdAt])
   @@map("donations")
 }
+
+// ---------------------------------------------------------------------------
+// DUA HAVUZU (Adnan Bey 13.11): isimsiz, kategorisiz kısa dua istekleri.
+// - Yazanın kimliği saklanmaz; yalnız cihaz kimliğinin tek yönlü özeti tutulur.
+// - Metin, kişisel bilgiler gizlendikten sonra yazılır (ham metin saklanmaz).
+// - İstek 3 gün sonra listeden düşer (bitis_tarihi ile süzülür).
+// ---------------------------------------------------------------------------
+model DuaIstegi {
+  id               String       @id @default(uuid()) @db.Uuid
+  metin            String       @db.Text
+  sahipKimlikOzeti String       @map("sahip_kimlik_ozeti") @db.VarChar(64)
+  olusturmaTarihi  DateTime     @default(now()) @map("olusturma_tarihi")
+  bitisTarihi      DateTime     @map("bitis_tarihi")
+
+  destekler        DuaDestegi[]
+
+  @@index([bitisTarihi, olusturmaTarihi])
+  @@index([sahipKimlikOzeti, olusturmaTarihi])
+  @@map("dua_istekleri")
+}
+
+// "Allah yardımcın olsun" basışları: her cihaz bir isteğe yalnız bir kez basabilir.
+model DuaDestegi {
+  id              String    @id @default(uuid()) @db.Uuid
+  duaIstegiId     String    @map("dua_istegi_id") @db.Uuid
+  duaIstegi       DuaIstegi @relation(fields: [duaIstegiId], references: [id], onDelete: Cascade)
+  kimlikOzeti     String    @map("kimlik_ozeti") @db.VarChar(64)
+  olusturmaTarihi DateTime  @default(now()) @map("olusturma_tarihi")
+
+  @@unique([duaIstegiId, kimlikOzeti])
+  @@map("dua_destekleri")
+}

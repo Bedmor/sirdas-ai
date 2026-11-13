@@ -105,7 +105,7 @@ export function Footer() {
                   className="hover:text-on-surface transition-colors rounded focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none"
                   href="/araclar"
                 >
-                  Manevi Araçlar (Namaz Vakitleri, Kıble, Zikirmatik)
+                  Manevi Araçlar (Namaz Vakitleri, Kıble, Zikirmatik, Dua Havuzu)
                 </Link>
               </li>
               <li>

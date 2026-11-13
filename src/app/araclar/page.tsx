@@ -7,7 +7,7 @@ import { VakitAyetiKarti } from "@/components/araclar/vakit-ayeti-karti";
 export const metadata: Metadata = {
   title: "Manevi Araçlar | Manevi Pusula",
   description:
-    "Zikirmatik, Diyanet namaz vakitleri, kıble pusulası ve günün vaktine göre ayet kartı. Manevi Pusula'nın sade günlük araçları.",
+    "Zikirmatik, Diyanet namaz vakitleri, kıble pusulası, dua havuzu ve günün vaktine göre ayet kartı. Manevi Pusula'nın sade günlük araçları.",
 };
 
 const ARACLAR = [
@@ -29,6 +29,12 @@ const ARACLAR = [
     baslik: "Zikirmatik",
     aciklama: "Büyük dokunma alanıyla tesbihat sayacı; sayım yalnızca cihazınızda saklanır.",
   },
+  {
+    href: "/araclar/dua-havuzu",
+    ikon: "ph-hands-praying",
+    baslik: "Dua Havuzu",
+    aciklama: "İsimsiz kısa dua isteği bırakın; kardeşleriniz okuyup sizin için dua etsin.",
+  },
 ];
 
 export default function AraclarPage() {
@@ -41,7 +47,7 @@ export default function AraclarPage() {
     >
       <VakitAyetiKarti />
 
-      <ul className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {ARACLAR.map((a) => (
           <li key={a.href}>
             <Link

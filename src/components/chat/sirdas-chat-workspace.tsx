@@ -1766,7 +1766,7 @@ export function SirdasChatWorkspace() {
                 className="flex items-center justify-center gap-1.5 w-full py-1.5 text-xs text-on-surface-variant/80 hover:text-primary transition-colors rounded-full hover:bg-surface-container-highest"
               >
                 <i aria-hidden="true" className="ph ph-compass text-sm text-secondary"></i>
-                <span>Manevi Araçlar: Vakitler, Kıble, Zikirmatik</span>
+                <span>Manevi Araçlar: Vakitler, Kıble, Zikir, Dua</span>
               </Link>
 
               <div className="pt-1 px-1">

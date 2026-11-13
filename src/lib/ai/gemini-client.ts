@@ -19,6 +19,7 @@ import {
   detectSessionMood,
 } from "./jev-client";
 import { uslupYonergesiKur } from "../uslup";
+import { mercekYonergesiKur } from "../bakis/mercek-secici";
 
 const CANDIDATE_MODELS = [
   process.env.GEMINI_MODEL || "gemini-3.8-flash",
@@ -293,6 +294,18 @@ export function buildGeminiContents(
   });
   if (uslupYonergesi) {
     currentPrompt += `\n\n${uslupYonergesi}`;
+  }
+
+  // Bakış açıları (mercekler): mesaja en uygun 1-2 mercek, yalnızca bu tura.
+  // Kriz/sağlık/çocuk işaretinde ve İlim modunda seçici boş döner.
+  if (!isBriefOpener) {
+    const mercekYonergesi = mercekYonergesiKur({
+      mesaj: params.userMessage,
+      ilimModu: isIlimMode,
+    });
+    if (mercekYonergesi) {
+      currentPrompt += `\n\n${mercekYonergesi}`;
+    }
   }
 
   if (params.hafizaYonergesi) {

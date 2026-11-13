@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { DILIM_ADLARI, vakitAyetiSec, type VakitAyeti } from "@/lib/araclar/vakit-ayeti";
 import { turkiyeAni, zamanAkisi, type ZamanAkisi } from "@/lib/sohbet/zaman-akisi";
 
@@ -12,11 +13,13 @@ import { turkiyeAni, zamanAkisi, type ZamanAkisi } from "@/lib/sohbet/zaman-akis
 export function ZamanKarsilama() {
   const [akis, setAkis] = useState<ZamanAkisi | null>(null);
   const [ayet, setAyet] = useState<VakitAyeti | null>(null);
+  const [cuma, setCuma] = useState(false);
 
   useEffect(() => {
     const guncelle = () => {
       const an = new Date();
       setAkis(zamanAkisi(an));
+      setCuma(turkiyeAni(an).haftaGunu === 5);
       setAyet(vakitAyetiSec(an, turkiyeAni(an).saat).ayet);
     };
     guncelle();
@@ -37,6 +40,17 @@ export function ZamanKarsilama() {
               .join(" · ")
           : ""}
       </p>
+      {cuma && (
+        <p className="-mt-1 mb-3 text-sm" lang="tr">
+          <Link
+            href="/araclar/cuma-hutbesi"
+            className="inline-flex items-center gap-1.5 font-semibold text-primary underline underline-offset-4 hover:no-underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            <i aria-hidden="true" className="ph ph-book-open-text text-base"></i>
+            Bu haftanın hutbesi
+          </Link>
+        </p>
+      )}
 
       <h1
         className="font-heading text-3xl sm:text-4xl font-normal text-on-surface tracking-tight leading-snug mb-4"

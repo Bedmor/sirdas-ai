@@ -22,6 +22,7 @@ import {
   hafizaSil,
   hafizaYaz,
   halGuncelle,
+  EMANET_TURU_ETIKET,
   hatirlatildiIsaretle,
   type HafizaDurumu,
 } from "@/lib/hafiza";
@@ -427,7 +428,29 @@ export function SirdasChatWorkspace() {
       hafizaYaz(window.localStorage, yeni);
     } catch {}
   }, []);
-  const hafizamKapat = useCallback(() => setIsHafizamOpen(false), []);
+  // Hafızam, Sırdaş Profilim ekranındaki "Benim eklediklerim" bölümünden açılır;
+  // kapanınca kullanıcı yerini kaybetmesin diye profil ekranına geri dönülür.
+  const hafizamProfildenRef = useRef<boolean>(false);
+  const hafizamKapat = useCallback(() => {
+    setIsHafizamOpen(false);
+    if (hafizamProfildenRef.current) {
+      hafizamProfildenRef.current = false;
+      const dialog = profileDialogRef.current;
+      if (dialog && !dialog.open) {
+        dialog.showModal();
+        // Kullanıcı düzenlediği bölüme geri dönsün
+        requestAnimationFrame(() => {
+          document.getElementById("eklediklerim-baslik")?.scrollIntoView({ block: "start" });
+        });
+      }
+    }
+  }, []);
+  const eklediklerimiDuzenle = useCallback(() => {
+    hafizamProfildenRef.current = true;
+    const dialog = profileDialogRef.current;
+    if (dialog?.open) dialog.close();
+    setIsHafizamOpen(true);
+  }, []);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -471,6 +494,10 @@ export function SirdasChatWorkspace() {
     const dialog = profileDialogRef.current;
     if (dialog && !dialog.open) {
       dialog.showModal();
+      // Kapat düğmesine odaklanınca ekran en alta kayıyor; profil baştan okunsun
+      requestAnimationFrame(() => {
+        dialog.scrollTop = 0;
+      });
     }
   }, [clientId, fetchServerProfile]);
 
@@ -580,6 +607,7 @@ export function SirdasChatWorkspace() {
     setClientId(yeniKimlik);
     // Hafızam da bu cihazdan silindi; ekrandaki durumu sıfırla
     setHafiza(BOS_HAFIZA);
+    hafizamProfildenRef.current = false;
     setIsHafizamOpen(false);
 
     setUserProfile({
@@ -1301,7 +1329,7 @@ export function SirdasChatWorkspace() {
       {/* COLLAPSIBLE SIDEBAR (MATERIAL 3 EXPRESSIVE NAVIGATION DRAWER / RAIL) */}
       <aside
         aria-label="Sohbet Geçmişi ve Yan Menü"
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col bg-surface-container-low border-r border-outline-variant/40 transition-[width,transform] duration-300 ease-m3e-spring-smooth lg:static ${
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col max-lg:overflow-y-auto max-lg:overscroll-contain bg-surface-container-low border-r border-outline-variant/40 transition-[width,transform] duration-300 ease-m3e-spring-smooth lg:static ${
           mobileDrawerOpen
             ? "translate-x-0 w-[280px]"
             : "-translate-x-full lg:translate-x-0"
@@ -1415,14 +1443,14 @@ export function SirdasChatWorkspace() {
         {/* Thread History List (Material 3 Expressive Segmented List) */}
         {sidebarOpen || mobileDrawerOpen ? (
           <div
-            className="flex-1 overflow-y-auto px-3 py-2 space-y-1.5"
+            className="flex-1 max-lg:min-h-[11rem] overflow-y-auto px-3 py-2 space-y-1.5"
             style={{
               scrollbarWidth: "thin",
               scrollbarColor: "rgb(var(--c-outline-variant)) rgb(var(--c-surface-container-low))",
             }}
           >
-            <div className="px-3 pb-1 pt-1 text-xs font-semibold text-on-surface-variant/80 tracking-wide uppercase">
-              Geçmiş Sohbetler
+            <div className="px-3 pb-1 pt-1 text-xs leading-normal font-semibold text-on-surface-variant tracking-wide">
+              Geçmiş sohbetler
             </div>
 
             {threads.length === 0 ? (
@@ -1513,8 +1541,9 @@ export function SirdasChatWorkspace() {
               <button
                 type="button"
                 onClick={handleOpenProfileModal}
+                aria-label="Sırdaş profilimi ve eklediklerimi aç"
                 className="w-full flex items-center justify-between gap-3 rounded-2xl bg-surface-container hover:bg-surface-container-high border border-outline-variant/40 p-3 text-left transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-xs"
-                title="Sırdaş Profilimi ve Tutulan Notları Görüntüle"
+                title="Sırdaş Profilim ve eklediklerim"
               >
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-container-highest border border-primary/30 text-primary text-xs font-semibold">
@@ -1566,105 +1595,36 @@ export function SirdasChatWorkspace() {
                 </svg>
               </button>
 
-              <div className="flex items-center gap-2 w-full">
-                {/* 1. Hafıza & Gizlilik Ayarları Butonu (M3 Tonal Button) */}
-                <motion.button
-                  layoutId={isSettingsModalOpen ? "settings-dialog" : undefined}
-                  aria-label="Hafıza ve gizlilik ayarlarını aç"
-                  className="flex-1 flex h-10 items-center justify-center rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/40 text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-xs cursor-pointer"
-                  onClick={() => setIsSettingsModalOpen(true)}
-                  title="Hafıza ve Gizlilik Ayarları (Hareketsizlik, TTL)"
-                  type="button"
-                >
-                  <svg
-                    aria-hidden="true"
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                </motion.button>
-
-                {/* 2. Benlik Hafızamı Sıfırla Butonu (M3 Error Tonal Button) */}
-                <motion.button
-                  layoutId={isResetModalOpen && resetTrigger === "sidebar" ? "reset-dialog-sidebar" : undefined}
-                  aria-label="Benlik hafızamı sıfırla ve tüm verilerimi sil"
-                  className="flex-1 flex h-10 items-center justify-center rounded-full bg-error-container hover:bg-error-container/80 border border-error/20 text-on-error-container transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error shadow-xs cursor-pointer"
-                  onClick={() => {
-                    setResetTrigger("sidebar");
-                    setIsResetModalOpen(true);
-                  }}
-                  title="Benlik Hafızamı Sıfırla / Tüm Verilerimi Sil (KVKK Unutulma Hakkı)"
-                  type="button"
-                >
-                  <svg
-                    aria-hidden="true"
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </motion.button>
-              </div>
-
-              {/* Hafızam: emanetler ve hafıza anahtarı (P4) */}
-              <button
+              {/* Ayarlar: görünüm, yazı büyüklüğü, hafıza ve gizlilik, silme işlemleri tek yerde */}
+              <motion.button
+                layoutId={isSettingsModalOpen ? "settings-dialog" : undefined}
+                aria-label="Ayarları aç"
+                className="w-full flex min-h-14 items-center gap-3 rounded-[20px] bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 px-4 py-3 text-left text-base font-semibold text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-xs cursor-pointer"
+                onClick={() => setIsSettingsModalOpen(true)}
+                title="Ayarlar: görünüm, yazı büyüklüğü, hafıza ve gizlilik"
                 type="button"
-                onClick={() => {
-                  setMobileDrawerOpen(false);
-                  setIsHafizamOpen(true);
-                }}
-                className="w-full flex min-h-14 items-center justify-center gap-3 rounded-[20px] bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 px-4 py-3 text-base font-semibold text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-xs cursor-pointer"
               >
-                <svg aria-hidden="true" className="h-6 w-6 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.9" viewBox="0 0 24 24">
-                  <path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10Z" strokeLinecap="round" strokeLinejoin="round" />
+                <svg aria-hidden="true" className="h-6 w-6 shrink-0 text-primary" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                <span>Hafızam</span>
-                <span className="text-sm font-medium text-on-surface-variant">
-                  {hafiza.acik ? `${hafiza.emanetler.length} emanet` : "kapalı"}
-                </span>
-              </button>
+                <span>Ayarlar</span>
+              </motion.button>
 
-              {/* Bu cihazdan temizle: yalnız bu cihazdaki görünen geçmiş silinir */}
+              {/* Bu cihazdan temizle: yanına biri gelince tek dokunuşla açılır (yalnız bu cihazdaki izler) */}
               <button
                 type="button"
                 onClick={() => setIsCihazTemizleOpen(true)}
-                className="w-full flex min-h-14 items-center justify-center gap-3 rounded-[20px] bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 px-4 py-3 text-base font-semibold text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-xs cursor-pointer"
+                className="w-full flex min-h-14 items-center gap-3 rounded-[20px] bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 px-4 py-3 text-left text-base font-semibold text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-xs cursor-pointer"
               >
-                <svg
-                    aria-hidden="true"
-                    className="h-6 w-6 shrink-0"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.9"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21M22 21H7M5 11l9 9"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                <span>Bu cihazdan temizle</span>
+                <svg aria-hidden="true" className="h-6 w-6 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.9" viewBox="0 0 24 24">
+                  <path
+                    d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21M22 21H7M5 11l9 9"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <span className="leading-snug">Bu cihazdan temizle</span>
               </button>
             </>
           ) : (
@@ -1697,10 +1657,10 @@ export function SirdasChatWorkspace() {
               </button>
               <motion.button
                 layoutId={isSettingsModalOpen ? "settings-dialog" : undefined}
-                aria-label="Hafıza ve gizlilik ayarlarını aç"
+                aria-label="Ayarları aç"
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/40 text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-xs cursor-pointer"
                 onClick={() => setIsSettingsModalOpen(true)}
-                title="Hafıza ve Gizlilik Ayarları"
+                title="Ayarlar"
                 type="button"
               >
                 <svg
@@ -1753,11 +1713,6 @@ export function SirdasChatWorkspace() {
         <div className="border-t border-outline-variant/40 p-3 space-y-2.5">
           {sidebarOpen || mobileDrawerOpen ? (
             <>
-              <div aria-label="Görünüm" role="group" className="rounded-[20px] bg-surface-container/70 border border-outline-variant/40 p-2">
-                <p className="px-1 pb-1 text-xs font-semibold text-on-surface-variant">Görünüm</p>
-                <TemaSecici />
-              </div>
-
               <div className="flex items-center gap-2">
                 <a
                   aria-label="Diyanet Alo 190 Fetva Hattı"
@@ -2819,7 +2774,7 @@ export function SirdasChatWorkspace() {
       )}
     </AnimatePresence>
 
-      {/* 3. HAFIZA & GİZLİLİK AYARLARI MODALI (FLUID MORPHING DIALOG) */}
+      {/* 3. AYARLAR MODALI: görünüm, yazı büyüklüğü, hafıza ve gizlilik, silme işlemleri */}
       <AnimatePresence>
         {isSettingsModalOpen && (
           <div
@@ -2852,11 +2807,10 @@ export function SirdasChatWorkspace() {
                   id="settings-modal-title"
                   className="font-heading text-xl font-semibold text-primary-fixed"
                 >
-                  Hafıza ve Gizlilik Ayarları
+                  Ayarlar
                 </h2>
                 <p className="text-xs text-on-surface-variant">
-                  Sohbet verisi ve benlik hafızanız için otomatik imha
-                  kurallarını seçin.
+                  Görünüm, yazı büyüklüğü, hafıza ve gizlilik.
                 </p>
               </div>
               <button
@@ -2881,6 +2835,24 @@ export function SirdasChatWorkspace() {
               </button>
             </div>
 
+            {/* Görünüm: renk teması ve yazı büyüklüğü */}
+            <section aria-labelledby="ayarlar-gorunum-baslik" className="space-y-3">
+              <h3 id="ayarlar-gorunum-baslik" className="text-sm font-semibold text-on-surface">
+                Görünüm
+              </h3>
+              <div className="rounded-[22px] border border-outline-variant/40 bg-surface-container p-3 shadow-xs">
+                <TemaSecici />
+              </div>
+              <div className="flex items-center justify-between gap-3 rounded-[22px] border border-outline-variant/40 bg-surface-container px-4 py-3 shadow-xs">
+                <span className="text-sm font-medium text-on-surface">Yazı büyüklüğü</span>
+                <YaziBoyutuDugmesi />
+              </div>
+            </section>
+
+            <h3 className="text-sm font-semibold text-on-surface border-t border-outline-variant/40 pt-4">
+              Hafıza ve gizlilik
+            </h3>
+
             {/* 3 Short & Crisp Options (M3 Surface Cards) */}
             <div className="space-y-4 text-xs">
               {/* Option 1: Sayfayı/Uygulamayı Kapattığı An */}
@@ -2891,7 +2863,7 @@ export function SirdasChatWorkspace() {
                       1
                     </span>
                     <span className="font-semibold text-[13px] text-on-surface">
-                      Sekme / Uygulama Kapanışında İmha
+                      Sekme veya uygulama kapanınca imha
                     </span>
                   </div>
                   {/* M3 Switch Component */}
@@ -2948,7 +2920,7 @@ export function SirdasChatWorkspace() {
                     2
                   </span>
                   <span className="font-semibold text-[13px] text-on-surface">
-                    Hareketsizlik Zaman Aşımı (Inactivity Timeout)
+                    Hareketsizlik zaman aşımı
                   </span>
                 </div>
                 <p className="text-on-surface-variant leading-relaxed pl-7">
@@ -2982,14 +2954,14 @@ export function SirdasChatWorkspace() {
                 </div>
               </div>
 
-              {/* Option 3: Zaman Ayarlı Kendini İmhâ (TTL) */}
+              {/* Option 3: Zaman ayarlı kendini imha (TTL) */}
               <div className="rounded-[22px] border border-outline-variant/40 bg-surface-container p-4 space-y-2.5 shadow-xs">
                 <div className="flex items-center gap-2">
                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-error-container text-on-error-container text-[11px] font-bold">
                     3
                   </span>
                   <span className="font-semibold text-[13px] text-on-surface">
-                    Zaman Ayarlı Kendini İmhâ (TTL)
+                    Zaman ayarlı kendini imha
                   </span>
                 </div>
                 <p className="text-on-surface-variant leading-relaxed pl-7">
@@ -3001,8 +2973,8 @@ export function SirdasChatWorkspace() {
                   {[
                     { label: "12 Saat", value: 12 },
                     { label: "24 Saat (Önerilen)", value: 24 },
-                    { label: "3 Gün (72s)", value: 72 },
-                    { label: "Süresiz (Manuel)", value: 0 },
+                    { label: "3 Gün", value: 72 },
+                    { label: "Süresiz (elle)", value: 0 },
                   ].map((opt) => (
                     <button
                       key={opt.value}
@@ -3023,10 +2995,6 @@ export function SirdasChatWorkspace() {
                   ))}
                 </div>
               </div>
-            </div>
-
-            {/* Modal Actions */}
-            <div className="pt-2 flex items-center justify-between border-t border-outline-variant/40">
               <button
                 type="button"
                 onClick={() => {
@@ -3034,20 +3002,52 @@ export function SirdasChatWorkspace() {
                   setToastMsg("Varsayılan gizlilik ayarları yüklendi.");
                   setTimeout(() => setToastMsg(null), 3000);
                 }}
-                className="text-xs text-on-surface-variant hover:text-primary transition-colors"
+                className="text-xs text-on-surface-variant underline underline-offset-2 hover:text-primary transition-colors"
               >
-                Varsayılanlara Sıfırla
+                Gizlilik ayarlarını varsayılana döndür
               </button>
+            </div>
+
+            {/* Silme işlemleri: benlik hafızasını ve verileri tamamen sıfırlama */}
+            <section aria-labelledby="ayarlar-silme-baslik" className="space-y-3 border-t border-outline-variant/40 pt-4">
+              <h3 id="ayarlar-silme-baslik" className="text-sm font-semibold text-on-surface">
+                Silme
+              </h3>
+              <p className="text-xs leading-relaxed text-on-surface-variant">
+                Yalnızca bu cihazdaki izleri silmek için menüdeki &ldquo;Bu cihazdan temizle&rdquo; düğmesini kullanın. Aşağıdaki düğme hafızanızı ve tüm verilerinizi kalıcı olarak siler.
+              </p>
               <button
                 type="button"
                 onClick={() => {
                   setIsSettingsModalOpen(false);
-                  setToastMsg("✅ Hafıza ve gizlilik ayarlarınız kaydedildi.");
+                  setResetTrigger("sidebar");
+                  setIsResetModalOpen(true);
+                }}
+                className="w-full flex min-h-12 items-center justify-center gap-2 rounded-[20px] bg-error-container hover:bg-error-container/80 border border-error/30 px-4 py-2.5 text-sm font-semibold text-on-error-container transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-error shadow-xs cursor-pointer"
+              >
+                <svg aria-hidden="true" className="h-5 w-5 shrink-0 text-error" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                  <path
+                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <span>Hafızamı sıfırla</span>
+              </button>
+            </section>
+
+            {/* Modal Actions */}
+            <div className="pt-2 flex items-center justify-end gap-3 border-t border-outline-variant/40">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSettingsModalOpen(false);
+                  setToastMsg("Ayarlarınız kaydedildi.");
                   setTimeout(() => setToastMsg(null), 3000);
                 }}
                 className="rounded-full bg-primary hover:bg-primary-fixed-dim text-on-primary font-semibold px-6 py-2.5 text-xs shadow-m3-2 transition-all duration-200 ease-m3e-spring-bouncy hover:scale-[1.02] active:scale-95"
               >
-                Kaydet ve Kapat
+                Kaydet ve kapat
               </button>
             </div>
           </motion.div>
@@ -3058,6 +3058,7 @@ export function SirdasChatWorkspace() {
       {/* Salt Okunur Sırdaş Profilim Modalı (MATERIAL 3 EXPRESSIVE DIALOG) */}
       <dialog
         ref={profileDialogRef}
+        id="profile-dialog"
         {...({ closedby: "any" } as React.DialogHTMLAttributes<HTMLDialogElement>)}
         aria-labelledby="profile-modal-title"
         className="m-auto w-full max-w-lg max-h-[88vh] overflow-y-auto rounded-[36px] border border-outline-variant/60 bg-surface-container-high p-6 sm:p-8 text-on-surface shadow-m3-5 focus:outline-none animate-m3e-spring"
@@ -3194,13 +3195,55 @@ export function SirdasChatWorkspace() {
             )}
           </div>
 
+          {/* Benim eklediklerim: kullanıcının kendi eklediği emanetler (P4, yalnız bu cihazda, düzenlenebilir) */}
+          <section aria-labelledby="eklediklerim-baslik" className="space-y-2.5 border-t border-outline-variant/40 pt-4">
+            <div className="flex items-center justify-between gap-3">
+              <h3 id="eklediklerim-baslik" className="text-sm font-semibold text-on-surface">
+                Benim eklediklerim
+              </h3>
+              <span className="text-xs text-on-surface-variant">
+                {hafiza.acik ? `${hafiza.emanetler.length} kayıt` : "Hafıza kapalı"}
+              </span>
+            </div>
+            <p className="text-xs leading-relaxed text-on-surface-variant">
+              Yukarıdaki notları Sırdaş sohbetten kendisi tutar. Burada ise hatırlanmasını istediğiniz şeyleri siz eklersiniz. Bunlar yalnızca bu cihazda durur.
+            </p>
+            {hafiza.emanetler.length > 0 ? (
+              <ul className="space-y-2">
+                {hafiza.emanetler.map((e) => (
+                  <li
+                    key={e.id}
+                    className="rounded-2xl bg-surface-container border border-outline-variant/40 px-3.5 py-2.5 shadow-xs"
+                  >
+                    <div className="text-xs font-semibold text-primary">{EMANET_TURU_ETIKET[e.tur]}</div>
+                    <div className="mt-0.5 break-words text-sm leading-relaxed text-on-surface">{e.metin}</div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="rounded-2xl border border-dashed border-outline-variant bg-surface-container px-3.5 py-3 text-xs leading-relaxed text-on-surface-variant">
+                Henüz bir şey eklemediniz. Size nasıl hitap edilmesini istediğinizi veya sevdiğiniz bir zikri ekleyebilirsiniz.
+              </p>
+            )}
+            <button
+              type="button"
+              onClick={eklediklerimiDuzenle}
+              className="w-full flex min-h-12 items-center justify-center gap-2 rounded-[20px] bg-secondary-container hover:bg-secondary-container/90 border border-secondary/35 px-4 py-2.5 text-sm font-semibold text-on-secondary-container transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-xs cursor-pointer"
+            >
+              <svg aria-hidden="true" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.9" viewBox="0 0 24 24">
+                <path d="M16.86 4.49a2.1 2.1 0 1 1 2.97 2.97L8.5 18.79l-4 1 1-4L16.86 4.49Z" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <span>Eklediklerimi düzenle</span>
+            </button>
+          </section>
+
           {/* Alt Bilgi & Kapat */}
           <form
             method="dialog"
             className="flex items-center justify-between gap-4 border-t border-outline-variant/40 pt-4"
           >
             <span className="text-xs text-on-surface-variant leading-snug">
-              Dilediğiniz an sol alttaki silme butonuyla tüm hafızayı sıfırlayabilirsiniz.
+              Hafızanızı dilediğiniz an Ayarlar bölümünden sıfırlayabilirsiniz.
             </span>
             <button
               type="submit"

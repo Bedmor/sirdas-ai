@@ -150,7 +150,7 @@ export function HafizamPaneli({ acik, durum, onDegistir, onKapat }: HafizamPanel
         <div className="flex items-start justify-between gap-3 border-b border-outline-variant/40 px-5 pb-4 pt-5">
           <div className="min-w-0">
             <h2 id="hafizam-baslik" className="font-heading text-2xl font-semibold text-on-surface">
-              Hafızam
+              Benim eklediklerim
             </h2>
             <p className="mt-1 text-base leading-relaxed text-on-surface-variant">
               Yalnızca bu cihazda durur.

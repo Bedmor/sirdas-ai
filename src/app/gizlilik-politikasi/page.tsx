@@ -5,7 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { DisclaimerBanner } from "@/components/layout/DisclaimerBanner";
 
 export const metadata: Metadata = {
-  title: "Gizlilik Politikası ve KVKK Aydınlatma Metni | Manevi Pusula",
+  title: "Mahremiyet Esasları | Manevi Pusula",
   description:
     "6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) ve Meta Business standartlarına uygun Manevi Pusula gizlilik ve veri güvenliği beyanı.",
 };
@@ -24,7 +24,7 @@ export default function PrivacyPolicyPage() {
               KVKK &amp; Meta Business Uyumlu Resmi Aydınlatma
             </span>
             <h1 className="text-3xl sm:text-4xl font-heading font-semibold text-on-surface tracking-tight">
-              Gizlilik Politikası ve Kişisel Verilerin Korunması
+              Mahremiyet Esasları
             </h1>
             <p className="text-xs text-slate-400 font-mono">
               Son Güncelleme: 15 Ekim 2026 • Yürürlük Sürümü: v1.3

@@ -1329,7 +1329,7 @@ export function SirdasChatWorkspace() {
       {/* COLLAPSIBLE SIDEBAR (MATERIAL 3 EXPRESSIVE NAVIGATION DRAWER / RAIL) */}
       <aside
         aria-label="Sohbet Geçmişi ve Yan Menü"
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col max-lg:overflow-y-auto max-lg:overscroll-contain bg-surface-container-low border-r border-outline-variant/40 transition-[width,transform] duration-300 ease-m3e-spring-smooth lg:static ${
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col overflow-y-auto overflow-x-hidden overscroll-contain bg-surface-container-low border-r border-outline-variant/40 transition-[width,transform] duration-300 ease-m3e-spring-smooth lg:static ${
           mobileDrawerOpen
             ? "translate-x-0 w-[280px]"
             : "-translate-x-full lg:translate-x-0"
@@ -1443,7 +1443,7 @@ export function SirdasChatWorkspace() {
         {/* Thread History List (Material 3 Expressive Segmented List) */}
         {sidebarOpen || mobileDrawerOpen ? (
           <div
-            className="flex-1 max-lg:min-h-[11rem] overflow-y-auto px-3 py-2 space-y-1.5"
+            className="flex-1 min-h-[7rem] max-lg:min-h-[11rem] overflow-y-auto px-3 py-2 space-y-1.5"
             style={{
               scrollbarWidth: "thin",
               scrollbarColor: "rgb(var(--c-outline-variant)) rgb(var(--c-surface-container-low))",
@@ -1732,14 +1732,13 @@ export function SirdasChatWorkspace() {
                 </a>
               </div>
 
-              <div className="flex items-center justify-between px-2 pt-1 text-xs text-on-surface-variant/80">
+              <div className="flex flex-col items-center gap-1 px-2 pt-1 text-xs text-on-surface-variant/80">
                 <Link
                   className="hover:text-primary transition-colors"
                   href="/sorumluluk-reddi"
                 >
-                  Sınırlar &amp; Beyan
+                  Şer&apos;i Hukuki Çerçeve
                 </Link>
-                <span>•</span>
                 <motion.button
                   layoutId={isConsentModalOpen && consentTrigger === "sidebar" ? "kvkk-dialog-sidebar" : undefined}
                   type="button"
@@ -1748,11 +1747,10 @@ export function SirdasChatWorkspace() {
                     setIsConsentModalOpen(true);
                   }}
                   className="hover:text-primary transition-colors cursor-pointer"
-                  title="KVKK Açık Rıza ve Özel Nitelikli Veri Sözleşmesini Görüntüle"
+                  title="Mahremiyet Esasları: açık rıza ve özel nitelikli veri metnini görüntüle"
                 >
-                  KVKK
+                  Mahremiyet Esasları
                 </motion.button>
-                <span>•</span>
                 <Link
                   className="hover:text-primary transition-colors"
                   href="/askida-sirdas"
@@ -1771,24 +1769,24 @@ export function SirdasChatWorkspace() {
 
               <div className="pt-1 px-1">
                 <a
-                  href="mailto:adnan.kus@hotmail.com?subject=Manevi%20Pusula%20-%20G%C3%B6r%C3%BC%C5%9F%2C%20%C3%96neri%20ve%20Tenkit"
+                  href="mailto:adnan.kus@hotmail.com?subject=Manevi%20Pusula%20-%20G%C3%B6r%C3%BC%C5%9F%20ve%20%C3%96neri"
                   className="flex items-center justify-center gap-1.5 w-full py-1.5 text-xs text-on-surface-variant/80 hover:text-primary transition-colors rounded-full hover:bg-surface-container-highest"
-                  title="Görüş, öneri ve tenkitlerinizi bize iletin: adnan.kus@hotmail.com"
+                  title="Görüş ve önerilerinizi bize iletin: adnan.kus@hotmail.com"
                 >
                   <svg className="w-3.5 h-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
                   </svg>
-                  <span>Görüş &amp; Tenkit Bildir</span>
+                  <span>Görüş &amp; Öneri Bildir</span>
                 </a>
               </div>
             </>
           ) : (
             <div className="flex flex-col items-center gap-2">
               <a
-                aria-label="Görüş, Öneri ve Tenkit (adnan.kus@hotmail.com)"
+                aria-label="Görüş ve Öneri Bildir (adnan.kus@hotmail.com)"
                 className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-container border border-outline-variant/40 text-primary hover:text-primary-fixed-dim transition-colors shadow-xs"
-                href="mailto:adnan.kus@hotmail.com?subject=Manevi%20Pusula%20-%20G%C3%B6r%C3%BC%C5%9F%2C%20%C3%96neri%20ve%20Tenkit"
-                title="Görüş & Tenkit: adnan.kus@hotmail.com"
+                href="mailto:adnan.kus@hotmail.com?subject=Manevi%20Pusula%20-%20G%C3%B6r%C3%BC%C5%9F%20ve%20%C3%96neri"
+                title="Görüş & Öneri: adnan.kus@hotmail.com"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
@@ -1900,10 +1898,10 @@ export function SirdasChatWorkspace() {
               className={`${
                 sidebarOpen ? "hidden sm:inline-flex lg:hidden" : "hidden sm:inline-flex"
               } items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs text-on-surface-variant hover:text-primary hover:bg-surface-container-highest transition-all duration-200 ease-m3e-spring-fast active:scale-95 font-medium cursor-pointer`}
-              title="KVKK Kalkanı ve Özel Nitelikli Kişisel Veri Metni"
+              title="Mahremiyet Esasları: özel nitelikli kişisel veri metni"
             >
               <span className="h-2 w-2 rounded-full bg-secondary" />
-              <span>KVKK Kalkanı</span>
+              <span>Mahremiyet Esasları</span>
             </motion.button>
             <motion.button
               layoutId={isResetModalOpen && resetTrigger === "header" ? "reset-dialog-header" : undefined}
@@ -1948,7 +1946,7 @@ export function SirdasChatWorkspace() {
         >
           {!hasMessages ? (
             /* SERENE EMPTY STATE — NO STARTER PROMPT CARDS (Respects AGENTS.md) */
-            <div className="mx-auto flex min-h-full max-w-[680px] flex-col items-center justify-center text-center py-12">
+            <div className="mx-auto flex min-h-full max-w-[680px] flex-col items-center justify-center text-center py-8 lg:py-6">
               <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-[24px] bg-surface-container-high border border-outline-variant/40 shadow-m3-2 hover:scale-105 transition-transform duration-300 ease-m3e-spring-bouncy">
                 <Image
                   alt="Manevi Pusula"
@@ -1964,7 +1962,7 @@ export function SirdasChatWorkspace() {
             </div>
           ) : (
             /* MULTI-TURN CONVERSATION STREAM */
-            <div className="mx-auto max-w-[720px] py-8 space-y-6">
+            <div className="mx-auto max-w-[720px] xl:max-w-[820px] py-8 space-y-6">
               {activeMessages.map((msg, index) => {
                 const prevMsg = index > 0 ? activeMessages[index - 1] : null;
                 const currentDateKey = getDateGroupKey(msg.createdAt);
@@ -1980,7 +1978,7 @@ export function SirdasChatWorkspace() {
                 return (
                   <React.Fragment key={msg.id}>
                     {isNewDateGroup && dateLabel && (
-                      <div className="sticky top-2 z-10 my-4 flex justify-center pointer-events-none">
+                      <div className="my-4 flex justify-center pointer-events-none">
                         <span className="inline-flex items-center rounded-full bg-surface-container-high/90 border border-outline-variant/60 px-4 py-1 text-[11px] font-medium tracking-wide text-primary shadow-m3-1 backdrop-blur-md">
                           {dateLabel}
                         </span>
@@ -2117,10 +2115,10 @@ export function SirdasChatWorkspace() {
                               </button>
 
                               <a
-                                href={`mailto:adnan.kus@hotmail.com?subject=${encodeURIComponent("Manevi Pusula - Hatalı Cevap / Tenkit Bildirimi")}&body=${encodeURIComponent(`Mesaj Tarihi: ${msg.createdAt}\nMesaj ID: ${msg.id}\nYanıt Kesiti:\n${msg.content.slice(0, 300)}...\n\n--- Görüş, Tenkit veya Hatalı Yanıt Düzeltme Öneriniz ---\n`)}`}
+                                href={`mailto:adnan.kus@hotmail.com?subject=${encodeURIComponent("Manevi Pusula - Hatalı Cevap / Öneri Bildirimi")}&body=${encodeURIComponent(`Mesaj Tarihi: ${msg.createdAt}\nMesaj ID: ${msg.id}\nYanıt Kesiti:\n${msg.content.slice(0, 300)}...\n\n--- Görüş, Tenkit veya Hatalı Yanıt Düzeltme Öneriniz ---\n`)}`}
                                 className="inline-flex items-center justify-center rounded-full p-1.5 text-on-surface-variant/80 hover:bg-surface-container-highest hover:text-primary hover:scale-110 active:scale-95 transition-all duration-200 ease-m3e-spring-fast"
-                                title="Hatalı cevap veya tenkit bildir (adnan.kus@hotmail.com)"
-                                aria-label="Hatalı cevap veya tenkit bildir"
+                                title="Hatalı cevap veya öneri bildir (adnan.kus@hotmail.com)"
+                                aria-label="Hatalı cevap veya öneri bildir"
                               >
                                 <svg
                                   aria-hidden="true"
@@ -2278,10 +2276,10 @@ export function SirdasChatWorkspace() {
         </main>
 
         {/* BOTTOM MATERIAL 3 EXPRESSIVE FLOATING TOOLBAR / INPUT DOCK */}
-        <div className="mp-dock shrink-0 bg-surface/90 backdrop-blur-md px-4 pb-2 lg:pb-4 pt-2 sm:px-6">
-          <div className="mx-auto max-w-[720px]">
+        <div className="mp-dock shrink-0 bg-surface/90 backdrop-blur-md px-4 pb-2 pt-2 sm:px-6 lg:pb-1.5 lg:pt-1.5">
+          <div className="mx-auto max-w-[720px] xl:max-w-[820px]">
             <form
-              className="relative flex items-end gap-3 rounded-[32px] bg-surface-container-high/95 backdrop-blur-xl border border-outline-variant/60 focus-within:border-primary/90 focus-within:ring-4 focus-within:ring-primary/15 shadow-m3-3 focus-within:shadow-m3-4 px-5 py-3.5 transition-all duration-300 ease-m3e-spring-smooth"
+              className="relative flex items-end gap-3 rounded-[32px] bg-surface-container-high/95 backdrop-blur-xl border border-outline-variant/60 focus-within:border-primary/90 focus-within:ring-4 focus-within:ring-primary/15 shadow-m3-3 focus-within:shadow-m3-4 px-5 py-3.5 lg:py-2.5 transition-all duration-300 ease-m3e-spring-smooth"
               onSubmit={handleSubmit}
             >
               <textarea
@@ -2312,7 +2310,7 @@ export function SirdasChatWorkspace() {
                   {
                     fieldSizing: "content",
                     minBlockSize: "1.6lh",
-                    maxBlockSize: "8lh",
+                    maxBlockSize: "min(8lh, 22dvh)",
                   } as React.CSSProperties
                 }
                 value={inputMessage}
@@ -2345,7 +2343,7 @@ export function SirdasChatWorkspace() {
             </form>
 
             <p
-              className="mt-2.5 text-center text-[11px] text-on-surface-variant/75 flex items-center justify-center flex-wrap gap-x-1.5 gap-y-0.5 leading-tight"
+              className="mt-2.5 lg:mt-1.5 text-center text-[11px] text-on-surface-variant/75 flex items-center justify-center flex-wrap gap-x-1.5 gap-y-0.5 leading-tight"
               lang="tr"
             >
               <span>Manevi Pusula fetva mercii değildir, hata yapabilir.</span>
@@ -2419,7 +2417,7 @@ export function SirdasChatWorkspace() {
               </li>
               <li>
                 <a
-                  href="mailto:adnan.kus@hotmail.com?subject=Manevi%20Pusula%20-%20G%C3%B6r%C3%BC%C5%9F%2C%20%C3%96neri%20ve%20Tenkit"
+                  href="mailto:adnan.kus@hotmail.com?subject=Manevi%20Pusula%20-%20G%C3%B6r%C3%BC%C5%9F%20ve%20%C3%96neri"
                   aria-label="Görüş bildir"
                   title="Görüş bildir"
                   className={ALT_CUBUK_DUGME}
@@ -2490,7 +2488,7 @@ export function SirdasChatWorkspace() {
             <div className="space-y-2">
               <div className="inline-flex items-center gap-2 rounded-full bg-secondary-container border border-secondary/30 px-3.5 py-1 text-xs text-on-secondary-container">
                 <span className="h-2 w-2 rounded-full bg-secondary animate-pulse" />
-                <span className="font-medium">Hukuki Zırh • KVKK Kalkanı</span>
+                <span className="font-medium">Mahremiyet Esasları</span>
               </div>
               <h2
                 id="kvkk-modal-title"

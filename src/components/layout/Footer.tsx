@@ -45,7 +45,7 @@ export function Footer() {
           {/* Legal / Spiritual Frame */}
           <div className="md:col-span-4 flex flex-col gap-2">
             <span className="text-xs font-semibold uppercase tracking-wider text-primary mb-1">
-              Manevi Çerçeve &amp; Sınırlar
+              Manevi Çerçeve
             </span>
             <p className="text-xs text-slate-300 leading-relaxed" lang="tr">
               Manevi Pusula bir fetva makamı veya tıbbi tedavi mercii değildir. Fıkhi meselelerde
@@ -57,21 +57,21 @@ export function Footer() {
                 href="/sorumluluk-reddi"
                 className="hover:text-primary transition-colors underline underline-offset-4"
               >
-                Sorumluluk Reddi
+                Şer&apos;i Hukuki Çerçeve
               </Link>
               <Link
                 href="/gizlilik-politikasi"
                 className="hover:text-primary transition-colors underline underline-offset-4"
               >
-                Gizlilik Politikası (KVKK)
+                Mahremiyet Esasları
               </Link>
             </div>
             <div className="pt-2 text-xs text-slate-300">
-              <span className="text-slate-400">Görüş, tenkit ve hata bildirimleri: </span>
+              <span className="text-slate-400">Görüş, öneri ve hata bildirimleri: </span>
               <a
-                href="mailto:adnan.kus@hotmail.com?subject=Manevi%20Pusula%20-%20G%C3%B6r%C3%BC%C5%9F%2C%20Tenkit%20ve%20Hata%20Bildirimi"
+                href="mailto:adnan.kus@hotmail.com?subject=Manevi%20Pusula%20-%20G%C3%B6r%C3%BC%C5%9F%2C%20%C3%96neri%20ve%20Hata%20Bildirimi"
                 className="text-primary hover:text-amber-300 underline font-medium"
-                title="Görüş, öneri, tenkit ve hatalı cevap bildirimleriniz için e-posta gönderin"
+                title="Görüş, öneri ve hatalı cevap bildirimleriniz için e-posta gönderin"
               >
                 adnan.kus@hotmail.com
               </a>

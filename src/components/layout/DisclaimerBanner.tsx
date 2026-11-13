@@ -3,14 +3,14 @@ import React from "react";
 export function DisclaimerBanner({ className = "" }: { className?: string }) {
   return (
     <aside
-      aria-label="Manevi Sınırlar ve Yasal Uyarı Bildirimi"
+      aria-label="Şer'i Hukuki Çerçeve ve Yasal Uyarı Bildirimi"
       id="top-sinirlar-banner"
       className={`w-full bg-surface-container-low/95 border-b border-outline-variant/40 py-2.5 px-4 relative z-50 text-xs text-on-surface-variant backdrop-blur-sm ${className}`}
     >
       <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-on-surface-variant">
         <div className="flex items-center gap-2 text-center md:text-left truncate">
           <span className="text-xs font-semibold tracking-wider text-primary flex-shrink-0">
-            Manevi Sınırlar &amp; Beyan:
+            Şer&apos;i Hukuki Çerçeve:
           </span>
           <p className="text-[11px] text-slate-300 leading-snug truncate" lang="tr">
             Manevi Pusula fetva mercii değildir, hata yapabilir; bağlayıcılığı yoktur. Fıkhi hükümler için{" "}

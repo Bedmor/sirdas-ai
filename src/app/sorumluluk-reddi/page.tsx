@@ -5,7 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { DisclaimerBanner } from "@/components/layout/DisclaimerBanner";
 
 export const metadata: Metadata = {
-  title: "Sorumluluk Reddi ve Manevi Sınırlar | Manevi Pusula",
+  title: "Şer'i Hukuki Çerçeve | Manevi Pusula",
   description:
     "Manevi Pusula fıkhi fetva veya tıbbi tedavi makamı değildir. Resmi sınırlar, Diyanet Alo 190 ve acil yardım hatları 112 / 182 bilgilendirmesi.",
 };
@@ -24,7 +24,7 @@ export default function DisclaimerPage() {
               Şer&apos;i ve Hukuki Temel Çerçeve
             </span>
             <h1 className="text-3xl sm:text-4xl font-heading font-semibold text-on-surface tracking-tight">
-              Sorumluluk Reddi ve Manevi Sınırlar Beyanı
+              Şer&apos;i Hukuki Çerçeve
             </h1>
             <p className="text-sm text-slate-300 leading-relaxed font-light">
               Bu metin, Manevi Pusula platformunu kullanan her bireyin kabul etmiş sayıldığı fıkhi,
@@ -159,7 +159,7 @@ export default function DisclaimerPage() {
             <section className="bg-surface-container/60 p-6 sm:p-8 rounded-2xl border border-secondary/40 space-y-3">
               <h2 className="text-xl font-heading font-semibold text-on-surface flex items-center gap-2">
                 <i className="ph ph-shield-check text-secondary text-xl"></i>
-                <span>4. KVKK Kalkanı, Kendi İradesiyle Paylaşım ve Unutulma Hakkı</span>
+                <span>4. Mahremiyet Esasları, Kendi İradesiyle Paylaşım ve Unutulma Hakkı</span>
               </h2>
               <p className="text-sm text-slate-300 font-light leading-relaxed">
                 6698 sayılı KVKK md. 6 uyarınca dini inanç ve manevi durumlar özel nitelikli kişisel veridir.
@@ -168,7 +168,7 @@ export default function DisclaimerPage() {
                 asla eşleştirmez. Kullanıcı dilediği vakit tek tıkla &ldquo;Benlik Hafızamı Sıfırla / Tüm Verilerimi Sil&rdquo;
                 butonuna basarak unutulma hakkını icra edebilir. Ayrıntılar için{" "}
                 <a href="/gizlilik-politikasi#ozel-nitelikli-veri" className="text-primary underline hover:text-amber-300">
-                  Gizlilik Politikası ve KVKK Metnini
+                  Mahremiyet Esasları metnini
                 </a>{" "}
                 inceleyebilirsiniz.
               </p>
@@ -177,12 +177,12 @@ export default function DisclaimerPage() {
             <section className="bg-surface-container/60 p-6 sm:p-8 rounded-2xl border border-primary/40 space-y-3">
               <h2 className="text-xl font-heading font-semibold text-on-surface flex items-center gap-2">
                 <i className="ph ph-envelope-simple text-primary text-xl"></i>
-                <span>5. Görüş, Öneri, Tenkit ve Hatalı Cevap Bildirimi</span>
+                <span>5. Görüş, Öneri ve Hatalı Cevap Bildirimi</span>
               </h2>
               <p className="text-sm text-slate-300 font-light leading-relaxed">
                 Manevi Pusula yapay zeka destekli bir tefekkür ve dertleşme alanıdır; her yapay zeka sistemi gibi zaman zaman hata yapabilir veya bağlama tam uymayan ifadeler üretebilir. Karşılaştığınız hatalı yanıtlar, fıkhi veya ilmi tenkitler, üslup eleştirileri ve geliştirme önerileriniz için bize doğrudan{" "}
                 <a
-                  href="mailto:adnan.kus@hotmail.com?subject=Manevi%20Pusula%20-%20G%C3%B6r%C3%BC%C5%9F%2C%20Tenkit%20ve%20Hata%20Bildirimi"
+                  href="mailto:adnan.kus@hotmail.com?subject=Manevi%20Pusula%20-%20G%C3%B6r%C3%BC%C5%9F%2C%20%C3%96neri%20ve%20Hata%20Bildirimi"
                   className="text-primary underline hover:text-amber-300 font-medium"
                 >
                   adnan.kus@hotmail.com
@@ -190,7 +190,7 @@ export default function DisclaimerPage() {
                 e-posta adresi üzerinden ulaşabilirsiniz.
               </p>
               <p className="text-xs text-slate-400 font-light leading-relaxed">
-                Tarafımıza iletilen tüm tenkit, eleştiri ve hata bildirimleri titizlikle incelenmekte; korpus, denetim filtreleri ve tefekkür modelleri bu geri bildirimler ışığında sürekli iyileştirilmektedir.
+                Tarafımıza iletilen tüm görüş, öneri ve hata bildirimleri titizlikle incelenmekte; korpus, denetim filtreleri ve tefekkür modelleri bu geri bildirimler ışığında sürekli iyileştirilmektedir.
               </p>
             </section>
           </article>

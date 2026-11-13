@@ -65,12 +65,6 @@ export function Navbar() {
           </Link>
           <Link
             className="text-[16px] text-slate-300 hover:text-primary transition-colors py-1 px-[6px] rounded-md whitespace-nowrap focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-            href="/tanitim#sohbet-ornekleri"
-          >
-            Örnek Senaryolar
-          </Link>
-          <Link
-            className="text-[16px] text-slate-300 hover:text-primary transition-colors py-1 px-[6px] rounded-md whitespace-nowrap focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             href="/askida-sirdas"
           >
             Askıda Pusula
@@ -85,7 +79,7 @@ export function Navbar() {
             className="text-[16px] text-slate-300 hover:text-primary transition-colors py-1 px-[6px] rounded-md whitespace-nowrap focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             href="/sorumluluk-reddi"
           >
-            Sınırlar &amp; Beyan
+            Şer&apos;i Hukuki Çerçeve
           </Link>
         </nav>
 
@@ -128,13 +122,6 @@ export function Navbar() {
                   Manevi Araçlar
                 </Link>
                 <Link
-                  href="/tanitim#sohbet-ornekleri"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block px-3 py-2 rounded-xl text-sm font-medium text-slate-200 hover:text-primary hover:bg-surface-container transition-colors"
-                >
-                  Örnek Senaryolar
-                </Link>
-                <Link
                   href="/askida-sirdas"
                   onClick={() => setMobileMenuOpen(false)}
                   className="block px-3 py-2 rounded-xl text-sm font-medium text-slate-200 hover:text-primary hover:bg-surface-container transition-colors"
@@ -153,14 +140,14 @@ export function Navbar() {
                   onClick={() => setMobileMenuOpen(false)}
                   className="block px-3 py-2 rounded-xl text-sm font-medium text-slate-200 hover:text-primary hover:bg-surface-container transition-colors"
                 >
-                  Sınırlar &amp; Beyan
+                  Şer&apos;i Hukuki Çerçeve
                 </Link>
                 <Link
                   href="/gizlilik-politikasi"
                   onClick={() => setMobileMenuOpen(false)}
                   className="block px-3 py-2 rounded-xl text-sm font-medium text-slate-200 hover:text-primary hover:bg-surface-container transition-colors"
                 >
-                  Gizlilik Politikası (KVKK)
+                  Mahremiyet Esasları
                 </Link>
 
                 <div className="pt-2 border-t border-outline-variant/30">

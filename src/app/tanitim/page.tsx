@@ -5,10 +5,9 @@ import Link from "next/link";
 import { DisclaimerBanner } from "@/components/layout/DisclaimerBanner";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { LiveTrialSection } from "@/components/landing/live-trial";
 import { AskidaSirdasSection } from "@/components/landing/askida-sirdas-section";
 
-// Landing architecture: Hero, Manifesto, Features, LiveTrialSection, Halis Aydemir Sohbet Kesitleri, Sıkça Sorulan Sorular
+// Landing architecture: Hero, Askıda Pusula, Vizyon & Misyon, Halis Aydemir Sohbet Kesitleri, Sıkça Sorulan Sorular
 export default function TanitimLandingPage() {
   return (
     <>
@@ -17,7 +16,7 @@ export default function TanitimLandingPage() {
 
       <main className="w-full" id="ana-icerik" role="main">
         <div className="flex flex-col w-full relative overflow-hidden">
-          {/* HERO + LIVE TRIAL SECTION */}
+          {/* HERO */}
           <section
             aria-labelledby="hero-baslik"
             className="relative w-full max-w-[1200px] mx-auto px-6 pt-14 pb-16"
@@ -52,20 +51,8 @@ export default function TanitimLandingPage() {
                   <span>Manevi Pusula ile Dertleş</span>
                   <i aria-hidden="true" className="ph ph-arrow-right text-xs"></i>
                 </Link>
-                <a
-                  className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 text-sm text-slate-200 hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  href="#sohbet-ornekleri"
-                >
-                  <i
-                    aria-hidden="true"
-                    className="ph ph-book-open text-lg text-secondary"
-                  ></i>
-                  <span>Örnek Senaryolar</span>
-                </a>
               </div>
             </div>
-
-            <LiveTrialSection waUrl="/" />
           </section>
 
           {/* ASKIDA PUSULA */}

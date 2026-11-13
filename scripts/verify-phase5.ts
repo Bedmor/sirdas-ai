@@ -229,9 +229,8 @@ async function runTests() {
 
   // Test 11: Live Trial Section & 1-Time Per-User Limit (/api/trial)
   console.log("\n[11] Testing Live Trial Section & /api/trial 1-Time Limit Enforcement...");
-  const liveTrialPath = path.join(rootDir, "src/components/landing/live-trial.tsx");
-  assert(fs.existsSync(liveTrialPath), "src/components/landing/live-trial.tsx exists");
-  assert(landingContent.includes("LiveTrialSection"), "Landing page renders LiveTrialSection component");
+  // Örnek senaryo vitrini (LiveTrialSection) 13.11'de Adnan Bey'in isteğiyle kaldırıldı.
+  assert(!landingContent.includes("LiveTrialSection"), "Landing page no longer renders the example scenarios section");
 
   const trialRoute = await import("../src/app/api/trial/route");
   const uniqueTestIp = `198.51.100.${Math.floor(Math.random() * 200) + 10}`;

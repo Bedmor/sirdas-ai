@@ -37,6 +37,7 @@ import {
   runSafetyTriage,
 } from "@/lib/safety/triage";
 import { buildSafetyIntercept } from "@/lib/safety/intercept";
+import { geceGecSaatMi } from "@/lib/uslup/siniflandirici";
 
 type GuardrailFlags = Record<string, boolean>;
 
@@ -448,9 +449,7 @@ export async function POST(req: NextRequest) {
 
     const { hour: userLocalHour, minute: userLocalMinute } =
       resolveUserLocalTime();
-    const isLateNightTime =
-      (userLocalHour === 0 && userLocalMinute >= 30) ||
-      (userLocalHour >= 1 && userLocalHour < 5);
+    const isLateNightTime = geceGecSaatMi(userLocalHour, userLocalMinute);
 
     const historyUserMsgCount =
       validRawHistory.filter((item) => item.role === "user").length + 1;
@@ -704,6 +703,8 @@ export async function POST(req: NextRequest) {
                 distressLevel: jevResult.distress_level,
                 isRibaShieldActive,
                 isLateNightDismissal,
+                isLateNightHour: isLateNightTime,
+                sessionUserMessageCount: effectiveUserMsgCount,
                 nafsTrap: jevResult.nafs_trap,
                 ragCategory: jevResult.rag_category,
                 ragChunks: chunks,
@@ -962,6 +963,8 @@ export async function POST(req: NextRequest) {
         distressLevel: jevResult.distress_level,
         isRibaShieldActive,
         isLateNightDismissal,
+        isLateNightHour: isLateNightTime,
+        sessionUserMessageCount: effectiveUserMsgCount,
         nafsTrap: jevResult.nafs_trap,
         ragCategory: jevResult.rag_category,
         ragChunks: chunks,

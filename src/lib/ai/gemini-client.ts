@@ -18,6 +18,7 @@ import {
   RAG_CATEGORY_CRITERIA,
   detectSessionMood,
 } from "./jev-client";
+import { uslupYonergesiKur } from "../uslup";
 
 const CANDIDATE_MODELS = [
   process.env.GEMINI_MODEL || "gemini-3.8-flash",
@@ -112,6 +113,10 @@ export interface GenerateSirdasReplyParams {
   distressLevel: number;
   isRibaShieldActive: boolean;
   isLateNightDismissal?: boolean;
+  /** Kullanıcının yerel saatiyle 00:30 - 04:59 arası (oturum uzunluğundan bağımsız) */
+  isLateNightHour?: boolean;
+  /** Oturumdaki kullanıcı mesajı sayısı (bu mesaj dahil) */
+  sessionUserMessageCount?: number;
   nafsTrap: string;
   ragCategory: string;
   ragChunks: RagChunkContext[];
@@ -273,6 +278,19 @@ export function buildGeminiContents(
 - İlk paragrafta muhatabının halini ve sözünü gerçekten anladığını samimiyetle hissettir (aktif dinleme).
 - ${hasRag ? "Devamında yalnızca yukarıdaki onaylı kaynaklardan konuyla doğrudan örtüşen **1 sahih Ayet-i Kerime mealini VEYA 1 Hadis-i Şerif / Siyer-i Nebî örneğini** (kaynak adıyla _italik_ tırnak içinde) sözün akışına zarifçe yerleştir (örtüşmüyorsa zorla kullanma) ve gönlü ferahlatan bir dua/teselli ile tamamla." : "Kasadan eşleşen özel bir ayet/hadis çekilmediği için gündelik veya tanışma mahiyetindeki bu mesaja zorlama ayet/hadis sıkıştırma; doğal, içten ve vakur bir muhabbetle karşılık ver."}
 - ASLA sokak ağzı ("valla", "kanka") veya "sekinet" kelimesini KULLANMA.`;
+  }
+
+  // Üslup ve süzgeç paketi (kurgu/mizah, döngü kesici, kalıp yasağı, yalnızlaştırma kalkanı vb.)
+  const uslupYonergesi = uslupYonergesiKur({
+    mesaj: params.userMessage,
+    gecmis: params.conversationHistory,
+    geceGecSaat: params.isLateNightHour,
+    geceFesihAktif: params.isLateNightDismissal,
+    oturumMesajSayisi: params.sessionUserMessageCount,
+    ilimModu: isIlimMode,
+  });
+  if (uslupYonergesi) {
+    currentPrompt += `\n\n${uslupYonergesi}`;
   }
 
   if (params.isLateNightDismissal) {

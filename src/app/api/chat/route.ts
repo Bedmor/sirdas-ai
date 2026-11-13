@@ -39,6 +39,7 @@ import {
 import { buildSafetyIntercept } from "@/lib/safety/intercept";
 import { geceGecSaatMi } from "@/lib/uslup/siniflandirici";
 import { gecmisiMaskele } from "@/lib/gizlilik/maskeleme";
+import { hafizaKapaliProfil, hafizaPaketiCoz, hafizaYonergesiKur } from "@/lib/hafiza/yonerge";
 import { CikisSuzgeci, cikisSuzgeciUygula } from "@/lib/gizlilik/cikis-suzgeci";
 import {
   denetimKaydiOlustur,
@@ -571,6 +572,28 @@ export async function POST(req: NextRequest) {
       (metin) => sanitizeIncomingUserMessage(metin).sanitizedText
     );
 
+    // P4 hafıza paketi: cihazdan gelen emanet/hal bilgisi sunucuda yeniden denetlenir.
+    // Hafıza kapalıysa önceki oturumlardan kalan hitap ve notlar modele gönderilmez
+    // (sunucudaki kayıt ve saklama davranışı değişmez).
+    const hafizaPaketi = hafizaPaketiCoz(body.hafiza);
+    const hafizaKapali = hafizaPaketi?.acik === false;
+    const hafizaYonergesiOlustur = (ilimModu: boolean) =>
+      hafizaYonergesiKur({
+        paket: hafizaPaketi,
+        mesaj: safeMessage,
+        oncekiKullaniciMesajlari: conversationHistory
+          .filter((t) => t.role === "user")
+          .map((t) => t.content),
+        ilimModu,
+      });
+    const modelProfili = (profil: PersistentUserProfile): PersistentUserProfile =>
+      hafizaKapali
+        ? hafizaKapaliProfil(profil, {
+            preferred_name: extractedProfileFacts.preferred_name,
+            known_facts: extractedProfileFacts.known_facts,
+          })
+        : profil;
+
     const acceptHeader = req.headers.get("accept") || "";
     const isSseRequested =
       acceptHeader.includes("text/event-stream") || body.stream !== false;
@@ -722,7 +745,8 @@ export async function POST(req: NextRequest) {
 
               const streamGenerator = generateSirdasReplyStream({
                 userMessage: safeMessage,
-                userProfile: activeUserProfile,
+                userProfile: modelProfili(activeUserProfile),
+                hafizaYonergesi: hafizaYonergesiOlustur(intentMode === "ILIM_VE_SIYER"),
                 effectiveTone: resolvedTone,
                 sessionMood: jevResult.session_mood,
                 spiritualStage: resolvedStage,
@@ -1018,7 +1042,8 @@ export async function POST(req: NextRequest) {
 
       const sirdasOutput = await generateSirdasReply({
         userMessage: safeMessage,
-        userProfile: activeUserProfile,
+        userProfile: modelProfili(activeUserProfile),
+        hafizaYonergesi: hafizaYonergesiOlustur(intentMode === "ILIM_VE_SIYER"),
         effectiveTone: resolvedTone,
         sessionMood: jevResult.session_mood,
         spiritualStage: resolvedStage,

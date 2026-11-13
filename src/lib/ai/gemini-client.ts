@@ -122,6 +122,8 @@ export interface GenerateSirdasReplyParams {
   ragChunks: RagChunkContext[];
   conversationHistory?: ConversationHistoryTurn[];
   intentMode?: ChatIntentMode;
+  /** P4 hafıza paketi yönergesi (emanet, hal hafızası, oturum bağlamı); yoksa boş */
+  hafizaYonergesi?: string;
 }
 
 export function formatRagContext(chunks: RagChunkContext[]): string {
@@ -291,6 +293,10 @@ export function buildGeminiContents(
   });
   if (uslupYonergesi) {
     currentPrompt += `\n\n${uslupYonergesi}`;
+  }
+
+  if (params.hafizaYonergesi) {
+    currentPrompt += `\n\n${params.hafizaYonergesi}`;
   }
 
   if (params.isLateNightDismissal) {

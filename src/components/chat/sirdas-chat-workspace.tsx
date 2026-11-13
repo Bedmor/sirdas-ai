@@ -14,6 +14,17 @@ import {
 import { filterUsedSourcesByReply } from "@/lib/ai/source-citation-filter";
 import { TextShimmer } from "@/components/ui/text-shimmer";
 import { motion, AnimatePresence } from "motion/react";
+import { HafizamPaneli } from "./hafizam-paneli";
+import {
+  BOS_HAFIZA,
+  hafizaOku,
+  hafizaPaketiHazirla,
+  hafizaSil,
+  hafizaYaz,
+  halGuncelle,
+  hatirlatildiIsaretle,
+  type HafizaDurumu,
+} from "@/lib/hafiza";
 
 export interface ChatSourceBadge {
   id: string;
@@ -361,6 +372,17 @@ export function SirdasChatWorkspace() {
   });
   const profileDialogRef = useRef<HTMLDialogElement | null>(null);
 
+  // P4 Hafızam: emanetler, hal notu ve hafıza anahtarı (yalnız bu cihazda)
+  const [hafiza, setHafiza] = useState<HafizaDurumu>(BOS_HAFIZA);
+  const [isHafizamOpen, setIsHafizamOpen] = useState<boolean>(false);
+  const hafizaGuncelle = useCallback((yeni: HafizaDurumu) => {
+    setHafiza(yeni);
+    try {
+      hafizaYaz(window.localStorage, yeni);
+    } catch {}
+  }, []);
+  const hafizamKapat = useCallback(() => setIsHafizamOpen(false), []);
+
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -458,10 +480,12 @@ export function SirdasChatWorkspace() {
       try {
         localStorage.removeItem(THREADS_STORAGE_KEY);
         localStorage.removeItem(PROFILE_STORAGE_KEY);
+        hafizaSil(localStorage);
         const newClient = generateClientUuid();
         localStorage.setItem(CLIENT_ID_STORAGE_KEY, newClient);
         setClientId(newClient);
       } catch {}
+      setHafiza(BOS_HAFIZA);
 
       setUserProfile({
         roles: [],
@@ -500,6 +524,7 @@ export function SirdasChatWorkspace() {
         localStorage.setItem(CLIENT_ID_STORAGE_KEY, storedClient);
       }
       setClientId(storedClient);
+      setHafiza(hafizaOku(localStorage));
 
       const rawCachedProfile = localStorage.getItem(PROFILE_STORAGE_KEY);
       if (rawCachedProfile) {
@@ -831,6 +856,19 @@ export function SirdasChatWorkspace() {
       );
     }
 
+    // P4 hafıza: sunucuya giden paket ve hal notu güncellemesi (yalnız bu cihazda)
+    const hafizaPaketi = hafizaPaketiHazirla(hafiza, {
+      mesaj: trimmed,
+      ilkMesaj: priorHistory.length === 0,
+      sohbetId: currentThreadId,
+    });
+    hafizaGuncelle(
+      halGuncelle(
+        hafizaPaketi.halHatirlatma ? hatirlatildiIsaretle(hafiza) : hafiza,
+        { mesaj: trimmed, sohbetId: currentThreadId },
+      ),
+    );
+
     saveThreadsToStorage(updatedThreads);
     setIsLoading(true);
     setIsStreaming(false);
@@ -863,6 +901,7 @@ export function SirdasChatWorkspace() {
           localMinute: nowLocal.getMinutes(),
           timeZone: userTimeZone,
           sessionUserMessagesCount,
+          hafiza: hafizaPaketi,
           stream: true,
         }),
       });
@@ -1426,6 +1465,24 @@ export function SirdasChatWorkspace() {
                   </svg>
                 </motion.button>
               </div>
+
+              {/* Hafızam: emanetler ve hafıza anahtarı (P4) */}
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileDrawerOpen(false);
+                  setIsHafizamOpen(true);
+                }}
+                className="w-full flex min-h-14 items-center justify-center gap-3 rounded-[20px] bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 px-4 py-3 text-base font-semibold text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-xs cursor-pointer"
+              >
+                <svg aria-hidden="true" className="h-6 w-6 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.9" viewBox="0 0 24 24">
+                  <path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10Z" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span>Hafızam</span>
+                <span className="text-sm font-medium text-on-surface-variant">
+                  {hafiza.acik ? `${hafiza.emanetler.length} emanet` : "kapalı"}
+                </span>
+              </button>
             </>
           ) : (
             <div className="flex flex-col items-center gap-2">
@@ -2861,6 +2918,14 @@ export function SirdasChatWorkspace() {
           </form>
         </div>
       </dialog>
+
+      {/* P4 Hafızam ekranı */}
+      <HafizamPaneli
+        acik={isHafizamOpen}
+        durum={hafiza}
+        onDegistir={hafizaGuncelle}
+        onKapat={hafizamKapat}
+      />
 
       {/* Çelik Kasa RAG Sahih Mushaf & Hikmet Kitabı Modalı */}
       <SourceBookModal

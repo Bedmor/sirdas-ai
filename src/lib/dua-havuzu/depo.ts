@@ -2,7 +2,7 @@
  * Dua Havuzu veri deposu arayüzü ve bellek içi (sahte) depo.
  *
  * - Kimlik hiçbir zaman açık saklanmaz; yalnız tek yönlü özeti (kimlikOzeti) tutulur.
- * - Metin, gizleme kuralları uygulandıktan sonra saklanır; ham metin hiç yazılmaz.
+ * - Metin sunucuda hazır seçenekten üretilir; istemciden gelen yazı hiç saklanmaz.
  * - Bellek deposu yerel geliştirme ve testler içindir (canlı veri tabanına bağlanmaz).
  */
 
@@ -35,10 +35,10 @@ export type DestekSonucu =
 
 export interface DuaDeposu {
   ekle(kayit: { metin: string; sahipKimlikOzeti: string; simdi: Date; bitisTarihi: Date }): Promise<DuaKaydi>;
-  /** Süresi geçmemiş istekleri yeniden eskiye listeler */
-  listele(simdi: Date, kimlikOzeti: string, adet: number): Promise<DuaListeKaydi[]>;
-  /** Bu kimliğin kendi (süresi geçmemiş) istekleri */
-  benimkiler(simdi: Date, kimlikOzeti: string): Promise<DuaListeKaydi[]>;
+  /** Süresi geçmemiş ve metni izinli listede olan istekleri yeniden eskiye listeler */
+  listele(simdi: Date, kimlikOzeti: string, adet: number, izinliMetinler: readonly string[]): Promise<DuaListeKaydi[]>;
+  /** Bu kimliğin kendi (süresi geçmemiş, metni izinli) istekleri */
+  benimkiler(simdi: Date, kimlikOzeti: string, izinliMetinler: readonly string[]): Promise<DuaListeKaydi[]>;
   /** Bu kimliğin verilen tarihten sonra bıraktığı istekler (günlük sınır ve tekrar denetimi için) */
   sonIstekler(kimlikOzeti: string, sonra: Date): Promise<Array<{ metin: string; olusturmaTarihi: Date }>>;
   destekle(duaId: string, kimlikOzeti: string, simdi: Date): Promise<DestekSonucu>;
@@ -86,20 +86,20 @@ export class BellekDuaDeposu implements DuaDeposu {
     };
   }
 
-  private gecerliler(simdi: Date): DuaKaydi[] {
+  private gecerliler(simdi: Date, izinliMetinler: readonly string[]): DuaKaydi[] {
     return Array.from(this.istekler.values())
-      .filter((k) => k.bitisTarihi.getTime() > simdi.getTime())
+      .filter((k) => k.bitisTarihi.getTime() > simdi.getTime() && izinliMetinler.includes(k.metin))
       .sort((a, b) => b.olusturmaTarihi.getTime() - a.olusturmaTarihi.getTime());
   }
 
-  async listele(simdi: Date, kimlikOzeti: string, adet: number): Promise<DuaListeKaydi[]> {
-    return this.gecerliler(simdi)
+  async listele(simdi: Date, kimlikOzeti: string, adet: number, izinliMetinler: readonly string[]): Promise<DuaListeKaydi[]> {
+    return this.gecerliler(simdi, izinliMetinler)
       .slice(0, adet)
       .map((k) => this.listeKaydi(k, kimlikOzeti));
   }
 
-  async benimkiler(simdi: Date, kimlikOzeti: string): Promise<DuaListeKaydi[]> {
-    return this.gecerliler(simdi)
+  async benimkiler(simdi: Date, kimlikOzeti: string, izinliMetinler: readonly string[]): Promise<DuaListeKaydi[]> {
+    return this.gecerliler(simdi, izinliMetinler)
       .filter((k) => k.sahipKimlikOzeti === kimlikOzeti)
       .map((k) => this.listeKaydi(k, kimlikOzeti));
   }

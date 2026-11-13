@@ -1,12 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  DUA_EN_UZUN,
   DUA_GUNLUK_SINIR,
+  DUA_KONULARI,
   DUA_SURE_MS,
-  GIZLENDI,
-  duaMetniniDenetle,
-  duaMetniniMaskele,
+  IZINLI_DUA_METINLERI,
+  duaKonusunuDenetle,
 } from "../../src/lib/dua-havuzu/kurallar";
 import { BellekDuaDeposu } from "../../src/lib/dua-havuzu/depo";
 import {
@@ -25,124 +24,127 @@ const A = kimlikOzetiCikar("cihaz-a-1234");
 const B = kimlikOzetiCikar("cihaz-b-5678");
 const C = kimlikOzetiCikar("cihaz-c-9012");
 
-function kabul(metin: string) {
-  const s = duaMetniniDenetle(metin);
-  assert.equal(s.tamam, true, `kabul edilmeliydi: ${metin} -> ${JSON.stringify(s)}`);
-  return s as { tamam: true; metin: string; gizlendi: boolean };
+type Sonuc = { tamam: boolean; sebep?: string; mesaj?: string; istek?: { id: string; metin: string; bitis: string } };
+
+async function birak(depo: BellekDuaDeposu, kimlikOzeti: string, govde: unknown, simdi = BASLANGIC): Promise<Sonuc> {
+  return (await duaIstegiBirak(depo, { kimlikOzeti, govde, simdi })) as Sonuc;
 }
 
-function reddet(metin: string, sebep: string) {
-  const s = duaMetniniDenetle(metin);
-  assert.equal(s.tamam, false, `reddedilmeliydi: ${metin}`);
-  assert.equal((s as { sebep: string }).sebep, sebep, `sebep: ${metin}`);
-  return s as { tamam: false; sebep: string; mesaj: string; notice?: { kind: string; hotlines: { number: string }[] } };
+/** Eski (serbest yazılı) bir kaydı doğrudan depoya ekler: geçiş öncesi veriyi taklit eder. */
+async function eskiSerbestKayit(depo: BellekDuaDeposu, kimlikOzeti: string, metin: string, simdi = BASLANGIC) {
+  return depo.ekle({ metin, sahipKimlikOzeti: kimlikOzeti, simdi, bitisTarihi: new Date(simdi.getTime() + DUA_SURE_MS) });
 }
 
 // ---------------------------------------------------------------------------
-// Gizleme (maskeleme)
+// Hazır seçenekler
 // ---------------------------------------------------------------------------
 
-test("dua havuzu: telefon, TC, e-posta ve IBAN yayımlanmadan gizlenir", () => {
-  const s = kabul("Annem için şifa duası istiyorum, beni 0532 123 45 67 numarasından arayın, mail ali.veli@ornek.com");
-  assert.ok(!s.metin.includes("0532"));
-  assert.ok(!s.metin.includes("ornek.com"));
-  assert.ok(s.metin.includes(GIZLENDI));
-  assert.equal(s.gizlendi, true);
-
-  const tc = duaMetniniMaskele("TC kimlik numaram 10000000146 olan babam için dua edin");
-  assert.ok(!tc.metin.includes("10000000146"));
-});
-
-test("dua havuzu: isim, akraba adı ve sosyal medya adı gizlenir", () => {
-  const s = kabul("Kızım Zeynep'in sınavı için dua eder misiniz, instagramda @zeynep.yilmaz34");
-  assert.ok(!s.metin.includes("Zeynep"));
-  assert.ok(!s.metin.includes("@zeynep"));
-
-  const m = duaMetniniMaskele("Benim adım Mehmet, kardeşim Ahmet Yılmaz hastanede yatıyor.");
-  assert.ok(!m.metin.includes("Mehmet"));
-  assert.ok(!m.metin.includes("Ahmet"));
-  assert.ok(!m.metin.includes("Yılmaz"));
-
-  const cumleBasi = duaMetniniMaskele("Ayşe'nin ameliyatı yarın, Rabbim kolaylık versin.");
-  assert.ok(!cumleBasi.metin.includes("Ayşe"));
-});
-
-test("dua havuzu: Allah, Rabbim, Hz. ve dini kelimeler gizlenmez", () => {
-  const m = duaMetniniMaskele("Allah'ım, Peygamber Efendimiz hürmetine annemin Kâbe'yi görmesini nasip et. Hz. Ali gibi sabırlı olalım. Âmin.");
-  assert.equal(m.gizlendi, false, m.metin);
-  assert.ok(m.metin.includes("Allah'ım"));
-  assert.ok(m.metin.includes("Kâbe'yi"));
-  assert.ok(m.metin.includes("Hz. Ali"));
-});
-
-test("dua havuzu: kişisel bilgi içermeyen metin aynen kalır", () => {
-  const metin = "Babam yarın ameliyata girecek, şifa bulması için dua eder misiniz?";
-  const s = kabul(metin);
-  assert.equal(s.metin, metin);
-  assert.equal(s.gizlendi, false);
-});
-
-// ---------------------------------------------------------------------------
-// Süzgeç ve sınırlar
-// ---------------------------------------------------------------------------
-
-test("dua havuzu: kriz işareti olan istek havuza düşmez, 112/183 yönlendirmesi döner", async () => {
-  const r = reddet("Artık yaşamak istemiyorum, intihar etmeyi düşünüyorum", "KRIZ");
-  assert.equal(r.notice?.kind, "crisis");
-  const hatlar = r.notice!.hotlines.map((h) => h.number);
-  assert.ok(hatlar.includes("112") && hatlar.includes("183"));
-
-  const depo = new BellekDuaDeposu();
-  const s = await duaIstegiBirak(depo, { kimlikOzeti: A, metin: "Kendimi öldürmek istiyorum, dua edin", simdi: BASLANGIC });
-  assert.equal(s.tamam, false);
-  assert.equal((await duaHavuzunuGetir(depo, { kimlikOzeti: B, simdi: BASLANGIC })).istekler.length, 0);
-});
-
-test("dua havuzu: çocuk ve fetva süzgeci de uygulanır", () => {
-  assert.equal(reddet("Ben 9 yaşındayım, annem için dua eder misiniz", "COCUK").notice?.kind, "child");
-  reddet("Faizli kredi çekmek caiz mi, hükmü nedir söyler misiniz", "FETVA");
-});
-
-test("dua havuzu: hastalık için şifa duası kabul edilir", () => {
-  kabul("Annem kanser tedavisi görüyor, şifa bulması için dua eder misiniz");
-});
-
-test("dua havuzu: küfür, hakaret ve beddua reddedilir; masum kelimeler geçer", () => {
-  reddet("Komşum şerefsiz adam, onun için dua edin", "KUFUR");
-  reddet("Siktir git diyen patronum için dua", "KUFUR");
-  reddet("Bana zulmeden adamın Allah belasını versin", "BEDDUA");
-  kabul("Sık sık sıkıntı çekiyorum, gönlüm ferahlasın diye dua edin");
-  kabul("Sik sik sikinti cekiyorum, gonlum ferahlasin diye dua edin");
-  kabul("Götürdüğüm emanetler sahibine ulaşsın, yolculuğum hayırlı olsun");
-});
-
-test("dua havuzu: bağlantı ve reklam reddedilir", () => {
-  reddet("Dua edin ve sitemize bakın https://ornek.com", "BAGLANTI");
-  reddet("www.firsatlar.net için dua", "BAGLANTI");
-  reddet("Dükkanımızda büyük indirim var, takip edin bereket olsun", "REKLAM");
-});
-
-test("dua havuzu: boş, çok kısa ve 300 harften uzun metin reddedilir", () => {
-  reddet("   ", "BOS");
-  reddet("dua et", "KISA");
-  reddet("a".repeat(DUA_EN_UZUN + 1), "UZUN");
-  kabul("Rabbim hepimize hayırlı kapılar açsın. " + "Ailemize huzur versin. ".repeat(5));
-});
-
-test("dua havuzu: günlük sınır ve aynı metnin tekrarı", async () => {
-  const depo = new BellekDuaDeposu();
-  for (let i = 0; i < DUA_GUNLUK_SINIR; i++) {
-    const s = await duaIstegiBirak(depo, { kimlikOzeti: A, metin: `Hayırlı bir iş bulmam için dua eder misiniz ${["bir", "iki", "üç", "dört"][i]}`, simdi: saatSonra(i) });
-    assert.equal(s.tamam, true);
+test("dua havuzu: seçenek listesi sabit, sıralı ve 6 cümleden oluşur", () => {
+  assert.deepEqual(
+    DUA_KONULARI.map((k) => k.anahtar),
+    ["sifa", "sinav", "rizik", "aile", "gonul", "kapi"]
+  );
+  assert.deepEqual(
+    DUA_KONULARI.map((k) => k.etiket),
+    ["Şifa için", "Sınav için", "İş ve rızık için", "Aile huzuru için", "Gönül huzuru için", "Hayırlı bir kapı için"]
+  );
+  assert.equal(IZINLI_DUA_METINLERI.length, 6);
+  for (const m of IZINLI_DUA_METINLERI) {
+    assert.ok(m.startsWith("Bir kardeşimiz ") && m.endsWith(" için dua istiyor"), m);
+    assert.ok(!/[—–]/.test(m), "uzun tire olmamalı");
   }
-  const tekrar = await duaIstegiBirak(depo, { kimlikOzeti: A, metin: "Hayırlı bir iş bulmam için dua eder misiniz bir", simdi: saatSonra(4) });
-  assert.equal((tekrar as { sebep: string }).sebep, "TEKRAR");
-  const fazla = await duaIstegiBirak(depo, { kimlikOzeti: A, metin: "Evimize huzur ve bereket gelsin diye dua edin", simdi: saatSonra(4) });
-  assert.equal((fazla as { sebep: string }).sebep, "GUNLUK_SINIR");
+});
+
+test("dua havuzu: geçerli anahtar kabul edilir, kart cümlesi sunucuda üretilir", async () => {
+  const depo = new BellekDuaDeposu();
+  for (const [i, k] of DUA_KONULARI.entries()) {
+    const s = await birak(depo, kimlikOzetiCikar(`cihaz-${i}`), { konu: k.anahtar });
+    assert.equal(s.tamam, true, JSON.stringify(s));
+    assert.equal(s.istek!.metin, k.metin);
+  }
+  assert.deepEqual(duaKonusunuDenetle({ konu: "sifa" }), {
+    tamam: true,
+    konu: "sifa",
+    metin: "Bir kardeşimiz şifa için dua istiyor",
+  });
+});
+
+test("dua havuzu: bilinmeyen anahtar reddedilir ve hiçbir şey yazılmaz", async () => {
+  const depo = new BellekDuaDeposu();
+  for (const govde of [{ konu: "kufur" }, { konu: "" }, { konu: 3 }, { konu: "SIFA" }, {}, null, "sifa", [], { konu: "__proto__" }]) {
+    const s = await birak(depo, A, govde);
+    assert.equal(s.tamam, false, JSON.stringify(govde));
+    assert.equal(s.sebep, "BILINMEYEN_KONU", JSON.stringify(govde));
+    assert.ok(s.mesaj && s.mesaj.length > 0);
+  }
+  assert.equal((await duaHavuzunuGetir(depo, { kimlikOzeti: B, simdi: BASLANGIC })).istekler.length, 0);
+  assert.equal((await depo.sonIstekler(A, new Date(0))).length, 0);
+});
+
+test("dua havuzu: serbest metin reddedilir, istemciden gelen yazı veri tabanına yazılmaz", async () => {
+  const depo = new BellekDuaDeposu();
+  const denemeler: unknown[] = [
+    { metin: "Babam için dua edin" },
+    { konu: "sifa", metin: "Ahmet Yılmaz 0532 123 45 67 için şifa" },
+    { konu: "sifa", aciklama: "uygunsuz bir yazı" },
+    { konu: "sifa", ek: { metin: "gizli yazı" } },
+  ];
+  for (const govde of denemeler) {
+    const s = await birak(depo, A, govde);
+    assert.equal(s.tamam, false, JSON.stringify(govde));
+    assert.equal(s.sebep, "SERBEST_METIN", JSON.stringify(govde));
+  }
+  assert.equal((await depo.sonIstekler(A, new Date(0))).length, 0);
+
+  // Geçerli istekte bile yalnız sunucunun cümlesi saklanır.
+  await birak(depo, A, { konu: "sifa" });
+  const kayitlar = await depo.sonIstekler(A, new Date(0));
+  assert.deepEqual(kayitlar.map((k) => k.metin), ["Bir kardeşimiz şifa için dua istiyor"]);
+});
+
+test("dua havuzu: eski serbest yazılı kayıtlar listede ve 'Sizin isteğiniz'de görünmez", async () => {
+  const depo = new BellekDuaDeposu();
+  await eskiSerbestKayit(depo, A, "Kızım Zeynep'in sınavı için dua eder misiniz");
+  await eskiSerbestKayit(depo, B, "Bir kardeşimiz şifa için dua istiyor.");
+  await birak(depo, A, { konu: "aile" }, saatSonra(1));
+
+  const bGorunum = await duaHavuzunuGetir(depo, { kimlikOzeti: B, simdi: saatSonra(2) });
+  assert.deepEqual(bGorunum.istekler.map((d) => d.metin), ["Bir kardeşimiz aile huzuru için dua istiyor"]);
+  assert.equal(bGorunum.benimkiler.length, 0);
+
+  const aGorunum = await duaHavuzunuGetir(depo, { kimlikOzeti: A, simdi: saatSonra(2) });
+  assert.deepEqual(aGorunum.benimkiler.map((d) => d.metin), ["Bir kardeşimiz aile huzuru için dua istiyor"]);
+  assert.equal(aGorunum.istekler.length, 0);
+  assert.ok(!JSON.stringify(aGorunum).includes("Zeynep"));
+});
+
+// ---------------------------------------------------------------------------
+// Sınırlar
+// ---------------------------------------------------------------------------
+
+test("dua havuzu: aynı cihaz aynı konuyu 24 saat içinde tekrar bırakamaz", async () => {
+  const depo = new BellekDuaDeposu();
+  assert.equal((await birak(depo, A, { konu: "sinav" })).tamam, true);
+  const tekrar = await birak(depo, A, { konu: "sinav" }, saatSonra(5));
+  assert.equal(tekrar.sebep, "TEKRAR");
+  // Başka cihaz aynı konuyu bırakabilir
+  assert.equal((await birak(depo, B, { konu: "sinav" }, saatSonra(5))).tamam, true);
+  // 24 saat dolunca aynı cihaz yeniden bırakabilir
+  assert.equal((await birak(depo, A, { konu: "sinav" }, saatSonra(25))).tamam, true);
+});
+
+test("dua havuzu: günlük sınır cihaz başına 24 saatte 3", async () => {
+  const depo = new BellekDuaDeposu();
+  const konular = ["sifa", "rizik", "gonul"];
+  for (let i = 0; i < DUA_GUNLUK_SINIR; i++) {
+    assert.equal((await birak(depo, A, { konu: konular[i] }, saatSonra(i))).tamam, true);
+  }
+  const fazla = await birak(depo, A, { konu: "kapi" }, saatSonra(4));
+  assert.equal(fazla.sebep, "GUNLUK_SINIR");
   // Başka cihaz etkilenmez
-  assert.equal((await duaIstegiBirak(depo, { kimlikOzeti: B, metin: "Evimize huzur ve bereket gelsin diye dua edin", simdi: saatSonra(4) })).tamam, true);
+  assert.equal((await birak(depo, B, { konu: "kapi" }, saatSonra(4))).tamam, true);
   // 24 saat dolunca yeniden bırakılabilir
-  assert.equal((await duaIstegiBirak(depo, { kimlikOzeti: A, metin: "Evimize huzur ve bereket gelsin diye dua edin", simdi: saatSonra(25) })).tamam, true);
+  assert.equal((await birak(depo, A, { konu: "kapi" }, saatSonra(25))).tamam, true);
 });
 
 // ---------------------------------------------------------------------------
@@ -151,7 +153,7 @@ test("dua havuzu: günlük sınır ve aynı metnin tekrarı", async () => {
 
 test("dua havuzu: aynı cihaz bir isteğe yalnız bir kez basar, sayaç doğru artar", async () => {
   const depo = new BellekDuaDeposu();
-  const s = await duaIstegiBirak(depo, { kimlikOzeti: A, metin: "Oğlumun askerliği hayırla bitsin diye dua edin", simdi: BASLANGIC });
+  const s = await duaIstegiBirak(depo, { kimlikOzeti: A, govde: { konu: "aile" }, simdi: BASLANGIC });
   assert.equal(s.tamam, true);
   const id = (s as { istek: { id: string } }).istek.id;
 
@@ -171,7 +173,7 @@ test("dua havuzu: aynı cihaz bir isteğe yalnız bir kez basar, sayaç doğru a
 
 test("dua havuzu: istek sahibi kendi isteğine kaç kişinin dua ettiğini görür", async () => {
   const depo = new BellekDuaDeposu();
-  const s = await duaIstegiBirak(depo, { kimlikOzeti: A, metin: "Borçlarımdan kurtulmam için dua eder misiniz", simdi: BASLANGIC });
+  const s = await duaIstegiBirak(depo, { kimlikOzeti: A, govde: { konu: "kapi" }, simdi: BASLANGIC });
   const id = (s as { istek: { id: string } }).istek.id;
   await allahYardimcinOlsun(depo, { kimlikOzeti: B, duaId: id, simdi: saatSonra(1) });
   await allahYardimcinOlsun(depo, { kimlikOzeti: C, duaId: id, simdi: saatSonra(1) });
@@ -188,7 +190,7 @@ test("dua havuzu: istek sahibi kendi isteğine kaç kişinin dua ettiğini gör�
 
 test("dua havuzu: istek sahibi kendi isteğini kaldırabilir, başkası kaldıramaz", async () => {
   const depo = new BellekDuaDeposu();
-  const s = await duaIstegiBirak(depo, { kimlikOzeti: A, metin: "Eşimle aramız düzelsin diye dua edin", simdi: BASLANGIC });
+  const s = await duaIstegiBirak(depo, { kimlikOzeti: A, govde: { konu: "sifa" }, simdi: BASLANGIC });
   const id = (s as { istek: { id: string } }).istek.id;
   assert.equal(await duaIsteginiKaldir(depo, { kimlikOzeti: B, duaId: id }), false);
   assert.equal(await duaIsteginiKaldir(depo, { kimlikOzeti: A, duaId: id }), true);
@@ -201,7 +203,7 @@ test("dua havuzu: istek sahibi kendi isteğini kaldırabilir, başkası kaldıra
 
 test("dua havuzu: istek 3 gün sonra listeden düşer ve basılamaz", async () => {
   const depo = new BellekDuaDeposu();
-  const s = await duaIstegiBirak(depo, { kimlikOzeti: A, metin: "Yolculuğumuz hayırlı geçsin diye dua edin", simdi: BASLANGIC });
+  const s = await duaIstegiBirak(depo, { kimlikOzeti: A, govde: { konu: "rizik" }, simdi: BASLANGIC });
   const istek = (s as { istek: { id: string; bitis: string } }).istek;
   assert.equal(new Date(istek.bitis).getTime() - BASLANGIC.getTime(), DUA_SURE_MS);
   assert.equal(DUA_SURE_MS, 3 * 24 * 60 * 60 * 1000);
@@ -214,12 +216,12 @@ test("dua havuzu: istek 3 gün sonra listeden düşer ve basılamaz", async () =
 
 test("dua havuzu: süresi geçenleri temizleme yalnız süresi dolanları siler", async () => {
   const depo = new BellekDuaDeposu();
-  await duaIstegiBirak(depo, { kimlikOzeti: A, metin: "Eski istek, hayırlı haber alalım diye dua", simdi: BASLANGIC });
-  await duaIstegiBirak(depo, { kimlikOzeti: B, metin: "Yeni istek, sınavımı kazanayım diye dua", simdi: saatSonra(48) });
+  await duaIstegiBirak(depo, { kimlikOzeti: A, govde: { konu: "gonul" }, simdi: BASLANGIC });
+  await duaIstegiBirak(depo, { kimlikOzeti: B, govde: { konu: "sinav" }, simdi: saatSonra(48) });
   assert.equal(await suresiGecenDualariTemizle(depo, saatSonra(73)), 1);
   const kalan = await duaHavuzunuGetir(depo, { kimlikOzeti: C, simdi: saatSonra(73) });
   assert.equal(kalan.istekler.length, 1);
-  assert.ok(kalan.istekler[0].metin.startsWith("Yeni istek"));
+  assert.equal(kalan.istekler[0].metin, "Bir kardeşimiz sınavı için dua istiyor");
 });
 
 test("dua havuzu: kimlik özeti tek yönlüdür, kimliğin kendisi saklanmaz", () => {

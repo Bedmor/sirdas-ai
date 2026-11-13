@@ -1,13 +1,9 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { CircleAlert, CircleCheck, Clock, EyeOff, HandHeart, Trash2 } from "lucide-react";
-import { SafetyNoticeBox, type SafetyNoticeData } from "@/components/chat/safety-notice-box";
+import { CircleAlert, CircleCheck, Clock, HandHeart, Trash2 } from "lucide-react";
 import { CLIENT_ID_STORAGE_KEY, yeniCihazKimligiUret } from "@/lib/cihaz-temizle";
-
-/** Sunucudaki kuralla aynı sınır (src/lib/dua-havuzu/kurallar.ts) */
-const EN_UZUN = 300;
-const GIZLENDI = "[gizlendi]";
+import { DUA_KONULARI, type DuaKonusu } from "@/lib/dua-havuzu/kurallar";
 
 type Dua = {
   id: string;
@@ -19,9 +15,7 @@ type Dua = {
   benim: boolean;
 };
 
-type Bildirim =
-  | { tur: "basari"; mesaj: string }
-  | { tur: "uyari"; mesaj: string; notice?: SafetyNoticeData };
+type Bildirim = { tur: "basari" | "uyari"; mesaj: string };
 
 function cihazKimligi(): string {
   try {
@@ -61,26 +55,8 @@ function kalanSure(iso: string, simdi: number): string {
   return `${Math.ceil(sa / 24)} gün sonra listeden kalkacak`;
 }
 
-/** "[gizlendi]" yer tutucularını sade ve okunur bir işaretle gösterir. */
 function DuaMetni({ metin }: { metin: string }) {
-  const parcalar = metin.split(GIZLENDI);
-  return (
-    <p className="whitespace-pre-line break-words text-lg leading-relaxed text-on-surface">
-      {parcalar.map((p, i) => (
-        <React.Fragment key={i}>
-          {p}
-          {i < parcalar.length - 1 && (
-            <span
-              className="mx-0.5 inline-block rounded-md border border-outline-variant/70 bg-surface-container-high px-1.5 text-base italic text-on-surface-variant"
-              title="Kişisel bilgi gizlendi"
-            >
-              gizlendi
-            </span>
-          )}
-        </React.Fragment>
-      ))}
-    </p>
-  );
+  return <p className="break-words text-lg leading-relaxed text-on-surface">{metin}</p>;
 }
 
 function Sayac({ sayi }: { sayi: number }) {
@@ -102,8 +78,7 @@ export function DuaHavuzu() {
   const [benimkiler, setBenimkiler] = useState<Dua[]>([]);
   const [yukleniyor, setYukleniyor] = useState(true);
   const [yuklemeHatasi, setYuklemeHatasi] = useState<string | null>(null);
-  const [metin, setMetin] = useState("");
-  const [gonderiliyor, setGonderiliyor] = useState(false);
+  const [gonderilen, setGonderilen] = useState<DuaKonusu | null>(null);
   const [bildirim, setBildirim] = useState<Bildirim | null>(null);
   const [basiliyor, setBasiliyor] = useState<string | null>(null);
   const [simdi, setSimdi] = useState(() => Date.now());
@@ -135,45 +110,33 @@ export function DuaHavuzu() {
     if (bildirim) bildirimRef.current?.focus();
   }, [bildirim]);
 
-  const harfSayisi = [...metin].length;
-  const fazla = harfSayisi > EN_UZUN;
+  /** Bu cihazın listede duran isteklerinin cümleleri (aynı konu yeniden seçilemesin) */
+  const birakilanlar = new Set(benimkiler.map((d) => d.metin));
 
-  const gonder = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (gonderiliyor) return;
-    if (!metin.trim()) {
-      setBildirim({ tur: "uyari", mesaj: "Lütfen dua isteğinizi yazın." });
-      return;
-    }
-    setGonderiliyor(true);
+  const birak = async (konu: DuaKonusu) => {
+    if (gonderilen) return;
+    setGonderilen(konu);
     setBildirim(null);
     try {
       const r = await fetch("/api/dua-havuzu", {
         method: "POST",
         headers: basliklar(),
-        body: JSON.stringify({ metin }),
+        body: JSON.stringify({ konu }),
       });
       const v = await r.json().catch(() => ({}));
       if (r.ok && v?.tamam) {
-        setMetin("");
-        setBildirim({
-          tur: "basari",
-          mesaj: v.gizlendi
-            ? "İsteğiniz dua havuzuna eklendi. Kişisel bilgiler gizlenerek yayımlandı."
-            : "İsteğiniz dua havuzuna eklendi. Rabbim kabul etsin.",
-        });
+        setBildirim({ tur: "basari", mesaj: "İsteğiniz dua havuzuna eklendi. Rabbim kabul etsin." });
         await yukle();
       } else {
         setBildirim({
           tur: "uyari",
           mesaj: v?.mesaj || v?.hata || "İsteğiniz şu an gönderilemedi. Lütfen biraz sonra yeniden deneyin.",
-          notice: v?.notice,
         });
       }
     } catch {
       setBildirim({ tur: "uyari", mesaj: "Bağlantı kurulamadı. Lütfen internetinizi kontrol edip yeniden deneyin." });
     } finally {
-      setGonderiliyor(false);
+      setGonderilen(null);
     }
   };
 
@@ -220,45 +183,39 @@ export function DuaHavuzu() {
         className="rounded-[24px] border border-outline-variant/50 bg-surface-container/85 p-5 sm:p-6 shadow-md space-y-4"
       >
         <h2 id="dua-birak-baslik" className="font-heading text-xl font-semibold text-on-surface">
-          Dua isteği bırakın
+          Ne için dua istersiniz?
         </h2>
-        <form onSubmit={gonder} className="space-y-3" noValidate>
-          <label htmlFor="dua-metni" className="block text-base text-on-surface-variant">
-            Kısaca yazın; adınız görünmez. Kardeşleriniz okuyup sizin için dua eder.
-          </label>
-          <textarea
-            id="dua-metni"
-            value={metin}
-            onChange={(e) => setMetin(e.target.value)}
-            rows={4}
-            placeholder="Örnek: Babam yarın ameliyat olacak, şifa bulması için dua eder misiniz?"
-            aria-describedby="dua-sayac dua-bilgi"
-            className="w-full resize-y rounded-2xl border border-outline-variant/70 bg-surface-container-high px-4 py-3 text-lg leading-relaxed text-on-surface placeholder:text-on-surface-variant/60 focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          />
-          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-            <p id="dua-sayac" className={`text-sm tabular-nums ${fazla ? "font-semibold text-error" : "text-on-surface-variant"}`}>
-              {harfSayisi} / {EN_UZUN}
-            </p>
-          </div>
-          <ul id="dua-bilgi" className="space-y-1.5 text-[15px] leading-snug text-on-surface-variant">
-            <li className="flex gap-2">
-              <EyeOff aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-secondary" />
-              <span>İsim, telefon, adres gibi bilgiler yayımlanmadan gizlenir.</span>
-            </li>
-            <li className="flex gap-2">
-              <Clock aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-secondary" />
-              <span>İstek üç gün sonra listeden kendiliğinden kalkar.</span>
-            </li>
-          </ul>
-          <button
-            type="submit"
-            disabled={gonderiliyor || fazla}
-            className="flex min-h-[52px] w-full items-center justify-center gap-2 rounded-full bg-primary px-6 text-lg font-semibold text-on-primary shadow-md transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/50"
-          >
-            <HandHeart aria-hidden="true" className="h-6 w-6 shrink-0" />
-            {gonderiliyor ? "Gönderiliyor..." : "Dua isteğimi bırak"}
-          </button>
-        </form>
+        <p className="text-base text-on-surface-variant">
+          Bir seçeneğe dokunun; isteğiniz adınız olmadan listeye eklenir. Kardeşleriniz okuyup sizin için dua eder.
+        </p>
+        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2" aria-label="Dua seçenekleri">
+          {DUA_KONULARI.map((k) => {
+            const birakildi = birakilanlar.has(k.metin);
+            const bekliyor = gonderilen === k.anahtar;
+            return (
+              <li key={k.anahtar}>
+                <button
+                  type="button"
+                  onClick={() => birak(k.anahtar)}
+                  disabled={birakildi || gonderilen !== null}
+                  aria-pressed={birakildi}
+                  className={`flex min-h-[56px] w-full items-center justify-center gap-2 rounded-2xl border-2 px-4 py-2 text-center text-lg font-semibold leading-snug transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/50 ${
+                    birakildi
+                      ? "cursor-default border-secondary/60 bg-secondary-container text-on-secondary-container"
+                      : "border-primary/70 bg-surface-container-high text-on-surface hover:bg-primary/15 disabled:cursor-wait disabled:opacity-70"
+                  }`}
+                >
+                  {birakildi && <CircleCheck aria-hidden="true" className="h-5 w-5 shrink-0" />}
+                  <span>{bekliyor ? "Gönderiliyor..." : k.etiket}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+        <p className="flex gap-2 text-[15px] leading-snug text-on-surface-variant">
+          <Clock aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-secondary" />
+          <span>İstek üç gün sonra listeden kendiliğinden kalkar.</span>
+        </p>
 
         <div ref={bildirimRef} tabIndex={-1} aria-live="polite" className="outline-none">
           {bildirim?.tur === "basari" && (
@@ -268,16 +225,13 @@ export function DuaHavuzu() {
             </p>
           )}
           {bildirim?.tur === "uyari" && (
-            <div className="space-y-3">
-              <p
-                role="alert"
-                className="flex gap-2 rounded-2xl border-2 border-error/70 bg-error-container px-4 py-3 text-base text-on-error-container"
-              >
-                <CircleAlert aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0" />
-                <span>{bildirim.mesaj}</span>
-              </p>
-              {bildirim.notice && <SafetyNoticeBox notice={bildirim.notice} />}
-            </div>
+            <p
+              role="alert"
+              className="flex gap-2 rounded-2xl border-2 border-error/70 bg-error-container px-4 py-3 text-base text-on-error-container"
+            >
+              <CircleAlert aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0" />
+              <span>{bildirim.mesaj}</span>
+            </p>
           )}
         </div>
       </section>

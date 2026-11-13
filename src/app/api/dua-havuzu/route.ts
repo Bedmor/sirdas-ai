@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 /**
  * Dua Havuzu (Adnan Bey 13.11).
  * GET    -> süresi geçmemiş istekler + bu cihazın kendi istekleri
- * POST   -> { metin } yeni dua isteği (yerel süzgeç; yapay zekâya gönderilmez)
+ * POST   -> { konu } hazır seçenekten yeni dua isteği (serbest yazı kabul edilmez; kart cümlesi sunucuda üretilir)
  * DELETE -> { id } bu cihazın kendi isteğini kaldırır
  */
 export async function GET(req: NextRequest) {
@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json().catch(() => ({}));
+  const body = await req.json().catch(() => null);
 
   // Aynı bağlantıdan kısa sürede çok istek (cihaz kimliği değiştirilse bile)
   const hiz = checkRateLimit(ipAnahtari(req, "dua_birak"), 5, 5 * 60_000);
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     const depo = await duaDeposunuAl();
     const sonuc = await duaIstegiBirak(depo, {
       kimlikOzeti: istekKimligi(req),
-      metin: body?.metin,
+      govde: body,
     });
     if (!sonuc.tamam) {
       const status = sonuc.sebep === "GUNLUK_SINIR" ? 429 : 422;

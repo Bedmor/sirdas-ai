@@ -33,7 +33,7 @@ const ARACLAR = [
     href: "/araclar/dua-havuzu",
     ikon: "ph-hands-praying",
     baslik: "Dua Havuzu",
-    aciklama: "İsimsiz kısa dua isteği bırakın; kardeşleriniz okuyup sizin için dua etsin.",
+    aciklama: "Ne için dua istediğinizi seçip isimsiz istek bırakın; kardeşleriniz sizin için dua etsin.",
   },
   {
     href: "/araclar/cuma-hutbesi",

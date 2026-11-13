@@ -3,7 +3,8 @@ import type { DestekSonucu, DuaDeposu, DuaListeKaydi } from "./depo";
 import {
   DUA_GUNLUK_SINIR,
   DUA_SURE_MS,
-  duaMetniniDenetle,
+  IZINLI_DUA_METINLERI,
+  duaKonusunuDenetle,
   red,
   type DuaRed,
 } from "./kurallar";
@@ -42,26 +43,23 @@ function gorunum(k: DuaListeKaydi): DuaGorunumu {
   };
 }
 
-const karsilastirmaBicimi = (m: string) =>
-  m.toLocaleLowerCase("tr-TR").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+export type BirakmaSonucu = { tamam: true; istek: DuaGorunumu } | DuaRed;
 
-export type BirakmaSonucu =
-  | { tamam: true; istek: DuaGorunumu; gizlendi: boolean }
-  | DuaRed;
-
-/** Yeni dua isteği bırakır: metin denetimi, günlük sınır, tekrar denetimi, kayıt. */
+/**
+ * Yeni dua isteği bırakır. Gövde yalnız { konu: "<anahtar>" } olabilir;
+ * kart cümlesi sunucuda üretilir. Sıra: konu denetimi, aynı konu tekrarı, günlük sınır, kayıt.
+ */
 export async function duaIstegiBirak(
   depo: DuaDeposu,
-  girdi: { kimlikOzeti: string; metin: unknown; simdi?: Date }
+  girdi: { kimlikOzeti: string; govde: unknown; simdi?: Date }
 ): Promise<BirakmaSonucu> {
   const simdi = girdi.simdi ?? new Date();
-  const denetim = duaMetniniDenetle(girdi.metin);
+  const denetim = duaKonusunuDenetle(girdi.govde);
   if (!denetim.tamam) return denetim;
 
   const birGunOnce = new Date(simdi.getTime() - 24 * 60 * 60 * 1000);
   const son = await depo.sonIstekler(girdi.kimlikOzeti, birGunOnce);
-  const yeni = karsilastirmaBicimi(denetim.metin);
-  if (son.some((s) => karsilastirmaBicimi(s.metin) === yeni)) return red("TEKRAR");
+  if (son.some((s) => s.metin === denetim.metin)) return red("TEKRAR");
   if (son.length >= DUA_GUNLUK_SINIR) return red("GUNLUK_SINIR");
 
   const kayit = await depo.ekle({
@@ -72,7 +70,6 @@ export async function duaIstegiBirak(
   });
   return {
     tamam: true,
-    gizlendi: denetim.gizlendi,
     istek: gorunum({
       id: kayit.id,
       metin: kayit.metin,
@@ -85,15 +82,15 @@ export async function duaIstegiBirak(
   };
 }
 
-/** Herkese açık liste (süresi geçenler hariç) ve bu cihazın kendi istekleri. */
+/** Herkese açık liste (süresi geçenler ve hazır seçenek dışı eski kayıtlar hariç) ve bu cihazın kendi istekleri. */
 export async function duaHavuzunuGetir(
   depo: DuaDeposu,
   girdi: { kimlikOzeti: string; simdi?: Date }
 ): Promise<{ istekler: DuaGorunumu[]; benimkiler: DuaGorunumu[] }> {
   const simdi = girdi.simdi ?? new Date();
   const [hepsi, benim] = await Promise.all([
-    depo.listele(simdi, girdi.kimlikOzeti, DUA_LISTE_ADEDI),
-    depo.benimkiler(simdi, girdi.kimlikOzeti),
+    depo.listele(simdi, girdi.kimlikOzeti, DUA_LISTE_ADEDI, IZINLI_DUA_METINLERI),
+    depo.benimkiler(simdi, girdi.kimlikOzeti, IZINLI_DUA_METINLERI),
   ]);
   return {
     // Kendi istekleri üstte ayrı gösterilir; genel listede tekrar edilmez.

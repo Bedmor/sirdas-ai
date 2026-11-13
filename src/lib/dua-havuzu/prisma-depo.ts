@@ -28,7 +28,7 @@ export class PrismaDuaDeposu implements DuaDeposu {
   }
 
   private async liste(
-    where: { bitisTarihi: { gt: Date }; sahipKimlikOzeti?: string },
+    where: { bitisTarihi: { gt: Date }; metin: { in: string[] }; sahipKimlikOzeti?: string },
     kimlikOzeti: string,
     adet: number
   ): Promise<DuaListeKaydi[]> {
@@ -57,12 +57,17 @@ export class PrismaDuaDeposu implements DuaDeposu {
     }));
   }
 
-  listele(simdi: Date, kimlikOzeti: string, adet: number) {
-    return this.liste({ bitisTarihi: { gt: simdi } }, kimlikOzeti, adet);
+  // Yalnız hazır seçenek cümleleri listelenir; eski serbest yazılı kayıtlar görünmez.
+  listele(simdi: Date, kimlikOzeti: string, adet: number, izinliMetinler: readonly string[]) {
+    return this.liste({ bitisTarihi: { gt: simdi }, metin: { in: [...izinliMetinler] } }, kimlikOzeti, adet);
   }
 
-  benimkiler(simdi: Date, kimlikOzeti: string) {
-    return this.liste({ bitisTarihi: { gt: simdi }, sahipKimlikOzeti: kimlikOzeti }, kimlikOzeti, 20);
+  benimkiler(simdi: Date, kimlikOzeti: string, izinliMetinler: readonly string[]) {
+    return this.liste(
+      { bitisTarihi: { gt: simdi }, metin: { in: [...izinliMetinler] }, sahipKimlikOzeti: kimlikOzeti },
+      kimlikOzeti,
+      20
+    );
   }
 
   async sonIstekler(kimlikOzeti: string, sonra: Date) {

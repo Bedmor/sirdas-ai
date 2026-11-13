@@ -14,6 +14,14 @@ import {
 import { filterUsedSourcesByReply } from "@/lib/ai/source-citation-filter";
 import { TextShimmer } from "@/components/ui/text-shimmer";
 import { motion, AnimatePresence } from "motion/react";
+import {
+  THREADS_STORAGE_KEY,
+  CLIENT_ID_STORAGE_KEY,
+  CONSENT_STORAGE_KEY,
+  SETTINGS_STORAGE_KEY,
+  PROFILE_STORAGE_KEY,
+  cihazdanTemizle,
+} from "@/lib/cihaz-temizle";
 
 export interface ChatSourceBadge {
   id: string;
@@ -42,11 +50,6 @@ export interface ChatConversationThread {
   messages: ChatMessageItem[];
 }
 
-const THREADS_STORAGE_KEY = "sirdas_chat_threads_v1";
-const CLIENT_ID_STORAGE_KEY = "sirdas_anon_client_id_v1";
-const CONSENT_STORAGE_KEY = "sirdas_kvkk_consent_v1";
-const SETTINGS_STORAGE_KEY = "sirdas_privacy_settings_v1";
-const PROFILE_STORAGE_KEY = "sirdas_user_profile_v1";
 
 export interface UserProfileData {
   preferred_name?: string;
@@ -338,6 +341,9 @@ export function SirdasChatWorkspace() {
   const [resetTrigger, setResetTrigger] = useState<"header" | "sidebar">("header");
   const [isPurging, setIsPurging] = useState<boolean>(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+  // "Bu cihazdan temizle": yalnız bu cihazdaki görünen geçmiş (sunucu kayıtları kalır)
+  const [isCihazTemizleOpen, setIsCihazTemizleOpen] = useState<boolean>(false);
+  const [isCihazTemizleniyor, setIsCihazTemizleniyor] = useState<boolean>(false);
 
   // Hafıza & Gizlilik Ayarları (Kapanışta İmha, Hareketsizlik, TTL)
   const [privacySettings, setPrivacySettings] = useState<SirdasPrivacySettings>(
@@ -490,6 +496,53 @@ export function SirdasChatWorkspace() {
     },
     [clientId],
   );
+
+  // Bu cihazdan temizle: sunucudaki kayıtlara dokunmaz, yalnız bu cihazdaki izleri kaldırır
+  const handleCihazdanTemizle = useCallback(async () => {
+    setIsCihazTemizleniyor(true);
+    try {
+      // Kimlik çerezini kaldır ki sunucudaki eski kayıtlar bu cihazda yüklenmesin
+      await fetch("/api/cihaz-temizle", { method: "POST", cache: "no-store" });
+    } catch (err) {
+      console.warn("[Cihaz temizleme]", err);
+    }
+
+    let yeniKimlik = "";
+    try {
+      yeniKimlik = cihazdanTemizle(window.localStorage);
+    } catch {
+      yeniKimlik = generateClientUuid();
+    }
+    setClientId(yeniKimlik);
+
+    setUserProfile({
+      roles: [],
+      known_facts: [],
+      spiritual_trials: [],
+      biological_energy: ["SAMIMI_ARAYIS"],
+      tone_preference: "SEFKATLI_TESKIN",
+      spiritual_stage: "ARAYIS_VE_BASLANGIC",
+      interaction_count: 0,
+      onboarding_step: 1,
+      onboarding_completed: false,
+      profile_completion: 20,
+    });
+    setThreads([]);
+    setActiveThreadId("");
+    setInputMessage("");
+    setStreamingText("");
+    setStreamingSources([]);
+    setErrorMsg(null);
+    setActiveDetailSource(null);
+    if (profileDialogRef.current?.open) profileDialogRef.current.close();
+
+    setIsCihazTemizleniyor(false);
+    setIsCihazTemizleOpen(false);
+    setMobileDrawerOpen(false);
+    setToastMsg("Bu cihaz temizlendi.");
+    setTimeout(() => setToastMsg(null), 4000);
+    setTimeout(() => textareaRef.current?.focus(), 60);
+  }, []);
 
   // Initialize anonymous Better-Auth-ready clientId, KVKK consent & load threads from localStorage
   useEffect(() => {
@@ -1426,6 +1479,29 @@ export function SirdasChatWorkspace() {
                   </svg>
                 </motion.button>
               </div>
+
+              {/* Bu cihazdan temizle: yalnız bu cihazdaki görünen geçmiş silinir */}
+              <button
+                type="button"
+                onClick={() => setIsCihazTemizleOpen(true)}
+                className="w-full flex min-h-14 items-center justify-center gap-3 rounded-[20px] bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 px-4 py-3 text-base font-semibold text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-xs cursor-pointer"
+              >
+                <svg
+                    aria-hidden="true"
+                    className="h-6 w-6 shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.9"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21M22 21H7M5 11l9 9"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                <span>Bu cihazdan temizle</span>
+              </button>
             </>
           ) : (
             <div className="flex flex-col items-center gap-2">
@@ -1483,6 +1559,28 @@ export function SirdasChatWorkspace() {
                   />
                 </svg>
               </motion.button>
+              <button
+                aria-label="Bu cihazdan temizle"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/40 text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-xs cursor-pointer"
+                onClick={() => setIsCihazTemizleOpen(true)}
+                title="Bu cihazdan temizle"
+                type="button"
+              >
+                <svg
+                    aria-hidden="true"
+                    className="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.9"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21M22 21H7M5 11l9 9"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+              </button>
             </div>
           )}
         </div>
@@ -2365,6 +2463,75 @@ export function SirdasChatWorkspace() {
         </div>
       )}
     </AnimatePresence>
+
+      {/* BU CİHAZDAN TEMİZLE ONAY PENCERESİ (yalnız bu cihaz; sunucu kayıtları kalır) */}
+      <AnimatePresence>
+        {isCihazTemizleOpen && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cihaz-temizle-baslik"
+            aria-describedby="cihaz-temizle-aciklama"
+            onKeyDown={(e) => {
+              if (e.key === "Escape" && !isCihazTemizleniyor) {
+                setIsCihazTemizleOpen(false);
+              }
+            }}
+          >
+            <motion.div
+              className="fixed inset-0 bg-black/80 backdrop-blur-md"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => {
+                if (!isCihazTemizleniyor) setIsCihazTemizleOpen(false);
+              }}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 8 }}
+              transition={{ type: "spring", damping: 26, stiffness: 260 }}
+              className="relative z-10 w-full max-w-md rounded-[32px] bg-surface-container-high border border-outline-variant/60 p-6 sm:p-8 shadow-m3-5 text-on-surface space-y-5"
+            >
+              <h2
+                id="cihaz-temizle-baslik"
+                className="font-heading text-xl font-semibold text-on-surface"
+              >
+                Bu cihazdan temizle
+              </h2>
+              <p
+                id="cihaz-temizle-aciklama"
+                className="text-base leading-relaxed text-on-surface"
+              >
+                Bu cihazdaki sohbet geçmişi silinecek. Yanınızdaki biri artık
+                göremez. Emin misiniz?
+              </p>
+              <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  autoFocus
+                  disabled={isCihazTemizleniyor}
+                  onClick={() => setIsCihazTemizleOpen(false)}
+                  className="min-h-14 rounded-full bg-surface-container hover:bg-surface-container-highest border border-outline-variant/60 px-6 py-3 text-base font-medium text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
+                >
+                  Vazgeç
+                </button>
+                <button
+                  type="button"
+                  disabled={isCihazTemizleniyor || isLoading || isStreaming}
+                  onClick={handleCihazdanTemizle}
+                  className="min-h-14 inline-flex items-center justify-center gap-2 rounded-full bg-primary hover:bg-primary/90 text-on-primary px-6 py-3 text-base font-semibold shadow-m3-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
+                >
+                  {isCihazTemizleniyor ? "Temizleniyor..." : "Evet, temizle"}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* 2. BENLİK HAFIZAMI SIFIRLA / TÜM VERİLERİMİ SİL CONFIRM MODAL (FLUID MORPHING DIALOG) */}
       <AnimatePresence>

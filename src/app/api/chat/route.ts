@@ -38,6 +38,14 @@ import {
 } from "@/lib/safety/triage";
 import { buildSafetyIntercept } from "@/lib/safety/intercept";
 import { geceGecSaatMi } from "@/lib/uslup/siniflandirici";
+import { gecmisiMaskele } from "@/lib/gizlilik/maskeleme";
+import { CikisSuzgeci, cikisSuzgeciUygula } from "@/lib/gizlilik/cikis-suzgeci";
+import {
+  denetimKaydiOlustur,
+  denetimKaydiYaz,
+  sohbetDenetimOlaylari,
+  type DenetimKaydi,
+} from "@/lib/denetim/kayit";
 
 type GuardrailFlags = Record<string, boolean>;
 
@@ -60,7 +68,8 @@ async function persistChatTurn(params: {
   ragChunkIds: string[];
   audioUrlSent: string | null;
   extraFlags?: GuardrailFlags;
-}) {
+  denetim?: DenetimKaydi | null;
+}): Promise<string> {
   const {
     userKey,
     conversationId,
@@ -72,6 +81,7 @@ async function persistChatTurn(params: {
     ragChunkIds,
     audioUrlSent,
     extraFlags,
+    denetim,
   } = params;
 
   const serializedProfile = JSON.parse(JSON.stringify(userProfile));
@@ -131,6 +141,8 @@ async function persistChatTurn(params: {
         JSON.stringify({
           ...editorAudit,
           conversationId,
+          // İçeriksiz etik denetim kaydı (tür, kural kodu, zaman, mod); yeni tablo gerektirmez.
+          ...(denetim && denetim.olaylar.length ? { denetim } : {}),
         })
       ),
       audioSent: Boolean(audioUrlSent),
@@ -154,6 +166,8 @@ async function persistChatTurn(params: {
       userMessage: rawMessage,
     });
   }
+
+  return assistantMsg.id;
 }
 
 /**
@@ -550,6 +564,13 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Modele (Gemini) giden geçmiş kopyasında da kişisel veriler maskelenir.
+    // İstemcinin gönderdiği geçmiş ham metindir; kullanıcının ekranda gördüğü mesajlar değişmez.
+    conversationHistory = gecmisiMaskele(
+      conversationHistory,
+      (metin) => sanitizeIncomingUserMessage(metin).sanitizedText
+    );
+
     const acceptHeader = req.headers.get("accept") || "";
     const isSseRequested =
       acceptHeader.includes("text/event-stream") || body.stream !== false;
@@ -569,6 +590,9 @@ export async function POST(req: NextRequest) {
           let ragChunkIds: string[] = [];
           let sources: ChatSourceMeta[] = [];
           let extraFlags: GuardrailFlags | undefined;
+          let kalkanKuralKodu: string | null = null;
+          const cikisSuzgeci = new CikisSuzgeci();
+          let akisIntentMode: string = "BILINMIYOR";
 
           try {
             jevResult = await analyzeWithJev({
@@ -583,6 +607,7 @@ export async function POST(req: NextRequest) {
             // Akıllı Niyet Yönlendirmesi (Intent Routing)
             const intentResult = detectChatIntent(safeMessage, jevResult);
             const intentMode = intentResult.mode;
+            akisIntentMode = intentMode;
 
             if (intentMode === "ILIM_VE_SIYER") {
               jevResult.rag_category = "SIYER_ORNEKLERI";
@@ -604,6 +629,7 @@ export async function POST(req: NextRequest) {
               statusType = intercept.status;
               editorAudit = intercept.editorAudit;
               extraFlags = intercept.extraFlags;
+              kalkanKuralKodu = intercept.ruleId ?? null;
               if (
                 intercept.status === "processed" &&
                 intercept.ruleId !== "CONVERSATIONAL_CLOSING_THANKS" &&
@@ -720,13 +746,28 @@ export async function POST(req: NextRequest) {
                   streamFinalResult = nextChunk.value;
                   break;
                 }
-                const token = nextChunk.value;
+                // Çıkış süzgeci: cümle tamamlanınca taranır, yalnızca süzülmüş metin gönderilir.
+                const token = cikisSuzgeci.ekle(nextChunk.value);
+                if (!token) continue;
                 accumulatedReply += token;
                 const frame = `event: token\ndata: ${JSON.stringify({
                   token,
                   text: accumulatedReply,
                 })}\n\n`;
                 controller.enqueue(encoder.encode(frame));
+              }
+
+              const kalanToken = cikisSuzgeci.bitir();
+              if (kalanToken) {
+                accumulatedReply += kalanToken;
+                controller.enqueue(
+                  encoder.encode(
+                    `event: token\ndata: ${JSON.stringify({
+                      token: kalanToken,
+                      text: accumulatedReply,
+                    })}\n\n`
+                  )
+                );
               }
 
               // Fetva sınırı / sağlık dipnotu (yanıtta yoksa) akışın sonuna eklenir
@@ -787,9 +828,23 @@ export async function POST(req: NextRequest) {
               };
             }
 
+            const denetimKaydi = denetimKaydiOlustur({
+              kanal: "chat",
+              mod: akisIntentMode,
+              durum: statusType,
+              olaylar: sohbetDenetimOlaylari({
+                guvenlik: safetyTriage,
+                kalkanKuralKodu,
+                maskeKategorileri: anonymization.redactedCategories,
+                cikisOlaylari: cikisSuzgeci.tetiklenenler,
+              }),
+            });
+            denetimKaydiYaz(denetimKaydi);
+
+            let assistantMessageId: string | null = null;
             if (!isEphemeralSession) {
               try {
-                await persistChatTurn({
+                assistantMessageId = await persistChatTurn({
                   userKey,
                   conversationId,
                   rawMessage: safeMessage,
@@ -800,6 +855,7 @@ export async function POST(req: NextRequest) {
                   ragChunkIds,
                   audioUrlSent,
                   extraFlags,
+                  denetim: denetimKaydi,
                 });
               } catch (dbErr) {
                 console.warn("[POST /api/chat DB Persistence Warning]", dbErr);
@@ -819,6 +875,11 @@ export async function POST(req: NextRequest) {
               sources,
               audioUrl: audioUrlSent,
               safety: resolveSafetyNotice(safetyTriage, statusType),
+              assistantMessageId,
+              denetim: denetimKaydi.olaylar.map((o) => ({
+                tur: o.tur,
+                kuralKodu: o.kuralKodu,
+              })),
             });
             controller.enqueue(
               encoder.encode(`event: done\ndata: ${donePayload}\n\n`)
@@ -896,6 +957,7 @@ export async function POST(req: NextRequest) {
     let ragChunkIds: string[] = [];
     let sources: ChatSourceMeta[] = [];
     let extraFlags: GuardrailFlags | undefined;
+    let cikisOlaylari: ReturnType<typeof cikisSuzgeciUygula>["olaylar"] = [];
 
     if (intercept) {
       statusType = intercept.status;
@@ -972,10 +1034,12 @@ export async function POST(req: NextRequest) {
         intentMode,
       });
 
-      replyText = appendSafetyFootnote(
-        sirdasOutput.reply_text || sirdasOutput.whatsapp_reply || "",
-        safetyTriage
+      // Çıkış süzgeci (kural tabanlı hakem) dipnottan önce uygulanır.
+      const suzulmus = cikisSuzgeciUygula(
+        sirdasOutput.reply_text || sirdasOutput.whatsapp_reply || ""
       );
+      cikisOlaylari = suzulmus.olaylar;
+      replyText = appendSafetyFootnote(suzulmus.metin, safetyTriage);
 
       // Sadece AI'ın ürettiği nihai cevap metniyle gerçekten örtüşen / atıf yapılan kaynakları göster
       const usedChunks = filterUsedSourcesByReply(chunks, replyText);
@@ -1010,9 +1074,23 @@ export async function POST(req: NextRequest) {
       };
     }
 
+    const denetimKaydi = denetimKaydiOlustur({
+      kanal: "chat",
+      mod: intentMode,
+      durum: statusType,
+      olaylar: sohbetDenetimOlaylari({
+        guvenlik: safetyTriage,
+        kalkanKuralKodu: intercept?.ruleId ?? null,
+        maskeKategorileri: anonymization.redactedCategories,
+        cikisOlaylari,
+      }),
+    });
+    denetimKaydiYaz(denetimKaydi);
+
+    let assistantMessageId: string | null = null;
     if (!isEphemeralSession) {
       try {
-        await persistChatTurn({
+        assistantMessageId = await persistChatTurn({
           userKey,
           conversationId,
           rawMessage: safeMessage,
@@ -1023,6 +1101,7 @@ export async function POST(req: NextRequest) {
           ragChunkIds,
           audioUrlSent,
           extraFlags,
+          denetim: denetimKaydi,
         });
       } catch (dbErr) {
         console.warn("[POST /api/chat DB Persistence Warning]", dbErr);
@@ -1042,6 +1121,11 @@ export async function POST(req: NextRequest) {
       sources,
       audioUrl: audioUrlSent,
       safety: resolveSafetyNotice(safetyTriage, statusType),
+      assistantMessageId,
+      denetim: denetimKaydi.olaylar.map((o) => ({
+        tur: o.tur,
+        kuralKodu: o.kuralKodu,
+      })),
     });
 
     res.cookies.set(SIRDAS_CLIENT_COOKIE, actor.clientId, {

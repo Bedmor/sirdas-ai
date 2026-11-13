@@ -507,7 +507,7 @@ export function runMockGeminiReply(
     )
   ) {
     whatsappReply =
-      `Bu soru, kalpleri en derinden sarsan imtihan ve adalet sırrına temas etmektedir...\n\n` +
+      `Bu soru, imtihan ve ilahi adalet hakkında sorulabilecek en ağır sorulardan biridir.\n\n` +
       `İslam inancında dünya bir lezzet ve mutlak mükafat yurdu değil; bir imtihan, sabır ve arınma meydanıdır (Bakara 155). Savaşların, zulmün ve çocukların acı çekmesinin asıl faili insanın cüzi iradesini zalimce kullanmasıdır. Allah Teâlâ Sünnetullah gereği insana irade ve mühlet vermiştir; ancak mazlumun ahını asla yerde bırakmaz.\n\n` +
       `Masumların çektiği acılar fani dünya ile sınırlı kalacak; ebedi ahiret yurdunda Cenâb-ı Hakk'ın sonsuz adaleti ve rahmetiyle tarif edilemez bir mükâfatla telafi edilecektir. Efendimiz (s.a.v.) ve Ashab-ı Kiram'ın da Taif'te taşlandığı, Şi'b-i Ebi Talib boykotunda açlıktan inlediği ama Allah'ın nusretine teslim olduğu hatırlanmalıdır.`;
   }
@@ -518,9 +518,9 @@ export function runMockGeminiReply(
     )
   ) {
     whatsappReply =
-      `Yaşadığınız tartışmanın oluşturduğu fırtınayı duyuyorum; ancak samimi bir manevi ayna olarak hakikati ifade etmek gerekir: Nefsiniz şu an faturayı tamamen karşı tarafa kesip kendi kusurunu aklamaya çalışıyor.\n\n` +
+      `Öfkeyle geçen bir tartışmanın ardından insanın bütün yükü karşı tarafa yüklemesi kolaydır. Yine de nefsi aklamak yerine kendi payımıza düşen kusuru görmek, huzura giden ilk adımdır.\n\n` +
       `Eşiniz sizi tahrik etmiş veya haksızlık yapmış olsa bile; bağırmak, öfkeyle eşyaları kırmak nefsani bir zaaftır ve İslam ahlakına asla sığmaz. Peygamber Efendimiz (s.a.v.) şöyle buyurmuştur: _'Gerçek pehlivan güreşte rakibini yere seren değil; öfkelendiğinde nefsine hakim olabilen kimsedir.'_ (Buhârî, Edeb 76).\n\n` +
-      `Nefsinizi aklamaktan vazgeçip öfkeniz ve fevriliğiniz için eşinizle helalleşiniz; Nebevi sünnet üzere öfke anında ayakta iseniz oturunuz, abdest alıp kalbinizi sükûnete erdiriniz.`;
+      `İsterseniz öfkeniz ve fevriliğiniz için eşinizle helalleşerek başlayabilirsiniz. Nebevi sünnet üzere öfke anında ayakta iseniz oturmak, abdest alıp kalbi sükûnete erdirmek de iyi gelir.`;
   }
   // Soru 7: Dua Kabul Olmuyor / Ümitsizlik Tuzağı
   else if (
@@ -529,8 +529,8 @@ export function runMockGeminiReply(
     )
   ) {
     whatsappReply =
-      `Gönlünüzü saran bu darlığı ve yorgunluğu duyuyorum; fakat 'Allah beni unuttu, dua etmeyi bırakacağım' düşüncesi, şeytanın kulu Rabbinden koparmak için fısıldadığı en sinsi ümitsizlik tuzağıdır.\n\n` +
-      `Cenâb-ı Hak bizzat ferman buyurur: _'Rabbin seni terk etmedi ve sana darılmadı. Muhakkak ki ahiret senin için dünyadan daha hayırlıdır.'_ (Duhâ 3-4). Vahyin kesildiği ve müşriklerin 'Rabbi Muhammed'i terk etti' dediği Hüzün Yılı'nda inen bu âyet, bugün sizin kalbinize de bir inşirah fermanıdır.\n\n` +
+      `Yıllarca dua edip karşılığını göremeyen insanın yorulması anlaşılır bir hâldir. Ancak 'Allah beni unuttu, dua etmeyi bırakacağım' düşüncesi, şeytanın kulu Rabbinden uzaklaştırmak için kurduğu bir ümitsizlik tuzağıdır.\n\n` +
+      `Cenâb-ı Hak bizzat ferman buyurur: _'Rabbin seni terk etmedi ve sana darılmadı. Muhakkak ki ahiret senin için dünyadan daha hayırlıdır.'_ (Duhâ 3-4). Vahyin kesildiği ve müşriklerin 'Rabbi Muhammed'i terk etti' dediği Hüzün Yılı'nda inen bu âyet, bugün de aynı müjdeyi taşır.\n\n` +
       `Dua bir ibadettir; dünyevi sipariş değil acziyet arzıdır. Allah Teâlâ kulunun duasını ya dünyada aynen verir, ya kulun bilmediği bir musibeti defeder ya da ahirette ebedi mükâfat olarak saklar. Duanın asıl bereketi, o kapıda sabırla bekleyebilme sadakatidir. Lütfen duanızı bırakmayınız.`;
   }
   // Soru 10: Şans Oyunları / Bahis ile Cami Yaptırma
@@ -551,7 +551,7 @@ export function runMockGeminiReply(
     )
   ) {
     whatsappReply =
-      `İşlerinizin ters gitmesi sebebiyle hissettiğiniz daralmayı anlıyorum; ancak Manevi Pusula büyü bozan hoca, muska veya tılsım tarifi KESİNLİKLE vermez.\n\n` +
+      `İşler üst üste ters gidince insanın bir açıklama araması anlaşılır bir hâldir. Ancak Manevi Pusula büyü bozan hoca, muska veya tılsım tarifi kesinlikle vermez.\n\n` +
       `Gaybı bildiğini, büyü bozduğunu iddia eden kişilere gitmek, muska ve tılsımlardan medet ummak dinen caiz olmayan hurafeler ve manevi istismar kapılarıdır. Müminin yegane sığınağı doğrudan doğruya Allah Teâlâ'dır.\n\n` +
       `Peygamber Efendimiz (s.a.v.) her türlü şerden, vesveseden ve nazardan korunmak için Kur'an-ı Kerim'in iki koruyucu kalkanı olan Muavvizeteyn surelerini (Felak ve Nâs), Âyetü'l-Kürsî'yi ve İhlâs Suresi'ni okuyup Allah'a sığınmayı emretmiştir. İşlerinizin yoluna girmesi için maddi sebeplere sarılınız, tevekkülle fiili gayret gösteriniz ve dualarınızı bizzat doğrudan Rabbimize arz ediniz.`;
   }
@@ -562,8 +562,8 @@ export function runMockGeminiReply(
         userLower
       );
     const approvalRefusal = isDemandingApproval
-      ? `İçinizi daraltan bu borç yükünü ve çaresizlik hissini derinden duyuyorum; ancak size asla 'çekebilirsin' diyemem ve vicdanınızı sahte bir avuntuyla rahatlatamam.\n\n`
-      : `İçini daraltan bu borç ve geçim yükünü kalbimde hissediyorum... İnsan darda kaldığında ayağına dolanan sebepleri kurtuluş sanabiliyor.\n\n`;
+      ? `Borç yükü insanı gerçekten sıkıştırır. Yine de size asla 'çekebilirsin' diyemem; vicdanınızı sahte bir avuntuyla rahatlatmak size iyilik olmaz.\n\n`
+      : `Borç ve geçim yükü insanı gerçekten daraltır. İnsan darda kaldığında ayağına dolanan sebepleri kurtuluş sanabiliyor.\n\n`;
 
     whatsappReply =
       approvalRefusal +
@@ -600,16 +600,16 @@ export function runMockGeminiReply(
     const factsNote =
       Array.isArray(params.userProfile.known_facts) &&
       params.userProfile.known_facts.length > 0
-        ? ` Paylaştığın ${params.userProfile.known_facts.join(", ").toLocaleLowerCase("tr-TR")} halin de dualarımda ve hatırımdadır.`
+        ? ` Paylaştığın ${params.userProfile.known_facts.join(", ").toLocaleLowerCase("tr-TR")} hâlini de unutmadım.`
         : "";
-    whatsappReply = `Elbette hatırlıyorum ${params.userProfile.preferred_name} kardeşim.${factsNote} Gönlünü ferah tut, ne zaman dertleşmek istersen buradayım.`;
+    whatsappReply = `Elbette hatırlıyorum ${params.userProfile.preferred_name} kardeşim.${factsNote} Gönlünü ferah tut.`;
   } else if (
     (params.sessionMood ||
       detectSessionMood(params.userMessage, params.conversationHistory)) ===
     "OFKELI_VE_GERGIN"
   ) {
     whatsappReply =
-      `İçinizde yükselen bu harareti ve uğradığınız haksızlık karşısındaki gerginliği anlıyorum; ancak şimdi bir an durup derin bir nefes alma vaktidir. Öfke ateşiyle söylenen her söz, haklı olunan bir meselede dahi kalpte ağır yaralar açabilir.\n\n` +
+      `İnsan üst üste gelen haksızlık karşısında öfkeyle dolabilir, bu insani bir hâldir. Şimdi bir an durup derin bir nefes almak iyi gelir. Öfke ateşiyle söylenen her söz, haklı olunan bir meselede dahi kalpte ağır yaralar açabilir.\n\n` +
       `Peygamber Efendimiz (s.a.v.) bizlere vakur bir ölçü bırakmıştır: _'Gerçek pehlivan güreşte rakibini yere seren değil; öfkelendiğinde nefsine hakim olabilen kimsedir.'_ (Buhârî, Edeb 76). Yine nebevi sünnette öfke bastığında ayaktaysa oturmak, imkân varsa soğuk suyla abdest alıp sükûnete çekilmek tavsiye edilmiştir.\n\n` +
       `Şimdi fevri bir karşılık vermeden önce kalbinizin yatışmasına müsaade edin; El-Adl olan Allah hiçbir hakkı zayi etmez. Vakar ve itidal her zaman en güçlü cevaptır.`;
   } else if (
@@ -618,8 +618,8 @@ export function runMockGeminiReply(
     "HUZUNLU_VE_KIRGIN"
   ) {
     whatsappReply =
-      `Gönlünüze çöken bu ince sızıyı ve kırgınlığı sessizce duyuyorum kardeşim... Acele etmeyin; insanın kalbi incindiğinde gözyaşı dökmesi ve bir müddet durulmaya ihtiyaç duyması çok insani ve fıtrîdir.\n\n` +
-      `Hüzün Yılı'nda kalbi daralan Peygamberimiz'e (s.a.v.) inen şu ilahi şefkat bugün sizin yaralı gönlünüze de sesleniyor: _'Rabbin seni terk etmedi ve sana darılmadı... Şüphesiz zorlukla beraber bir kolaylık vardır.'_ (Duhâ 3, İnşirah 5).\n\n` +
+      `Kalbi incinen insanın gözyaşı dökmesi ve bir müddet durulmaya ihtiyaç duyması çok insani ve fıtrîdir kardeşim; acele etmeyin.\n\n` +
+      `Hüzün Yılı'nda kalbi daralan Peygamberimiz'e (s.a.v.) inen şu ilahi şefkat bugün de geçerlidir: _'Rabbin seni terk etmedi ve sana darılmadı... Şüphesiz zorlukla beraber bir kolaylık vardır.'_ (Duhâ 3, İnşirah 5).\n\n` +
       `Şu an her şeyi bir anda çözmek zorunda değilsiniz. Kırılan yerlerinizi şefkatle saracak olan El-Cebbâr'a sığının; Rabbim kalbinize dingin bir ferahlık ve inşirah indirsin.`;
   } else if (
     /stres|kafay[ıi]\s*yiyece[ğg]im|gelecek\s*kayg[ıi]s[ıi]|sosyal\s*ili[şs]ki|karma[şs][ıi]kl[ıi][ğg]|bunal/i.test(
@@ -627,9 +627,9 @@ export function runMockGeminiReply(
     )
   ) {
     whatsappReply =
-      `Geçim derdi de gelecek kaygısı da insanı gerçekten yorar aziz dostum. Çünkü insan tek başına her şeye yetebilecek, bütün dünyayı sırtında taşıyabilecek şekilde yaratılmadı. Bütün bu yükleri sadece kendi sınırlı gücünle göğüslemeye kalktığında nefesinin daralması ve tükenmiş hissetmen son derece fıtrî ve insani...\n\n` +
+      `Geçim derdi de gelecek kaygısı da insanı gerçekten yorar aziz dostum. Çünkü insan tek başına her şeye yetebilecek, bütün dünyayı sırtında taşıyabilecek şekilde yaratılmadı. Bütün bu yükleri sadece kendi sınırlı gücünle göğüslemeye kalktığında nefesinin daralması ve tükenmiş hissetmen son derece fıtrî ve insanidir.\n\n` +
       `Böyle zamanlarda zihin her belirsizliği aynı anda çözmeye kalkar ve insanı tüketir. Oysa hayatın en daraldığı anlarda bile sebepler dairesinde elinden gelen gayreti gösterip gerisini Rezzâk ve Kadîr olan Rabbine emanet etmek insana asıl ferahlığı verir. Cenâb-ı Hakk'ın her darlığın arkasında bir inşirah ve kolaylık kapısı açtığını unutma; yalnız değilsin.\n\n` +
-      `Bugün kendine biraz nefes alma fırsatı tanı, zihnini dinlendir ve yükünü O'na emanet et. Ne zaman konuşmak istersen buralardayım; gönlün ferah olsun.`;
+      `Bugün kendine biraz nefes alma fırsatı tanı, zihnini dinlendir ve yükünü O'na emanet et. Güvendiğin biriyle konuşmak da iyi gelir; gönlün ferah olsun.`;
   } else if (quranOrPrimary || hadithOrSiyer) {
     const primaryQuote = quranOrPrimary
       ? `_${quranOrPrimary.content.slice(0, 220).trim()}_`
@@ -645,7 +645,7 @@ export function runMockGeminiReply(
       `Nefsin ve vesvesenin seni daraltmasına izin verme. Sebeplere vakar ile sarıl, neticeyi Kadir-i Mutlak olan Allah'a ısmarla ve kalbini sükûnetle O'na aç.`;
   } else {
     whatsappReply =
-      `Gönlündeki bu daralma ve yorgunluk aslında kalbini bir nebze durup soluklanmaya davet ediyor...\n\n` +
+      `Daralmış ve yorulmuş olduğun bir günde bir nebze durup soluklanmak iyi gelir.\n\n` +
       `Dünya bir mükâfat yurdu değil, imtihan ve arınma meydanıdır. Karşılaştığın haksızlık veya günün ağırlığı fânidir; El-Adl olan Allah zerre kadar kul hakkını ve sabrını zayi etmez.\n\n` +
       `Taif'te taşlandığında dahi intikam değil teslimiyetle Rabbine iltica eden Rahmet Peygamberi'nin (s.a.v.) sabrını hatırla. Yükünü Kadir-i Mutlak olan O'na havale et, kalbini ferah tut.`;
   }

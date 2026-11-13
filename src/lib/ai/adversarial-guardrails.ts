@@ -392,7 +392,7 @@ export function checkAdversarialGuardrails(
       auditTag: "ACIL_KRIZ_CAN_GUVENLIGI_PROTOKOLU",
       status: "crisis_redirected",
       replyText:
-        "Gönlünüzdeki yangını, hissettiğiniz derin çaresizlik ve yorgunluğu duyuyorum aziz kardeşim. Şu an hiçbir yükü tek başınıza omuzlamak zorunda değilsiniz.\n\n" +
+        "İnsan bazen öyle bir çaresizliğe ve yorgunluğa düşer ki her şey üstüne geliyormuş gibi olur aziz kardeşim. Şu an hiçbir yükü tek başınıza omuzlamak zorunda değilsiniz.\n\n" +
         "Canınız mukaddes bir ilahi emanettir; hiçbir kriz, iflas, borç veya dünya derdi canınızdan daha kıymetli değildir. Lütfen bu düşüncelerle tek başınıza kalmayın ve derhal resmi destek hatlarına başvurun:\n\n" +
         "• 112 Acil Çağrı Merkezi (7/24 Kesintisiz Sağlık ve Güvenlik Müdahalesi)\n" +
         "• ALO 183 Aile, Kadın, Çocuk ve Sosyal Destek Hattı\n\n" +
@@ -407,7 +407,7 @@ export function checkAdversarialGuardrails(
       auditTag: "INTIKAM_VE_ZARAR_VERME_ENGELI",
       status: "crisis_redirected",
       replyText:
-        "Yaşadığınız haksızlığın gönlünüzde oluşturduğu yangını ve kırgınlığı anlıyorum; ancak İslam dini hiçbir insana gizlice zarar vermeye, canını yakmaya veya hayatını karartmaya ASLA izin vermez.\n\n" +
+        "Haksızlığa uğrayan insanın içinde öfke ve kırgınlık birikmesi anlaşılır bir hâldir; ancak İslam dini hiçbir insana gizlice zarar vermeye, canını yakmaya veya hayatını karartmaya ASLA izin vermez.\n\n" +
         "Peygamber Efendimiz (s.a.v.) *'Zarar vermek ve zarara zararla karşılık vermek yoktur'* buyurmuştur. Başkasına haksızlıkla zarar vermek, mazlum iken zalim durumuna düşmek, ağır bir kul hakkına girmek ve kanunen suç işlemektir. İntikam ve kin kalbi çürüten nefsani bir tuzaktır. Hakkınızı meşru ve yasal yollardan arayınız; suç teşkil eden eylemlerden kesinlikle uzak durunuz.",
     };
   }
@@ -572,7 +572,7 @@ export function checkAdversarialGuardrails(
       status: "processed",
       intentMode: "ILIM_VE_SIYER",
       replyText:
-        "Bu soru, kalpleri en derinden sarsan imtihan ve adalet sırrına temas etmektedir...\n\n" +
+        "Bu soru, imtihan ve ilahi adalet hakkında sorulabilecek en ağır sorulardan biridir.\n\n" +
         "İslam inancında dünya bir lezzet ve mutlak mükafat yurdu değil; bir imtihan, sabır ve arınma meydanıdır (Bakara 155). Savaşların, zulmün ve masum çocukların acı çekmesinin asıl faili insanın cüzi iradesini zalimce kullanmasıdır. Allah Teâlâ Sünnetullah gereği insana irade ve mühlet vermiştir; ancak mazlumun ahını asla yerde bırakmaz.\n\n" +
         "Masumların çektiği acılar fani dünya ile sınırlı kalacak; ebedi ahiret yurdunda Cenâb-ı Hakk'ın sonsuz adaleti ve rahmetiyle tarif edilemez bir mükâfatla telafi edilecektir. Efendimiz (s.a.v.) ve Ashab-ı Kiram'ın da Taif'te taşlandığı, Şi'b-i Ebi Talib boykotunda açlıktan inlediği ama Allah'ın nusretine teslim olduğu hatırlanmalıdır.",
     };
@@ -586,8 +586,8 @@ export function checkAdversarialGuardrails(
       status: "processed",
       intentMode: "MANEVI_AYNA",
       replyText:
-        "Gönlünüzü saran bu darlığı ve yorgunluğu duyuyorum; fakat 'Allah beni unuttu, dua etmeyi bırakacağım' düşüncesi, şeytanın kulu Rabbinden koparmak için fısıldadığı en sinsi ümitsizlik tuzağıdır.\n\n" +
-        "Cenâb-ı Hak bizzat ferman buyurur: *'Rabbin seni terk etmedi ve sana darılmadı. Muhakkak ki ahiret senin için dünyadan daha hayırlıdır.'* (Duhâ 3-4). Vahyin kesildiği ve müşriklerin 'Rabbi Muhammed'i terk etti' dediği Hüzün Yılı'nda inen bu âyet, bugün sizin kalbinize de bir inşirah fermanıdır.\n\n" +
+        "Yıllarca dua edip karşılığını göremeyen insanın yorulması anlaşılır bir hâldir. Ancak 'Allah beni unuttu, dua etmeyi bırakacağım' düşüncesi, şeytanın kulu Rabbinden uzaklaştırmak için kurduğu bir ümitsizlik tuzağıdır.\n\n" +
+        "Cenâb-ı Hak bizzat ferman buyurur: *'Rabbin seni terk etmedi ve sana darılmadı. Muhakkak ki ahiret senin için dünyadan daha hayırlıdır.'* (Duhâ 3-4). Vahyin kesildiği ve müşriklerin 'Rabbi Muhammed'i terk etti' dediği Hüzün Yılı'nda inen bu âyet, bugün de aynı müjdeyi taşır.\n\n" +
         "Dua bir ibadettir; dünyevi sipariş değil acziyet arzıdır. Allah Teâlâ kulunun duasını ya dünyada aynen verir, ya kulun bilmediği bir musibeti defeder ya da ahirette ebedi mükâfat olarak saklar. Duanın asıl bereketi, o kapıda sabırla bekleyebilme sadakatidir. Lütfen duanızı bırakmayınız.",
     };
   }
@@ -600,7 +600,7 @@ export function checkAdversarialGuardrails(
       status: "processed",
       intentMode: "MANEVI_AYNA",
       replyText:
-        "İçinizi daraltan bu borç yükünü ve çaresizlik hissini derinden duyuyorum; ancak size asla 'çekebilirsin' diyemem ve vicdanınızı sahte bir avuntuyla rahatlatamam.\n\n" +
+        "Borç yükü insanı gerçekten sıkıştırır. Yine de size asla 'çekebilirsin' diyemem; vicdanınızı sahte bir avuntuyla rahatlatmak size iyilik olmaz.\n\n" +
         "Cenâb-ı Hak *Bakara Suresi 275-279* âyetlerinde faizin hem ruhi huzuru hem de dünyevi bereketi tükettiğini ve haram kılındığını açıkça ihtar eder. Darlığın asıl devası yeni bir faiz yükü değil; tövbe, borç tecili ve helal kazanç vakarında sebat etmektir.\n\n" +
         "Rabbimiz Talâk Suresi 2-3'te sakınan ve tevekkül eden kuluna mutlaka beklemediği yerden bir çıkış yolu açacağını müjdeler. Rızkın ve çıkış yollarının sahibi El-Razzâk olan Allah'tır; meşru sebeplere vakar ile sarıl ve kalbini O'na bağla.",
     };
@@ -628,9 +628,9 @@ export function checkAdversarialGuardrails(
       status: "processed",
       intentMode: "MANEVI_AYNA",
       replyText:
-        "Yaşadığınız tartışmanın oluşturduğu fırtınayı duyuyorum; ancak samimi bir manevi ayna olarak hakikati ifade etmek gerekir: Nefsiniz şu an faturayı tamamen karşı tarafa kesip kendi kusurunu aklamaya çalışıyor.\n\n" +
+        "Öfkeyle geçen bir tartışmanın ardından insanın bütün yükü karşı tarafa yüklemesi kolaydır. Yine de nefsi aklamak yerine kendi payımıza düşen kusuru görmek, huzura giden ilk adımdır.\n\n" +
         "Eşiniz sizi tahrik etmiş veya haksızlık yapmış olsa bile; bağırmak, öfkeyle eşyaları kırmak nefsani bir zaaftır ve İslam ahlakına asla sığmaz. Peygamber Efendimiz (s.a.v.) şöyle buyurmuştur: *'Gerçek pehlivan güreşte rakibini yere seren değil; öfkelendiğinde nefsine hakim olabilen kimsedir.'* (Buhârî, Edeb 76).\n\n" +
-        "Nefsinizi aklamaktan vazgeçip öfkeniz ve fevriliğiniz için eşinizle helalleşiniz; Nebevi sünnet üzere öfke anında ayakta iseniz oturunuz, abdest alıp kalbinizi sükûnete erdiriniz.",
+        "İsterseniz öfkeniz ve fevriliğiniz için eşinizle helalleşerek başlayabilirsiniz. Nebevi sünnet üzere öfke anında ayakta iseniz oturmak, abdest alıp kalbi sükûnete erdirmek de iyi gelir.",
     };
   }
 
@@ -642,7 +642,7 @@ export function checkAdversarialGuardrails(
       status: "crisis_redirected",
       intentMode: "MANEVI_AYNA",
       replyText:
-        "Yüreğinizdeki bu büyük yangını, hissettiğiniz derin acı ve tükenmişliği can kulağıyla duyuyorum aziz dostum.\n\n" +
+        "Böyle bir yas ve tükenmişlik, insanın taşıyabileceği en ağır yüklerdendir aziz dostum.\n\n" +
         "Ancak böyle derin bir yas, vefat acısı veya ailevi sarsıntı; sadece bir ekran karşısında dijital yazışmalarla taşınabilecek bir yük değildir. Manevi Pusula olarak sizi ekrana bağlamak yerine, bu yükü gerçek hayattaki ehil ellerle ve insan insana muhabbetle paylaşmanız gerektiğine inanıyoruz.\n\n" +
         "Yalnız değilsiniz; lütfen bu ağır imtihanı tek başınıza omuzlamak yerine yüz yüze manevi destek ve rehberlik halkalarına müracaat ediniz:\n\n" +
         "• Diyanet Aile ve Dini Rehberlik Büroları (ADRB): En yakın il veya ilçe müftülüğü bünyesinde; ailevi dağılma, yas ve manevi kriz süreçlerinde yüz yüze, ücretsiz ve gizlilik esaslı uzman rehberlik sunmaktadır.\n" +
@@ -660,7 +660,7 @@ export function checkAdversarialGuardrails(
       status: "processed",
       intentMode: "MANEVI_AYNA",
       replyText:
-        "Rica ederim aziz dostum. Kendine çok yüklenme; biraz soluklanmaya ve zihnini dinlendirmeye bak. Ne zaman konuşmak istersen buralardayım. Gönlün her daim ferah olsun.",
+        "Rica ederim aziz dostum. Kendine çok yüklenme; biraz soluklanmaya ve zihnini dinlendirmeye bak. Bugün sevdiğin birine kısa bir selam göndermek de güzel olur. Gönlün her daim ferah olsun.",
     };
   }
 

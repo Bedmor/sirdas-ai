@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
+import { denetimOzetiCikar } from "@/lib/denetim/kayit";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,7 @@ export async function GET() {
       donationsAggregate,
       recentMessages,
       recentDonations,
+      denetimKaynagi,
     ] = await Promise.all([
       prisma.user.count().catch(() => 0),
       prisma.user
@@ -65,7 +67,17 @@ export async function GET() {
           orderBy: { createdAt: "desc" },
         })
         .catch(() => []),
+      // Etik denetim özeti: son 500 asistan mesajının editorAudit.denetim kaydı (içerik okunmaz).
+      prisma.message
+        .findMany({
+          where: { role: "ASSISTANT" },
+          take: 500,
+          orderBy: { createdAt: "desc" },
+          select: { editorAudit: true },
+        })
+        .catch(() => []),
     ]);
+    const denetim = denetimOzetiCikar(denetimKaynagi.map((m) => m.editorAudit));
 
     const totalDonationAmount = Number(donationsAggregate._sum.amount || 0);
     const totalDonationCount = donationsAggregate._count.id;
@@ -96,6 +108,7 @@ export async function GET() {
         knowledge: {
           totalChunks,
         },
+        denetim,
         recentMessages: recentMessages.map((m) => {
           const profileMeta =
             m.user?.profileMetadata &&

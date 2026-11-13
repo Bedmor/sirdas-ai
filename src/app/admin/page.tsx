@@ -16,6 +16,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MetricCards } from "@/components/admin/metric-cards";
 import { AuditTable } from "@/components/admin/audit-table";
+import type { DenetimOzeti } from "@/lib/denetim/kayit";
+
+const DENETIM_TUR_ADI: Record<string, string> = {
+  GUVENLIK_ON_SUZGECI: "Güvenlik ön süzgeci",
+  MANEVI_KALKAN: "Manevi kalkan",
+  GIRIS_MASKELEME: "Kişisel bilgi maskeleme",
+  CIKIS_SUZGECI: "Çıkış süzgeci",
+};
 
 interface AdminStats {
   users: { total: number; activeToday: number };
@@ -27,6 +35,7 @@ interface AdminStats {
     sponsoredMessagesCount: number;
   };
   knowledge: { totalChunks: number };
+  denetim?: DenetimOzeti;
   recentMessages: Array<{
     id: string;
     role: string;
@@ -228,6 +237,50 @@ export default function AdminOverviewPage() {
             <span className="text-amber-400/90 font-mono">HMAC Korumalı</span>
           </div>
         </div>
+      </div>
+
+      {/* Etik Denetim Kaydı (içeriksiz: yalnız tür, kural kodu, adet) */}
+      <div className="rounded-2xl border border-emerald-950/80 bg-[#0d1411]/90 backdrop-blur-md p-6 shadow-[0_4px_24px_rgba(0,0,0,0.3)] space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-950/60 pb-4">
+          <div className="space-y-0.5">
+            <h2 className="text-base font-bold font-serif text-foreground flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-emerald-400" />
+              Etik Denetim Kaydı
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              Son {stats?.denetim?.incelenenMesaj ?? 0} cevapta süzgeçlerin devreye girdiği yerler. Mesaj içeriği kaydedilmez.
+            </p>
+          </div>
+          <div className="text-xs text-muted-foreground font-mono">
+            Denetimli cevap: {stats?.denetim?.denetimliMesaj ?? 0} &bull; Yersiz bildirimi: {stats?.denetim?.yersizBildirimToplam ?? 0}
+          </div>
+        </div>
+        {(!stats?.denetim || stats.denetim.kurallar.length === 0) ? (
+          <p className="text-xs text-muted-foreground">Henüz denetim kaydı yok.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="text-left text-muted-foreground">
+                  <th className="py-1.5 pr-3 font-semibold">Süzgeç</th>
+                  <th className="py-1.5 pr-3 font-semibold">Kural kodu</th>
+                  <th className="py-1.5 pr-3 font-semibold text-right">Adet</th>
+                  <th className="py-1.5 font-semibold text-right">Yersiz bildirimi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-emerald-950/60">
+                {stats.denetim.kurallar.slice(0, 20).map((k) => (
+                  <tr key={`${k.tur}:${k.kuralKodu}`}>
+                    <td className="py-1.5 pr-3 text-foreground">{DENETIM_TUR_ADI[k.tur] ?? k.tur}</td>
+                    <td className="py-1.5 pr-3 font-mono text-emerald-300/90">{k.kuralKodu}</td>
+                    <td className="py-1.5 pr-3 text-right tabular-nums">{k.adet}</td>
+                    <td className="py-1.5 text-right tabular-nums">{k.yersizBildirim}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* System Health Architecture Banner */}

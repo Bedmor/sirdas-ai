@@ -18,6 +18,12 @@ import {
 import { sanitizeIncomingUserMessage } from "@/lib/ai/pii-anonymizer";
 import { runSafetyTriage } from "@/lib/safety/triage";
 import { buildSafetyIntercept } from "@/lib/safety/intercept";
+import { CikisSuzgeci, cikisSuzgeciUygula, type CikisOlayi } from "@/lib/gizlilik/cikis-suzgeci";
+import {
+  denetimKaydiOlustur,
+  denetimKaydiYaz,
+  sohbetDenetimOlaylari,
+} from "@/lib/denetim/kayit";
 import {
   TRIAL_COOKIE_NAME,
   inMemoryUsedFingerprints,
@@ -265,6 +271,8 @@ export async function POST(req: NextRequest) {
           let jevResult: JevAnalysisResult | null = null;
           let ragChunkIds: string[] = [];
           let extraFlags: GuardrailFlags | undefined;
+          let kalkanKuralKodu: string | null = null;
+          const cikisSuzgeci = new CikisSuzgeci();
 
           try {
             jevResult = await analyzeWithJev({
@@ -280,6 +288,7 @@ export async function POST(req: NextRequest) {
               statusType = intercept.status;
               editorAudit = intercept.editorAudit;
               extraFlags = intercept.extraFlags;
+              kalkanKuralKodu = intercept.ruleId ?? null;
               const tokens = intercept.replyText.match(/\S+\s*/g) || [
                 intercept.replyText,
               ];
@@ -376,14 +385,20 @@ export async function POST(req: NextRequest) {
                   }
                 }
 
-                accumulatedReply += textToEmit;
-                const frame = `event: token\ndata: ${JSON.stringify({ token: textToEmit, text: accumulatedReply })}\n\n`;
+                // Çıkış süzgeci: cümle tamamlanınca taranır, yalnızca süzülmüş metin gönderilir.
+                const suzulmusToken = cikisSuzgeci.ekle(textToEmit);
+                if (!suzulmusToken) continue;
+                accumulatedReply += suzulmusToken;
+                const frame = `event: token\ndata: ${JSON.stringify({ token: suzulmusToken, text: accumulatedReply })}\n\n`;
                 controller.enqueue(encoder.encode(frame));
               }
 
-              if (leadingBuffer) {
-                accumulatedReply += leadingBuffer;
-                const frame = `event: token\ndata: ${JSON.stringify({ token: leadingBuffer, text: accumulatedReply })}\n\n`;
+              const kalanToken =
+                (leadingBuffer ? cikisSuzgeci.ekle(leadingBuffer) : "") +
+                cikisSuzgeci.bitir();
+              if (kalanToken) {
+                accumulatedReply += kalanToken;
+                const frame = `event: token\ndata: ${JSON.stringify({ token: kalanToken, text: accumulatedReply })}\n\n`;
                 controller.enqueue(encoder.encode(frame));
               }
 
@@ -419,6 +434,19 @@ export async function POST(req: NextRequest) {
               };
             }
 
+            const denetimKaydi = denetimKaydiOlustur({
+              kanal: "trial",
+              mod: "DENEME",
+              durum: statusType,
+              olaylar: sohbetDenetimOlaylari({
+                guvenlik: safetyTriage,
+                kalkanKuralKodu,
+                maskeKategorileri: anonymization.redactedCategories,
+                cikisOlaylari: cikisSuzgeci.tetiklenenler,
+              }),
+            });
+            denetimKaydiYaz(denetimKaydi);
+
             try {
               await persistWebTrialTurn({
                 trialPhoneKey,
@@ -427,7 +455,10 @@ export async function POST(req: NextRequest) {
                 rawMessage: safeMessage,
                 replyText: accumulatedReply,
                 jevResult,
-                editorAudit: editorAudit || {},
+                editorAudit: {
+                  ...(editorAudit || {}),
+                  ...(denetimKaydi.olaylar.length ? { denetim: denetimKaydi } : {}),
+                },
                 ragChunkIds,
                 audioUrlSent,
                 extraFlags,
@@ -500,6 +531,7 @@ export async function POST(req: NextRequest) {
       "processed";
     let ragChunkIds: string[] = [];
     let extraFlags: GuardrailFlags | undefined;
+    let cikisOlaylari: CikisOlayi[] = [];
 
     if (intercept) {
       statusType = intercept.status;
@@ -546,7 +578,11 @@ export async function POST(req: NextRequest) {
         ragChunks: chunks,
       });
 
-      replyText = sirdasReply.reply_text || sirdasReply.whatsapp_reply || "";
+      const suzulmus = cikisSuzgeciUygula(
+        sirdasReply.reply_text || sirdasReply.whatsapp_reply || ""
+      );
+      cikisOlaylari = suzulmus.olaylar;
+      replyText = suzulmus.metin;
       editorAudit = sirdasReply.editor_audit;
 
       const usedChunks = filterUsedSourcesByReply(chunks, replyText);
@@ -562,6 +598,19 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    const denetimKaydi = denetimKaydiOlustur({
+      kanal: "trial",
+      mod: "DENEME",
+      durum: statusType,
+      olaylar: sohbetDenetimOlaylari({
+        guvenlik: safetyTriage,
+        kalkanKuralKodu: intercept?.ruleId ?? null,
+        maskeKategorileri: anonymization.redactedCategories,
+        cikisOlaylari,
+      }),
+    });
+    denetimKaydiYaz(denetimKaydi);
+
     try {
       await persistWebTrialTurn({
         trialPhoneKey,
@@ -570,7 +619,10 @@ export async function POST(req: NextRequest) {
         rawMessage: safeMessage,
         replyText,
         jevResult,
-        editorAudit,
+        editorAudit: {
+          ...editorAudit,
+          ...(denetimKaydi.olaylar.length ? { denetim: denetimKaydi } : {}),
+        },
         ragChunkIds,
         audioUrlSent,
         extraFlags,

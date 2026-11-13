@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { dogrudanKisiselVeriyiMaskele } from "../gizlilik/maskeleme";
 
 /**
  * Sırdaş AI - Mahremiyet ve Metin Temizleme Süzgeci (PII Anonymizer & Semantic De-identifier)
@@ -101,51 +102,13 @@ export function sanitizeIncomingUserMessage(rawText: string): AnonymizationResul
   // 1. ADIM: KATİ DOĞRUDAN PII (Direct Identifiers)
   // =========================================================================
 
-  // T.C. Kimlik Numarası (11 hane, 0 ile başlayamaz)
-  const tcknPattern = /\b[1-9]\d{10}\b/g;
-  if (tcknPattern.test(text)) {
-    text = text.replace(tcknPattern, "[TC_NO]");
+  // Tek kaynak: src/lib/gizlilik/maskeleme.ts (e-posta, IBAN, kart, TC kimlik, telefon, açık adres).
+  const dogrudan = dogrudanKisiselVeriyiMaskele(text);
+  if (dogrudan.adet > 0) {
+    text = dogrudan.metin;
     hasDirect = true;
-    count++;
-    categories.push("TCKN");
-  }
-
-  // Türkiye & Uluslararası Telefon Numaraları
-  // Örn: +90 532 123 45 67, 05321234567, 0 544 555 66 77, 532-123-4567
-  const phonePattern =
-    /(?:\+?90\s*|\b0)?\s*[5]\d{2}[\s.-]?\d{3}[\s.-]?\d{2}[\s.-]?\d{2}\b/g;
-  if (phonePattern.test(text)) {
-    text = text.replace(phonePattern, "[TELEFON]");
-    hasDirect = true;
-    count++;
-    categories.push("TELEFON");
-  }
-
-  // IBAN Numaraları (TR ile başlayan 26 karakter)
-  const ibanPattern = /\bTR\d{2}\s?(?:\d{4}\s?){5}\d{2}\b/gi;
-  if (ibanPattern.test(text)) {
-    text = text.replace(ibanPattern, "[IBAN]");
-    hasDirect = true;
-    count++;
-    categories.push("IBAN");
-  }
-
-  // E-Posta Adresleri
-  const emailPattern = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g;
-  if (emailPattern.test(text)) {
-    text = text.replace(emailPattern, "[EPOSTA]");
-    hasDirect = true;
-    count++;
-    categories.push("EPOSTA");
-  }
-
-  // Kredi Kartı / Banka Kartı (16 hane)
-  const ccPattern = /\b(?:\d{4}[ -]?){3}\d{4}\b/g;
-  if (ccPattern.test(text)) {
-    text = text.replace(ccPattern, "[KART_NO]");
-    hasDirect = true;
-    count++;
-    categories.push("KREDİ_KARTI");
+    count += dogrudan.adet;
+    categories.push(...dogrudan.kategoriler);
   }
 
   // =========================================================================

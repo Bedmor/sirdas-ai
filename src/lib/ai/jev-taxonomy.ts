@@ -250,7 +250,7 @@ export const FATWA_REJECTION_MESSAGE =
   "Ancak bu sürecin ruhunuzda, ailenizde veya iç dünyanızda oluşturduğu ağırlık, imtihan ve tevekkül boyutu üzerine dertleşebiliriz.";
 
 export const CRISIS_EMERGENCY_MESSAGE =
-  "Gönlünüzdeki yangını ve hissettiğiniz derin acıyı duyuyorum aziz kardeşim. Şu an hiçbir yükü tek başınıza omuzlamak zorunda değilsiniz.\n\n" +
+  "İnsan bazen öyle bir acıya ve çaresizliğe düşer ki her şey üstüne geliyormuş gibi olur aziz kardeşim. Şu an hiçbir yükü tek başınıza omuzlamak zorunda değilsiniz.\n\n" +
   "Lütfen hemen 112 Acil Çağrı Merkezini arayarak uzman bir destek alınız. Yanınızda olan, sizi dinlemeye hazır insanlar ve her an sizinle olan Rahman bir Rabbiniz var. Canınız mukaddes bir emanettir, lütfen yardım almaktan çekinmeyiniz.";
 
 export const VIOLENCE_EMERGENCY_MESSAGE =

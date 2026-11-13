@@ -22,7 +22,8 @@
     "test:e2e": "tsx scripts/e2e-runner.ts",
     "test:safety": "tsx --test tests/safety/triage.test.ts",
     "test:araclar": "tsx --test tests/araclar/*.test.ts",
-    "test:cihaz": "tsx --test tests/cihaz/*.test.ts"
+    "test:cihaz": "tsx --test tests/cihaz/*.test.ts",
+    "test:sohbet": "tsx --test tests/sohbet/*.test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.750.0",

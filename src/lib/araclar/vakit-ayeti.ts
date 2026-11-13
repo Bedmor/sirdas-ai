@@ -35,9 +35,12 @@ function yilinGunu(an: Date): number {
   return Math.floor((an.getTime() - bas.getTime()) / 86400000);
 }
 
-/** Tarayıcının yerel saatine göre o dilimin ayetini seçer; gün değiştikçe sırayla döner. */
-export function vakitAyetiSec(an: Date): { dilim: DilimAnahtari; ayet: VakitAyeti } {
-  const dilim = saattenDilim(an.getHours());
+/**
+ * Tarayıcının yerel saatine göre o dilimin ayetini seçer; gün değiştikçe sırayla döner.
+ * `saat` verilirse (ör. Türkiye saati) dilim ona göre belirlenir.
+ */
+export function vakitAyetiSec(an: Date, saat: number = an.getHours()): { dilim: DilimAnahtari; ayet: VakitAyeti } {
+  const dilim = saattenDilim(saat);
   const liste = (veri.dilimler as Record<DilimAnahtari, VakitAyeti[]>)[dilim];
   const ayet = liste[yilinGunu(an) % liste.length];
   return { dilim, ayet };

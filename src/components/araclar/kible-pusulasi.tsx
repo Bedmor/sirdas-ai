@@ -1,27 +1,29 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import { aciFarki, kabeyeUzaklikKm, kibleAcisi, yonAdi } from "@/lib/araclar/kible";
-
-type IOSOrientationEvent = DeviceOrientationEvent & { webkitCompassHeading?: number };
-type IzinliOrientation = typeof DeviceOrientationEvent & {
-  requestPermission?: () => Promise<"granted" | "denied">;
-};
+import React, { useState } from "react";
+import { aciFarki, gercekYon, kabeyeUzaklikKm, kibleAcisi, manyetikKibleAcisi, yonAdi } from "@/lib/araclar/kible";
+import { manyetikSapma } from "@/lib/araclar/manyetik-sapma";
+import { usePusulaSensoru } from "./pusula-sensoru";
+import { KameraliKible } from "./kamerali-kible";
 
 const sayi = (n: number, basamak = 1) =>
   n.toLocaleString("tr-TR", { minimumFractionDigits: basamak, maximumFractionDigits: basamak });
+
+const isaretli = (n: number) => `${n >= 0 ? "+" : "-"}${sayi(Math.abs(n))}`;
 
 export function KiblePusulasi() {
   const [konum, setKonum] = useState<{ lat: number; lng: number } | null>(null);
   const [hata, setHata] = useState<string | null>(null);
   const [konumBekliyor, setKonumBekliyor] = useState(false);
-  const [yon, setYon] = useState<number | null>(null); // cihazın baktığı yön (kuzeyden derece)
-  const [sensorDurumu, setSensorDurumu] = useState<"kapali" | "bekliyor" | "acik" | "yok">("kapali");
-  const temizle = useRef<(() => void) | null>(null);
-
-  useEffect(() => () => temizle.current?.(), []);
+  const [kameraAcik, setKameraAcik] = useState(false);
+  const pusula = usePusulaSensoru("duz");
+  const sensorDurumu = pusula.durum;
 
   const aci = konum ? kibleAcisi(konum.lat, konum.lng) : null;
+  const sapma = konum ? manyetikSapma(konum.lat, konum.lng) : null;
+  const pusulaAcisi = aci !== null && sapma !== null ? manyetikKibleAcisi(aci, sapma) : null;
+  // Telefon pusulası manyetik kuzeyi verir; gerçek kuzeye çevrilerek kıbleyle kıyaslanır.
+  const yon = pusula.yon !== null ? gercekYon(pusula.yon, sapma) : null;
 
   const konumAl = () => {
     if (!("geolocation" in navigator)) {
@@ -45,64 +47,7 @@ export function KiblePusulasi() {
 
   const pusulayiAc = async () => {
     setHata(null);
-    const DOE = (typeof window !== "undefined" ? window.DeviceOrientationEvent : undefined) as
-      | IzinliOrientation
-      | undefined;
-    if (!DOE) {
-      setSensorDurumu("yok");
-      return;
-    }
-    try {
-      if (typeof DOE.requestPermission === "function") {
-        const izin = await DOE.requestPermission();
-        if (izin !== "granted") {
-          setHata("Pusula sensörü izni verilmedi. Açıyı aşağıdaki yazıdan takip edebilirsiniz.");
-          return;
-        }
-      }
-    } catch {
-      setHata("Pusula sensörü izni alınamadı.");
-      return;
-    }
-
-    temizle.current?.();
-    setSensorDurumu("bekliyor");
-    let veriGeldi = false;
-    let kare = 0;
-    let sonYon: number | null = null;
-
-    const isle = (e: DeviceOrientationEvent, mutlak: boolean) => {
-      const ios = (e as IOSOrientationEvent).webkitCompassHeading;
-      let h: number | null = null;
-      if (typeof ios === "number" && !Number.isNaN(ios)) h = ios;
-      else if ((mutlak || e.absolute) && typeof e.alpha === "number") h = (360 - e.alpha) % 360;
-      if (h === null) return;
-      veriGeldi = true;
-      sonYon = h;
-      if (!kare) {
-        kare = window.requestAnimationFrame(() => {
-          kare = 0;
-          setYon(sonYon);
-          setSensorDurumu("acik");
-        });
-      }
-    };
-    const mutlakDinle = (e: Event) => isle(e as DeviceOrientationEvent, true);
-    const normalDinle = (e: Event) => isle(e as DeviceOrientationEvent, false);
-    window.addEventListener("deviceorientationabsolute", mutlakDinle);
-    window.addEventListener("deviceorientation", normalDinle);
-    const zaman = window.setTimeout(() => {
-      if (!veriGeldi) {
-        setSensorDurumu("yok");
-        temizle.current?.();
-      }
-    }, 3000);
-    temizle.current = () => {
-      window.removeEventListener("deviceorientationabsolute", mutlakDinle);
-      window.removeEventListener("deviceorientation", normalDinle);
-      window.clearTimeout(zaman);
-      if (kare) window.cancelAnimationFrame(kare);
-    };
+    await pusula.baslat();
   };
 
   const fark = aci !== null && yon !== null ? aciFarki(aci, yon) : null;
@@ -180,20 +125,44 @@ export function KiblePusulasi() {
             <p className="text-sm text-slate-300">Kıble yönünü hesaplamak için konumunuzu paylaşın.</p>
           ) : (
             <>
-              <p className="font-heading text-4xl font-semibold tabular-nums text-on-surface">{sayi(aci)}°</p>
-              <p className="text-sm text-slate-200">
-                Kıble, kuzeyden saat yönünde {sayi(aci)}° · {yonAdi(aci)}
-              </p>
+              {pusulaAcisi !== null ? (
+                <>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-primary">Pusulada okunacak açı</p>
+                  <p className="font-heading text-4xl font-semibold tabular-nums text-on-surface">{sayi(pusulaAcisi, 0)}°</p>
+                  <p className="text-sm text-slate-200">
+                    Coğrafi kuzeye göre {sayi(aci)}° · {yonAdi(aci)}
+                  </p>
+                  <p className="text-xs text-on-surface-variant">
+                    Bu bölgede manyetik sapma {isaretli(sapma as number)}° (doğu). Diyanet&apos;in yazdığı kıble açısı da
+                    pusulaya göredir.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="font-heading text-4xl font-semibold tabular-nums text-on-surface">{sayi(aci)}°</p>
+                  <p className="text-sm text-slate-200">
+                    Kıble, coğrafi kuzeyden saat yönünde {sayi(aci)}° · {yonAdi(aci)}
+                  </p>
+                  <p className="text-xs text-on-surface-variant">
+                    Türkiye dışında manyetik sapma hesaplanamıyor; telefon pusulası birkaç derece farklı gösterebilir.
+                  </p>
+                </>
+              )}
               {konum && (
                 <p className="text-xs text-on-surface-variant">
                   Kâbe&apos;ye kuş uçuşu yaklaşık {Math.round(kabeyeUzaklikKm(konum.lat, konum.lng)).toLocaleString("tr-TR")} km
                 </p>
               )}
               {fark !== null && (
-                <p className={`text-sm font-semibold ${hizali ? "text-secondary" : "text-primary"}`}>
+                <p className={`text-base font-semibold ${hizali ? "text-secondary" : "text-primary"}`}>
                   {hizali
                     ? "Kıble yönündesiniz."
                     : `${sayi(Math.abs(fark), 0)}° ${fark > 0 ? "sağa" : "sola"} dönün.`}
+                </p>
+              )}
+              {pusula.kalibrasyonGerekli && (
+                <p className="text-sm text-primary">
+                  Pusula ayarsız görünüyor. Telefonu havada birkaç kez 8 çizerek döndürün.
                 </p>
               )}
             </>
@@ -205,9 +174,9 @@ export function KiblePusulasi() {
             type="button"
             onClick={konumAl}
             disabled={konumBekliyor}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold bg-secondary-container text-on-secondary-container border border-secondary/30 hover:bg-secondary-container/90 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="inline-flex min-h-12 items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold bg-secondary-container text-on-secondary-container border border-secondary/30 hover:bg-secondary-container/90 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
-            <i aria-hidden="true" className="ph ph-map-pin text-sm"></i>
+            <i aria-hidden="true" className="ph ph-map-pin text-base"></i>
             {konumBekliyor ? "Konum alınıyor…" : konum ? "Konumu yenile" : "Konumumu bul"}
           </button>
           {aci !== null && sensorDurumu !== "acik" && (
@@ -215,18 +184,34 @@ export function KiblePusulasi() {
               type="button"
               onClick={pusulayiAc}
               disabled={sensorDurumu === "bekliyor"}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold border border-primary/50 text-primary hover:bg-primary/10 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="inline-flex min-h-12 items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold border border-primary/50 text-primary hover:bg-primary/10 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
-              <i aria-hidden="true" className="ph ph-compass text-sm"></i>
+              <i aria-hidden="true" className="ph ph-compass text-base"></i>
               {sensorDurumu === "bekliyor" ? "Sensör bekleniyor…" : "Pusulayı aç"}
+            </button>
+          )}
+          {aci !== null && (
+            <button
+              type="button"
+              onClick={() => setKameraAcik(true)}
+              className="inline-flex min-h-12 items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold border border-secondary/50 text-on-surface hover:bg-secondary/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              <i aria-hidden="true" className="ph ph-camera text-base"></i>
+              Kamerayla göster
             </button>
           )}
         </div>
 
         {sensorDurumu === "yok" && (
-          <p className="text-xs text-center text-slate-300">
-            Bu cihazda pusula sensörü bulunamadı. Yukarıdaki açıyı bir pusulayla ya da kuzeyi bilerek
-            uygulayabilirsiniz: kuzeye dönüp saat yönünde {aci !== null ? `${sayi(aci, 0)}°` : "belirtilen açı kadar"} dönün.
+          <p className="text-sm text-center text-slate-300">
+            Bu cihazda pusula sensörü bulunamadı. Açıyı bir pusulayla uygulayabilirsiniz: pusulanın kuzeyine dönüp saat
+            yönünde {pusulaAcisi !== null ? `${sayi(pusulaAcisi, 0)}°` : aci !== null ? `${sayi(aci, 0)}°` : "belirtilen açı kadar"} dönün.
+          </p>
+        )}
+        {sensorDurumu === "izin-yok" && (
+          <p className="text-sm text-center text-slate-300">
+            Pusula izni verilmedi. İzin vermek için sayfayı yenileyip &quot;Pusulayı aç&quot; düğmesine yeniden dokunun.
+            Açıyı yukarıdaki yazıdan da takip edebilirsiniz.
           </p>
         )}
       </div>
@@ -237,6 +222,10 @@ export function KiblePusulasi() {
         </div>
       )}
 
+      {kameraAcik && aci !== null && (
+        <KameraliKible kibleAcisi={aci} sapma={sapma} onKapat={() => setKameraAcik(false)} />
+      )}
+
       <ul className="text-[11px] text-on-surface-variant leading-relaxed space-y-1 list-disc pl-4">
         <li>Konumunuz yalnızca bu cihazda, açıyı hesaplamak için kullanılır; sunucuya gönderilmez ve kaydedilmez.</li>
         <li>
@@ -244,8 +233,8 @@ export function KiblePusulasi() {
           havada 8 çizerek pusulayı ayarlayın.
         </li>
         <li>
-          Açı, Kâbe&apos;ye en kısa yol (büyük daire) üzerinden ve coğrafi kuzeye göre hesaplanır. Telefon pusulaları
-          çoğunlukla manyetik kuzeye göre çalıştığından gösterge birkaç derece sapabilir.
+          Açı, Kâbe&apos;ye en kısa yol (büyük daire) üzerinden hesaplanır. Telefon pusulası manyetik kuzeyi gösterdiği
+          için bulunduğunuz yerin manyetik sapması (Türkiye&apos;de yaklaşık 5,5 ile 7 derece) otomatik düzeltilir.
         </li>
       </ul>
     </div>

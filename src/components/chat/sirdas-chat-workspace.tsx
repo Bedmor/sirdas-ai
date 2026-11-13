@@ -22,6 +22,15 @@ import {
   PROFILE_STORAGE_KEY,
   cihazdanTemizle,
 } from "@/lib/cihaz-temizle";
+import { metniBloklaraAyir } from "@/lib/sohbet/metin-bicim";
+import { hizliYanitlar } from "@/lib/sohbet/hizli-yanitlar";
+import {
+  CevapGeriBildirimi,
+  gorusEpostaBaglantisi,
+  type GeriBildirim,
+} from "./cevap-geri-bildirimi";
+import { ZamanKarsilama } from "./zaman-karsilama";
+import { HizliYanitDugmeleri } from "./hizli-yanit-dugmeleri";
 
 export interface ChatSourceBadge {
   id: string;
@@ -41,6 +50,8 @@ export interface ChatMessageItem {
   status?: "processed" | "fatwa_blocked" | "crisis_redirected";
   intentMode?: "MANEVI_AYNA" | "ILIM_VE_SIYER";
   safety?: SafetyNoticeData | null;
+  /** Kalite kapısı: "Faydalı oldu / Olmadı" (yalnız bu cihazda saklanır) */
+  geriBildirim?: GeriBildirim;
 }
 
 export interface ChatConversationThread {
@@ -141,43 +152,59 @@ function getSourceTypeLabel(sourceType: string): string {
   }
 }
 
-function renderFormattedMessage(text: string): React.ReactNode {
-  const paragraphs = text
-    .split(/\n{2,}/)
-    .map((p) => p.trim())
-    .filter(Boolean);
+function renderInline(text: string): React.ReactNode {
+  const tokens = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|_[^_]+_)/g);
+  return tokens.map((tok, tIdx) => {
+    const kalin = tok.startsWith("**") && tok.endsWith("**") && tok.length > 4;
+    if (kalin || (tok.startsWith("*") && tok.endsWith("*") && tok.length > 2)) {
+      return (
+        <strong key={tIdx} className="font-semibold text-primary-fixed-dim">
+          {kalin ? tok.slice(2, -2) : tok.slice(1, -1)}
+        </strong>
+      );
+    }
+    if (tok.startsWith("_") && tok.endsWith("_") && tok.length > 2) {
+      return (
+        <em key={tIdx} className="font-heading italic text-primary">
+          {tok.slice(1, -1)}
+        </em>
+      );
+    }
+    return <React.Fragment key={tIdx}>{tok}</React.Fragment>;
+  });
+}
 
-  return paragraphs.map((para, pIdx) => {
-    const tokens = para.split(/(\*[^*]+\*|_[^_]+_)/g);
+/**
+ * Metin duvarı kırıcı: ham cevap değişmeden ekranda kısa paragraflara ve
+ * maddelere ayrılır (bkz. src/lib/sohbet/metin-bicim.ts).
+ */
+function renderFormattedMessage(text: string): React.ReactNode {
+  return metniBloklaraAyir(text).map((blok, bIdx) => {
+    if (blok.tur === "liste") {
+      const Etiket = blok.sirali ? "ol" : "ul";
+      return (
+        <Etiket
+          key={bIdx}
+          lang="tr"
+          className={`mb-4 last:mb-0 max-w-[62ch] space-y-2 pl-6 text-[15px] leading-[1.8] text-on-surface ${
+            blok.sirali ? "list-decimal" : "list-disc"
+          } marker:text-primary`}
+        >
+          {blok.maddeler.map((madde, mIdx) => (
+            <li key={mIdx} className="pl-1">
+              {renderInline(madde)}
+            </li>
+          ))}
+        </Etiket>
+      );
+    }
     return (
       <p
-        key={pIdx}
-        className="text-[15px] leading-[1.75] text-on-surface mb-3.5 last:mb-0 max-w-[68ch]"
+        key={bIdx}
+        className="text-[15px] leading-[1.8] text-on-surface mb-4 last:mb-0 max-w-[62ch]"
         lang="tr"
       >
-        {tokens.map((tok, tIdx) => {
-          if (tok.startsWith("*") && tok.endsWith("*") && tok.length > 2) {
-            return (
-              <strong
-                key={tIdx}
-                className="font-semibold text-primary-fixed-dim"
-              >
-                {tok.slice(1, -1)}
-              </strong>
-            );
-          }
-          if (tok.startsWith("_") && tok.endsWith("_") && tok.length > 2) {
-            return (
-              <em
-                key={tIdx}
-                className="font-heading italic text-primary text-[15px]"
-              >
-                {tok.slice(1, -1)}
-              </em>
-            );
-          }
-          return <React.Fragment key={tIdx}>{tok}</React.Fragment>;
-        })}
+        {renderInline(blok.metin)}
       </p>
     );
   });
@@ -819,11 +846,12 @@ export function SirdasChatWorkspace() {
     }
   };
 
-  const handleSubmit = async (e?: React.FormEvent) => {
+  const handleSubmit = async (e?: React.FormEvent, hazirMetin?: string) => {
     if (e) e.preventDefault();
     if (isLoading || isStreaming) return;
 
-    const trimmed = inputMessage.trim();
+    const hazirMi = typeof hazirMetin === "string";
+    const trimmed = (hazirMi ? hazirMetin : inputMessage).trim();
     if (!hasGivenConsent) {
       setIsConsentModalOpen(true);
       setErrorMsg(
@@ -840,9 +868,11 @@ export function SirdasChatWorkspace() {
     }
 
     setErrorMsg(null);
-    setInputMessage("");
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
+    if (!hazirMi) {
+      setInputMessage("");
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "auto";
+      }
     }
 
     const nowIso = new Date().toISOString();
@@ -1128,6 +1158,21 @@ export function SirdasChatWorkspace() {
         "Bağlantı sırasında bir sorun yaşandı. Lütfen tekrar deneyin.",
       );
     }
+  };
+
+  /** Kalite kapısı: cevaba verilen "Faydalı oldu / Olmadı" işareti bu cihazdaki sohbet kaydına yazılır. */
+  const handleGeriBildirim = (msgId: string, deger: GeriBildirim | undefined) => {
+    const sonraki = threads.map((t) =>
+      t.id === activeThreadId
+        ? {
+            ...t,
+            messages: t.messages.map((m) =>
+              m.id === msgId ? { ...m, geriBildirim: deger } : m,
+            ),
+          }
+        : t,
+    );
+    saveThreadsToStorage(sonraki);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -1829,7 +1874,7 @@ export function SirdasChatWorkspace() {
         >
           {!hasMessages ? (
             /* SERENE EMPTY STATE — NO STARTER PROMPT CARDS (Respects AGENTS.md) */
-            <div className="mx-auto flex h-full max-w-[680px] flex-col items-center justify-center text-center py-12">
+            <div className="mx-auto flex min-h-full max-w-[680px] flex-col items-center justify-center text-center py-12">
               <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-[24px] bg-surface-container-high border border-outline-variant/40 shadow-m3-2 hover:scale-105 transition-transform duration-300 ease-m3e-spring-bouncy">
                 <Image
                   alt="Manevi Pusula"
@@ -1840,21 +1885,8 @@ export function SirdasChatWorkspace() {
                 />
               </div>
 
-              <h1
-                className="font-heading text-3xl sm:text-4xl font-normal text-on-surface tracking-tight leading-snug mb-4"
-                lang="tr"
-              >
-                Selamün aleyküm kardeşim, gönlünü ne meşgul ediyor?
-              </h1>
-
-              <p
-                className="text-[15px] text-on-surface-variant leading-relaxed max-w-[54ch]"
-                lang="tr"
-              >
-                İçini daraltan imtihanı, kederi veya tefekkür etmek istediğin
-                meseleyi dilediğin gibi paylaşabilirsin. Burada konuşulanlar
-                Kur&apos;an ve Sünnet hikmetiyle, yargılamadan dinlenir.
-              </p>
+              {/* Saat ve tarihe göre karşılama + vakit ayeti (Türkiye saati) */}
+              <ZamanKarsilama />
             </div>
           ) : (
             /* MULTI-TURN CONVERSATION STREAM */
@@ -2042,6 +2074,27 @@ export function SirdasChatWorkspace() {
                               </time>
                             )}
                           </div>
+
+                          {/* Kalite kontrol kapısı */}
+                          <CevapGeriBildirimi
+                            deger={msg.geriBildirim}
+                            onDegis={(deger) => handleGeriBildirim(msg.id, deger)}
+                            epostaHref={gorusEpostaBaglantisi(msg)}
+                          />
+
+                          {/* Etkileşim ve yönlendirme düğmeleri: yalnız son cevabın altında */}
+                          {index === activeMessages.length - 1 && !isLoading && !isStreaming && (
+                            <HizliYanitDugmeleri
+                              secenekler={hizliYanitlar({
+                                icerik: msg.content,
+                                intentMode: msg.intentMode,
+                                guvenlikTuru: msg.safety && isSafetyNoticeData(msg.safety) ? msg.safety.kind : null,
+                                status: msg.status,
+                              })}
+                              onSec={(metin) => handleSubmit(undefined, metin)}
+                              devreDisi={isLoading || isStreaming}
+                            />
+                          )}
                         </div>
                       </article>
                     )}

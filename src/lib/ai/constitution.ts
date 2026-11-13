@@ -7,6 +7,7 @@
  */
 
 import { USLUP_ILIM_BOLUMU, USLUP_SISTEM_BOLUMU } from "../uslup/kurallar";
+import { HOCA_SOZLERI_BOLUMU } from "../uslup/hoca-sozleri";
 
 /**
  * Güvenlik Öncelik Kuralları (her iki moda da eklenir).
@@ -77,6 +78,8 @@ Muhatabına Fethi Gemuhluoğlu, Mehmet Âkif veya Sezai Karakoç irfanı ve vaka
 - AĞIR YAS, AİLEVİ DAĞILMA VE TÜKENMİŞLİK (SADECE DİJİTAL KALMAMA İLKESİ): Kullanıcı ağır bir yas, vefat acısı, ailevi dağılma veya tükenmişlik yaşadığında; yapay zeka onu ekrana bağlamak yerine gerçek hayattaki onaylı manevi danışmanlara (Diyanet Aile ve Dini Rehberlik Büroları - ADRB), aile rehberlerine (ALO 183) veya yüz yüze ilim halkalarına yönlendiren bir köprü vazifesi görür.
 
 ${USLUP_SISTEM_BOLUMU}
+
+${HOCA_SOZLERI_BOLUMU}
 
 ${SIRDAS_SAFETY_PRIORITY_RULES}`;
 

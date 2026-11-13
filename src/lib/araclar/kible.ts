@@ -61,3 +61,48 @@ export function aciFarki(hedef: number, mevcut: number): number {
   if (d > 180) d -= 360;
   return d;
 }
+
+const norm360 = (d: number) => ((d % 360) + 360) % 360;
+
+/**
+ * Pusulada (manyetik kuzeye göre) okunacak kıble açısı.
+ * Diyanet'in il sayfalarında yazan "kıble açısı" bu türdendir.
+ * `sapma` doğu yönlü manyetik sapmadır (Türkiye'de yaklaşık +5,5 / +7).
+ */
+export function manyetikKibleAcisi(gercekAci: number, sapma: number): number {
+  return norm360(gercekAci - sapma);
+}
+
+/** Manyetik pusula yönünü coğrafi (gerçek) kuzeye çevirir. */
+export function gercekYon(manyetikYon: number, sapma: number | null): number {
+  return norm360(manyetikYon + (sapma ?? 0));
+}
+
+/**
+ * Telefon yere paralel tutulurken ekranın üst kenarının baktığı yön.
+ * `alpha`: deviceorientationabsolute olayından (Android), saat yönünün tersine.
+ * `ekranAcisi`: screen.orientation.angle (dikey 0, yatay 90/270).
+ */
+export function alfadanYon(alpha: number, ekranAcisi = 0): number {
+  return norm360(360 - alpha + ekranAcisi);
+}
+
+/**
+ * Telefon dik tutulurken arka kameranın baktığı yön (W3C DeviceOrientation,
+ * "Calculating compass heading" bölümü). Kamera neredeyse yere veya göğe
+ * bakıyorsa yön belirsizdir ve `null` döner.
+ */
+export function kameraYonu(alpha: number, beta: number, gamma: number): number | null {
+  const a = rad(alpha);
+  const b = rad(beta);
+  const g = rad(gamma);
+  const cA = Math.cos(a);
+  const sA = Math.sin(a);
+  const sB = Math.sin(b);
+  const cG = Math.cos(g);
+  const sG = Math.sin(g);
+  const dogu = -cA * sG - sA * sB * cG;
+  const kuzey = -sA * sG + cA * sB * cG;
+  if (Math.hypot(dogu, kuzey) < 0.3) return null;
+  return norm360(deg(Math.atan2(dogu, kuzey)));
+}

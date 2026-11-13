@@ -25,6 +25,23 @@ import {
   hatirlatildiIsaretle,
   type HafizaDurumu,
 } from "@/lib/hafiza";
+import {
+  THREADS_STORAGE_KEY,
+  CLIENT_ID_STORAGE_KEY,
+  CONSENT_STORAGE_KEY,
+  SETTINGS_STORAGE_KEY,
+  PROFILE_STORAGE_KEY,
+  cihazdanTemizle,
+} from "@/lib/cihaz-temizle";
+import { metniBloklaraAyir } from "@/lib/sohbet/metin-bicim";
+import { hizliYanitlar } from "@/lib/sohbet/hizli-yanitlar";
+import {
+  CevapGeriBildirimi,
+  gorusEpostaBaglantisi,
+  type GeriBildirim,
+} from "./cevap-geri-bildirimi";
+import { ZamanKarsilama } from "./zaman-karsilama";
+import { HizliYanitDugmeleri } from "./hizli-yanit-dugmeleri";
 
 export interface ChatSourceBadge {
   id: string;
@@ -44,6 +61,8 @@ export interface ChatMessageItem {
   status?: "processed" | "fatwa_blocked" | "crisis_redirected";
   intentMode?: "MANEVI_AYNA" | "ILIM_VE_SIYER";
   safety?: SafetyNoticeData | null;
+  /** Kalite kapısı: "Faydalı oldu / Olmadı" (yalnız bu cihazda saklanır) */
+  geriBildirim?: GeriBildirim;
 }
 
 export interface ChatConversationThread {
@@ -53,11 +72,6 @@ export interface ChatConversationThread {
   messages: ChatMessageItem[];
 }
 
-const THREADS_STORAGE_KEY = "sirdas_chat_threads_v1";
-const CLIENT_ID_STORAGE_KEY = "sirdas_anon_client_id_v1";
-const CONSENT_STORAGE_KEY = "sirdas_kvkk_consent_v1";
-const SETTINGS_STORAGE_KEY = "sirdas_privacy_settings_v1";
-const PROFILE_STORAGE_KEY = "sirdas_user_profile_v1";
 
 export interface UserProfileData {
   preferred_name?: string;
@@ -149,43 +163,59 @@ function getSourceTypeLabel(sourceType: string): string {
   }
 }
 
-function renderFormattedMessage(text: string): React.ReactNode {
-  const paragraphs = text
-    .split(/\n{2,}/)
-    .map((p) => p.trim())
-    .filter(Boolean);
+function renderInline(text: string): React.ReactNode {
+  const tokens = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|_[^_]+_)/g);
+  return tokens.map((tok, tIdx) => {
+    const kalin = tok.startsWith("**") && tok.endsWith("**") && tok.length > 4;
+    if (kalin || (tok.startsWith("*") && tok.endsWith("*") && tok.length > 2)) {
+      return (
+        <strong key={tIdx} className="font-semibold text-primary-fixed-dim">
+          {kalin ? tok.slice(2, -2) : tok.slice(1, -1)}
+        </strong>
+      );
+    }
+    if (tok.startsWith("_") && tok.endsWith("_") && tok.length > 2) {
+      return (
+        <em key={tIdx} className="font-heading italic text-primary">
+          {tok.slice(1, -1)}
+        </em>
+      );
+    }
+    return <React.Fragment key={tIdx}>{tok}</React.Fragment>;
+  });
+}
 
-  return paragraphs.map((para, pIdx) => {
-    const tokens = para.split(/(\*[^*]+\*|_[^_]+_)/g);
+/**
+ * Metin duvarı kırıcı: ham cevap değişmeden ekranda kısa paragraflara ve
+ * maddelere ayrılır (bkz. src/lib/sohbet/metin-bicim.ts).
+ */
+function renderFormattedMessage(text: string): React.ReactNode {
+  return metniBloklaraAyir(text).map((blok, bIdx) => {
+    if (blok.tur === "liste") {
+      const Etiket = blok.sirali ? "ol" : "ul";
+      return (
+        <Etiket
+          key={bIdx}
+          lang="tr"
+          className={`mb-4 last:mb-0 max-w-[62ch] space-y-2 pl-6 text-[15px] leading-[1.8] text-on-surface ${
+            blok.sirali ? "list-decimal" : "list-disc"
+          } marker:text-primary`}
+        >
+          {blok.maddeler.map((madde, mIdx) => (
+            <li key={mIdx} className="pl-1">
+              {renderInline(madde)}
+            </li>
+          ))}
+        </Etiket>
+      );
+    }
     return (
       <p
-        key={pIdx}
-        className="text-[15px] leading-[1.75] text-on-surface mb-3.5 last:mb-0 max-w-[68ch]"
+        key={bIdx}
+        className="text-[15px] leading-[1.8] text-on-surface mb-4 last:mb-0 max-w-[62ch]"
         lang="tr"
       >
-        {tokens.map((tok, tIdx) => {
-          if (tok.startsWith("*") && tok.endsWith("*") && tok.length > 2) {
-            return (
-              <strong
-                key={tIdx}
-                className="font-semibold text-primary-fixed-dim"
-              >
-                {tok.slice(1, -1)}
-              </strong>
-            );
-          }
-          if (tok.startsWith("_") && tok.endsWith("_") && tok.length > 2) {
-            return (
-              <em
-                key={tIdx}
-                className="font-heading italic text-primary text-[15px]"
-              >
-                {tok.slice(1, -1)}
-              </em>
-            );
-          }
-          return <React.Fragment key={tIdx}>{tok}</React.Fragment>;
-        })}
+        {renderInline(blok.metin)}
       </p>
     );
   });
@@ -349,6 +379,9 @@ export function SirdasChatWorkspace() {
   const [resetTrigger, setResetTrigger] = useState<"header" | "sidebar">("header");
   const [isPurging, setIsPurging] = useState<boolean>(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+  // "Bu cihazdan temizle": yalnız bu cihazdaki görünen geçmiş (sunucu kayıtları kalır)
+  const [isCihazTemizleOpen, setIsCihazTemizleOpen] = useState<boolean>(false);
+  const [isCihazTemizleniyor, setIsCihazTemizleniyor] = useState<boolean>(false);
 
   // Hafıza & Gizlilik Ayarları (Kapanışta İmha, Hareketsizlik, TTL)
   const [privacySettings, setPrivacySettings] = useState<SirdasPrivacySettings>(
@@ -514,6 +547,53 @@ export function SirdasChatWorkspace() {
     },
     [clientId],
   );
+
+  // Bu cihazdan temizle: sunucudaki kayıtlara dokunmaz, yalnız bu cihazdaki izleri kaldırır
+  const handleCihazdanTemizle = useCallback(async () => {
+    setIsCihazTemizleniyor(true);
+    try {
+      // Kimlik çerezini kaldır ki sunucudaki eski kayıtlar bu cihazda yüklenmesin
+      await fetch("/api/cihaz-temizle", { method: "POST", cache: "no-store" });
+    } catch (err) {
+      console.warn("[Cihaz temizleme]", err);
+    }
+
+    let yeniKimlik = "";
+    try {
+      yeniKimlik = cihazdanTemizle(window.localStorage);
+    } catch {
+      yeniKimlik = generateClientUuid();
+    }
+    setClientId(yeniKimlik);
+
+    setUserProfile({
+      roles: [],
+      known_facts: [],
+      spiritual_trials: [],
+      biological_energy: ["SAMIMI_ARAYIS"],
+      tone_preference: "SEFKATLI_TESKIN",
+      spiritual_stage: "ARAYIS_VE_BASLANGIC",
+      interaction_count: 0,
+      onboarding_step: 1,
+      onboarding_completed: false,
+      profile_completion: 20,
+    });
+    setThreads([]);
+    setActiveThreadId("");
+    setInputMessage("");
+    setStreamingText("");
+    setStreamingSources([]);
+    setErrorMsg(null);
+    setActiveDetailSource(null);
+    if (profileDialogRef.current?.open) profileDialogRef.current.close();
+
+    setIsCihazTemizleniyor(false);
+    setIsCihazTemizleOpen(false);
+    setMobileDrawerOpen(false);
+    setToastMsg("Bu cihaz temizlendi.");
+    setTimeout(() => setToastMsg(null), 4000);
+    setTimeout(() => textareaRef.current?.focus(), 60);
+  }, []);
 
   // Initialize anonymous Better-Auth-ready clientId, KVKK consent & load threads from localStorage
   useEffect(() => {
@@ -791,11 +871,12 @@ export function SirdasChatWorkspace() {
     }
   };
 
-  const handleSubmit = async (e?: React.FormEvent) => {
+  const handleSubmit = async (e?: React.FormEvent, hazirMetin?: string) => {
     if (e) e.preventDefault();
     if (isLoading || isStreaming) return;
 
-    const trimmed = inputMessage.trim();
+    const hazirMi = typeof hazirMetin === "string";
+    const trimmed = (hazirMi ? hazirMetin : inputMessage).trim();
     if (!hasGivenConsent) {
       setIsConsentModalOpen(true);
       setErrorMsg(
@@ -812,9 +893,11 @@ export function SirdasChatWorkspace() {
     }
 
     setErrorMsg(null);
-    setInputMessage("");
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
+    if (!hazirMi) {
+      setInputMessage("");
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "auto";
+      }
     }
 
     const nowIso = new Date().toISOString();
@@ -1114,6 +1197,21 @@ export function SirdasChatWorkspace() {
         "Bağlantı sırasında bir sorun yaşandı. Lütfen tekrar deneyin.",
       );
     }
+  };
+
+  /** Kalite kapısı: cevaba verilen "Faydalı oldu / Olmadı" işareti bu cihazdaki sohbet kaydına yazılır. */
+  const handleGeriBildirim = (msgId: string, deger: GeriBildirim | undefined) => {
+    const sonraki = threads.map((t) =>
+      t.id === activeThreadId
+        ? {
+            ...t,
+            messages: t.messages.map((m) =>
+              m.id === msgId ? { ...m, geriBildirim: deger } : m,
+            ),
+          }
+        : t,
+    );
+    saveThreadsToStorage(sonraki);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -1483,6 +1581,29 @@ export function SirdasChatWorkspace() {
                   {hafiza.acik ? `${hafiza.emanetler.length} emanet` : "kapalı"}
                 </span>
               </button>
+
+              {/* Bu cihazdan temizle: yalnız bu cihazdaki görünen geçmiş silinir */}
+              <button
+                type="button"
+                onClick={() => setIsCihazTemizleOpen(true)}
+                className="w-full flex min-h-14 items-center justify-center gap-3 rounded-[20px] bg-surface-container hover:bg-surface-container-high border border-outline-variant/60 px-4 py-3 text-base font-semibold text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-xs cursor-pointer"
+              >
+                <svg
+                    aria-hidden="true"
+                    className="h-6 w-6 shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.9"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21M22 21H7M5 11l9 9"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                <span>Bu cihazdan temizle</span>
+              </button>
             </>
           ) : (
             <div className="flex flex-col items-center gap-2">
@@ -1540,6 +1661,28 @@ export function SirdasChatWorkspace() {
                   />
                 </svg>
               </motion.button>
+              <button
+                aria-label="Bu cihazdan temizle"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container hover:bg-surface-container-high border border-outline-variant/40 text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-xs cursor-pointer"
+                onClick={() => setIsCihazTemizleOpen(true)}
+                title="Bu cihazdan temizle"
+                type="button"
+              >
+                <svg
+                    aria-hidden="true"
+                    className="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.9"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21M22 21H7M5 11l9 9"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+              </button>
             </div>
           )}
         </div>
@@ -1788,7 +1931,7 @@ export function SirdasChatWorkspace() {
         >
           {!hasMessages ? (
             /* SERENE EMPTY STATE — NO STARTER PROMPT CARDS (Respects AGENTS.md) */
-            <div className="mx-auto flex h-full max-w-[680px] flex-col items-center justify-center text-center py-12">
+            <div className="mx-auto flex min-h-full max-w-[680px] flex-col items-center justify-center text-center py-12">
               <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-[24px] bg-surface-container-high border border-outline-variant/40 shadow-m3-2 hover:scale-105 transition-transform duration-300 ease-m3e-spring-bouncy">
                 <Image
                   alt="Manevi Pusula"
@@ -1799,21 +1942,8 @@ export function SirdasChatWorkspace() {
                 />
               </div>
 
-              <h1
-                className="font-heading text-3xl sm:text-4xl font-normal text-on-surface tracking-tight leading-snug mb-4"
-                lang="tr"
-              >
-                Selamün aleyküm kardeşim, gönlünü ne meşgul ediyor?
-              </h1>
-
-              <p
-                className="text-[15px] text-on-surface-variant leading-relaxed max-w-[54ch]"
-                lang="tr"
-              >
-                İçini daraltan imtihanı, kederi veya tefekkür etmek istediğin
-                meseleyi dilediğin gibi paylaşabilirsin. Burada konuşulanlar
-                Kur&apos;an ve Sünnet hikmetiyle, yargılamadan dinlenir.
-              </p>
+              {/* Saat ve tarihe göre karşılama + vakit ayeti (Türkiye saati) */}
+              <ZamanKarsilama />
             </div>
           ) : (
             /* MULTI-TURN CONVERSATION STREAM */
@@ -2001,6 +2131,27 @@ export function SirdasChatWorkspace() {
                               </time>
                             )}
                           </div>
+
+                          {/* Kalite kontrol kapısı */}
+                          <CevapGeriBildirimi
+                            deger={msg.geriBildirim}
+                            onDegis={(deger) => handleGeriBildirim(msg.id, deger)}
+                            epostaHref={gorusEpostaBaglantisi(msg)}
+                          />
+
+                          {/* Etkileşim ve yönlendirme düğmeleri: yalnız son cevabın altında */}
+                          {index === activeMessages.length - 1 && !isLoading && !isStreaming && (
+                            <HizliYanitDugmeleri
+                              secenekler={hizliYanitlar({
+                                icerik: msg.content,
+                                intentMode: msg.intentMode,
+                                guvenlikTuru: msg.safety && isSafetyNoticeData(msg.safety) ? msg.safety.kind : null,
+                                status: msg.status,
+                              })}
+                              onSec={(metin) => handleSubmit(undefined, metin)}
+                              devreDisi={isLoading || isStreaming}
+                            />
+                          )}
                         </div>
                       </article>
                     )}
@@ -2422,6 +2573,75 @@ export function SirdasChatWorkspace() {
         </div>
       )}
     </AnimatePresence>
+
+      {/* BU CİHAZDAN TEMİZLE ONAY PENCERESİ (yalnız bu cihaz; sunucu kayıtları kalır) */}
+      <AnimatePresence>
+        {isCihazTemizleOpen && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cihaz-temizle-baslik"
+            aria-describedby="cihaz-temizle-aciklama"
+            onKeyDown={(e) => {
+              if (e.key === "Escape" && !isCihazTemizleniyor) {
+                setIsCihazTemizleOpen(false);
+              }
+            }}
+          >
+            <motion.div
+              className="fixed inset-0 bg-black/80 backdrop-blur-md"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => {
+                if (!isCihazTemizleniyor) setIsCihazTemizleOpen(false);
+              }}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 8 }}
+              transition={{ type: "spring", damping: 26, stiffness: 260 }}
+              className="relative z-10 w-full max-w-md rounded-[32px] bg-surface-container-high border border-outline-variant/60 p-6 sm:p-8 shadow-m3-5 text-on-surface space-y-5"
+            >
+              <h2
+                id="cihaz-temizle-baslik"
+                className="font-heading text-xl font-semibold text-on-surface"
+              >
+                Bu cihazdan temizle
+              </h2>
+              <p
+                id="cihaz-temizle-aciklama"
+                className="text-base leading-relaxed text-on-surface"
+              >
+                Bu cihazdaki sohbet geçmişi silinecek. Yanınızdaki biri artık
+                göremez. Emin misiniz?
+              </p>
+              <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  autoFocus
+                  disabled={isCihazTemizleniyor}
+                  onClick={() => setIsCihazTemizleOpen(false)}
+                  className="min-h-14 rounded-full bg-surface-container hover:bg-surface-container-highest border border-outline-variant/60 px-6 py-3 text-base font-medium text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
+                >
+                  Vazgeç
+                </button>
+                <button
+                  type="button"
+                  disabled={isCihazTemizleniyor || isLoading || isStreaming}
+                  onClick={handleCihazdanTemizle}
+                  className="min-h-14 inline-flex items-center justify-center gap-2 rounded-full bg-primary hover:bg-primary/90 text-on-primary px-6 py-3 text-base font-semibold shadow-m3-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
+                >
+                  {isCihazTemizleniyor ? "Temizleniyor..." : "Evet, temizle"}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* 2. BENLİK HAFIZAMI SIFIRLA / TÜM VERİLERİMİ SİL CONFIRM MODAL (FLUID MORPHING DIALOG) */}
       <AnimatePresence>

@@ -61,6 +61,29 @@
   "hocaSozuKarsiligi": null
  },
  {
+  "no": 3,
+  "ad": "Maddi ve Manevi Arınma Merceği",
+  "etiketler": [
+   "abdest",
+   "manevi_arinma",
+   "gunahlarin_dokulmesi"
+  ],
+  "tetikleyiciler": [
+   "abdest",
+   "yüz yıkamak",
+   "eller",
+   "ayaklar",
+   "günahlardan arınma"
+  ],
+  "teshis": "Maddi temizlikle manevi arınma arasındaki bağı kurar; abdestin bedeni temizleyen ve günahların dökülmesine vesile olan yönünü ele alır.",
+  "giris": "Abdestin sadece şekilsel bir temizlik değil, organların işlediği hatalardan arınma ve yenilenme kurnası olduğunu belirt.",
+  "irtibat": "Abdestin bedeni temizlerken kalbi de ibadete hazırlayan bir arınma olduğunu, İslam'ın temizliğe verdiği değerle birlikte göster.",
+  "pusulaNotu": "Huzura ve ibadete tertemiz, zinde bir beden ve arınmış bir ruhla çıkmanın huzurunu hatırlat.",
+  "yasaklar": "Abdesti bilimsel dayanağı olmayan sağlık iddialarına bağlamayacak; manevi arınma ve nebevi müjdeyi her zaman merkeze koyacak.",
+  "durum": "YUMUSATILDI",
+  "hocaSozuKarsiligi": null
+ },
+ {
   "no": 4,
   "ad": "Nebevi Ebeveynlik ve Sebep-Sonuç Merceği",
   "etiketler": [
@@ -173,6 +196,34 @@
   "hocaSozuKarsiligi": null
  },
  {
+  "no": 9,
+  "ad": "Seküler Eğitim ve Hakiki Ahlak Merceği",
+  "etiketler": [
+   "sekulerlesme",
+   "egitim_ahlak",
+   "medrese_tekke",
+   "islam_ahlaki",
+   "nesil"
+  ],
+  "tetikleyiciler": [
+   "dini eğitim",
+   "seküler",
+   "ahlak",
+   "medrese",
+   "nesil",
+   "Müslüman",
+   "insanlık",
+   "yaşam biçimi"
+  ],
+  "teshis": "Vahiyden ve hikmetten kopuşun nesiller üzerinde bıraktığı ahlaki boşluğu; bugünkü toplumsal eksikliklerin kaynağının İslam'ın kendisi değil, onun ahlakından uzak kalmak olduğunu teşhis eder.",
+  "giris": "İslamiyet'in sadece bir coğrafyaya veya ırka değil, insanlığa inmiş kuşatıcı bir yaşam biçimi ve ahlak kaynağı olduğunu hatırlat.",
+  "irtibat": "Kaynaktan (vahiyden ve hikmetten) koparılan nesillerin yaşadığı savruluşun sebeplerini sosyolojik ve hakiki bir perspektifle açıkla.",
+  "pusulaNotu": "Bizi \"ben\" değil \"biz\" yapan, insanlığı yücelten nebevi ahlaka ve köklere yeniden sımsıkı sarılmayı teşvik et.",
+  "yasaklar": "Konuyu kısır siyasi tartışmalara indirgemeyecek; toplumsal yozlaşmanın kökündeki manevi kopuşa ve hakiki ahlak inşasına odaklanacak; belirli eğitim politikalarını, kanunları veya siyasi düzeni suçlamayacak.",
+  "durum": "YUMUSATILDI",
+  "hocaSozuKarsiligi": null
+ },
+ {
   "no": 10,
   "ad": "Kul Hakkı, Borç Silme ve Tevhidin Bereket Merceği",
   "etiketler": [
@@ -197,6 +248,26 @@
   "pusulaNotu": "Günlük ticari ve sosyal ilişkilerde katı değil, bağışlayıcı ve merhametli bir tutum sergilemeyi öğütle.",
   "yasaklar": "Borç silme ve affediciliği suiistimale açık bir zayıflık gibi göstermeyecek; aksine ilahi rahmeti celbeden en büyük erdem olarak işleyecek.",
   "durum": "TEMIZ",
+  "hocaSozuKarsiligi": null
+ },
+ {
+  "no": 11,
+  "ad": "Duygu Yönetimi ve İyileşme İradesi Merceği",
+  "etiketler": [
+   "duygu_yonetimi",
+   "iyilesme_iradesi"
+  ],
+  "tetikleyiciler": [
+   "travma",
+   "duygu",
+   "iyileşme karar"
+  ],
+  "teshis": "Geçmişte yaşanan acıların insanın bütün hayatını belirlemek zorunda olmadığını; uygun destekle birlikte insanın duygularını yönlendirme ve iyileşme yolunda adım atma iradesine sahip olduğunu teşhis eder.",
+  "giris": "Geçmişin yüküyle kendini çaresiz hisseden kalbe, yaşadıklarını küçümsemeden, iyileşme yolunda atabileceği adımlar olduğunu şefkatle hatırlat.",
+  "irtibat": "İyileşmede kişinin kendi iradesinin ve duygularını doğru yönlendirmesinin, gerektiğinde alınan uzman desteğiyle birlikte büyük pay sahibi olduğunu hatırlat.",
+  "pusulaNotu": "Geçmişin sığınaklarından sıyrılarak bugünün bilinciyle ayağa kalkma iradesini kuşanmayı öğütle.",
+  "yasaklar": "Klinik ve acil tıbbi durumları göz ardı edecek şekilde küçümsemeyecek; travma, depresyon, kaygı ya da panik belirtisi anlatan kişiye uzman (psikolog/psikiyatrist) desteğini açıkça önerecek; iyileşmeyi yalnızca iradeye bağlamayacak, insanın iradi gücünü tedaviyi destekleyen bir motivasyon olarak öne çıkaracak.",
+  "durum": "YUMUSATILDI",
   "hocaSozuKarsiligi": null
  },
  {
@@ -736,6 +807,32 @@
   "hocaSozuKarsiligi": null
  },
  {
+  "no": 34,
+  "ad": "Cenab-ı Hakk'a Rağmen Kazanma Yanılgısı Merceği",
+  "etiketler": [
+   "allah_korumasi_disinda_kazanc",
+   "faiz_haram",
+   "Hz_Adem_ornegi",
+   "iflah_olmamak"
+  ],
+  "tetikleyiciler": [
+   "sata sata kazanmak",
+   "mal mülk",
+   "faiz",
+   "haram",
+   "iflah olmamak",
+   "Hz Adem",
+   "sonsuzluk ümidi"
+  ],
+  "teshis": "Allah'ın sınırlarını çiğneyerek (faiz, haram, O'nu gözden çıkararak) kazanılan malın, mülkün veya çevrenin bereketinin kalmayacağını; şeytanın sonsuzluk vaadine aldanmamanın ilk dersinin Hazreti Âdem kıssasında verildiğini teşhis eder.",
+  "giris": "Allah'ın kurallarına rağmen haram yollardan veya O'nu ikinci plana atarak elde edilen kazançların bereketinin azalacağını hatırlat.",
+  "irtibat": "Hz. Âdem kıssasının şeytanın sonsuzluk vaadine aldanmamak konusunda tarihteki ilk ders olduğunu, ilahi nizamın dışına çıkarak kazanan kimsenin olmadığını vurgula.",
+  "pusulaNotu": "Helal ve Hak olan çizgide kalarak az ama bereketli bir rızık bilincini kuşan.",
+  "yasaklar": "Ticari hayatı veya kazanma arzusunu tamamen suçlu ilan etmeyecek; gayrimeşru ve ilahi nizamı çiğneyen kazanç yollarının akıbetini göz önüne serecek; kullanıcının başına gelen hastalık, kaza veya sıkıntıyı haram kazanca bağlamayacak; somut faiz, kredi veya mevduat hükmü sorulursa hüküm vermeyip Diyanet Alo 190'a yönlendirecek.",
+  "durum": "YUMUSATILDI",
+  "hocaSozuKarsiligi": null
+ },
+ {
   "no": 35,
   "ad": "Hiçliği Tüketmek ve Doruklardaki İmtihan Merceği",
   "etiketler": [
@@ -787,6 +884,32 @@
   "hocaSozuKarsiligi": null
  },
  {
+  "no": 37,
+  "ad": "İmam-ı Azam Hassasiyeti ve Kul Hakkı Titizliği Merceği",
+  "etiketler": [
+   "imam_i_azam",
+   "musriflik_hassasiyeti",
+   "faiz_korkusu",
+   "kul_hakki_titizligi",
+   "esnaf_ahlaki"
+  ],
+  "tetikleyiciler": [
+   "İmam-ı Azam",
+   "beytülmal",
+   "güneş",
+   "gölge",
+   "borç",
+   "faiz"
+  ],
+  "teshis": "İmam-ı Azam gibi büyük bir zâtın dahi devlet malından hassasiyetle kaçındığını ve kendisine borçlu olan adamın evinin gölgesinde bile faiz şüphesiyle serinlemediğini hatırlatarak kul hakkı titizliğinin önemini teşhis eder.",
+  "giris": "Büyüklerin takva ve kul hakkı hassasiyetini örnek göstererek günlük hayattaki küçük görünen hak ihlallerini şefkatle düşündür.",
+  "irtibat": "İslam büyüklerinin mirasını ve hassasiyetlerini ata mirası bilmenin bilincini vurgula.",
+  "pusulaNotu": "Ticari ve günlük ilişkilerde İmam-ı Azam titizliğiyle helal-haram dengesini gözetmeyi öğütle.",
+  "yasaklar": "Tarihi kişileri eleştirirken kaba bir üslup kullanmayacak; aksine onların yüksek ahlaki duruşunu örnek gösterici bir mercekle işleyecek.",
+  "durum": "YUMUSATILDI",
+  "hocaSozuKarsiligi": null
+ },
+ {
   "no": 38,
   "ad": "Zulmün Kaynağı ve Habil ile Kabil Merceği",
   "etiketler": [
@@ -812,6 +935,83 @@
   "pusulaNotu": "Kendi içindeki heva ve ihtirasları kontrol altına alarak adaletle ve kardeşlikle yaşama iradesini kuşan.",
   "yasaklar": "İnsanı tamamen kötü veya lanetlenmiş göstermeyecek; nefsin zaaflarını bilerek sorumluluk bilinciyle hareket etme gerekliliğini vurgulayacak.",
   "durum": "TEMIZ",
+  "hocaSozuKarsiligi": null
+ },
+ {
+  "no": 39,
+  "ad": "Ölümün Hakikati ve İyi Kulların Karşılanışı Merceği",
+  "etiketler": [
+   "olum_hakikati",
+   "istikamet",
+   "meleklerin_karsilamasi",
+   "guzel_son"
+  ],
+  "tetikleyiciler": [
+   "iyiler",
+   "Rabbimiz Allah'tır",
+   "istikamet",
+   "melekler nazil olur",
+   "gök ehli",
+   "teşrif"
+  ],
+  "teshis": "Ölümün mutlak anlamda kötü olmadığını; \"Rabbimiz Allah'tır\" deyip istikamet üzere yaşayanlar için meleklerin sıra sıra inerek o geçişi selamladığı büyük ve şerefli bir buluşma olduğunu teşhis eder.",
+  "giris": "Ölümün sadece bir son değil, istikamet ehli için meleklerin saf tutarak karşıladığı onurlu bir geçiş kapısı olduğunu müjdele.",
+  "irtibat": "Hayatı istikamet üzere yaşamanın ahiretteki bu muazzam karşılığını kalbe huzur veren bir dille anlat.",
+  "pusulaNotu": "Korku dolu ölüm algısını bırakarak istikametli bir ömürle o güne hazırlanmayı teşvik et.",
+  "yasaklar": "Ölümü romantize ederek dünya hayatını hafife almayacak; istikamet ve hazırlık bilincini her zaman ön planda tutacak; ölüm isteği, yaşamaktan bıkkınlık veya kendine zarar verme belirtisi taşıyan mesajda bu mercek kullanılmayacak, önce 112 / ALO 183 yönlendirmesi yapılacak.",
+  "durum": "YUMUSATILDI",
+  "hocaSozuKarsiligi": null
+ },
+ {
+  "no": 40,
+  "ad": "Uçak Türbülansı ve Mutlak Kontrol Sahibi Merceği",
+  "etiketler": [
+   "mutlak_kontrol",
+   "ucak_turbulansi",
+   "yaprak_dusmesi",
+   "alan_da_o_veren_de"
+  ],
+  "tetikleyiciler": [
+   "uçak",
+   "rüzgar",
+   "yaprak",
+   "kontrol sahibi",
+   "hikmetli iş",
+   "kazanım",
+   "kayıp",
+   "şımarma"
+  ],
+  "teshis": "Hayatın türbülanslarında (uçak sarsıntısı vb.) izinsiz bir yaprağın bile düşmediğini bilerek, kontrolün mutlak sahibinin hikmetine ve iyiliğine güvenmenin insanı şımarmaktan ve kahrolmaktan kurtardığını teşhis eder.",
+  "giris": "Sarsıntılar karşısında kaygı duyan kalbe, her şeyi hikmetle yöneten Rabbin kontrolünü hatırlamanın verdiği sükûneti nazikçe hatırlat.",
+  "irtibat": "Alanın da veren de O olduğunu bilmenin insana kazandırdığı o sarsılmaz içsel emniyeti vurgula.",
+  "pusulaNotu": "Dünyevi kazanç ve kayıpları bu ilahi nazarla tartarak kalbi dengede tut.",
+  "yasaklar": "Yaşanan korkuları küçümsemeyecek ve kaygıyı iman eksikliğine bağlamayacak; korku yoğun ve sürekliyse uzman desteğini de önerecek; ilahi kontrol bilinciyle kalpteki fırtınaları dindirecek şefkatli bir güven dili kuracak.",
+  "durum": "YUMUSATILDI",
+  "hocaSozuKarsiligi": null
+ },
+ {
+  "no": 41,
+  "ad": "Basınç Kanunu ve Bilim ile Vahyin Buluşması Merceği",
+  "etiketler": [
+   "bilim_ve_vahiy",
+   "goge_tirmanmak_basinç",
+   "okyanus_derinligi",
+   "ilahi_hakikat"
+  ],
+  "tetikleyiciler": [
+   "göğe tırmanmak",
+   "basınç düşmek",
+   "oksijen",
+   "okyanus",
+   "zifiri karanlık",
+   "bilim"
+  ],
+  "teshis": "Kur'an'da asırlar önce işaret edilen yüksek rakımlarda nefes daralması (basınç düşmesi) veya okyanus derinliklerindeki karanlıklar gibi tasvirlerin, insanı ayetler üzerinde tefekküre ve hayranlığa çağırdığını teşhis eder.",
+  "giris": "Evrendeki her yeni keşfin, Kur'an'ın tefekküre çağıran ayetlerini yeniden düşünmek için bir vesile olabileceğini belirt.",
+  "irtibat": "Vahiy ile gözlemlerin ve ilmi hakikatlerin nasıl kusursuz bir uyum içinde olduğunu göster.",
+  "pusulaNotu": "Aklı ve ilmi kullanarak ilahi kelamın hikmetine imanla ve hayranlıkla bağlan.",
+  "yasaklar": "Bilimi dini kanıtlama aracı olarak zorlama yorumlara sokmayacak; ayetlerin işaret ettiği fıtrî ve ilmi gerçekleri berrak bir dille aktaracak.",
+  "durum": "YUMUSATILDI",
   "hocaSozuKarsiligi": null
  },
  {
@@ -889,6 +1089,34 @@
   "irtibat": "Kur'an'ın \"Önce kendinizi ve ailenizi koruyun\" emrinin ne kadar acil ve hayati bir sorumluluk olduğunu vurgula.",
   "pusulaNotu": "Sahih bir iman ve takva kaygısıyla bugünden adımlarını atarak ahiret yurdunu güvenceye al.",
   "yasaklar": "İnsanı korkudan kilitlenen bir ümitsizliğe sürüklemeyecek; bu uyarıyı uyanış ve kurtuluş için güçlü bir manevi ivme olarak kullanacak.",
+  "durum": "YUMUSATILDI",
+  "hocaSozuKarsiligi": null
+ },
+ {
+  "no": 45,
+  "ad": "İki Türlü Sabah ve Hevâya Uyum Merceği",
+  "etiketler": [
+   "hakka_satarak_ozgurluk",
+   "batilin_kolesi",
+   "heva_ve_heves",
+   "ali_imran_32",
+   "kasas_50"
+  ],
+  "tetikleyiciler": [
+   "sabaha kalkmak",
+   "Hakk'a satmak",
+   "batıl",
+   "köleleşmek",
+   "iyi biri",
+   "masum bellemek",
+   "heva",
+   "Ali İmran"
+  ],
+  "teshis": "İnsanların sabaha iki türlü kalktığını (Hakk'a satarak özgürleşenler ve batıla satarak köleleşenler); kulun kendi seçimlerinden sorumlu olduğunu, ancak kimin imanının ve akıbetinin ne olacağına dair hükmün yalnız Allah'a ait olduğunu teşhis eder.",
+  "giris": "Her sabahın, insanı tercihleriyle Hakk'a yönelerek özgürleşmeye davet ettiğini, hevâya uymanın ise kalbi esir alabileceğini davetkâr bir dille hatırlat.",
+  "irtibat": "Gerçek iyiliği ve hakikati en iyi bilen Allah'ın kimseyi zayi etmeyeceğini, kulun seçimlerinde tamamen sorumlu olduğunu vurgula.",
+  "pusulaNotu": "Hevâya uymaktan vazgeçerek kendini batıla değil, Hakk'a teslim etme bilincini kuşan.",
+  "yasaklar": "Belirli kişilerin (kullanıcının yakınları dâhil) imanı, hidayeti veya akıbeti hakkında hüküm vermeyecek; hüküm Allah'ındır çizgisinde kalarak kişinin kendi tercihlerine ve sorumluluğuna davetkâr bir dille odaklanacak.",
   "durum": "YUMUSATILDI",
   "hocaSozuKarsiligi": null
  },
@@ -1424,6 +1652,52 @@
   "hocaSozuKarsiligi": null
  },
  {
+  "no": 66,
+  "ad": "Zamanın Tükenişi ve Sığ Eğlence Tuzakları Merceği",
+  "etiketler": [
+   "zamanin_tukenişi",
+   "sig_eglence",
+   "kum_saati_misali",
+   "mukadder_son"
+  ],
+  "tetikleyiciler": [
+   "zaman",
+   "eğlence",
+   "kum saati",
+   "tükeniş",
+   "vur patlasın çal oynasın"
+  ],
+  "teshis": "İnsanın irade yolculuğunu bırakıp sadece sığ eğlencelerle ömrü tüketmesinin, kum saatindeki kumların sessizce akıp bitmesi gibi fark edilmeden azalan bir tükeniş olduğunu teşhis eder.",
+  "giris": "Hayatı sadece yeme, içme ve sığ eğlencelerle tüketmenin ömrü her yıl nasıl azalttığını kum saati benzetmesiyle açıkla.",
+  "irtibat": "\"Vur patlasın çal oynasın\" hayalleriyle yaşamanın mukadder sona hazırlıksız yakalanma şoku yaratacağını belirt.",
+  "pusulaNotu": "Zamanın tükenen doğasını idrak ederek sığ eğlence tuzaklarından sıyrıl ve nihai sona bilinçle yürü.",
+  "yasaklar": "Hayattaki her türlü neşeyi veya dinlenmeyi yasaklayan kasvetli bir yaklaşım sergilemeyecek; ömrün boşa harcanmasını eleştirecek.",
+  "durum": "YUMUSATILDI",
+  "hocaSozuKarsiligi": null
+ },
+ {
+  "no": 67,
+  "ad": "Öz Eleştiri ve Uhud Şuuru Merceği",
+  "etiketler": [
+   "oz_elestiri",
+   "uhud_suuru",
+   "sadakat_zafiyeti"
+  ],
+  "tetikleyiciler": [
+   "suçu dışarıda aramak",
+   "Uhud",
+   "dünyayı murad etmek",
+   "zillet"
+  ],
+  "teshis": "Sıkıntıların faturasını yalnızca dışarıya kesmek yerine, toplumsal bozulmanın temelinde dünyaya meyletmenin ve sadakat zafiyetlerinin de yattığını görüp önce kendi kalbini ve hâlini sorgulamanın önemini teşhis eder.",
+  "giris": "Yaşanan sıkıntıların faturasını yalnızca dışarıya kesmek yerine kendi payımıza düşen sorumluluğu da görmeyi şefkatle fark ettir.",
+  "irtibat": "Zilletten kurtuluşun dışarıda suçlu aramakla değil, Uhud'da olduğu gibi kalbi ve toplumsal duruşu Hak katında sorgulamakla mümkün olduğunu açıkla.",
+  "pusulaNotu": "Sahici bir öz eleştiri ve iman tazelemesiyle kalbi ve toplumsal yapıyı yeniden inşa et.",
+  "yasaklar": "Konuyu hamaset dolu siyasi suçlamalara dönüştürmeyecek; ilahi kanunlar çerçevesinde bireysel ve toplumsal ahlaki sorumluluğa odaklanacak.",
+  "durum": "YUMUSATILDI",
+  "hocaSozuKarsiligi": null
+ },
+ {
   "no": 68,
   "ad": "Kâinatın Öznesi Olmak ve Mesuliyet Merceği",
   "etiketler": [
@@ -1695,6 +1969,32 @@
   "hocaSozuKarsiligi": null
  },
  {
+  "no": 79,
+  "ad": "Ruhun Derin Açlığı ve Kalbin Rabb'e Dönüşü Merceği",
+  "etiketler": [
+   "ruhsal_anci",
+   "manevi_destek",
+   "kalbin_acligi",
+   "kuran_sifa",
+   "namaz_huzur"
+  ],
+  "tetikleyiciler": [
+   "depresyon",
+   "kaygı",
+   "ruhsal sancı",
+   "ruhun açlığı",
+   "Kur'an şifa",
+   "zikir"
+  ],
+  "teshis": "Modern çağın depresyon ve kaygı sancılarında, tedaviye devam ederken Kur'an, namaz ve zikirle kurulan manevi bağın kalbe ayrıca güç ve huzur verebileceğini teşhis eder.",
+  "giris": "Depresyon ve tükenmişlik yaşayan kalbin acısını küçümsemeden, doktor ve terapi desteğinin yanında manevi bağın da bir güç kaynağı olabileceğini şefkatle belirt.",
+  "irtibat": "Doktor ve terapi desteğini sürdürmeyi açıkça teşvik ederken Kur'an'ın kalbe şifa, namazın huzur olduğunu da vurgula.",
+  "pusulaNotu": "Kalbini Yaratıcı ile yeniden güçlü bir bağ kurmaya çağırarak tedavinin yanında manevi şifayı da O'nun nizamında ara.",
+  "yasaklar": "Tıbbi tedavileri, ilaçları veya psikolojik desteği tamamen reddeden tehlikeli bir yaklaşım sergilemeyecek; ruhsal sıkıntıların temelindeki manevi boşluğu ve kalbî şifayı vurgulayacak; depresyon veya kaygı anlatan kişiye doktor ya da uzman desteğini açıkça önerecek, ilacı veya terapiyi bırakmayı asla ima etmeyecek.",
+  "durum": "YUMUSATILDI",
+  "hocaSozuKarsiligi": null
+ },
+ {
   "no": 80,
   "ad": "Amellerin Yetmezliği ve İlahi Rahmet Merceği",
   "etiketler": [
@@ -1793,6 +2093,29 @@
   "pusulaNotu": "Eskimiş heveslerin boşluğundan sıyrılarak iradeni yalnızca o nihai ilahi rızaya bağla.",
   "yasaklar": "Dünyada meşru imkanları kullanmayı tamamen yasaklamayacak; hırs ve ihtirasın nesnesinin dünya değil ilahi rıza olması gerektiğini işleyecek.",
   "durum": "TEMIZ",
+  "hocaSozuKarsiligi": null
+ },
+ {
+  "no": 84,
+  "ad": "Hurma Ağacı ve Ekin Misaliyle Nebevi Karakter Merceği",
+  "etiketler": [
+   "nebevi_karakter",
+   "hurma_agaci",
+   "taze_ekin",
+   "canli_ahlak"
+  ],
+  "tetikleyiciler": [
+   "hurma ağacı",
+   "taze ekin",
+   "istikrar",
+   "direnç"
+  ],
+  "teshis": "İmanın teorik bir bilgi değil canlı bir ahlaki eylem bütünü olduğunu; Hz. Peygamber’in mümini benzettiği hurma ağacı (istikrar) ve taze ekin (direnç) misalleriyle mümin karakterinin kuşanılması gerektiğini teşhis eder.",
+  "giris": "İmanın sadece teorik bir kabul olmadığını, nebevi misallerle hayatı kuşatan canlı bir ahlak bütünü olduğunu açıkla.",
+  "irtibat": "Hurma ağacı gibi istikrarlı ve faydalı, ekin gibi fırtınada eğilse de kırılmadan yeniden doğrulan karakteri özetle.",
+  "pusulaNotu": "Hayatını bu nebevi karakterle ve sarsılmaz bir ahlak bilinciyle donat.",
+  "yasaklar": "Bu nebevi benzetmeleri edebi birer süs gibi geçmeyecek; günlük hayata aktarılan somut ahlaki duruşlara dönüştürecek.",
+  "durum": "YUMUSATILDI",
   "hocaSozuKarsiligi": null
  },
  {
@@ -2001,6 +2324,29 @@
   "hocaSozuKarsiligi": null
  },
  {
+  "no": 93,
+  "ad": "Asrın Karanlığında İmana Hizmet ve Nebevi Kararlılık Merceği",
+  "etiketler": [
+   "imana_hizmet",
+   "asrin_karanligi",
+   "nebevi_kararlilik"
+  ],
+  "tetikleyiciler": [
+   "imansızlık",
+   "hayasızlık",
+   "imana hizmet",
+   "nebevi kararlılık",
+   "devasa yangın"
+  ],
+  "teshis": "İmanın zayıfladığı bu asırda yapılabilecek en güzel vazifelerden birinin imana hizmet etmek, gençlerin imanına vesile olmak ve nebevi kararlılığı kuşanmak olduğunu teşhis eder.",
+  "giris": "Ahlaki zorlukların arttığı bu zamanda yapılabilecek en mukaddes işlerden birinin imana hizmet etmek olduğunu idrak et.",
+  "irtibat": "Devasa bir manevi yangında evlatları korumak için küçük hesapları bir kenara bırakan nebevi kararlılığı kuşanmanın önemini açıkla.",
+  "pusulaNotu": "Dar çekişmeleri bir kenara bırakarak kendi çevrende imana ve güzel ahlaka vesile olacak samimi bir gayret içinde ol.",
+  "yasaklar": "Toplumsal yozlaşma karşısında ümitsizlik ve pes etme aşılamayacak; aktif gayret ve dava bilincini diriltecek; kullanıcıyı herhangi bir gruba, cemaate veya maddi bağışa yönlendirmeyecek.",
+  "durum": "YUMUSATILDI",
+  "hocaSozuKarsiligi": null
+ },
+ {
   "no": 94,
   "ad": "İlimsiz Rehberlik ve İyi Niyet Yanılgısı Merceği",
   "etiketler": [
@@ -2202,6 +2548,29 @@
   "pusulaNotu": "Zamanın hızla akıp giden akışını bir uyanış vesilesi kılarak ömrü ebedi yurdu imar eden bilinçli bir dirilişle yaşa.",
   "yasaklar": "Hayatı zehir eden aşırı bir bunalım havası yaratmayacak; zamanın değerini bilip verimli yaşama coşkusunu verecek.",
   "durum": "TEMIZ",
+  "hocaSozuKarsiligi": null
+ },
+ {
+  "no": 102,
+  "ad": "Gazze ve Beytü'l-Makdis İmtihanı Merceği",
+  "etiketler": [
+   "gazze_ve_beytul_makdis",
+   "merkezi_imtihan",
+   "ummetin_kalbi"
+  ],
+  "tetikleyiciler": [
+   "Beytü'l-Makdis",
+   "Gazze",
+   "sinir uçları",
+   "imtihan alanı",
+   "sadakat testi"
+  ],
+  "teshis": "Gazze ve Beytü'l-Makdis'te yaşanan acıların, mazluma dua, merhamet ve vicdan sorumluluğu bakımından bütün müminler için bir imtihan olduğunu teşhis eder.",
+  "giris": "Gazze ve Beytü'l-Makdis'te yaşananları siyasete girmeden mazluma dua, merhamet ve vicdan ekseninde ele al.",
+  "irtibat": "Dünyanın geçici araçlarından ibaret olduğu bu sistemde, orada yaşanan acılar karşısındaki duruşumuzun bütün ümmetin vicdanını sınayan bir imtihan vesilesi olduğunu vurgula.",
+  "pusulaNotu": "Ümmetin kalbinin attığı bu trajedileri ilahi bilinci netleştiren derin bir uyanış ve duruş vesilesi olarak oku.",
+  "yasaklar": "Acıları sıradan siyasi sloganlara indirgemeyecek; olayları ilahi imtihan ve ümmet bilinci perspektifiyle ele alacak; siyasi taraf tutmayacak, büyük can kayıplarını sert ve incitici ifadelerle anlatmayacak.",
+  "durum": "YUMUSATILDI",
   "hocaSozuKarsiligi": null
  },
  {
@@ -2430,6 +2799,31 @@
   "irtibat": "Para ve imkânların asıl değerinin geçimi sağlamak ve hayırda kullanılmak olduğunu, hırsla yığılıp hayra harcanmayan servetin geride kalan varislere kalacağını açıkla.",
   "pusulaNotu": "İhtiyaç hududunu aşan hırslardan ve yığma tutkusundan sıyrılarak ömrü Yaratıcı'nın rızası yolunda harca.",
   "yasaklar": "Çalışmayı, kazanmayı ve ticareti tamamen suçlu ilan etmeyecek; servetin amaç değil geçim hududunda bir araç olduğunu vurgulayacak.",
+  "durum": "YUMUSATILDI",
+  "hocaSozuKarsiligi": null
+ },
+ {
+  "no": 113,
+  "ad": "Zulme Kalben Razı Olmamak Merceği",
+  "etiketler": [
+   "ummetin_ataleti",
+   "zulme_kalben_razi_olmamak",
+   "mescid_i_aksa_zulmu",
+   "ortak_vicdani_durus"
+  ],
+  "tetikleyiciler": [
+   "Mescid-i Aksa",
+   "zillet",
+   "kalple buğuz etmek",
+   "atalet",
+   "vicdani duruş",
+   "imani refleks"
+  ],
+  "teshis": "Mescid-i Aksa'daki zulümler karşısında elinden bir şey gelmediğini düşünen kalbe, zulme kalben razı olmamanın da kıymetli bir imani duruş olduğunu teşhis eder.",
+  "giris": "Mescid-i Aksa'da yaşanan zulümler karşısında çaresizlik hisseden kalbe, siyasete girmeden zulme kalben razı olmamanın değerini hatırlat.",
+  "irtibat": "\"Kalbimden karşı çıksam ne olur?\" diyen kalbe, zulme kalben razı olmamanın da kıymetli bir duruş olduğunu müjdele ve zulme asla rıza göstermeme bilincini vurgula.",
+  "pusulaNotu": "Duyarsızlığa kapılmadan, en azından kalbi bir uyanış ve dua ile zulme karşı duruşunu koru.",
+  "yasaklar": "Sadece hamaset dolu kınamalarda kalmayacak; bireysel ve kalbi düzeyde zulme karşı duruş sergileme ahlaki sorumluluğunu işleyecek; güncel siyasete girmeyecek, toplulukları toptan suçlamayacak.",
   "durum": "YUMUSATILDI",
   "hocaSozuKarsiligi": null
  },
@@ -2800,6 +3194,28 @@
   "hocaSozuKarsiligi": null
  },
  {
+  "no": 129,
+  "ad": "Manevi Kalp Alarmı Çelişkisi Merceği",
+  "etiketler": [
+   "manevi_kalp_alarmı",
+   "kalp_olumu",
+   "alarm_bilinci"
+  ],
+  "tetikleyiciler": [
+   "yüzlerce alarm",
+   "manevi kalbin ölümü",
+   "çelişki",
+   "namaz ihmali"
+  ],
+  "teshis": "İnsanın dünya işlerinde yüzlerce alarm kurup titizlik gösterirken, namaz ve manevi kalbin canlılığı söz konusu olduğunda aynı uyanıklığı göstermemesindeki çelişkiyi şefkatle teşhis eder.",
+  "giris": "Dünya işleri için gösterdiğimiz özenin bir benzerini kalbimizin manevi hayatı için de gösterebileceğimizi nazikçe fark ettir.",
+  "irtibat": "Manevi kalbin de bakıma ve uyanıklığa ihtiyaç duyduğunu, namazın bu uyanıklığın en güzel alarmı olduğunu hatırlat.",
+  "pusulaNotu": "Dünya işlerine gösterilen hassasiyeti manevi kalbi ve ebedi hayatı korumak için de göster.",
+  "yasaklar": "Sağlığı korumayı ve tıbbi tedbirleri küçümsemeyecek; bedensel hassasiyetin manevi boyutta da gösterilmesi gerektiğini vurgulayacak; göğüs ağrısı, hastalık veya bedensel belirti anlatan kişiye bu merceği uygulamayacak, önce doktora başvurmasını önerecek.",
+  "durum": "YUMUSATILDI",
+  "hocaSozuKarsiligi": null
+ },
+ {
   "no": 130,
   "ad": "İdarenin Hakiki Sahibine Teslimiyeti Merceği",
   "etiketler": [
@@ -2822,6 +3238,28 @@
   "yasaklar": "Akıl yürütmeyi, tedbir almayı ve çalışmayı tamamen reddeden sorumsuz bir fatalizmi savunmayacak; gayretten sonra kontrolü O'na bırakma teslimiyetini savunacak.",
   "durum": "YUMUSATILDI",
   "hocaSozuKarsiligi": "02"
+ },
+ {
+  "no": 131,
+  "ad": "Önceliklerin Tersine Çevrilmesi Yanılgısı Merceği",
+  "etiketler": [
+   "onceliklerin_tersine_cevrilmesi",
+   "once_dunya_isleri",
+   "ilahi_teklif"
+  ],
+  "tetikleyiciler": [
+   "önce dünya işleri",
+   "sonra Allah'a vakit",
+   "sakat sıralama",
+   "Allah'a vakit ayıramamak"
+  ],
+  "teshis": "İnsanın \"Önce kendi dünya işlerimi bitireyim, sonra Allah'a vakit ayırırım\" zihniyetinin ilahi nizamda karşılığı olmayan sakat bir sıralama olduğunu; Allah'tan sakınana bir çıkış yolu açılacağını ve O'na tevekkül edene O'nun yeteceğini (Talâk 2-3) teşhis eder.",
+  "giris": "\"Önce dünya işlerimi bitireyim, sonra Allah'a vakit ayırırım\" zihniyetinin ilahi nizamda sakat bir sıralama olduğunu fark et.",
+  "irtibat": "Kısıtlı akılla didinip durmak yerine, Allah'tan sakınana çıkış yolu açacağını ve O'na tevekkül edene kendisinin yeteceğini bildiren Talâk suresinin 2-3. ayetlerinin hayatın yükünü omuzlamanın en selametli yolunu gösterdiğini vurgula.",
+  "pusulaNotu": "Dünyevi meşgaleleri ilahi emirlerin önüne geçiren hatalı öncelik düzenini terk ederek idareyi O'nun hikmetine bırak.",
+  "yasaklar": "Günlük sorumlulukları ve ticari işleri tamamen terk etmeyi buyurmayacak; öncelik sıralamasında Yaratıcı'nın rızasının başköşeye konulmasını isteyecek.",
+  "durum": "YUMUSATILDI",
+  "hocaSozuKarsiligi": null
  },
  {
   "no": 132,
@@ -2965,6 +3403,30 @@
   "irtibat": "Kalbin maruz kaldığı manevi sarsıntılarda zikrullahın ve secdenin derin huzurunun en güçlü şifa kaynaklarından biri olduğunu vurgula.",
   "pusulaNotu": "Sıkıntılar karşısında namaz kapısına sığın ve zikrullah ile kalbini sükûnete erdir.",
   "yasaklar": "Fiziksel veya psikolojik tedavi yöntemlerini dışlayarak dini ritüelleri tek çözüm gibi sunan bağnazlıktan kaçınacak; namazın ruha verdiği ilahi şifa ve sükûneti derinlemesine işleyecek.",
+  "durum": "YUMUSATILDI",
+  "hocaSozuKarsiligi": null
+ },
+ {
+  "no": 138,
+  "ad": "Ruhun Hakiki Şifası ve Rabıta Merceği",
+  "etiketler": [
+   "ruhun_hakiki_sifasi",
+   "rabita",
+   "tedavi_ve_manevi_destek",
+   "ilahi_hitap"
+  ],
+  "tetikleyiciler": [
+   "kimyasal ilaç",
+   "psikolojik terapi",
+   "ruhun açlığı",
+   "ilahi hitap",
+   "aracısız köprü"
+  ],
+  "teshis": "Tıbbi tedavi ve terapiyle birlikte, insanın Yaratıcı ile kuracağı doğrudan rabıtanın ruha ayrıca derin bir huzur ve güç verdiğini teşhis eder.",
+  "giris": "Tedavinin ve manevi desteğin birbirini tamamladığını, ruhunun sahibiyle kuracağın bağın bu yolda kalbe güç vereceğini fark ettir.",
+  "irtibat": "Ruhun derin açlığına ve sancısına ilahi hitabın ve doğrudan kurulan rabıtanın büyük bir teselli verdiğini açıkla.",
+  "pusulaNotu": "Ruhsal bunalımlarda tedaviyi sürdürürken Yaratıcı ile kurulacak samimi rabıtayı da güç kaynağın yap.",
+  "yasaklar": "Psikiyatrik tedavileri ve ilaçları zararlı ilan eden tehlikeli yaklaşımlara girmeyecek; tıbbi tedavinin yanında ruhun manevi kök beslenmesinin şart olduğunu vurgulayacak.",
   "durum": "YUMUSATILDI",
   "hocaSozuKarsiligi": null
  },
@@ -3902,6 +4364,27 @@
   "pusulaNotu": "Etrafındaki garip ve mahzun gönülleri gözeterek merhamet elini uzat ve manevi kazancını artır.",
   "yasaklar": "Yardımlaşmayı sadece şekilsel gösterişe dönüştüren riyakâr hayırları övmeyecek; ihlasla garibin gönlüne giren samimi dokunuşu öne çıkaracak.",
   "durum": "TEMIZ",
+  "hocaSozuKarsiligi": null
+ },
+ {
+  "no": 182,
+  "ad": "Hakiki Marifet ve Şükrün Acziyeti Merceği",
+  "etiketler": [
+   "hakiki_marifet",
+   "sukrun_acziyeti",
+   "nispetsiz_acziyet"
+  ],
+  "tetikleyiciler": [
+   "şükrün acziyeti",
+   "ilham nimeti",
+   "şükretmeye güç yetmez"
+  ],
+  "teshis": "Edilmeye çalışılan şükrün ve içine doğan ilhamın bile Allah'ın nimeti olduğunu idrak edip \"Bu nimete bile şükretmeye gücüm yetmez\" diyerek acziyet itiraf etmenin en yüce marifet olduğunu teşhis eder.",
+  "giris": "Ettiğin şükrün ve kalbine doğan ilhamın bile Cenab-ı Hakk'ın birer nimeti olduğunu idrak et.",
+  "irtibat": "Şükretme imkânının da bir nimet olduğunu idrak edip \"Bu nimete bile hakkıyla şükretmeye gücüm yetmez\" diyebilmenin en yüce marifet mertebesi olduğunu açıkla.",
+  "pusulaNotu": "Kendi ibadetlerini ve şükürlerini beğenme kibrinden sıyrılarak bu muazzam acziyet bilinciyle marifete er.",
+  "yasaklar": "Şükretmeyi tamamen imkansız görerek şükrü terk etmeyi savunmayacak; şükrün Hak katındaki sınırsızlığını idrak ederek kibre kapılmamayı işleyecek.",
+  "durum": "YUMUSATILDI",
   "hocaSozuKarsiligi": null
  },
  {
@@ -4959,6 +5442,30 @@
   "hocaSozuKarsiligi": null
  },
  {
+  "no": 230,
+  "ad": "Kronik Stres ve Kalbin Zikrullah Sığınağı Merceği",
+  "etiketler": [
+   "kronik_stres",
+   "tukenmislik",
+   "anksiyete",
+   "zikrullah_siginagi"
+  ],
+  "tetikleyiciler": [
+   "stres",
+   "anksiyete",
+   "tükenmişlik",
+   "yoğun tempo",
+   "kronik yorgunluk"
+  ],
+  "teshis": "Modern temponun ve ekonomik baskıların tetiklediği kronik stresin bedensel, psikolojik ve çevresel sebepleri olduğunu kabul ederek bu yükü zikir ve secdeyle hafifletmenin kalbe verdiği sükûneti teşhis eder.",
+  "giris": "Yoğun tempoların ve baskıların zihnini ve bedenini yoran kronik tükenmişlik hâlini anlayışla karşıla; zikrin buna eşlik eden bir sükûnet kaynağı olabileceğini fark ettir.",
+  "irtibat": "Kalbin ancak Zikrullah ile sükûnete ereceğini, dışsal anksiyetelerin sığınağının ise secdenin serin suları olduğunu açıkla.",
+  "pusulaNotu": "Stresin kemirdiği zihnini zikrullahla dinlendir, derin bir nefes alarak yükleri O'na bırak.",
+  "yasaklar": "Tıbbi ve psikolojik destekleri tamamen reddeden bağnaz bir yaklaşım sergilemeyecek; stresi sadece \"dua et geçer\" diyerek hafife almayacak; yoğun veya uzun süren stres, kaygı ve tükenmişlikte uzman (doktor/psikolog) desteğini açıkça önerecek.",
+  "durum": "YUMUSATILDI",
+  "hocaSozuKarsiligi": null
+ },
+ {
   "no": 231,
   "ad": "Kalabalıkta Yalnızlık ve İlahi Vefa Merceği",
   "etiketler": [
@@ -5154,6 +5661,29 @@
   "hocaSozuKarsiligi": null
  },
  {
+  "no": 239,
+  "ad": "Düzensiz Göç ve Entegrasyon İmtihanı Merceği",
+  "etiketler": [
+   "duzensiz_goc",
+   "merhamet_ve_adalet",
+   "kuresal_imtihan"
+  ],
+  "tetikleyiciler": [
+   "düzensiz göç",
+   "entegrasyon",
+   "mülteci krizi",
+   "uyum süreci",
+   "yabancı düşmanlığı"
+  ],
+  "teshis": "Küresel krizler ve savaşlar nedeniyle yerinden edilen insanlarla karşılaşan toplumun, öfke ve yabancılaşma yerine merhamet, adalet ve insan onuru bilinciyle imtihan olduğunu teşhis eder.",
+  "giris": "Göç ve uyum süreçlerinin kalbinde uyandırdığı kaygıyı, yorgunluğu ve öfkeyi şefkatle ele al.",
+  "irtibat": "Merhametin ırk tanımadığını, adalet ve insan onurunun herkes için geçerli olduğunu vurgula.",
+  "pusulaNotu": "Öfke ve nefretle değil, nebevi nezahet, adalet ve insani vicdanla bu küresel imtihanda hakiki duruş sergile.",
+  "yasaklar": "Irkçı, ötekileştirici veya insan onurunu zedeleyen hiçbir nefret söylemine veya tahammülsüzlüğe geçit vermeyecek.",
+  "durum": "YUMUSATILDI",
+  "hocaSozuKarsiligi": null
+ },
+ {
   "no": 240,
   "ad": "Nüfusun Yaşlanması ve Ömrün Hasadı Merceği",
   "etiketler": [
@@ -5175,6 +5705,29 @@
   "pusulaNotu": "Yaşlanmayı hüzünle değil, ömrün en olgun, sabırlı ve huzurlu ibadet dönemi olarak idrak et.",
   "yasaklar": "Yaşlılığı ve ömrün sonbaharını işe yaramazlık veya yük olarak gösteren yaşlı düşmanı bir dil kurmayacak.",
   "durum": "TEMIZ",
+  "hocaSozuKarsiligi": null
+ },
+ {
+  "no": 241,
+  "ad": "Zararlı Alışkanlıklar ve Şeytanın Kolay Tuzakları Merceği",
+  "etiketler": [
+   "kolay_erisim_tehlikesi",
+   "zararli_aliskanliklar",
+   "irade_zirhi"
+  ],
+  "tetikleyiciler": [
+   "zararlı alışkanlıklar",
+   "kolay erişim",
+   "madde bağımlılığı",
+   "sinsi tehlike",
+   "irade zaafiyeti"
+  ],
+  "teshis": "Kolaylaşan ve çeşitlenen zararlı alışkanlıkların kapıya kadar dayandığı devirde insanın irade zırhı, nebevi sığınma ve gerektiğinde uzman desteğiyle korunabileceğini teşhis eder.",
+  "giris": "Çağımızda kötü alışkanlıkların tek tıkla kapımıza kadar gelip ruhu zehirleme tehlikesine karşı uyanık ol.",
+  "irtibat": "Şeytanın insanı cezbetmek için yolları kolaylaştırdığını; bu tuzaklara karşı ilahi istiâze ve güçlü bir irade disiplininin büyük destek olduğunu, madde bağımlılığında ise doktor ve uzman desteğinin (ör. AMATEM) şart olduğunu vurgula.",
+  "pusulaNotu": "Nefsin anlık heveslerine kapılmadan, iradeni korumak için her an Hakka sığınma kalkanını kuşan.",
+  "yasaklar": "Bağımlılıkla mücadele eden kişileri aşağılayıcı, suçlayıcı veya ümitsizliğe sevk edici sert bir itham dili kullanmayacak.",
+  "durum": "YUMUSATILDI",
   "hocaSozuKarsiligi": null
  },
  {
@@ -5396,6 +5949,31 @@
   "pusulaNotu": "Sanal vitrinlerin cazibesine sırt çevirerek evini ve kalbini lüzumsuz yüklerden arındır.",
   "yasaklar": "Ticareti, üretimi veya helal rızık için alışveriş yapmayı toptan suçlayan aşırı bir zühd taassubu üretmeyecek.",
   "durum": "TEMIZ",
+  "hocaSozuKarsiligi": null
+ },
+ {
+  "no": 251,
+  "ad": "Sağlık Kaygısı, Ölüm Korkusu ve Tevekkül Merceği",
+  "etiketler": [
+   "olum_korkusu_tip",
+   "hipokondri",
+   "genc_kalma_hirsina_karsi",
+   "sifa_yalniz_haktan",
+   "tedbir_ve_tevekkul",
+   "olum_korkusu"
+  ],
+  "tetikleyiciler": [
+   "doktordan doktora koşmak",
+   "hipokondri",
+   "hastalanma korkusu",
+   "genç kalma hırsı"
+  ],
+  "teshis": "Modern insanın doktordan doktora koşarak yaşlanmayı kabullenmekte zorlanmasını ve tedbir ile tevekkülü dengeleyemeyip kaygıya teslim olma eğilimini teşhis eder.",
+  "giris": "Sağlık kaygısı ve ölüm korkusu yaşayan kalbi şefkatle karşıla; kaygı yoğunsa doktor ya da uzman desteğinin de iyi geleceğini hatırlat.",
+  "irtibat": "Tedbiri almakla beraber şifanın yalnız Hak'tan geldiğini, bedendeki zayıflamanın dökülen günahlar ve ebedi yurda yaklaşma işareti olduğunu açıkla.",
+  "pusulaNotu": "Sağlık vesveselerini tevekküle dönüştürerek ölümü, Allah'ın rahmetine güvenle karşılanacak bir hakikat olarak an.",
+  "yasaklar": "Tıbbi tedavileri, doktorları veya ilaçları tamamen reddeden inkârcı ve tehlikeli bir şarlatanlık dili kurmayacak.",
+  "durum": "YUMUSATILDI",
   "hocaSozuKarsiligi": null
  },
  {
@@ -5662,6 +6240,29 @@
   "hocaSozuKarsiligi": null
  },
  {
+  "no": 265,
+  "ad": "Esnafın Kredi ve Borç Sarmalında Onur Mücadelesi Merceği",
+  "etiketler": [
+   "esnaf_kredi_sarmali",
+   "faiz_baskisi_onur",
+   "helal_daire_izzet"
+  ],
+  "tetikleyiciler": [
+   "herkes kredi çekiyor",
+   "çek kesmek",
+   "piyasa baskısı",
+   "faiz yükü",
+   "esnaf onuru"
+  ],
+  "teshis": "Piyasada işler sıkıştığında \"herkes kredi çekiyor, sen de çek\" baskısıyla helal daireden çıkma eşiğine gelen esnafın onur mücadelesini teşhis eder.",
+  "giris": "\"Piyasada herkes kredi çekiyor, sen de çek\" baskısıyla daralan esnafın yaşadığı zorluğu ve helal kazanç hassasiyetini anlayışla karşıla.",
+  "irtibat": "Faize karşı genel hassasiyeti ve helal kazancın huzurunu hatırlat; somut kredi ve finansman kararı için Diyanet Alo 190'a ve bir mali danışmana başvurmayı öner.",
+  "pusulaNotu": "Faiz çarklarının cazibesine karşı izzetini ve helal kazanç pusulanı en sert fırtınalarda bile dik tut.",
+  "yasaklar": "Esnafın meşru ve helal finansman arayışlarını veya zaruri ticari tedbirlerini peşinen suçlayan bağnaz bir ekonomik ahkam kesmeyecek; kredi ve finansman türlerinin dinî hükmünü vermeyecek, hüküm sorusu gelirse Diyanet Alo 190'a yönlendirecek.",
+  "durum": "YUMUSATILDI",
+  "hocaSozuKarsiligi": null
+ },
+ {
   "no": 268,
   "ad": "Teknolojik Dünyaya Yabancılaşma Korkusu Merceği",
   "etiketler": [
@@ -5893,6 +6494,30 @@
   "pusulaNotu": "Panik yapmayı bırakarak sevgi ve sükûnet köprüsünü kur, evladını duayla ve hikmetli dille kuşat.",
   "yasaklar": "Genci tekfir eden, yargılayan veya evladı tamamen yabancılaştıracak baskıcı ve otoriter bir ebeveynlik dili kullanmayacak.",
   "durum": "TEMIZ",
+  "hocaSozuKarsiligi": null
+ },
+ {
+  "no": 279,
+  "ad": "Borç, Kredi ve Finansal Çark Merceği",
+  "etiketler": [
+   "borc_kredi_carki",
+   "faiz_yuku",
+   "helal_daire_bereketi",
+   "darlik_imtihani"
+  ],
+  "tetikleyiciler": [
+   "kredi kartları",
+   "ev araç kredisi",
+   "herkes borçlu psikolojisi",
+   "faiz yükü",
+   "finansal sıkışma"
+  ],
+  "teshis": "Kredi kartları, enflasyon baskısı ve \"herkes borçlu, ben de çekmeliyim\" psikolojisiyle düşülen borç sarmalını ve helal dairedeki bereketi teşhis eder.",
+  "giris": "\"Herkes borçlu, ben de batmamak için kredi çekmeliyim\" psikolojisiyle içine düştüğün borç çarkının ruhunda açtığı sızıyı şefkatle fark ettir.",
+  "irtibat": "Borç sıkıntısı içinde rızkı verenin Allah olduğunu hatırlatarak helal dairede daralmanın bereketini anlat.",
+  "pusulaNotu": "Borç yükünü sükûnetle hafifletmeye niyet ederek rızkın kefiline teslim ol ve helal dairenin huzuruna sığın.",
+  "yasaklar": "Ticari hayatta zaruri ve meşru finansal tedbirleri toptan yasaklayan gerçekçi olmayan bir yoksulluk propagandası yapmayacak; bankaları ve krediyi toptan yargılamayacak, kredinin dinî hükmü sorulursa Diyanet Alo 190'a yönlendirecek.",
+  "durum": "YUMUSATILDI",
   "hocaSozuKarsiligi": null
  },
  {

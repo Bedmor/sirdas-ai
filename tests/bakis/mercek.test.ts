@@ -77,8 +77,8 @@ test("benzerlik: kelime düzeyinde çalışır", () => {
 
 // --- Derleme (denetimden geçenler) --------------------------------------------
 
-test("derleme: 238 mercek (14.11 Adnan Bey elemesi sonrası), numaralar tekil, durumlar yalnızca TEMİZ / YUMUŞATILDI", () => {
-  assert.equal(MERCEKLER.length, 238);
+test("derleme: 264 mercek (14.11 eleme + Adnan Bey onayıyla eklenen 25 düzeltilmiş mercek ve geri gelen 40), numaralar tekil, durumlar yalnızca TEMİZ / YUMUŞATILDI", () => {
+  assert.equal(MERCEKLER.length, 264);
   const nolar = MERCEKLER.map((m) => m.no);
   assert.equal(new Set(nolar).size, nolar.length);
   for (const m of MERCEKLER) {
@@ -89,21 +89,34 @@ test("derleme: 238 mercek (14.11 Adnan Bey elemesi sonrası), numaralar tekil, d
     assert.ok(m.tetikleyiciler.length > 0, `${m.no} tetikleyici yok`);
   }
   assert.equal(MERCEKLER.filter((m) => m.durum === "TEMIZ").length, 105);
-  assert.equal(MERCEKLER.filter((m) => m.durum === "YUMUSATILDI").length, 133);
+  assert.equal(MERCEKLER.filter((m) => m.durum === "YUMUSATILDI").length, 159);
 });
 
-test("derleme: Adnan Bey'e SORULACAK 25 mercek derlemede YOK, ayrı dosyada bekliyor", () => {
-  assert.equal(bekleyen.length, 25);
+test("derleme: Adnan Bey'e sorulan 25 mercek onayıyla düzeltilip derlemeye girdi, bekleyen dosya boş", () => {
+  assert.equal(bekleyen.length, 0);
   const derlemedekiler = new Set(MERCEKLER.map((m) => m.no));
-  for (const b of bekleyen) assert.ok(!derlemedekiler.has(b.no), `SOR merceği ${b.no} derlemede`);
-  // Örnek: tıp karşıtı ve kredi hükmü veren mercekler bekleyende
-  for (const no of [3, 11, 79, 251, 279]) assert.ok(bekleyen.some((b) => b.no === no), `${no} bekleyende değil`);
-  // Toplam: 238 + 25 = 263 net mercek (yeni kılavuz, 14.11)
-  assert.equal(MERCEKLER.length + bekleyen.length, 263);
+  const onaylananlar = [
+    3, 9, 11, 34, 37, 39, 41, 45, 66, 67, 79, 84, 93, 102, 113, 129, 131, 138, 182, 230, 239, 241, 251, 265, 279,
+  ];
+  for (const no of onaylananlar) {
+    assert.ok(derlemedekiler.has(no), `${no} derlemede yok`);
+    assert.equal(MERCEKLER.find((m) => m.no === no)?.durum, "YUMUSATILDI", `${no} durum`);
+  }
+  // Önerilen yeni adlar uygulandı
+  assert.equal(MERCEKLER.find((m) => m.no === 3)?.ad, "Maddi ve Manevi Arınma Merceği");
+  assert.equal(MERCEKLER.find((m) => m.no === 251)?.ad, "Sağlık Kaygısı, Ölüm Korkusu ve Tevekkül Merceği");
+  // Kriz riski taşıyan genel tetikleyiciler çıkarıldı, kriz yönlendirmesi yasaklarda
+  const m39 = MERCEKLER.find((m) => m.no === 39)!;
+  assert.ok(!m39.tetikleyiciler.includes("ölüm"));
+  assert.ok(m39.yasaklar.includes("112") && m39.yasaklar.includes("ALO 183"));
+  for (const no of [34, 265, 279]) assert.ok(MERCEKLER.find((m) => m.no === no)!.yasaklar.includes("Alo 190"), `${no} Alo 190`);
+  // Toplam: 238 + 25 + 40 = 264
+  assert.equal(MERCEKLER.length, 238 + 25 + 1);
 });
 
 test("derleme: Adnan Bey'in 14.11'de çıkardığı mercekler derlemede ve bekleyende YOK", () => {
-  // "BANA GÖRE ÇIKARILACAKLAR" listesi (36 numara) + yeni kılavuzdan sessizce çıkan 40 ve 288
+  // "BANA GÖRE ÇIKARILACAKLAR" listesi (36 numara) + yeni kılavuzdan sessizce çıkan 288.
+  // 40 da sessizce çıkmıştı; Adnan Bey "kalsın" dedi, derlemeye geri eklendi.
   const adnanListesi = [
     303, 302, 301, 300, 299, 298, 297, 296, 295, 294, 293, 292, 291, 290, 289, 287, 286, 285, 284, 283, 282,
     266, 249, 260, 267, 254, 229, 176, 156, 153, 151, 87, 110, 5, 21, 28,
@@ -113,18 +126,19 @@ test("derleme: Adnan Bey'in 14.11'de çıkardığı mercekler derlemede ve bekle
   const korunan = new Set([87]);
   const derlemedekiler = new Set(MERCEKLER.map((m) => m.no));
   const bekleyendekiler = new Set(bekleyen.map((b) => b.no));
-  for (const no of [...adnanListesi.filter((n) => !korunan.has(n)), 40, 288]) {
+  for (const no of [...adnanListesi.filter((n) => !korunan.has(n)), 288]) {
     assert.ok(!derlemedekiler.has(no), `${no} derlemede`);
     assert.ok(!bekleyendekiler.has(no), `${no} bekleyende`);
   }
   // Çıkarılan tekrarların yeni kılavuzda duran asıl kopyaları derlemede kalır
   for (const no of [87, 268, 269, 272, 273]) assert.ok(derlemedekiler.has(no), `asıl kopya ${no} yok`);
+  assert.equal(MERCEKLER.filter((m) => m.no === 87).length, 1);
+  assert.equal(MERCEKLER.find((m) => m.no === 40)?.ad, "Uçak Türbülansı ve Mutlak Kontrol Sahibi Merceği");
   // Ada göre de kontrol: çıkan merceklerin adları derlemede geçmez
   for (const ad of [
     "Kriz Anı Refleksi ve Hakiki İstiaze Merceği",
     "Kulun En Büyük Silahı: Hakiki İstiaze Merceği",
     "Endişe, Stres ve Kontrol Çabasından Teslimiyete Merceği",
-    "Uçak Türbülansı ve Mutlak Kontrol Sahibi Merceği",
     "Varlığın Hakiki Sahibini İdrak Etmek Merceği",
     "Kalbin Tatmini Merceği",
     "Gelecek Kaygısı ve Kalemi Tutana Güven Merceği",
@@ -141,7 +155,21 @@ test("derleme: Adnan Bey'in 14.11'de çıkardığı mercekler derlemede ve bekle
 
 test("derleme: sert ve suçlayıcı talimatlar yumuşatıldı", () => {
   const tum = JSON.stringify(MERCEKLER).toLocaleLowerCase("tr-TR");
-  for (const ifade of ["yüzüne vur", "silkele", "kıçı kırık", "ayna tut"]) {
+  for (const ifade of [
+    "yüzüne vur",
+    "silkele",
+    "kıçı kırık",
+    "ayna tut",
+    "akupunktur",
+    "ban noktası",
+    "enerji dolaşımı",
+    "kafirin küfrü",
+    "tetiği çekmek",
+    "rulet",
+    "dava eri",
+    "ilaçların ve terapilerin",
+    "tıp tapıncılığı",
+  ]) {
     assert.ok(!tum.includes(ifade), ifade);
   }
 });

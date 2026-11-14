@@ -18,6 +18,7 @@ import {
 import { sanitizeIncomingUserMessage } from "@/lib/ai/pii-anonymizer";
 import { runSafetyTriage } from "@/lib/safety/triage";
 import { buildSafetyIntercept } from "@/lib/safety/intercept";
+import { hocaCevabiKalkani } from "@/lib/uslup/hoca-cevaplari";
 import { CikisSuzgeci, cikisSuzgeciUygula, type CikisOlayi } from "@/lib/gizlilik/cikis-suzgeci";
 import {
   denetimKaydiOlustur,
@@ -282,7 +283,8 @@ export async function POST(req: NextRequest) {
 
             const intercept =
               buildSafetyIntercept(safetyTriage, jevResult) ??
-              evaluateSpiritualGuardrails(safeMessage, jevResult);
+              evaluateSpiritualGuardrails(safeMessage, jevResult) ??
+              hocaCevabiKalkani(safeMessage, safetyTriage, jevResult);
 
             if (intercept) {
               statusType = intercept.status;
@@ -522,7 +524,8 @@ export async function POST(req: NextRequest) {
 
     const intercept =
       buildSafetyIntercept(safetyTriage, jevResult) ??
-      evaluateSpiritualGuardrails(safeMessage, jevResult);
+      evaluateSpiritualGuardrails(safeMessage, jevResult) ??
+      hocaCevabiKalkani(safeMessage, safetyTriage, jevResult);
 
     let replyText = "";
     let editorAudit: UnifiedEditorAudit | Record<string, unknown>;

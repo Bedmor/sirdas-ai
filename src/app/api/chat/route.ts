@@ -37,6 +37,7 @@ import {
   runSafetyTriage,
 } from "@/lib/safety/triage";
 import { buildSafetyIntercept } from "@/lib/safety/intercept";
+import { hocaCevabiKalkani, hocaCevabiKuraliMi } from "@/lib/uslup/hoca-cevaplari";
 import { geceGecSaatMi } from "@/lib/uslup/siniflandirici";
 import { gecmisiMaskele } from "@/lib/gizlilik/maskeleme";
 import { hafizaKapaliProfil, hafizaPaketiCoz, hafizaYonergesiKur } from "@/lib/hafiza/yonerge";
@@ -644,9 +645,16 @@ export async function POST(req: NextRequest) {
               jevResult,
             });
 
+            // Sıra: güvenlik ön süzgeci -> manevi kalkanlar -> hocanın birebir cevabı (Q&A 01-03).
             const intercept =
               buildSafetyIntercept(safetyTriage, jevResult) ??
-              evaluateSpiritualGuardrails(safeMessage, jevResult);
+              evaluateSpiritualGuardrails(safeMessage, jevResult) ??
+              hocaCevabiKalkani(
+                safeMessage,
+                safetyTriage,
+                jevResult,
+                intentMode === "ILIM_VE_SIYER"
+              );
 
             if (intercept) {
               statusType = intercept.status;
@@ -656,7 +664,8 @@ export async function POST(req: NextRequest) {
               if (
                 intercept.status === "processed" &&
                 intercept.ruleId !== "CONVERSATIONAL_CLOSING_THANKS" &&
-                !isSafetyTriageRule(intercept.ruleId)
+                !isSafetyTriageRule(intercept.ruleId) &&
+                !hocaCevabiKuraliMi(intercept.ruleId)
               ) {
                 const matchedVaultChunks = filterUsedSourcesByReply(
                   getLocalKnowledgeCorpus(),
@@ -970,9 +979,16 @@ export async function POST(req: NextRequest) {
       jevResult,
     });
 
+    // Sıra: güvenlik ön süzgeci -> manevi kalkanlar -> hocanın birebir cevabı (Q&A 01-03).
     const intercept =
       buildSafetyIntercept(safetyTriage, jevResult) ??
-      evaluateSpiritualGuardrails(safeMessage, jevResult);
+      evaluateSpiritualGuardrails(safeMessage, jevResult) ??
+      hocaCevabiKalkani(
+        safeMessage,
+        safetyTriage,
+        jevResult,
+        intentMode === "ILIM_VE_SIYER"
+      );
     let replyText = "";
     let editorAudit: UnifiedEditorAudit | Record<string, unknown>;
     let audioUrlSent: string | null = null;
@@ -991,7 +1007,8 @@ export async function POST(req: NextRequest) {
       if (
         intercept.status === "processed" &&
         intercept.ruleId !== "CONVERSATIONAL_CLOSING_THANKS" &&
-        !isSafetyTriageRule(intercept.ruleId)
+        !isSafetyTriageRule(intercept.ruleId) &&
+        !hocaCevabiKuraliMi(intercept.ruleId)
       ) {
         const matchedVaultChunks = filterUsedSourcesByReply(
           getLocalKnowledgeCorpus(),

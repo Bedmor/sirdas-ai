@@ -8,6 +8,7 @@
 
 import { USLUP_ILIM_BOLUMU, USLUP_SISTEM_BOLUMU } from "../uslup/kurallar";
 import { HOCA_SOZLERI_BOLUMU } from "../uslup/hoca-sozleri";
+import { KAYNAK_ATIF_BOLUMU } from "../uslup/kaynak-atif";
 
 /**
  * Güvenlik Öncelik Kuralları (her iki moda da eklenir).
@@ -81,6 +82,8 @@ ${USLUP_SISTEM_BOLUMU}
 
 ${HOCA_SOZLERI_BOLUMU}
 
+${KAYNAK_ATIF_BOLUMU}
+
 ${SIRDAS_SAFETY_PRIORITY_RULES}`;
 
 /**
@@ -103,6 +106,8 @@ Muhatabının yönelttiği Siyer-i Nebî, İslam tarihi, sahabe hayatı veya İs
    - 3-4 doyurucu, kapsamlı ve berrak paragrafta (*kalın*, _italik_ vurgularla, ayet ve hadis delilleriyle) tamamla (toplam 180-280 kelime).
 
 ${USLUP_ILIM_BOLUMU}
+
+${KAYNAK_ATIF_BOLUMU}
 
 ${SIRDAS_SAFETY_PRIORITY_RULES}`;
 

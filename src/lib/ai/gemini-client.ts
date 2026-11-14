@@ -19,6 +19,7 @@ import {
   detectSessionMood,
 } from "./jev-client";
 import { uslupYonergesiKur } from "../uslup";
+import { ALIM_ESERI_ETIKETI, alimEseriKaynagiMi } from "../uslup/kaynak-atif";
 import { mercekYonergesiKur } from "../bakis/mercek-secici";
 
 const CANDIDATE_MODELS = [
@@ -138,7 +139,9 @@ export function formatRagContext(chunks: RagChunkContext[]): string {
         chunk.content.length > 600
           ? `${chunk.content.slice(0, 597)}...`
           : chunk.content;
-      return `[KAYNAK ${idx + 1} | ${chunk.sourceType} | ${chunk.sourceTitle}]\n${snippet}`;
+      // İhyâ ve akaid kayıtları kasada HADITH türüyle durur; model hadis sanmasın diye ayrı etiketlenir.
+      const turEtiketi = alimEseriKaynagiMi(chunk) ? ALIM_ESERI_ETIKETI : chunk.sourceType;
+      return `[KAYNAK ${idx + 1} | ${turEtiketi} | ${chunk.sourceTitle}]\n${snippet}`;
     })
     .join("\n\n");
 }

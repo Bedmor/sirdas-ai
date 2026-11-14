@@ -8,12 +8,14 @@
  *  - bağımlılık dili ("tek sırdaşın benim") -> cümle çıkarılır, sona gerçek bağlara yönlendirme eklenir
  *  - tiyatral yapay empati               -> ilgili yan cümle (gerekirse tüm cümle) çıkarılır
  *  - kişisel bilgi sızıntısı             -> satır içinde maskelenir
+ *  - bilinen yanlış atıf (ör. Hz. Ömer sözünü hadis diye vermek) -> cümle, doğru atıflı metinle değiştirilir
  * Süzgeç sonunda anlamlı metin kalmazsa güvenli yedek cevap verilir.
  *
  * İkinci bir yapay zekâ çağrısı yapılmaz (maliyet). Akışta (SSE) cümle tamamlanınca
  * taranıp gönderilir; kullanıcı yazının akışını görmeye devam eder, uygunsuz cümle ekrana hiç düşmez.
  */
 import { dogrudanKisiselVeriyiMaskele } from "./maskeleme";
+import { nebeviGirisMi, yanlisAtifBul } from "../uslup/kaynak-atif";
 
 export type CikisKuralKodu =
   | "CIKIS_FETVA_HUKUM"
@@ -22,6 +24,7 @@ export type CikisKuralKodu =
   | "CIKIS_BAGIMLILIK_DILI"
   | "CIKIS_YAPAY_EMPATI"
   | "CIKIS_KISISEL_BILGI"
+  | "CIKIS_YANLIS_ATIF"
   | "CIKIS_YEDEK_CEVAP";
 
 export type CikisEylemi = "DEGISTIRILDI" | "CIKARILDI" | "MASKELENDI" | "YEDEK_CEVAP";
@@ -155,6 +158,8 @@ export class CikisSuzgeci {
   private girdiVar = false;
   private olaylar = new Map<CikisKuralKodu, CikisOlayi>();
   private kullanilanYerineCumleler = new Set<string>();
+  /** Bir önceki cümle "Efendimiz şöyle buyurur:" gibi bir alıntı girişi miydi. */
+  private oncekiNebeviGiris = false;
 
   ekle(parca: string): string {
     if (!parca) return "";
@@ -251,6 +256,12 @@ export class CikisSuzgeci {
   }
 
   private cumleIsle(hamCumle: string): string {
+    const oncekiNebeviGiris = this.oncekiNebeviGiris;
+    this.oncekiNebeviGiris = nebeviGirisMi(hamCumle);
+    return this.cumleSuz(hamCumle, oncekiNebeviGiris);
+  }
+
+  private cumleSuz(hamCumle: string, oncekiNebeviGiris: boolean): string {
     // 1) Kişisel bilgi sızıntısı: satır içinde maskele, cümle kalır.
     const maske = dogrudanKisiselVeriyiMaskele(hamCumle);
     let cumle = hamCumle;
@@ -267,6 +278,13 @@ export class CikisSuzgeci {
     // 3) Kesin fetva ve kesin af hükmü
     if (fetvaMi(katli)) return this.yerineKoy(CIKIS_YERINE_CUMLELER.fetva, "CIKIS_FETVA_HUKUM");
     if (KESIN_AF.test(katli)) return this.yerineKoy(CIKIS_YERINE_CUMLELER.af, "CIKIS_KESIN_AF");
+
+    // 3b) Bilinen yanlış atıf: söz Peygamberimiz'e/hadise atfediliyorsa doğru atıfla değiştir.
+    const yanlisAtif = yanlisAtifBul(cumle, oncekiNebeviGiris);
+    if (yanlisAtif) {
+      this.oncekiNebeviGiris = false;
+      return this.yerineKoy(yanlisAtif.yerine, "CIKIS_YANLIS_ATIF");
+    }
 
     // 4) Bağımlılık dili: cümle çıkarılır, sona yönlendirme eklenir (bitir()).
     if (BAGIMLILIK_DESENLERI.some((d) => d.test(katli))) {

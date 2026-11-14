@@ -294,6 +294,9 @@ export function buildGeminiContents(
     geceFesihAktif: params.isLateNightDismissal,
     oturumMesajSayisi: params.sessionUserMessageCount,
     ilimModu: isIlimMode,
+    oturumRuhHali: resolvedSessionMood,
+    sikintiSeviyesi: params.distressLevel,
+    ribaKalkani: params.isRibaShieldActive,
   });
   if (uslupYonergesi) {
     currentPrompt += `\n\n${uslupYonergesi}`;

@@ -50,7 +50,7 @@ export const HOCA_SORU_CEVAPLARI: ReadonlyArray<HocaSoruCevap> = [
     kimlik: "HOCA_QA_01",
     soru: "Elimdeki imkanlar çok kısıtlı, kendimi sürekli yetersiz hissediyorum. Büyük niyetler kurmaktan, büyük adımlar atmaktan korkuyorum. Ne tavsiye edersin?",
     soruTarifi: "Elimdeki imkanlar kısıtlı, yetersiz hissediyorum, büyük niyetler etmekten çekiniyorum",
-    cevap: "Ahirette en büyük pişmanlık niyetini küçük tutmaktan meydana gelecek. Sana ait olmayan yetersizliklerinle niyetine hudutlar koyma. Sen niyetini büyük tut. Sana imkanlar yaratacak olan Allah azze ve celle.",
+    cevap: "Ahirette en büyük pişmanlık niyetini küçük tutmaktan meydana gelecek. Sana ait olmayan yetersizliklerinle niyetine hudutlar koyma. Sen niyetini büyük tut. Sana imkânlar yaratacak olan Allah azze ve celle.",
     kumeler: [
       { ad: "imkan", desen: /\b(imkan\p{L}*|olanak\p{L}*|kisitli\p{L}*|imkansiz\p{L}*)/u },
       { ad: "yetersizlik", desen: /\b(yetersiz\p{L}*|yetemiyor\p{L}*|kendimi\s+kucuk\s+gor\p{L}*)/u },
@@ -64,7 +64,7 @@ export const HOCA_SORU_CEVAPLARI: ReadonlyArray<HocaSoruCevap> = [
     kimlik: "HOCA_QA_02",
     soru: "Geleceğimi planlamak ve her şeyi kontrol altında tutmak için sürekli uykusuz geceler geçiriyorum, sırtımdaki dünya yükü beni çok yordu. Bu kaygıdan nasıl kurtulurum?",
     soruTarifi: "Geleceğimi planlamaktan uykusuz geceler geçiriyorum, her şeyi kontrol etmeye çalışmaktan yoruldum",
-    cevap: "Siz idareyi Allah'a bırakırsanız, Allah'a teslim olursanız, o zaman Allah her yerde sizinle beraber olur. Günlük hayatımızda hepimizin talepleri istekleri var. Planlar yaparsınız. Uykusuz geceleriniz olur. Halbuki Allah'a tevekkül ederseniz, işi Allah'a bırakırsanız Allah sizin istediğiniz biçimde o kadar güzel çözüme ulaştırır ki siz bile şaşarsınız. Ama insanlar dünyaya çok önem verdikleri için hayatları dünyaya harcadıkları, dünyayı tercih ettikleri için Allah diyor ki, dur bakalım Rabbim evvela ben dünya işimi yapayım sonra senin işini yapacağım. Allah'ta onlara diyor ki ey kulum sen bana yönel ben senin işini yapayım. Ne dersiniz hangisi daha kolay?",
+    cevap: "Siz idareyi Allah'a bırakırsanız, Allah'a teslim olursanız, o zaman Allah her yerde sizinle beraber olur. Günlük hayatımızda hepimizin talepleri, istekleri var. Planlar yaparsınız. Uykusuz geceleriniz olur. Halbuki Allah'a tevekkül ederseniz, işi Allah'a bırakırsanız Allah sizin istediğiniz biçimde o kadar güzel çözüme ulaştırır ki siz bile şaşarsınız. Ama insanlar dünyaya çok önem verdikleri için hayatları dünyaya harcadıkları, dünyayı tercih ettikleri için Allah diyor ki, dur bakalım Rabbim evvela ben dünya işimi yapayım sonra senin işini yapacağım. Allah da onlara diyor ki ey kulum sen bana yönel ben senin işini yapayım. Ne dersiniz, hangisi daha kolay?",
     kumeler: [
       { ad: "gelecek/plan", desen: /\b(gelece\p{L}*|planla\p{L}*|plan\s+yap\p{L}*)/u },
       { ad: "kontrol", desen: /\b(kontrol\p{L}*)/u },
@@ -78,7 +78,7 @@ export const HOCA_SORU_CEVAPLARI: ReadonlyArray<HocaSoruCevap> = [
     kimlik: "HOCA_QA_03",
     soru: "Dünyadaki hırsım, mal mülk kaygılarım ve insanlardan gördüğüm haksızlıklar karşısındaki öfkem beni çok yoruyor. Bu geçici dünyada kalbimi hakikate ve sükûnete nasıl bağlarım?",
     soruTarifi: "Dünyaya çok bağlanıyorum, hırslarım ve uğradığım haksızlıklar karşısındaki öfkem beni yoruyor, kalbimi nasıl sakinleştiririm?",
-    cevap: "Bu dünyada tek bir gerçek var. O da ölüm. Başka bir şey yok. Hastalık yalan, İyileşince geçiyor, iyileşemedim ölünce bitiyor. Topal ölsen ahirette yürüyeceğim. Kör olsan ahirette göreceksin. Her şey yalan, para yalan, sıhhat yalan, mal, mülk, çoluk, çocuk yalan. Ne var? Tek gerçek ölüm var. Tek gerçek Allah. Allah bu ölümü unutmadan yaşayanlardan eylesin bizi. Ölüm olduğunu unutmazsan Dünya sevgin çok olmaz. Ölüm olduğunu unutmazsan birine kötülük yapmaktan elini geri çekersin. Hesap var dersin. Ölüm olduğunu unutmazsan biri sana zarar verdiğinde nasıl olsa ahirette alacağız deyip aşırıya gitmezsin. Allah canımızı en hayırlı günümüzde alsın ve yaptığımız işi ölürken en hayırlı iş yapsın.",
+    cevap: "Bu dünyada tek bir gerçek var. O da ölüm. Başka bir şey yok. Hastalık yalan; iyileşince geçiyor, iyileşemedin, ölünce bitiyor. Topal ölsen ahirette yürüyeceksin. Kör olsan ahirette göreceksin. Her şey yalan: para yalan, sıhhat yalan, mal, mülk, çoluk çocuk yalan. Ne var? Tek gerçek ölüm var. Tek gerçek Allah. Allah bu ölümü unutmadan yaşayanlardan eylesin bizi. Ölüm olduğunu unutmazsan Dünya sevgin çok olmaz. Ölüm olduğunu unutmazsan birine kötülük yapmaktan elini geri çekersin. Hesap var dersin. Ölüm olduğunu unutmazsan biri sana zarar verdiğinde nasıl olsa ahirette alacağız deyip aşırıya gitmezsin. Allah canımızı en hayırlı günümüzde alsın ve yaptığımız işi ölürken en hayırlı iş yapsın.",
     kumeler: [
       { ad: "hırs", desen: /\b(hirs\p{L}*|tamah\p{L}*|dunyaya\s+(cok\s+)?baglan\p{L}*)/u },
       { ad: "mal mülk", desen: /\b(mal\s+mulk\p{L}*|mal\p{L}*\s+mulk\p{L}*|servet\p{L}*)/u },

@@ -17,10 +17,13 @@ import {
   yalnizlastirmaTespit,
   type Kusak,
 } from "./siniflandirici";
+import { espriUygunMu } from "./espri";
+import type { SessionMood } from "../ai/jev-taxonomy";
 
 export { USLUP_SISTEM_BOLUMU, USLUP_ILIM_BOLUMU, USLUP_YONERGELERI } from "./kurallar";
 export { HOCA_SOZLERI_BOLUMU, HOCA_SOZLERI_GUVENLIK_YONERGESI } from "./hoca-sozleri";
 export * from "./siniflandirici";
+export * from "./espri";
 
 /** Uzun oturum eşiği (kullanıcı mesajı sayısı). */
 export const UZUN_OTURUM_ESIGI = 20;
@@ -36,6 +39,12 @@ export interface UslupGirdisi {
   oturumMesajSayisi?: number;
   /** "ILIM_VE_SIYER" modunda yalnızca kurgu ve kalıp süzgeci uygulanır */
   ilimModu?: boolean;
+  /** Oturum ruh hâli (espri kapısı için); verilmezse bu kontrol atlanır */
+  oturumRuhHali?: SessionMood;
+  /** 0-10 sıkıntı seviyesi (espri kapısı için) */
+  sikintiSeviyesi?: number;
+  /** Riba (faiz) kalkanı devrede mi (espri kapısı için) */
+  ribaKalkani?: boolean;
 }
 
 export interface UslupAnalizi {
@@ -55,6 +64,8 @@ export interface UslupAnalizi {
   gecmisYuku: boolean;
   sessizKarartma: boolean;
   kusak: Kusak;
+  /** Hafif espri kapısı açık mı (bkz. espri.ts) */
+  espri: boolean;
 }
 
 export function uslupAnalizEt(girdi: UslupGirdisi): UslupAnalizi {
@@ -87,6 +98,18 @@ export function uslupAnalizEt(girdi: UslupGirdisi): UslupAnalizi {
     gecmisYuku: gecmisYukuTespit(mesaj),
     sessizKarartma: sessizKarartmaTespit(mesaj),
     kusak: kusakTespit(mesaj),
+    espri:
+      !guvenlikOncelikli &&
+      espriUygunMu({
+        mesaj,
+        gecmis,
+        ilimModu: girdi.ilimModu,
+        oturumRuhHali: girdi.oturumRuhHali,
+        sikintiSeviyesi: girdi.sikintiSeviyesi,
+        ribaKalkani: girdi.ribaKalkani,
+        geceGecSaat: girdi.geceGecSaat,
+        geceFesihAktif: girdi.geceFesihAktif,
+      }).uygun,
   };
 }
 
@@ -123,6 +146,7 @@ export function uslupYonergesiKur(girdi: UslupGirdisi, analiz = uslupAnalizEt(gi
     }
     if (analiz.kusak === "GENC") satirlar.push(USLUP_YONERGELERI.kusakGenc);
     if (analiz.kusak === "BUYUK") satirlar.push(USLUP_YONERGELERI.kusakBuyuk);
+    if (analiz.espri) satirlar.push(USLUP_YONERGELERI.espri);
     if (analiz.kapanis && !analiz.ilkMesaj) {
       satirlar.push(USLUP_YONERGELERI.kapanis);
     } else if (!analiz.guvenlikOncelikli) {

@@ -32,6 +32,12 @@ const testCases = [
     input: "Kızım Zeynep'le tartıştık, eşim Murat'a çok kırıldım, babam Hasan'a dua ediyorum.",
     expectedTerms: ["Kızımla tartıştık", "eşime", "babam Hasan'a dua ediyorum"], // Hasan kutsal beyaz listede olduğu için korunur
     forbiddenTerms: ["Zeynep'le", "Murat'a"],
+  },
+  {
+    name: "Sıradan Kelimeler Silinmez (14.11 hatası)",
+    input: "Kardeşim yarın okulda sınava girecek, annem bugün İstanbul'da.",
+    expectedTerms: ["Kardeşim yarın okulda sınava girecek, annem bugün İstanbul'da."],
+    forbiddenTerms: ["bulunduğum", "yaşadığım", "kendisi"],
   }
 ];
 

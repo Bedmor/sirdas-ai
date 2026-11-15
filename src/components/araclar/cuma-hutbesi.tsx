@@ -1,9 +1,10 @@
 import React from "react";
 import { HUTBE_LISTE_ADRESI, KAYNAK_ADI, tarihiYaz, type Hutbe } from "@/lib/araclar/cuma-hutbesi";
 import type { GosterilecekHutbeler } from "@/lib/araclar/cuma-hutbesi-kaynak";
+import { HutbeOynatici } from "./hutbe-oynatici";
 
 /**
- * Cuma hutbesi gösterimi (sunucu bileşeni, istemci betiği yok).
+ * Cuma hutbesi gösterimi (sunucu bileşeni; yalnız ses kartı istemci tarafında çalışır).
  * Bu haftanın hutbesi açık, önceki dört hafta <details> ile açılıp kapanır.
  */
 
@@ -27,11 +28,8 @@ function HutbeGovdesi({ hutbe }: { hutbe: Hutbe }) {
   return (
     <div className="space-y-5">
       {hutbe.ses && (
-        <div className="space-y-2">
-          <p className="text-sm font-semibold text-on-surface">Sesli hutbe</p>
-          <audio controls preload="none" src={hutbe.ses} className="w-full max-w-xl">
-            <a href={hutbe.ses}>Sesli hutbeyi indirin</a>
-          </audio>
+        <div className="max-w-xl">
+          <HutbeOynatici src={hutbe.ses} baslik={hutbe.baslik} tarih={tarihiYaz(hutbe.tarih)} />
         </div>
       )}
 

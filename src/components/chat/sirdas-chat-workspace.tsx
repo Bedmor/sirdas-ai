@@ -1941,7 +1941,7 @@ export function SirdasChatWorkspace() {
 
         {/* Scrollable Chat Area */}
         <main
-          className="flex-1 overflow-y-auto px-4 sm:px-6"
+          className="flex-1 overflow-y-auto overscroll-contain px-4 sm:px-6"
           id="sirdas-chat-scroll"
           role="main"
           style={{

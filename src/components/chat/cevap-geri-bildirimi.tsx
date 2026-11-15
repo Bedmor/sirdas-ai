@@ -33,23 +33,23 @@ export function CevapGeriBildirimi({
   epostaHref: string;
 }) {
   const dugme = (secili: boolean) =>
-    `inline-flex min-h-11 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+    `inline-flex min-h-8 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-[0.8125rem] leading-tight font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
       secili
         ? "border-primary bg-primary/15 text-on-surface"
         : "border-outline-variant bg-surface-container/60 text-on-surface hover:bg-surface-container-highest hover:text-on-surface"
     }`;
 
   return (
-    <div className="space-y-2" lang="tr">
-      <div role="group" aria-label="Bu cevap faydalı oldu mu?" className="flex flex-wrap items-center gap-2">
-        <span className="text-[13px] text-on-surface-variant mr-1">Bu cevap faydalı oldu mu?</span>
+    <div className="space-y-1" lang="tr">
+      <div role="group" aria-label="Bu cevap faydalı oldu mu?" className="flex flex-wrap items-center gap-1.5">
+        <span className="text-[0.8125rem] text-on-surface-variant mr-0.5">Bu cevap faydalı oldu mu?</span>
         <button
           type="button"
           aria-pressed={deger === "faydali"}
           onClick={() => onDegis(deger === "faydali" ? undefined : "faydali")}
           className={dugme(deger === "faydali")}
         >
-          <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8">
             <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
           </svg>
           Faydalı oldu
@@ -60,7 +60,7 @@ export function CevapGeriBildirimi({
           onClick={() => onDegis(deger === "olmadi" ? undefined : "olmadi")}
           className={dugme(deger === "olmadi")}
         >
-          <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
           </svg>
           Olmadı

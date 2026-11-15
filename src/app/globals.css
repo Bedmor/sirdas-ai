@@ -752,3 +752,14 @@ html[data-theme="yuksek"] .mp-kriz { background-color: #000; border: 3px solid #
 @media (pointer: coarse) {
   .mp-dock:has(#sirdas-chat-input:focus) .mp-alt-cubuk { display: none; }
 }
+
+/* Sohbet ekranı: sayfanın kendisi kaymaz, yalnız mesaj listesi kayar.
+   Telefonda body min-h-screen (100vh = adres çubuğu gizliyken yükseklik) sohbet kabından (100dvh)
+   uzun kalıyordu; sayfa yukarı çekilince giriş kutusunun altında boşluk açılıyordu. */
+html:has(#sirdas-chat-scroll),
+html:has(#sirdas-chat-scroll) body {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+}

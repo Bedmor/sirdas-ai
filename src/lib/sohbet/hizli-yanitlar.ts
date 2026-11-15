@@ -62,6 +62,18 @@ const YARIN_ADIM: HizliYanit = {
   gonderilecek: "Yarın atabileceğim küçük bir adım söyler misin?",
 };
 
+/**
+ * Sohbet boşken giriş alanının üstündeki "Hızlı Pusula" çipleri (Adnan Bey'in isteği).
+ * Dokununca metin kullanıcı yazmış gibi gönderilir; güvenlik süzgeci her mesajda olduğu gibi çalışır.
+ */
+export const BASLANGIC_CIPLERI: readonly HizliYanit[] = [
+  { etiket: "Rızkım daraldı", gonderilecek: "Rızkım daraldı, bu darlıkta manevi olarak nasıl ayakta kalabilirim?" },
+  { etiket: "İçim sıkılıyor", gonderilecek: "Son zamanlarda içim sıkılıyor, kalbim daralıyor." },
+  { etiket: "Ailemle imtihandayım", gonderilecek: "Ailemle zor bir imtihandan geçiyorum, nasıl sabredebilirim?" },
+  { etiket: "Kararsız kaldım", gonderilecek: "Bir konuda kararsız kaldım, doğru kararı nasıl verebilirim?" },
+  { etiket: "Bir dua öner", gonderilecek: "Bugün okuyabileceğim kısa bir dua önerir misin?" },
+];
+
 /** Cihaz saatine göre gece geç vakit mi (00:30-04:59). */
 export function geceGecMi(an: Date = new Date()): boolean {
   return geceGecSaatMi(an.getHours(), an.getMinutes());

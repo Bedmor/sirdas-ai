@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Amiri, Noto_Naskh_Arabic, Space_Grotesk, Roboto_Slab } from "next/font/google";
 import "./globals.css";
 import { yaziBoyutuBetigi, temaBetigi } from "@/lib/gorunum-betikleri";
@@ -50,6 +50,13 @@ export const metadata: Metadata = {
     shortcut: "/icon.png",
     apple: "/icon.png",
   },
+};
+
+// Android Chrome: klavye açılınca sayfa yüksekliği (dvh) küçülsün; sohbetin alt paneli klavyenin üstünde kalır.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  interactiveWidget: "resizes-content",
 };
 
 export default function RootLayout({

@@ -33,7 +33,7 @@ export function CevapGeriBildirimi({
   epostaHref: string;
 }) {
   const dugme = (secili: boolean) =>
-    `inline-flex min-h-8 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-[0.8125rem] leading-tight font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+    `inline-flex min-h-8 items-center gap-1 sm:gap-1.5 whitespace-nowrap rounded-full border px-2.5 sm:px-3 py-1 text-[0.8125rem] leading-tight font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
       secili
         ? "border-primary bg-primary/15 text-on-surface"
         : "border-outline-variant bg-surface-container/60 text-on-surface hover:bg-surface-container-highest hover:text-on-surface"
@@ -42,7 +42,10 @@ export function CevapGeriBildirimi({
   return (
     <div className="space-y-1" lang="tr">
       <div role="group" aria-label="Bu cevap faydalı oldu mu?" className="flex flex-wrap items-center gap-1.5">
-        <span className="text-[0.8125rem] text-on-surface-variant mr-0.5">Bu cevap faydalı oldu mu?</span>
+        <span className="text-[0.8125rem] text-on-surface-variant mr-0.5">
+          <span className="sm:hidden">Faydalı mı?</span>
+          <span className="hidden sm:inline">Bu cevap faydalı oldu mu?</span>
+        </span>
         <button
           type="button"
           aria-pressed={deger === "faydali"}

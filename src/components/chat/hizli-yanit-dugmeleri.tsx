@@ -3,19 +3,21 @@
 import React from "react";
 import type { HizliYanit } from "@/lib/sohbet/hizli-yanitlar";
 
-/** Cevabın altında tek dokunuşla gönderilen yönlendirme düğmeleri. */
+/** Giriş alanının hemen üstünde, yatay kaydırılan tek dokunuşluk çipler. */
 export function HizliYanitDugmeleri({
   secenekler,
   onSec,
   devreDisi,
+  etiket = "Sohbeti sürdür",
 }: {
-  secenekler: HizliYanit[];
+  secenekler: readonly HizliYanit[];
   onSec: (metin: string) => void;
   devreDisi?: boolean;
+  etiket?: string;
 }) {
   if (!secenekler.length) return null;
   return (
-    <nav aria-label="Sohbeti sürdür" className="-mx-1 flex flex-nowrap gap-1.5 overflow-x-auto overscroll-x-contain px-1 py-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0" lang="tr">
+    <nav aria-label={etiket} className="-mx-1 flex flex-nowrap gap-1.5 overflow-x-auto overscroll-x-contain px-1 py-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" lang="tr">
       {secenekler.map((s) => (
         <button
           key={s.etiket}

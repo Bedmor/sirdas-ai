@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { YaziBoyutuDugmesi } from "@/components/ui/yazi-boyutu";
@@ -35,7 +35,7 @@ import {
   cihazdanTemizle,
 } from "@/lib/cihaz-temizle";
 import { metniBloklaraAyir } from "@/lib/sohbet/metin-bicim";
-import { geceGecMi, hizliYanitlar } from "@/lib/sohbet/hizli-yanitlar";
+import { BASLANGIC_CIPLERI, geceGecMi, hizliYanitlar, type HizliYanit } from "@/lib/sohbet/hizli-yanitlar";
 import {
   CevapGeriBildirimi,
   gorusEpostaBaglantisi,
@@ -44,6 +44,7 @@ import {
 import { ZamanKarsilama } from "./zaman-karsilama";
 import { HizliYanitDugmeleri } from "./hizli-yanit-dugmeleri";
 import { YersizUyariBaglantisi } from "./yersiz-uyari-baglantisi";
+import { CevapPaylasDugmesi, PaylasDegerlendir } from "./paylas-degerlendir";
 import {
   denetimIzleriniAyikla,
   uyariTetiklendi,
@@ -211,7 +212,7 @@ function renderFormattedMessage(text: string): React.ReactNode {
         <Etiket
           key={bIdx}
           lang="tr"
-          className={`mb-4 last:mb-0 max-w-[62ch] space-y-2 pl-6 text-[15px] leading-[1.8] text-on-surface ${
+          className={`mb-3 sm:mb-4 last:mb-0 max-w-[62ch] space-y-1.5 sm:space-y-2 pl-5 sm:pl-6 text-[0.9375rem] leading-[1.7] sm:leading-[1.8] text-on-surface ${
             blok.sirali ? "list-decimal" : "list-disc"
           } marker:text-primary`}
         >
@@ -226,7 +227,7 @@ function renderFormattedMessage(text: string): React.ReactNode {
     return (
       <p
         key={bIdx}
-        className="text-[15px] leading-[1.8] text-on-surface mb-4 last:mb-0 max-w-[62ch]"
+        className="text-[0.9375rem] leading-[1.7] sm:leading-[1.8] text-on-surface mb-3 sm:mb-4 last:mb-0 max-w-[62ch]"
         lang="tr"
       >
         {renderInline(blok.metin)}
@@ -857,9 +858,131 @@ export function SirdasChatWorkspace() {
     [],
   );
 
+  // ---- Sohbet akışı kaydırma düzeni (modern mobil sohbet) ----
+  // Yeni soru gönderilince soru balonu ekranın üstüne alınır, cevap hemen altında akar;
+  // eski mesajlar yukarı kayar. Kullanıcı yukarı kaydırıp okurken zorla aşağı çekilmez.
+  const scrollRef = useRef<HTMLElement | null>(null);
+  const akisRef = useRef<HTMLDivElement | null>(null);
+  const soruSabitleRef = useRef<boolean>(false);
+  const altaYapisikRef = useRef<boolean>(true);
+  const [sabitSoruId, setSabitSoruId] = useState<string | null>(null);
+  const [altBosluk, setAltBosluk] = useState<number>(0);
+  const [asagiDugmesi, setAsagiDugmesi] = useState<boolean>(false);
+
+  const sonSoruOgesi = useCallback((): HTMLElement | null => {
+    const kutu = scrollRef.current;
+    if (!kutu) return null;
+    const hepsi = kutu.querySelectorAll<HTMLElement>("[data-mp-soru]");
+    return hepsi.length ? hepsi[hepsi.length - 1] : null;
+  }, []);
+
+  // Soru üstte dururken altında cevap için yeterli yer kalsın diye akışın sonuna boşluk
+  const boslukHesapla = useCallback(() => {
+    const kutu = scrollRef.current;
+    const son = messagesEndRef.current;
+    const soru = sonSoruOgesi();
+    if (!kutu || !son || !soru || !sabitSoruId || soru.dataset.mpSoru !== sabitSoruId) {
+      setAltBosluk((b) => (b === 0 ? b : 0));
+      return;
+    }
+    const altindaki = son.getBoundingClientRect().top - soru.getBoundingClientRect().top;
+    const gereken = Math.max(0, Math.round(kutu.clientHeight - altindaki - 24));
+    setAltBosluk((b) => (Math.abs(b - gereken) < 2 ? b : gereken));
+  }, [sabitSoruId, sonSoruOgesi]);
+
+  const enAltaIn = useCallback((davranis: ScrollBehavior = "smooth") => {
+    const kutu = scrollRef.current;
+    if (!kutu) return;
+    kutu.scrollTo({ top: kutu.scrollHeight, behavior: davranis });
+  }, []);
+
+  const handleSohbetKaydir = useCallback(() => {
+    const kutu = scrollRef.current;
+    if (!kutu) return;
+    const kalan = kutu.scrollHeight - altBosluk - kutu.scrollTop - kutu.clientHeight;
+    altaYapisikRef.current = kalan < 48;
+    setAsagiDugmesi(kalan > 160);
+  }, [altBosluk]);
+
+  // (Bu etki, aşağıdaki soru sabitleme etkisinden ÖNCE çalışmalı.)
+  // Sohbet değişince (geçmişten seçme, yeni sohbet) sabitleme kalkar, en alta inilir
+  useLayoutEffect(() => {
+    if (soruSabitleRef.current) return;
+    setSabitSoruId(null);
+    setAltBosluk(0);
+    altaYapisikRef.current = true;
+    setAsagiDugmesi(false);
+    enAltaIn("auto");
+  }, [activeThreadId, enAltaIn]);
+
+  // Yeni soru eklendiğinde: soruyu ekranın üstüne al
+  useLayoutEffect(() => {
+    if (!soruSabitleRef.current) return;
+    const soru = sonSoruOgesi();
+    if (!soru) return;
+    soruSabitleRef.current = false;
+    setSabitSoruId(soru.dataset.mpSoru ?? null);
+  }, [activeMessages.length, sonSoruOgesi]);
+
+  useLayoutEffect(() => {
+    if (!sabitSoruId) return;
+    boslukHesapla();
+    const kutu = scrollRef.current;
+    if (!kutu) return;
+    const kaydir = () => {
+      const soru = sonSoruOgesi();
+      if (!soru) return;
+      const hedef =
+        soru.getBoundingClientRect().top - kutu.getBoundingClientRect().top + kutu.scrollTop - 12;
+      kutu.scrollTo({ top: Math.max(0, hedef), behavior: "smooth" });
+    };
+    // boşluk DOM'a yansıdıktan sonra kaydır
+    requestAnimationFrame(() => requestAnimationFrame(kaydir));
+    // yalnız yeni sabitlemede kaydır
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sabitSoruId]);
+
+  const hasMessagesForScroll = activeMessages.length > 0 || isLoading || isStreaming;
+
+  // Akış büyüdükçe (cevap akarken) veya ekran boyu değiştikçe (klavye) boşluğu güncelle
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [activeMessages.length, streamingText, isLoading]);
+    const akis = akisRef.current;
+    const kutu = scrollRef.current;
+    if (!akis || !kutu || typeof ResizeObserver === "undefined") return;
+    const gozlemci = new ResizeObserver(() => {
+      boslukHesapla();
+      // Sabit soru yokken (eski sohbet açıldığında) ve kullanıcı en alttaysa altta kal
+      if (!sabitSoruId && altaYapisikRef.current) enAltaIn("auto");
+    });
+    gozlemci.observe(akis);
+    gozlemci.observe(kutu);
+    return () => gozlemci.disconnect();
+  }, [boslukHesapla, enAltaIn, sabitSoruId, activeThreadId, hasMessagesForScroll]);
+
+  // Telefonda klavye açılınca görünen alan küçülür: kap görünen alana oturtulur (iOS Safari
+  // dvh'yi klavyeye göre küçültmez). Android'de viewport "resizes-content" ile zaten küçülür.
+  const [gorunurAlan, setGorunurAlan] = useState<{ yukseklik: number; ust: number } | null>(null);
+  useEffect(() => {
+    const vv = typeof window !== "undefined" ? window.visualViewport : null;
+    if (!vv) return;
+    const guncelle = () => {
+      if (Math.abs(vv.scale - 1) > 0.01) return; // parmakla yakınlaştırmada dokunma
+      const tam = document.documentElement.clientHeight || window.innerHeight;
+      if (tam - vv.height > 80) {
+        setGorunurAlan({ yukseklik: Math.round(vv.height), ust: Math.round(vv.offsetTop) });
+        if (window.scrollY) window.scrollTo(0, 0);
+      } else {
+        setGorunurAlan(null);
+      }
+    };
+    vv.addEventListener("resize", guncelle);
+    vv.addEventListener("scroll", guncelle);
+    guncelle();
+    return () => {
+      vv.removeEventListener("resize", guncelle);
+      vv.removeEventListener("scroll", guncelle);
+    };
+  }, []);
 
   // Progressive fallback for browsers without native CSS `field-sizing: content`
   const syncTextareaHeight = useCallback(() => {
@@ -937,6 +1060,7 @@ export function SirdasChatWorkspace() {
     }
 
     setErrorMsg(null);
+    soruSabitleRef.current = true;
     if (!hazirMi) {
       setInputMessage("");
       if (textareaRef.current) {
@@ -1313,9 +1437,32 @@ export function SirdasChatWorkspace() {
 
   const hasMessages = activeMessages.length > 0 || isLoading || isStreaming;
 
+  // Giriş alanının üstündeki çipler: sohbet boşken başlangıç çipleri, sonra son cevaba göre
+  // yönlendirme çipleri (güvenlik/kapanış kuralları hizliYanitlar içinde aynen geçerli).
+  const sonMesaj = activeMessages[activeMessages.length - 1];
+  const dockCipleri: readonly HizliYanit[] = !hasMessages
+    ? hasGivenConsent
+      ? BASLANGIC_CIPLERI
+      : []
+    : isLoading || isStreaming || !sonMesaj || sonMesaj.role !== "assistant"
+      ? []
+      : hizliYanitlar({
+          icerik: sonMesaj.content,
+          intentMode: sonMesaj.intentMode,
+          guvenlikTuru: sonMesaj.safety && isSafetyNoticeData(sonMesaj.safety) ? sonMesaj.safety.kind : null,
+          status: sonMesaj.status,
+          geceGec: geceGecMi(),
+          kullaniciSonMesaj: [...activeMessages].reverse().find((m) => m.role === "user")?.content,
+        });
+
   return (
     <div
       className="flex h-dvh w-full overflow-hidden bg-surface text-on-surface spiritual-bg-pattern font-sans"
+      style={
+        gorunurAlan
+          ? { position: "fixed", left: 0, right: 0, top: gorunurAlan.ust, height: gorunurAlan.yukseklik }
+          : undefined
+      }
     >
       {/* MOBILE BACKDROP */}
       {mobileDrawerOpen && (
@@ -1770,7 +1917,9 @@ export function SirdasChatWorkspace() {
                 <span>Manevi Araçlar: Vakitler, Kıble, Zikir, Dua</span>
               </Link>
 
-              <div className="pt-1 px-1">
+              <PaylasDegerlendir />
+
+              <div className="px-1">
                 <a
                   href="mailto:adnan.kus@hotmail.com?subject=Manevi%20Pusula%20-%20G%C3%B6r%C3%BC%C5%9F%20ve%20%C3%96neri"
                   className="flex items-center justify-center gap-1.5 w-full py-1.5 text-xs text-on-surface-variant/80 hover:text-primary transition-colors rounded-full hover:bg-surface-container-highest"
@@ -1785,6 +1934,7 @@ export function SirdasChatWorkspace() {
             </>
           ) : (
             <div className="flex flex-col items-center gap-2">
+              <PaylasDegerlendir dar />
               <a
                 aria-label="Görüş ve Öneri Bildir (adnan.kus@hotmail.com)"
                 className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-container border border-outline-variant/40 text-primary hover:text-primary-fixed-dim transition-colors shadow-xs"
@@ -1819,7 +1969,7 @@ export function SirdasChatWorkspace() {
       {/* MAIN CONVERSATION STAGE (M3 EXPRESSIVE ELEVATED CANVAS) */}
       <div className="flex flex-1 flex-col min-w-0 h-full relative">
         {/* Minimal Top Header (M3 Expressive Top App Bar & Split Action Cluster) */}
-        <header className="flex h-16 shrink-0 items-center justify-between gap-2 px-3 sm:px-6 sm:px-6 border-b border-outline-variant/40 bg-surface/85 backdrop-blur-md z-20">
+        <header className="flex h-14 sm:h-16 shrink-0 items-center justify-between gap-2 px-3 sm:px-6 border-b border-outline-variant/40 bg-surface/85 backdrop-blur-md z-20">
           <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <button
               aria-label="Menüyü aç"
@@ -1940,8 +2090,11 @@ export function SirdasChatWorkspace() {
         </header>
 
         {/* Scrollable Chat Area */}
+        <div className="relative flex flex-1 min-h-0 flex-col">
         <main
-          className="flex-1 overflow-y-auto overscroll-contain px-4 sm:px-6"
+          ref={scrollRef}
+          onScroll={handleSohbetKaydir}
+          className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-3 sm:px-6"
           id="sirdas-chat-scroll"
           role="main"
           style={{
@@ -1967,7 +2120,7 @@ export function SirdasChatWorkspace() {
             </div>
           ) : (
             /* MULTI-TURN CONVERSATION STREAM */
-            <div className="mx-auto max-w-[720px] xl:max-w-[820px] py-8 space-y-6">
+            <div ref={akisRef} className="mx-auto max-w-[720px] xl:max-w-[820px] pt-4 pb-3 space-y-4 sm:py-8 sm:space-y-6">
               {activeMessages.map((msg, index) => {
                 const prevMsg = index > 0 ? activeMessages[index - 1] : null;
                 const currentDateKey = getDateGroupKey(msg.createdAt);
@@ -1991,10 +2144,10 @@ export function SirdasChatWorkspace() {
                     )}
 
                     {msg.role === "user" ? (
-                      <div className="flex justify-end animate-in fade-in duration-300">
-                        <div className="max-w-[85%] sm:max-w-[78%] rounded-[26px] rounded-br-[6px] bg-secondary-container border border-secondary/30 px-5 py-4 text-on-surface shadow-m3-1 hover:shadow-m3-2 transition-all duration-300 ease-m3e-spring-smooth">
+                      <div className="flex justify-end animate-in fade-in duration-300" data-mp-soru={msg.id}>
+                        <div className="max-w-[85%] sm:max-w-[78%] rounded-[22px] sm:rounded-[26px] rounded-br-[6px] sm:rounded-br-[6px] bg-secondary-container border border-secondary/30 px-4 py-2.5 sm:px-5 sm:py-4 text-on-surface shadow-m3-1 hover:shadow-m3-2 transition-all duration-300 ease-m3e-spring-smooth">
                           <p
-                            className="text-[15px] leading-relaxed whitespace-pre-wrap"
+                            className="text-[0.9375rem] leading-relaxed whitespace-pre-wrap"
                             lang="tr"
                           >
                             {msg.content}
@@ -2009,9 +2162,9 @@ export function SirdasChatWorkspace() {
                     ) : (
                       <article
                         aria-label="Manevi Pusula Yanıtı"
-                        className="flex items-start gap-3.5 sm:gap-4 animate-in fade-in duration-300"
+                        className="flex items-start gap-0 sm:gap-4 animate-in fade-in duration-300"
                       >
-                        <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[18px] bg-surface-container-high border border-outline-variant/50 overflow-hidden shadow-xs">
+                        <div className="mt-0.5 hidden sm:flex h-10 w-10 shrink-0 items-center justify-center rounded-[18px] bg-surface-container-high border border-outline-variant/50 overflow-hidden shadow-xs">
                           <Image
                             alt="Manevi Pusula"
                             className="h-full w-full object-cover"
@@ -2021,8 +2174,8 @@ export function SirdasChatWorkspace() {
                           />
                         </div>
 
-                        <div className="flex-1 min-w-0 space-y-3.5">
-                          <div className="rounded-[26px] rounded-bl-[6px] bg-surface-container border border-outline-variant/40 px-5 py-4 shadow-m3-1 text-on-surface hover:shadow-m3-2 transition-all duration-300 ease-m3e-spring-smooth">
+                        <div className="flex-1 min-w-0 space-y-2.5 sm:space-y-3.5">
+                          <div className="rounded-[22px] sm:rounded-[26px] rounded-tl-[6px] sm:rounded-tl-[26px] sm:rounded-bl-[6px] bg-surface-container border border-outline-variant/40 px-4 py-3.5 sm:px-5 sm:py-4 shadow-m3-1 text-on-surface hover:shadow-m3-2 transition-all duration-300 ease-m3e-spring-smooth">
                             {msg.intentMode === "ILIM_VE_SIYER" && (
                               <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-secondary-container/80 border border-secondary/30 px-3.5 py-1 text-[11px] font-medium text-on-secondary-container">
                                 <span className="h-1.5 w-1.5 rounded-full bg-secondary" />
@@ -2119,6 +2272,11 @@ export function SirdasChatWorkspace() {
                                 </span>
                               </button>
 
+                              <CevapPaylasDugmesi
+                                metin={msg.content}
+                                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs text-on-surface-variant/80 hover:bg-surface-container-highest hover:text-on-surface hover:scale-105 active:scale-95 transition-all duration-200 ease-m3e-spring-fast"
+                              />
+
                               <a
                                 href={`mailto:adnan.kus@hotmail.com?subject=${encodeURIComponent("Manevi Pusula - Hatalı Cevap / Öneri Bildirimi")}&body=${encodeURIComponent(`Mesaj Tarihi: ${msg.createdAt}\nMesaj ID: ${msg.id}\nYanıt Kesiti:\n${msg.content.slice(0, 300)}...\n\n--- Görüş, Tenkit veya Hatalı Yanıt Düzeltme Öneriniz ---\n`)}`}
                                 className="inline-flex items-center justify-center rounded-full p-1.5 text-on-surface-variant/80 hover:bg-surface-container-highest hover:text-primary hover:scale-110 active:scale-95 transition-all duration-200 ease-m3e-spring-fast"
@@ -2167,23 +2325,6 @@ export function SirdasChatWorkspace() {
                             />
                           )}
 
-                          {/* Etkileşim ve yönlendirme düğmeleri: yalnız son cevabın altında */}
-                          {index === activeMessages.length - 1 && !isLoading && !isStreaming && (
-                            <HizliYanitDugmeleri
-                              secenekler={hizliYanitlar({
-                                icerik: msg.content,
-                                intentMode: msg.intentMode,
-                                guvenlikTuru: msg.safety && isSafetyNoticeData(msg.safety) ? msg.safety.kind : null,
-                                status: msg.status,
-                                geceGec: geceGecMi(),
-                                kullaniciSonMesaj: [...activeMessages.slice(0, index)]
-                                  .reverse()
-                                  .find((m) => m.role === "user")?.content,
-                              })}
-                              onSec={(metin) => handleSubmit(undefined, metin)}
-                              devreDisi={isLoading || isStreaming}
-                            />
-                          )}
                         </div>
                       </article>
                     )}
@@ -2195,9 +2336,9 @@ export function SirdasChatWorkspace() {
               {(isLoading || isStreaming) && (
                 <article
                   aria-live="polite"
-                  className="flex items-start gap-3.5 sm:gap-4"
+                  className="flex items-start gap-0 sm:gap-4"
                 >
-                  <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-[18px] bg-surface-container-high border border-primary/40 overflow-hidden shadow-xs">
+                  <div className="mt-0.5 hidden sm:flex h-10 w-10 shrink-0 items-center justify-center rounded-[18px] bg-surface-container-high border border-primary/40 overflow-hidden shadow-xs">
                     <Image
                       alt="Manevi Pusula"
                       className="h-full w-full object-cover"
@@ -2207,8 +2348,8 @@ export function SirdasChatWorkspace() {
                     />
                   </div>
 
-                  <div className="flex-1 min-w-0 space-y-3">
-                    <div className="rounded-[26px] rounded-bl-[6px] bg-surface-container border border-outline-variant/40 px-5 py-4 shadow-m3-1 text-on-surface">
+                  <div className="flex-1 min-w-0 space-y-2.5 sm:space-y-3">
+                    <div className="rounded-[22px] sm:rounded-[26px] rounded-tl-[6px] sm:rounded-tl-[26px] sm:rounded-bl-[6px] bg-surface-container border border-outline-variant/40 px-4 py-3.5 sm:px-5 sm:py-4 shadow-m3-1 text-on-surface">
                       {streamingIntentMode === "ILIM_VE_SIYER" && (
                         <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-secondary-container/80 border border-secondary/30 px-3.5 py-1 text-[11px] font-medium text-on-secondary-container">
                           <span className="h-1.5 w-1.5 rounded-full bg-secondary" />
@@ -2276,21 +2417,47 @@ export function SirdasChatWorkspace() {
               )}
 
               <div ref={messagesEndRef} />
+              {altBosluk > 0 && <div aria-hidden="true" style={{ height: altBosluk }} />}
             </div>
           )}
         </main>
+        {hasMessages && asagiDugmesi && (
+          <button
+            type="button"
+            onClick={() => enAltaIn()}
+            aria-label="En son mesaja in"
+            title="En son mesaja in"
+            className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-surface-container-highest border border-outline-variant/60 text-on-surface shadow-m3-3 hover:text-primary active:scale-90 transition-all animate-in fade-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path d="M12 5v14m0 0-6-6m6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        )}
+        </div>
 
         {/* BOTTOM MATERIAL 3 EXPRESSIVE FLOATING TOOLBAR / INPUT DOCK */}
-        <div className="mp-dock shrink-0 bg-surface/90 backdrop-blur-md px-4 pb-2 pt-2 sm:px-6 lg:pb-1.5 lg:pt-1.5">
+        <div className="mp-dock shrink-0 border-t border-outline-variant/30 bg-surface/90 backdrop-blur-md px-3 pb-1.5 pt-2 sm:px-6 sm:pb-2 lg:pb-1.5 lg:pt-1.5">
           <div className="mx-auto max-w-[720px] xl:max-w-[820px]">
+            {/* Hızlı Pusula çipleri: giriş alanının hemen üstünde, yatay kaydırılır */}
+            {dockCipleri.length > 0 && (
+              <div className="mb-1.5 sm:mb-2">
+                <HizliYanitDugmeleri
+                  secenekler={dockCipleri}
+                  etiket={hasMessages ? "Sohbeti sürdür" : "Hızlı başlangıç"}
+                  onSec={(metin) => handleSubmit(undefined, metin)}
+                  devreDisi={isLoading || isStreaming}
+                />
+              </div>
+            )}
             <form
-              className="relative flex items-end gap-3 rounded-[32px] bg-surface-container-high/95 backdrop-blur-xl border border-outline-variant/60 focus-within:border-primary/90 focus-within:ring-4 focus-within:ring-primary/15 shadow-m3-3 focus-within:shadow-m3-4 px-5 py-3.5 lg:py-2.5 transition-all duration-300 ease-m3e-spring-smooth"
+              className="relative flex items-end gap-2 sm:gap-3 rounded-[28px] sm:rounded-[32px] bg-surface-container-high/95 backdrop-blur-xl border border-outline-variant/60 focus-within:border-primary/90 focus-within:ring-4 focus-within:ring-primary/15 shadow-m3-3 focus-within:shadow-m3-4 pl-4 pr-1.5 py-1.5 sm:px-5 sm:py-3.5 lg:py-2.5 transition-all duration-300 ease-m3e-spring-smooth"
               onSubmit={handleSubmit}
             >
               <textarea
                 ref={textareaRef}
                 aria-label="Manevi Pusula ile dertleşme mesajınızı yazın"
-                className="flex-1 bg-transparent text-[15px] leading-relaxed text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none resize-none"
+                className="flex-1 self-center bg-transparent py-1.5 sm:py-0 text-base sm:text-[0.9375rem] leading-relaxed text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none resize-none"
                 disabled={isLoading || isStreaming}
                 id="sirdas-chat-input"
                 maxLength={1200}
@@ -2328,6 +2495,9 @@ export function SirdasChatWorkspace() {
                   isLoading || isStreaming || inputMessage.trim().length < 2
                 }
                 id="sirdas-chat-submit"
+                // Dokunuşta odak yazı kutusunda kalsın: odak kayınca alt çubuk açılıp düğmeyi
+                // yerinden oynatıyor ve dokunuş boşa gidebiliyordu.
+                onMouseDown={(e) => e.preventDefault()}
                 type="submit"
               >
                 <svg
@@ -2348,7 +2518,7 @@ export function SirdasChatWorkspace() {
             </form>
 
             <p
-              className="mt-2.5 lg:mt-1.5 text-center text-[11px] text-on-surface-variant/75 flex items-center justify-center flex-wrap gap-x-1.5 gap-y-0.5 leading-tight"
+              className="mt-1.5 sm:mt-2.5 lg:mt-1.5 text-center text-[11px] text-on-surface-variant/75 flex items-center justify-center flex-wrap gap-x-1.5 gap-y-0.5 leading-tight"
               lang="tr"
             >
               <span>Manevi Pusula fetva mercii değildir, hata yapabilir.</span>
@@ -2378,7 +2548,7 @@ export function SirdasChatWorkspace() {
           {/* ALT SİMGE ÇUBUĞU: tek elle kullanım için (yalnız mobil/tablet; masaüstünde yan menü hep açık) */}
           <nav
             aria-label="Hızlı işlemler"
-            className="mp-alt-cubuk lg:hidden mx-auto mt-2 max-w-[720px]"
+            className="mp-alt-cubuk lg:hidden mx-auto mt-1.5 max-w-[720px]"
           >
             <ul className="grid grid-cols-4 gap-1 rounded-[24px] bg-surface-container-high border border-outline-variant/50 p-1">
               <li>

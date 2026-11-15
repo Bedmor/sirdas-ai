@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Amiri, Noto_Naskh_Arabic, Space_Grotesk, Roboto_Slab } from "next/font/google";
 import "./globals.css";
 import { yaziBoyutuBetigi, temaBetigi } from "@/lib/gorunum-betikleri";
+import { SesOynaticiSaglayici } from "@/components/kabuk/ses-oynatici";
+import { GezinmeIzleyici } from "@/components/kabuk/ust-bar";
 
 const amiri = Amiri({
   subsets: ["arabic", "latin"],
@@ -77,7 +79,11 @@ export default function RootLayout({
       <body
         className={`${amiri.variable} ${notoNaskhArabic.variable} ${spaceGrotesk.variable} ${robotoSlab.variable} bg-background font-body text-on-surface antialiased min-h-screen selection:bg-secondary-container selection:text-on-secondary-container spiritual-bg-pattern`}
       >
-        {children}
+        {/* Tek ses oynatıcı kökte durur: sayfa değişince hutbe kesilmez */}
+        <SesOynaticiSaglayici>
+          <GezinmeIzleyici />
+          {children}
+        </SesOynaticiSaglayici>
       </body>
     </html>
   );

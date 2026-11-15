@@ -5,6 +5,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { YaziBoyutuDugmesi } from "@/components/ui/yazi-boyutu";
 import { TemaSecici } from "@/components/ui/tema-secici";
+import { UstBar } from "@/components/kabuk/ust-bar";
+import { AltSekmeCubugu } from "@/components/kabuk/alt-sekme-cubugu";
+import { MiniOynatici } from "@/components/kabuk/ses-oynatici";
+import { GonulDefterimSatiri, MenuGorunumBolumu } from "@/components/kabuk/menu-cekmecesi";
+import { SesliDinleDugmesi } from "./sesli-dinle-dugmesi";
+import { GonulDefteriDugmesi } from "./gonul-defteri-dugmesi";
+import { GONUL_DEFTERI_OLAY } from "@/lib/sohbet/gonul-defteri";
 import { SourceBookModal } from "./source-book-modal";
 import {
   SafetyNoticeBox,
@@ -357,9 +364,9 @@ function generateClientUuid(): string {
   return `sirdas_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
-/** Alt simge çubuğu düğmesi: en az 48px dokunma hedefi */
-const ALT_CUBUK_DUGME =
-  "flex h-12 w-full items-center justify-center rounded-[20px] text-on-surface hover:text-primary hover:bg-surface-container-highest active:scale-95 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
+/** Cevap altı eylem düğmesi (Kopyala, Paylaş, Dinle, Deftere ekle): en az 36px yükseklik */
+const CEVAP_EYLEM =
+  "inline-flex min-h-[36px] items-center gap-1.5 rounded-full px-2.5 sm:px-3 py-1 text-xs text-on-surface-variant/80 hover:bg-surface-container-highest hover:text-on-surface active:scale-95 transition-all duration-200 ease-m3e-spring-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
 
 export function SirdasChatWorkspace() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -610,6 +617,8 @@ export function SirdasChatWorkspace() {
     setHafiza(BOS_HAFIZA);
     hafizamProfildenRef.current = false;
     setIsHafizamOpen(false);
+    // Gönül Defterim de silindi; açık düğme ve listeler yenilensin
+    window.dispatchEvent(new Event(GONUL_DEFTERI_OLAY));
 
     setUserProfile({
       roles: [],
@@ -731,6 +740,19 @@ export function SirdasChatWorkspace() {
       }
     } catch {
       // Ignore storage errors in private mode
+    }
+
+    // Alt sayfalardan gelişler: "/?yeni=1" yeni sohbet, "/?menu=1" geçmiş sohbetler (menü açık)
+    try {
+      const ps = new URLSearchParams(window.location.search);
+      if (ps.get("yeni") === "1") setActiveThreadId("");
+      if (ps.get("menu") === "1") {
+        if (window.innerWidth < 1024) setMobileDrawerOpen(true);
+        else setSidebarOpen(true);
+      }
+      if (ps.has("yeni") || ps.has("menu")) window.history.replaceState(window.history.state, "", "/");
+    } catch {
+      /* yok say */
     }
   }, []);
 
@@ -1468,7 +1490,7 @@ export function SirdasChatWorkspace() {
       {mobileDrawerOpen && (
         <div
           aria-hidden="true"
-          className="fixed inset-0 z-40 bg-black/70 backdrop-blur-xs lg:hidden animate-in fade-in duration-300"
+          className="mp-perde fixed inset-0 z-40 bg-black/50 backdrop-blur-[6px] lg:hidden animate-in fade-in duration-300"
           onClick={() => setMobileDrawerOpen(false)}
         />
       )}
@@ -1586,6 +1608,13 @@ export function SirdasChatWorkspace() {
             )}
           </button>
         </div>
+
+        {/* Gönül Defterim (yalnız bu cihazda saklanan cevaplar) */}
+        {(sidebarOpen || mobileDrawerOpen) && (
+          <div className="px-3 pb-1">
+            <GonulDefterimSatiri onClick={() => setMobileDrawerOpen(false)} />
+          </div>
+        )}
 
         {/* Thread History List (Material 3 Expressive Segmented List) */}
         {sidebarOpen || mobileDrawerOpen ? (
@@ -1862,6 +1891,9 @@ export function SirdasChatWorkspace() {
         <div className="border-t border-outline-variant/40 p-3 space-y-2.5">
           {sidebarOpen || mobileDrawerOpen ? (
             <>
+              {/* Yazı Boyutu (A-/A+) ve tema: üst bardan buraya taşındı */}
+              <MenuGorunumBolumu />
+
               <div className="flex items-center gap-2">
                 <a
                   aria-label="Diyanet Alo 190 Fetva Hattı"
@@ -1916,6 +1948,20 @@ export function SirdasChatWorkspace() {
                 <i aria-hidden="true" className="ph ph-compass text-sm text-secondary"></i>
                 <span>Manevi Araçlar: Vakitler, Kıble, Zikir, Dua</span>
               </Link>
+              <Link
+                href="/araclar/cuma-hutbesi"
+                className="flex items-center justify-center gap-1.5 w-full py-1.5 text-xs text-on-surface-variant/80 hover:text-primary transition-colors rounded-full hover:bg-surface-container-highest"
+              >
+                <i aria-hidden="true" className="ph ph-headphones text-sm text-secondary"></i>
+                <span>Cuma Hutbesi</span>
+              </Link>
+              <Link
+                href="/tanitim"
+                className="flex items-center justify-center gap-1.5 w-full py-1.5 text-xs text-on-surface-variant/80 hover:text-primary transition-colors rounded-full hover:bg-surface-container-highest"
+              >
+                <i aria-hidden="true" className="ph ph-info text-sm text-secondary"></i>
+                <span>Tanıtım</span>
+              </Link>
 
               <PaylasDegerlendir />
 
@@ -1968,126 +2014,19 @@ export function SirdasChatWorkspace() {
 
       {/* MAIN CONVERSATION STAGE (M3 EXPRESSIVE ELEVATED CANVAS) */}
       <div className="flex flex-1 flex-col min-w-0 h-full relative">
-        {/* Minimal Top Header (M3 Expressive Top App Bar & Split Action Cluster) */}
-        <header className="flex h-14 sm:h-16 shrink-0 items-center justify-between gap-2 px-3 sm:px-6 border-b border-outline-variant/40 bg-surface/85 backdrop-blur-md z-20">
-          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-            <button
-              aria-label="Menüyü aç"
-              className="flex lg:hidden h-10 w-10 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface hover:scale-105 active:scale-90 transition-all duration-200 ease-m3e-spring-fast"
-              onClick={() => setMobileDrawerOpen(true)}
-              type="button"
-            >
-              <svg
-                aria-hidden="true"
-                className="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-
-            <div className="flex min-w-0 items-center gap-3">
-              <div className="hidden min-[400px]:flex h-10 w-10 rounded-[18px] bg-surface-container-high border border-outline-variant/50 overflow-hidden shrink-0 items-center justify-center shadow-xs">
-                <Image
-                  alt="Manevi Pusula"
-                  className="h-full w-full object-cover"
-                  height={40}
-                  priority
-                  src="/icon.png"
-                  width={40}
-                />
-              </div>
-              <div className="flex min-w-0 flex-col">
-                <span className="font-heading text-base font-medium text-on-surface leading-tight truncate pt-0.5">
-                  {activeThread ? activeThread.title : "Manevi Pusula"}
-                </span>
-                <span className="text-xs text-on-surface-variant truncate">
-                  Kur&apos;an ve Sünnet Rehberliğinde Tefekkür Odası
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* M3 Expressive Connected Split Action Cluster */}
-          <div className="flex shrink-0 items-center gap-1.5 p-1 rounded-full bg-surface-container/90 border border-outline-variant/50 shadow-xs">
-            <YaziBoyutuDugmesi className="border-0 bg-transparent" />
-            <Link
-              href="/tanitim"
-              className={`${
-                sidebarOpen ? "flex lg:hidden" : "flex"
-              } h-9 w-9 items-center justify-center rounded-full text-on-surface-variant hover:text-primary hover:bg-surface-container-highest transition-all duration-200 ease-m3e-spring-fast active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary`}
-              title="Tanıtım & Ana Sayfaya Dön"
-              aria-label="Tanıtım & Ana Sayfaya Dön"
-            >
-              <svg
-                aria-hidden="true"
-                className="h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
-                />
-              </svg>
-            </Link>
-            <motion.button
-              layoutId="kvkk-dialog-header"
-              style={{ opacity: isConsentModalOpen && consentTrigger === "header" ? 0 : 1 }}
-              type="button"
-              onClick={() => {
-                setConsentTrigger("header");
-                setIsConsentModalOpen(true);
-              }}
-              className={`${
-                sidebarOpen ? "hidden sm:inline-flex lg:hidden" : "hidden sm:inline-flex"
-              } items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs text-on-surface-variant hover:text-primary hover:bg-surface-container-highest transition-all duration-200 ease-m3e-spring-fast active:scale-95 font-medium cursor-pointer`}
-              title="Mahremiyet Esasları: özel nitelikli kişisel veri metni"
-            >
-              <span className="h-2 w-2 rounded-full bg-secondary" />
-              <span>Mahremiyet Esasları</span>
-            </motion.button>
-            <motion.button
-              layoutId="reset-dialog-header"
-              style={{ opacity: isResetModalOpen && resetTrigger === "header" ? 0 : 1 }}
-              type="button"
-              onClick={() => {
-                setResetTrigger("header");
-                setIsResetModalOpen(true);
-              }}
-              className={`${
-                sidebarOpen ? "hidden sm:inline-flex lg:hidden" : "hidden sm:inline-flex"
-              } items-center gap-1.5 rounded-full bg-error-container hover:bg-error-container/80 border border-error/20 px-3.5 py-1.5 text-xs text-on-error-container font-medium transition-all duration-200 ease-m3e-spring-fast active:scale-95 shadow-xs cursor-pointer`}
-              title="Benlik Hafızamı Sıfırla / Tüm Verilerimi Sil (KVKK Unutulma Hakkı)"
-            >
-              <svg
-                aria-hidden="true"
-                className="h-3.5 w-3.5 text-error"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              <span>Hafızamı Sıfırla</span>
-            </motion.button>
-          </div>
-        </header>
+        {/* Sade üst bar: Menü | logo (ana sohbete döner) | Yeni sohbet; altında canlı vakit şeridi */}
+        <UstBar
+          sol={{
+            tur: "menu",
+            acik: mobileDrawerOpen,
+            onClick: () => {
+              if (window.innerWidth < 1024) setMobileDrawerOpen(true);
+              else setSidebarOpen((v) => !v);
+            },
+          }}
+          onYeniSohbet={handleNewChat}
+          onLogo={() => setMobileDrawerOpen(false)}
+        />
 
         {/* Scrollable Chat Area */}
         <div className="relative flex flex-1 min-h-0 flex-col">
@@ -2245,11 +2184,11 @@ export function SirdasChatWorkspace() {
                           )}
 
                           {/* Message Action Bar & Timestamp */}
-                          <div className="flex items-center justify-between pt-0.5 text-xs text-on-surface-variant/75">
-                            <div className="flex items-center gap-1.5">
+                          <div className="flex items-start justify-between gap-1 pt-0.5 text-xs text-on-surface-variant/75">
+                            <div className="flex flex-wrap items-center gap-x-0.5 gap-y-1 sm:gap-1.5">
                               <button
                                 aria-label="Yanıtı kopyala"
-                                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs text-on-surface-variant/80 hover:bg-surface-container-highest hover:text-on-surface hover:scale-105 active:scale-95 transition-all duration-200 ease-m3e-spring-fast"
+                                className={CEVAP_EYLEM}
                                 onClick={() => handleCopyMessage(msg.id, msg.content)}
                                 type="button"
                               >
@@ -2274,7 +2213,19 @@ export function SirdasChatWorkspace() {
 
                               <CevapPaylasDugmesi
                                 metin={msg.content}
-                                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs text-on-surface-variant/80 hover:bg-surface-container-highest hover:text-on-surface hover:scale-105 active:scale-95 transition-all duration-200 ease-m3e-spring-fast"
+                                className={CEVAP_EYLEM}
+                              />
+
+                              <SesliDinleDugmesi id={msg.id} metin={msg.content} className={CEVAP_EYLEM} />
+
+                              <GonulDefteriDugmesi
+                                id={msg.id}
+                                metin={msg.content}
+                                className={CEVAP_EYLEM}
+                                onBildirim={(m) => {
+                                  setToastMsg(m);
+                                  setTimeout(() => setToastMsg(null), 2500);
+                                }}
                               />
 
                               <a
@@ -2439,6 +2390,8 @@ export function SirdasChatWorkspace() {
         {/* BOTTOM MATERIAL 3 EXPRESSIVE FLOATING TOOLBAR / INPUT DOCK */}
         <div className="mp-dock shrink-0 border-t border-outline-variant/30 bg-surface/90 backdrop-blur-md px-3 pb-1.5 pt-2 sm:px-6 sm:pb-2 lg:pb-1.5 lg:pt-1.5">
           <div className="mx-auto max-w-[720px] xl:max-w-[820px]">
+            {/* Arkada çalan hutbe varsa küçük oynatıcı */}
+            <MiniOynatici className="mb-1.5" />
             {/* Hızlı Pusula çipleri: giriş alanının hemen üstünde, yatay kaydırılır */}
             {dockCipleri.length > 0 && (
               <div className="mb-1.5 sm:mb-2">
@@ -2545,66 +2498,12 @@ export function SirdasChatWorkspace() {
             </p>
           </div>
 
-          {/* ALT SİMGE ÇUBUĞU: tek elle kullanım için (yalnız mobil/tablet; masaüstünde yan menü hep açık) */}
-          <nav
-            aria-label="Hızlı işlemler"
-            className="mp-alt-cubuk lg:hidden mx-auto mt-1.5 max-w-[720px]"
-          >
-            <ul className="grid grid-cols-4 gap-1 rounded-[24px] bg-surface-container-high border border-outline-variant/50 p-1">
-              <li>
-                <button
-                  type="button"
-                  aria-label="Menüyü aç"
-                  title="Menü"
-                  onClick={() => setMobileDrawerOpen(true)}
-                  className={ALT_CUBUK_DUGME}
-                >
-                  <svg aria-hidden="true" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
-                  </svg>
-                </button>
-              </li>
-              <li>
-                <Link
-                  href="/araclar/namaz-vakitleri"
-                  aria-label="Namaz vakitleri"
-                  title="Namaz vakitleri"
-                  className={ALT_CUBUK_DUGME}
-                >
-                  <svg aria-hidden="true" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M16 4.5v3M14.5 6h3" strokeLinecap="round" />
-                  </svg>
-                </Link>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  aria-label="Yeni sohbet"
-                  title="Yeni sohbet"
-                  onClick={handleNewChat}
-                  className={ALT_CUBUK_DUGME}
-                >
-                  <svg aria-hidden="true" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path d="M12 20h8M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </button>
-              </li>
-              <li>
-                <a
-                  href="mailto:adnan.kus@hotmail.com?subject=Manevi%20Pusula%20-%20G%C3%B6r%C3%BC%C5%9F%20ve%20%C3%96neri"
-                  aria-label="Görüş bildir"
-                  title="Görüş bildir"
-                  className={ALT_CUBUK_DUGME}
-                >
-                  <svg aria-hidden="true" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.6A8 8 0 1 1 21 12Z" strokeLinejoin="round" />
-                    <path d="M8.5 12h.01M12 12h.01M15.5 12h.01" strokeLinecap="round" strokeWidth="2.6" />
-                  </svg>
-                </a>
-              </li>
-            </ul>
-          </nav>
+          {/* ALT SEKME ÇUBUĞU: Sohbet, Araçlar, Hutbe, Menü (yalnız mobil/tablet; masaüstünde yan menü açık) */}
+          <AltSekmeCubugu
+            onMenu={() => setMobileDrawerOpen(true)}
+            menuAcik={mobileDrawerOpen}
+            className="lg:hidden mx-auto mt-1.5 max-w-[720px]"
+          />
         </div>
       </div>
 
@@ -2819,7 +2718,7 @@ export function SirdasChatWorkspace() {
                 id="cihaz-temizle-aciklama"
                 className="text-base leading-relaxed text-on-surface"
               >
-                Bu cihazdaki sohbet geçmişi ve Hafızam silinecek. Yanınızdaki
+                Bu cihazdaki sohbet geçmişi, Hafızam ve Gönül Defterim silinecek. Yanınızdaki
                 biri artık göremez. Emin misiniz?
               </p>
               <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">

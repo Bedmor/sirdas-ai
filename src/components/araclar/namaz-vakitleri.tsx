@@ -7,6 +7,7 @@ import {
   kalanSureMetni,
   kalanSureSaat,
   siradakiVakit,
+  NAMAZ_SECIM_ANAHTAR,
   type VakitYaniti,
 } from "@/lib/araclar/namaz-vakitleri";
 import { ILLER, ilBul } from "@/lib/araclar/iller";
@@ -14,7 +15,7 @@ import { ILLER, ilBul } from "@/lib/araclar/iller";
 type Secenek = { id: string; ad: string };
 type Kayit = { il: Secenek; ilce: Secenek };
 
-const ANAHTAR = "manevi-pusula:namaz-vakitleri:secim:v1";
+const ANAHTAR = NAMAZ_SECIM_ANAHTAR;
 const VARSAYILAN_IL: Secenek = { id: "539", ad: "İstanbul" };
 const IL_SECENEKLERI: Secenek[] = ILLER.map((x) => ({ id: x.id, ad: x.ad }));
 

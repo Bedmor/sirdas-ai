@@ -763,3 +763,26 @@ html:has(#sirdas-chat-scroll) body {
   overflow: hidden;
   overscroll-behavior: none;
 }
+
+/* Sayfa geçişi: hafif belirme (yalnız opacity; transform kullanılmaz ki fixed öğeler bozulmasın) */
+@keyframes mp-belir {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.mp-sayfa-gecis { animation: mp-belir 220ms ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  .mp-sayfa-gecis { animation: none; }
+  .mp-perde { backdrop-filter: none !important; }
+}
+/* Yüksek zıtlık: bulanıklık yerine düz koyu perde */
+html[data-theme="yuksek"] .mp-perde { backdrop-filter: none; background-color: rgb(0 0 0 / 0.8); }
+
+/* Hutbe ses kartı ilerleme çubuğu */
+.mp-ses-cubugu { -webkit-appearance: none; appearance: none; height: 6px; border-radius: 999px; cursor: pointer;
+  background: linear-gradient(to right, rgb(var(--c-primary)) var(--oran, 0%), rgb(var(--c-on-surface-variant) / 0.3) var(--oran, 0%)); }
+.mp-ses-cubugu:disabled { cursor: default; opacity: 0.7; }
+.mp-ses-cubugu::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 999px;
+  background: rgb(var(--c-primary)); border: 2px solid rgb(var(--c-surface)); box-shadow: 0 1px 3px rgb(0 0 0 / 0.4); }
+.mp-ses-cubugu::-moz-range-thumb { width: 16px; height: 16px; border-radius: 999px; background: rgb(var(--c-primary));
+  border: 2px solid rgb(var(--c-surface)); }
+.mp-ses-cubugu:focus-visible { outline: 2px solid rgb(var(--c-primary)); outline-offset: 4px; }

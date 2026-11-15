@@ -112,3 +112,27 @@ export function noktaliTarihtenIso(t: string): string {
   const [g, a, y] = t.split(".");
   return `${y}-${a.padStart(2, "0")}-${g.padStart(2, "0")}`;
 }
+
+/** Namaz vakitleri aracının cihazda sakladığı il/ilçe seçimi (vakit şeridi de bunu okur). */
+export const NAMAZ_SECIM_ANAHTAR = "manevi-pusula:namaz-vakitleri:secim:v1";
+
+/** Vakit şeridi etiketi: "İkindiye kalan", "Akşama kalan" ... (TDK: ünlü uyumuna göre yönelme eki). */
+const KALAN_ETIKETI: Record<VakitAnahtari, string> = {
+  imsak: "İmsaka kalan",
+  gunes: "Güneşin doğuşuna kalan",
+  ogle: "Öğleye kalan",
+  ikindi: "İkindiye kalan",
+  aksam: "Akşama kalan",
+  yatsi: "Yatsıya kalan",
+};
+
+export function vakteKalanEtiketi(anahtar: VakitAnahtari): string {
+  return KALAN_ETIKETI[anahtar];
+}
+
+/** Kalan süreyi şerit için "SS:DD" yazar; dakika yukarı yuvarlanır (30 sn kala "00:01"). */
+export function kalanSureKisa(saniye: number): string {
+  const dk = Math.ceil(Math.max(0, saniye) / 60);
+  const iki = (n: number) => String(n).padStart(2, "0");
+  return `${iki(Math.floor(dk / 60))}:${iki(dk % 60)}`;
+}

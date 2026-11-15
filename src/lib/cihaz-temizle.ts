@@ -1,4 +1,5 @@
 import { HAFIZA_STORAGE_KEY } from "./hafiza";
+import { GONUL_DEFTERI_ANAHTAR } from "./sohbet/gonul-defteri";
 
 /**
  * "Bu cihazdan temizle": yalnız bu tarayıcıda görünen sohbet izlerini kaldırır.
@@ -6,7 +7,7 @@ import { HAFIZA_STORAGE_KEY } from "./hafiza";
  * - Sunucudaki kayıtlar SİLİNMEZ (veritabanına dokunulmaz).
  * - Tema, yazı boyu, gizlilik ayarları, KVKK onayı, zikirmatik ve
  *   namaz vakti şehir seçimi korunur.
- * - Hafızam (emanetler ve hal hafızası) da bu cihazdan silinir.
+ * - Hafızam (emanetler ve hal hafızası) ve Gönül Defterim de bu cihazdan silinir.
  * - Yeni bir anonim cihaz kimliği üretilir; böylece sunucudaki eski
  *   profil ve notlar bu cihazda bir daha yüklenmez.
  */
@@ -23,6 +24,7 @@ export const CIHAZDAN_SILINECEK_ANAHTARLAR: readonly string[] = [
   THREADS_STORAGE_KEY,
   PROFILE_STORAGE_KEY,
   HAFIZA_STORAGE_KEY,
+  GONUL_DEFTERI_ANAHTAR,
 ];
 
 /** localStorage ve sessionStorage için ortak, test edilebilir arayüz */

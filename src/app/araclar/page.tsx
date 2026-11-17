@@ -18,6 +18,24 @@ const ARACLAR = [
     aciklama: "114 sure ayet ayet: Arapça metin ve Elmalılı meali, büyük ve kolay okunur yazıyla.",
   },
   {
+    href: "/araclar/esmaul-husna",
+    ikon: "ph-sparkle",
+    baslik: "Esmâü'l-Hüsnâ",
+    aciklama: "Allah'ın 99 güzel ismi: Arapça yazılışı ve anlamı, isim veya anlamla arama.",
+  },
+  {
+    href: "/araclar/dini-gunler",
+    ikon: "ph-calendar-star",
+    baslik: "Dini Günler",
+    aciklama: "Kandiller ve bayramlar Diyanet takvimiyle; sıradaki mübarek güne kaç gün kaldığı.",
+  },
+  {
+    href: "/araclar/kitaplik",
+    ikon: "ph-books",
+    baslik: "Kitaplık",
+    aciklama: "Kur'an, Esmâü'l-Hüsnâ, hutbeler ve Diyanet'in ücretsiz okunan resmi kaynakları.",
+  },
+  {
     href: "/araclar/namaz-vakitleri",
     ikon: "ph-clock",
     baslik: "Namaz Vakitleri",

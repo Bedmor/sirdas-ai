@@ -69,11 +69,14 @@ export default function RootLayout({
   return (
     <html
       lang="tr"
+      translate="no"
       className="dark"
       style={{ scrollBehavior: "smooth" }}
       suppressHydrationWarning
     >
       <head>
+        {/* Tarayıcı çeviri eklentileri sayfayı değiştirip uygulamayı çökertebiliyor */}
+        <meta name="google" content="notranslate" />
         <script dangerouslySetInnerHTML={{ __html: yaziBoyutuBetigi + temaBetigi }} />
       </head>
       <body

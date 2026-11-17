@@ -1,0 +1,596 @@
+[
+{
+"no": 1,
+"ad": "Allah",
+"arapca": "ٱللَّهُ",
+"anlam": "Varlığı zorunlu olan, bütün güzel sıfatları kendinde toplayan yüce varlığın özel adıdır. Başka hiçbir varlık için kullanılmaz."
+},
+{
+"no": 2,
+"ad": "er-Rahmân",
+"arapca": "ٱلرَّحْمَٰنُ",
+"anlam": "Dünyada bütün yaratılmışlara ayrım yapmadan merhamet eden, nimet veren."
+},
+{
+"no": 3,
+"ad": "er-Rahîm",
+"arapca": "ٱلرَّحِيمُ",
+"anlam": "Merhamet eden; özellikle ahirette müminlere rahmetini sürekli kılan."
+},
+{
+"no": 4,
+"ad": "el-Melik",
+"arapca": "ٱلْمَلِكُ",
+"anlam": "Bütün varlıkların gerçek sahibi ve hükümdarı, egemenliği sınırsız ve sonsuz olan."
+},
+{
+"no": 5,
+"ad": "el-Kuddûs",
+"arapca": "ٱلْقُدُّوسُ",
+"anlam": "Her türlü eksiklik ve kusurdan arınmış, tertemiz olan."
+},
+{
+"no": 6,
+"ad": "es-Selâm",
+"arapca": "ٱلسَّلَامُ",
+"anlam": "Her türlü kusurdan uzak olan ve kullarına esenlik veren."
+},
+{
+"no": 7,
+"ad": "el-Mü'min",
+"arapca": "ٱلْمُؤْمِنُ",
+"anlam": "Kullarına güven veren, onları korkudan emin kılan ve vaadine sadık olan."
+},
+{
+"no": 8,
+"ad": "el-Müheymin",
+"arapca": "ٱلْمُهَيْمِنُ",
+"anlam": "Bütün varlıkları gözetip koruyan ve kâinatın işlerini yöneten."
+},
+{
+"no": 9,
+"ad": "el-Azîz",
+"arapca": "ٱلْعَزِيزُ",
+"anlam": "Mutlak güç ve üstünlük sahibi, hiçbir şeyin yenemeyeceği."
+},
+{
+"no": 10,
+"ad": "el-Cebbâr",
+"arapca": "ٱلْجَبَّارُ",
+"anlam": "İradesini her şeye yürüten; kırılanı onaran, eksiği tamamlayan."
+},
+{
+"no": 11,
+"ad": "el-Mütekebbir",
+"arapca": "ٱلْمُتَكَبِّرُ",
+"anlam": "Büyüklükte eşi olmayan ve yüceliğini her şeyde gösteren."
+},
+{
+"no": 12,
+"ad": "el-Hâlık",
+"arapca": "ٱلْخَالِقُ",
+"anlam": "Her şeyi bir ölçüye göre yoktan yaratan."
+},
+{
+"no": 13,
+"ad": "el-Bâri'",
+"arapca": "ٱلْبَارِئُ",
+"anlam": "Varlıkları birbirinden farklı, uyumlu ve kusursuz biçimde yaratan."
+},
+{
+"no": 14,
+"ad": "el-Musavvir",
+"arapca": "ٱلْمُصَوِّرُ",
+"anlam": "Yarattıklarına dilediği biçim ve özelliği veren."
+},
+{
+"no": 15,
+"ad": "el-Gaffâr",
+"arapca": "ٱلْغَفَّارُ",
+"anlam": "Günahları tekrar tekrar bağışlayan, kusurları örten."
+},
+{
+"no": 16,
+"ad": "el-Kahhâr",
+"arapca": "ٱلْقَهَّارُ",
+"anlam": "Her şeye galip gelen, karşı koyanları kahreden."
+},
+{
+"no": 17,
+"ad": "el-Vehhâb",
+"arapca": "ٱلْوَهَّابُ",
+"anlam": "Karşılık beklemeden bol bol veren, ihsanı sürekli olan."
+},
+{
+"no": 18,
+"ad": "er-Rezzâk",
+"arapca": "ٱلرَّزَّاقُ",
+"anlam": "Bütün canlılara rızık veren ve rızkı yaratan."
+},
+{
+"no": 19,
+"ad": "el-Fettâh",
+"arapca": "ٱلْفَتَّاحُ",
+"anlam": "Hayır ve rahmet kapılarını açan, kulları arasında hükmeden."
+},
+{
+"no": 20,
+"ad": "el-Alîm",
+"arapca": "ٱلْعَلِيمُ",
+"anlam": "Gizli ve açık her şeyi bütün ayrıntısıyla bilen."
+},
+{
+"no": 21,
+"ad": "el-Kâbız",
+"arapca": "ٱلْقَابِضُ",
+"anlam": "Dilediğine rızkı daraltan ve canları alan."
+},
+{
+"no": 22,
+"ad": "el-Bâsıt",
+"arapca": "ٱلْبَاسِطُ",
+"anlam": "Dilediğine rızkı ve imkânı genişleten."
+},
+{
+"no": 23,
+"ad": "el-Hâfıd",
+"arapca": "ٱلْخَافِضُ",
+"anlam": "Dilediğini, özellikle haddi aşanları alçaltan."
+},
+{
+"no": 24,
+"ad": "er-Râfi'",
+"arapca": "ٱلرَّافِعُ",
+"anlam": "Dilediğini yücelten, derecesini yükselten."
+},
+{
+"no": 25,
+"ad": "el-Muiz",
+"arapca": "ٱلْمُعِزُّ",
+"anlam": "Dilediğine izzet ve şeref veren."
+},
+{
+"no": 26,
+"ad": "el-Müzil",
+"arapca": "ٱلْمُذِلُّ",
+"anlam": "Dilediğini zillete düşüren, değersiz kılan."
+},
+{
+"no": 27,
+"ad": "es-Semî'",
+"arapca": "ٱلسَّمِيعُ",
+"anlam": "Hiçbir organa ve araca ihtiyaç duymadan gizli açık her sesi ve sözü işiten."
+},
+{
+"no": 28,
+"ad": "el-Basîr",
+"arapca": "ٱلْبَصِيرُ",
+"anlam": "Hiçbir organa ve araca ihtiyaç duymadan gizli açık her şeyi gören."
+},
+{
+"no": 29,
+"ad": "el-Hakem",
+"arapca": "ٱلْحَكَمُ",
+"anlam": "Son ve kesin hükmü veren, hak ile batılı ayıran."
+},
+{
+"no": 30,
+"ad": "el-Adl",
+"arapca": "ٱلْعَدْلُ",
+"anlam": "Tam adalet sahibi, hiçbir şekilde haksızlık etmeyen."
+},
+{
+"no": 31,
+"ad": "el-Latîf",
+"arapca": "ٱللَّطِيفُ",
+"anlam": "En ince işleri bilen, kullarına lütfunu ve yardımını fark ettirmeden ulaştıran."
+},
+{
+"no": 32,
+"ad": "el-Habîr",
+"arapca": "ٱلْخَبِيرُ",
+"anlam": "Her şeyin iç yüzünden ve gizli yönlerinden haberdar olan."
+},
+{
+"no": 33,
+"ad": "el-Halîm",
+"arapca": "ٱلْحَلِيمُ",
+"anlam": "Cezalandırmada acele etmeyen, yumuşak davranan ve süre tanıyan."
+},
+{
+"no": 34,
+"ad": "el-Azîm",
+"arapca": "ٱلْعَظِيمُ",
+"anlam": "Zatı ve sıfatlarıyla ulu, büyüklüğü akılla kavranamayan."
+},
+{
+"no": 35,
+"ad": "el-Gafûr",
+"arapca": "ٱلْغَفُورُ",
+"anlam": "Çok bağışlayan, günahları affedip örten."
+},
+{
+"no": 36,
+"ad": "eş-Şekûr",
+"arapca": "ٱلشَّكُورُ",
+"anlam": "Az iyiliğe bile çok karşılık veren, yapılan iyiliği ödüllendiren."
+},
+{
+"no": 37,
+"ad": "el-Alî",
+"arapca": "ٱلْعَلِيُّ",
+"anlam": "Zatı ve sıfatlarıyla her şeyden yüce, en üstün olan."
+},
+{
+"no": 38,
+"ad": "el-Kebîr",
+"arapca": "ٱلْكَبِيرُ",
+"anlam": "Zatı ve sıfatlarıyla büyük, her şeyden büyük olan."
+},
+{
+"no": 39,
+"ad": "el-Hafîz",
+"arapca": "ٱلْحَفِيظُ",
+"anlam": "Varlıkları koruyan, gözeten ve her şeyi kayıt altında tutan."
+},
+{
+"no": 40,
+"ad": "el-Mukît",
+"arapca": "ٱلْمُقِيتُ",
+"anlam": "Canlıların gıdasını veren, onları koruyan ve gözeten."
+},
+{
+"no": 41,
+"ad": "el-Hasîb",
+"arapca": "ٱلْحَسِيبُ",
+"anlam": "Kullarına yeten ve onlardan hesap soran."
+},
+{
+"no": 42,
+"ad": "el-Celîl",
+"arapca": "ٱلْجَلِيلُ",
+"anlam": "Azamet ve celal sahibi, ululuğu her şeyi kuşatan."
+},
+{
+"no": 43,
+"ad": "el-Kerîm",
+"arapca": "ٱلْكَرِيمُ",
+"anlam": "Son derece cömert, ikramı ve lütfu bol, değerli olan."
+},
+{
+"no": 44,
+"ad": "er-Rakîb",
+"arapca": "ٱلرَّقِيبُ",
+"anlam": "Her şeyi her an gözetleyen ve denetleyen."
+},
+{
+"no": 45,
+"ad": "el-Mücîb",
+"arapca": "ٱلْمُجِيبُ",
+"anlam": "Dualara ve isteklere karşılık veren."
+},
+{
+"no": 46,
+"ad": "el-Vâsi'",
+"arapca": "ٱلْوَاسِعُ",
+"anlam": "İlmi, rahmeti ve ihsanı her şeyi kuşatacak kadar geniş olan."
+},
+{
+"no": 47,
+"ad": "el-Hakîm",
+"arapca": "ٱلْحَكِيمُ",
+"anlam": "Her işi hikmetli, yerli yerinde ve amaca uygun olan."
+},
+{
+"no": 48,
+"ad": "el-Vedûd",
+"arapca": "ٱلْوَدُودُ",
+"anlam": "Kullarını çok seven ve sevilmeye layık olan."
+},
+{
+"no": 49,
+"ad": "el-Mecîd",
+"arapca": "ٱلْمَجِيدُ",
+"anlam": "Şanı yüce, şerefi ve ikramı bol olan."
+},
+{
+"no": 50,
+"ad": "el-Bâis",
+"arapca": "ٱلْبَاعِثُ",
+"anlam": "Ölüleri yeniden dirilten, peygamberler gönderen."
+},
+{
+"no": 51,
+"ad": "eş-Şehîd",
+"arapca": "ٱلشَّهِيدُ",
+"anlam": "Her şeye şahit olan, hiçbir şey kendisinden gizli kalmayan."
+},
+{
+"no": 52,
+"ad": "el-Hak",
+"arapca": "ٱلْحَقُّ",
+"anlam": "Varlığı gerçek ve değişmez olan, sözü ve hükmü doğru olan."
+},
+{
+"no": 53,
+"ad": "el-Vekîl",
+"arapca": "ٱلْوَكِيلُ",
+"anlam": "Kendisine güvenilip dayanılan, işleri en iyi şekilde yürüten."
+},
+{
+"no": 54,
+"ad": "el-Kavî",
+"arapca": "ٱلْقَوِيُّ",
+"anlam": "Gücü tam ve kusursuz olan, hiçbir şeyden yorulmayan."
+},
+{
+"no": 55,
+"ad": "el-Metîn",
+"arapca": "ٱلْمَتِينُ",
+"anlam": "Gücü sağlam ve sarsılmaz olan."
+},
+{
+"no": 56,
+"ad": "el-Velî",
+"arapca": "ٱلْوَلِيُّ",
+"anlam": "Müminlerin dostu, yardımcısı ve koruyucusu."
+},
+{
+"no": 57,
+"ad": "el-Hamîd",
+"arapca": "ٱلْحَمِيدُ",
+"anlam": "Her türlü övgüye layık olan."
+},
+{
+"no": 58,
+"ad": "el-Muhsî",
+"arapca": "ٱلْمُحْصِي",
+"anlam": "Her şeyin sayısını ve ayrıntısını tek tek bilen."
+},
+{
+"no": 59,
+"ad": "el-Mübdi'",
+"arapca": "ٱلْمُبْدِئُ",
+"anlam": "Varlıkları ilk defa yaratan."
+},
+{
+"no": 60,
+"ad": "el-Muîd",
+"arapca": "ٱلْمُعِيدُ",
+"anlam": "Yok ettiğini yeniden yaratan, ölümden sonra tekrar dirilten."
+},
+{
+"no": 61,
+"ad": "el-Muhyî",
+"arapca": "ٱلْمُحْيِي",
+"anlam": "Hayat veren, canlılara can bağışlayan."
+},
+{
+"no": 62,
+"ad": "el-Mümît",
+"arapca": "ٱلْمُمِيتُ",
+"anlam": "Canlıların hayatına son veren, ölümü yaratan."
+},
+{
+"no": 63,
+"ad": "el-Hay",
+"arapca": "ٱلْحَيُّ",
+"anlam": "Ezelî ve ebedî hayat sahibi, diri olan."
+},
+{
+"no": 64,
+"ad": "el-Kayyûm",
+"arapca": "ٱلْقَيُّومُ",
+"anlam": "Kendi zatıyla var olan, her şeyi ayakta tutan ve yöneten."
+},
+{
+"no": 65,
+"ad": "el-Vâcid",
+"arapca": "ٱلْوَاجِدُ",
+"anlam": "Dilediğini dilediği anda bulan, hiçbir şeye muhtaç olmayan."
+},
+{
+"no": 66,
+"ad": "el-Mâcid",
+"arapca": "ٱلْمَاجِدُ",
+"anlam": "Şanı ve şerefi yüce, cömertliği bol olan."
+},
+{
+"no": 67,
+"ad": "el-Vâhid",
+"arapca": "ٱلْوَاحِدُ",
+"anlam": "Zatında, sıfatlarında ve işlerinde tek, eşi ve benzeri olmayan."
+},
+{
+"no": 68,
+"ad": "es-Samed",
+"arapca": "ٱلصَّمَدُ",
+"anlam": "Hiçbir şeye muhtaç olmayan, her şeyin kendisine muhtaç olduğu ve yöneldiği."
+},
+{
+"no": 69,
+"ad": "el-Kâdir",
+"arapca": "ٱلْقَادِرُ",
+"anlam": "Gücü her şeye yeten."
+},
+{
+"no": 70,
+"ad": "el-Muktedir",
+"arapca": "ٱلْمُقْتَدِرُ",
+"anlam": "Kudreti kusursuz, her şeyi dilediği gibi yapmaya güç yetiren."
+},
+{
+"no": 71,
+"ad": "el-Mukaddim",
+"arapca": "ٱلْمُقَدِّمُ",
+"anlam": "Dilediğini öne alan, öne geçiren."
+},
+{
+"no": 72,
+"ad": "el-Muahhir",
+"arapca": "ٱلْمُؤَخِّرُ",
+"anlam": "Dilediğini geriye bırakan, erteleyen."
+},
+{
+"no": 73,
+"ad": "el-Evvel",
+"arapca": "ٱلْأَوَّلُ",
+"anlam": "Varlığının başlangıcı olmayan, her şeyden önce var olan."
+},
+{
+"no": 74,
+"ad": "el-Âhir",
+"arapca": "ٱلْآخِرُ",
+"anlam": "Varlığının sonu olmayan, her şeyden sonra da var olacak olan."
+},
+{
+"no": 75,
+"ad": "ez-Zâhir",
+"arapca": "ٱلظَّاهِرُ",
+"anlam": "Varlığı delilleriyle apaçık ve belli olan."
+},
+{
+"no": 76,
+"ad": "el-Bâtın",
+"arapca": "ٱلْبَاطِنُ",
+"anlam": "Zatı akılla ve duyularla kavranamayan, gizli olan; her şeyin iç yüzünü bilen."
+},
+{
+"no": 77,
+"ad": "el-Vâlî",
+"arapca": "ٱلْوَالِي",
+"anlam": "Bütün kâinatı yöneten ve idare eden."
+},
+{
+"no": 78,
+"ad": "el-Müteâlî",
+"arapca": "ٱلْمُتَعَالِي",
+"anlam": "Yaratılmışlara ait her türlü eksiklikten çok yüce olan."
+},
+{
+"no": 79,
+"ad": "el-Berr",
+"arapca": "ٱلْبَرُّ",
+"anlam": "İyiliği bol olan, kullarına iyilik eden ve vaadine sadık kalan."
+},
+{
+"no": 80,
+"ad": "et-Tevvâb",
+"arapca": "ٱلتَّوَّابُ",
+"anlam": "Tövbeleri çokça kabul eden, kullarını tövbeye yönelten."
+},
+{
+"no": 81,
+"ad": "el-Müntakim",
+"arapca": "ٱلْمُنْتَقِمُ",
+"anlam": "Suçluları hak ettikleri şekilde cezalandıran."
+},
+{
+"no": 82,
+"ad": "el-Afüv",
+"arapca": "ٱلْعَفُوُّ",
+"anlam": "Günahları affedip tamamen silen."
+},
+{
+"no": 83,
+"ad": "er-Raûf",
+"arapca": "ٱلرَّءُوفُ",
+"anlam": "Kullarına karşı çok şefkatli ve merhametli olan."
+},
+{
+"no": 84,
+"ad": "Mâlikü'l-mülk",
+"arapca": "مَالِكُ ٱلْمُلْكِ",
+"anlam": "Bütün mülkün gerçek sahibi, mülkünde dilediği gibi tasarruf eden."
+},
+{
+"no": 85,
+"ad": "Zü'l-celâli ve'l-ikrâm",
+"arapca": "ذُو ٱلْجَلَالِ وَٱلْإِكْرَامِ",
+"anlam": "Azamet ve yücelik ile ikram ve lütuf sahibi olan."
+},
+{
+"no": 86,
+"ad": "el-Muksit",
+"arapca": "ٱلْمُقْسِطُ",
+"anlam": "Her işi adaletle ve yerli yerince yapan."
+},
+{
+"no": 87,
+"ad": "el-Câmi'",
+"arapca": "ٱلْجَامِعُ",
+"anlam": "Dilediğini bir araya toplayan, insanları kıyamet günü bir araya getiren."
+},
+{
+"no": 88,
+"ad": "el-Ganî",
+"arapca": "ٱلْغَنِيُّ",
+"anlam": "Hiçbir şeye muhtaç olmayan, her bakımdan zengin olan."
+},
+{
+"no": 89,
+"ad": "el-Mugnî",
+"arapca": "ٱلْمُغْنِي",
+"anlam": "Dilediğini zengin kılan, ihtiyaçtan kurtaran."
+},
+{
+"no": 90,
+"ad": "el-Mâni'",
+"arapca": "ٱلْمَانِعُ",
+"anlam": "Dilemediği şeyin olmasına engel olan."
+},
+{
+"no": 91,
+"ad": "ed-Dâr",
+"arapca": "ٱلضَّارُّ",
+"anlam": "Hikmeti gereği dilediğine zarar ve sıkıntı veren; zarar da fayda da yalnız O'nun yaratmasıyla olur."
+},
+{
+"no": 92,
+"ad": "en-Nâfi'",
+"arapca": "ٱلنَّافِعُ",
+"anlam": "Dilediğine fayda veren, hayır ulaştıran."
+},
+{
+"no": 93,
+"ad": "en-Nûr",
+"arapca": "ٱلنُّورُ",
+"anlam": "Göklerin ve yerin nuru olan; varlıkları var edip ortaya çıkaran, kalplere hidayet veren."
+},
+{
+"no": 94,
+"ad": "el-Hâdî",
+"arapca": "ٱلْهَادِي",
+"anlam": "Doğru yolu gösteren ve ona ileten."
+},
+{
+"no": 95,
+"ad": "el-Bedî'",
+"arapca": "ٱلْبَدِيعُ",
+"anlam": "Örneği olmayan eşsiz varlıklar yaratan."
+},
+{
+"no": 96,
+"ad": "el-Bâkî",
+"arapca": "ٱلْبَاقِي",
+"anlam": "Varlığı sonsuz olan, yok olmayan."
+},
+{
+"no": 97,
+"ad": "el-Vâris",
+"arapca": "ٱلْوَارِثُ",
+"anlam": "Her şey yok olduktan sonra baki kalan, her şeyin asıl sahibi."
+},
+{
+"no": 98,
+"ad": "er-Reşîd",
+"arapca": "ٱلرَّشِيدُ",
+"anlam": "Her işi doğru ve yerinde olan, kullarını doğru yola ileten."
+},
+{
+"no": 99,
+"ad": "es-Sabûr",
+"arapca": "ٱلصَّبُورُ",
+"anlam": "Cezalandırmada acele etmeyen, her şeyi takdir ettiği vakte bırakan."
+}
+]

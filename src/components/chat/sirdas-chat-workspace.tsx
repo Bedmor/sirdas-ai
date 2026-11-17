@@ -11,7 +11,7 @@ import { MiniOynatici } from "@/components/kabuk/ses-oynatici";
 import { GonulDefterimSatiri, MenuGorunumBolumu } from "@/components/kabuk/menu-cekmecesi";
 import { SesliDinleDugmesi } from "./sesli-dinle-dugmesi";
 import { GonulDefteriDugmesi } from "./gonul-defteri-dugmesi";
-import { GONUL_DEFTERI_OLAY } from "@/lib/sohbet/gonul-defteri";
+import { GONUL_DEFTERI_OLAY, GONUL_DEFTERI_ANAHTAR } from "@/lib/sohbet/gonul-defteri";
 import { SourceBookModal } from "./source-book-modal";
 import {
   SafetyNoticeBox,
@@ -40,6 +40,7 @@ import {
   SETTINGS_STORAGE_KEY,
   PROFILE_STORAGE_KEY,
   cihazdanTemizle,
+  CIHAZDAN_SILINECEK_ANAHTARLAR,
 } from "@/lib/cihaz-temizle";
 import { metniBloklaraAyir } from "@/lib/sohbet/metin-bicim";
 import { BASLANGIC_CIPLERI, geceGecMi, hizliYanitlar, type HizliYanit } from "@/lib/sohbet/hizli-yanitlar";
@@ -565,6 +566,9 @@ export function SirdasChatWorkspace() {
         localStorage.removeItem(THREADS_STORAGE_KEY);
         localStorage.removeItem(PROFILE_STORAGE_KEY);
         hafizaSil(localStorage);
+        // KVKK (18.11): "Tüm verilerimi sil" Gönül Defteri kayıtlarını da silmeli.
+        localStorage.removeItem(GONUL_DEFTERI_ANAHTAR);
+        window.dispatchEvent(new Event(GONUL_DEFTERI_OLAY));
         const newClient = generateClientUuid();
         localStorage.setItem(CLIENT_ID_STORAGE_KEY, newClient);
         setClientId(newClient);
@@ -788,7 +792,11 @@ export function SirdasChatWorkspace() {
 
     const handleWindowClose = () => {
       try {
-        localStorage.removeItem(THREADS_STORAGE_KEY);
+        // KVKK (18.11): "Kapanınca sil" yalnız sohbetleri değil profili, hafızayı ve
+        // Gönül Defteri'ni de bu cihazdan siler.
+        for (const anahtar of CIHAZDAN_SILINECEK_ANAHTARLAR) {
+          localStorage.removeItem(anahtar);
+        }
         if (navigator.sendBeacon) {
           const payload = JSON.stringify({ clientId, action: "purge" });
           const blob = new Blob([payload], { type: "application/json" });

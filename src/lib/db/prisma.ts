@@ -601,7 +601,7 @@ function createResilientPrisma(client: PrismaClient): PrismaClient {
         }
       ),
     findMany: (args?: {
-      where?: { userId?: string; role?: string };
+      where?: { userId?: string; role?: string; user?: { phoneNumber?: string } };
       take?: number;
       orderBy?: { createdAt?: "asc" | "desc" };
       include?: { user?: boolean | { select?: { phoneNumber?: boolean } } };
@@ -612,6 +612,14 @@ function createResilientPrisma(client: PrismaClient): PrismaClient {
         () => {
           const db = getInMemoryDb();
           let list = Array.from(db.messages.values());
+          // Güvenlik (18.11): "user.phoneNumber" süzgeci yedek modda yok sayılıyordu; başka
+          // ziyaretçilerin mesajları yeni ziyaretçinin bağlamına karışabiliyordu.
+          if (args?.where?.user) {
+            const tel = args.where.user.phoneNumber;
+            list = tel
+              ? list.filter((m) => db.users.get(m.userId)?.phoneNumber === tel)
+              : [];
+          }
           if (args?.where?.userId) {
             list = list.filter((m) => m.userId === args.where?.userId);
           }

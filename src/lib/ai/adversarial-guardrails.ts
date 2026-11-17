@@ -141,7 +141,8 @@ const CONFESSION_INTERMEDIARY_PATTERNS: ReadonlyArray<RegExp> = [
 const REVENGE_HARM_PATTERNS: ReadonlyArray<RegExp> = [
   /zarar\s*ver\w*\s*(ist|kork|d[üu][şs][üu]n|ak[ıi]l|niyet|plan|ge[çc]|meyil|koydum)/i,
   /zararver\w*/i,
-  /(birine|birisine|ba[şs]kas[ıi]na|ona|onlara|babama|e[şs]ime|bir\s*insana)?\s*zarar\s*ver/i,
+  // Hedef kişi şart: "bedenine zarar verdiği" gibi genel cümleler kriz sayılmasın (18.11, uzay istasyonu sorusu).
+  /(?:^|\s)(birine|birisine|ba[şs]kas[ıi]na|ona|onlara|babama|e[şs]ime|bir\s*insana)\s*zarar\s*ver/i,
   /gizlice\s*zarar\s*ver/i,
   /(hayat[ıi]n[ıi]|hayatlar[ıi]n[ıi])\s*karart\w*/i,
   /(can[ıi]n[ıi]|canlar[ıi]n[ıi])\s*yak\w*\s*(ist|kork|d[üu][şs][üu]n|ak[ıi]l|niyet|plan|ge[çc])?/i,

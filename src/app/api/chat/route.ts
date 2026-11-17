@@ -27,9 +27,10 @@ import { sanitizeIncomingUserMessage } from "@/lib/ai/pii-anonymizer";
 import {
   resolveSirdasChatActor,
   purgeSirdasActorData,
-  purgeExpiredSirdasRecords,
   SIRDAS_CLIENT_COOKIE,
 } from "@/lib/auth/better-auth-ready";
+import { checkRateLimit } from "@/lib/utils/rate-limit";
+import { ipAnahtari } from "@/app/api/dua-havuzu/ortak";
 import {
   appendSafetyFootnote,
   isSafetyTriageRule,
@@ -183,13 +184,9 @@ export async function GET(req: NextRequest) {
     const conversationId = req.nextUrl.searchParams.get("conversationId");
     const userKey = `web_chat_${actor.clientId}`;
 
-    // 3. Zaman Ayarlı Kendini İmhâ (TTL): Yalnızca kullanıcı açıkça TTL seçtiyse (>0) çalıştır;
-    // varsayılan olarak web kullanıcıları kalıcı (gerçek) hesap statüsündedir (ttlHours = 0).
-    const ttlParam = req.nextUrl.searchParams.get("ttlHours");
-    const ttlHours = ttlParam !== null ? Math.max(0, Number(ttlParam)) : 0;
-    if (ttlHours > 0) {
-      purgeExpiredSirdasRecords(ttlHours).catch(() => {});
-    }
+    // Güvenlik (18.11): Eskiden ?ttlHours=... ile herkes TÜM ziyaretçilerin eski kayıtlarını
+    // silebiliyordu. Zaman ayarlı silme cihazda yapılıyor (sirdas-chat-workspace), sunucuda
+    // dışarıdan tetiklenen toplu silme kaldırıldı.
 
     const existingUser = await prisma.user.findUnique({
       where: { phoneNumber: userKey },
@@ -378,6 +375,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Güvenlik (18.11): Yapay zekâ faturasını korumak için kişi (IP) başına soru sınırı.
+    // Dakikada 8, saatte 60 soru; gerçek bir kullanıcı bu sınıra takılmaz.
+    {
+      const ipKey = ipAnahtari(req, "sohbet");
+      const dakika = checkRateLimit(`${ipKey}:dk`, 8, 60_000);
+      const saat = dakika.allowed
+        ? checkRateLimit(`${ipKey}:sa`, 60, 60 * 60_000)
+        : dakika;
+      if (!dakika.allowed || !saat.allowed) {
+        return NextResponse.json(
+          {
+            error: "RATE_LIMITED",
+            message:
+              "Çok sık soru geldi aziz kardeşim, biraz soluklanalım. Birkaç dakika sonra yeniden yazabilirsiniz.",
+          },
+          {
+            status: 429,
+            headers: {
+              "Retry-After": String(Math.ceil((dakika.allowed ? saat : dakika).resetInMs / 1000)),
+            },
+          }
+        );
+      }
+    }
+
     // PII & Dolaylı Kimlik Maskeleme Süzgeci
     const anonymization = sanitizeIncomingUserMessage(rawMessage);
     const safeMessage = anonymization.sanitizedText;
@@ -420,14 +442,18 @@ export async function POST(req: NextRequest) {
     const rawHistory: unknown[] = Array.isArray(body.history)
       ? body.history
       : [];
-    const validRawHistory = rawHistory.filter(
-      (item: unknown): item is { role: string; content: string } =>
-        Boolean(
-          item &&
-            typeof item === "object" &&
-            typeof (item as { content?: unknown }).content === "string"
-        )
-    );
+    // Güvenlik (18.11): Tarayıcıdan gelen geçmiş sınırsızdı; son 20 mesaj ve mesaj başı 2.000 karakter.
+    const validRawHistory = rawHistory
+      .filter(
+        (item: unknown): item is { role: string; content: string } =>
+          Boolean(
+            item &&
+              typeof item === "object" &&
+              typeof (item as { content?: unknown }).content === "string"
+          )
+      )
+      .slice(-20)
+      .map((item) => ({ ...item, content: item.content.slice(0, 2000) }));
 
     // Gece Geç Saat + Mesaj Sınırı Birlikte Kontrolü (Tatlı Fesih Tespiti)
     const resolveUserLocalTime = (): { hour: number; minute: number } => {

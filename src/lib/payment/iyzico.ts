@@ -139,8 +139,11 @@ export function verifyIyzicoWebhook(body: Record<string, unknown>): {
   const rawStatus = String(body.status || "SUCCESS").toUpperCase();
   const status = rawStatus === "SUCCESS" ? "SUCCESS" : "FAILED";
 
+  // Güvenlik (18.11): Bildirimde imza yok; gövdeye güvenip bağışı "ödendi" yapmak sahteciliğe açıktı.
+  // Bağış açılmadan önce ödeme iyzico'nun kendi sorgusuyla (retrieve payment) doğrulanmalı.
+  // O zamana kadar iyzico bildirimi hiçbir kaydı değiştirmez.
   return {
-    isValid: Boolean(paymentId),
+    isValid: false,
     paymentId,
     status,
   };

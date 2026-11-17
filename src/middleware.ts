@@ -41,7 +41,21 @@ function unauthorized(): NextResponse {
 export async function middleware(req: NextRequest) {
   // Askıda Pusula kapalıyken sayfa ana sayfaya döner, ödeme ucu kapalı yanıt verir.
   const yol = req.nextUrl.pathname;
-  if (yol.startsWith("/askida-sirdas") || yol.startsWith("/api/donation")) {
+
+  // Güvenlik (18.11): Eski "deneme sohbeti" ucunu hiçbir sayfa kullanmıyor; başkasının deneme
+  // sohbetini gösterebiliyor ve şifresiz yapay zekâ harcatıyordu. Kapalı.
+  if (yol.startsWith("/api/trial")) {
+    return NextResponse.json(
+      { success: false, error: "Bu özellik kapalı." },
+      { status: 410 }
+    );
+  }
+
+  if (
+    yol.startsWith("/askida-sirdas") ||
+    yol.startsWith("/api/donation") ||
+    yol.startsWith("/api/webhook/payment")
+  ) {
     if (BAGIS_AKTIF) return NextResponse.next();
     if (yol.startsWith("/api/")) {
       return NextResponse.json(
@@ -93,5 +107,8 @@ export const config = {
     "/askida-sirdas",
     "/askida-sirdas/:path*",
     "/api/donation/:path*",
+    "/api/webhook/payment",
+    "/api/trial",
+    "/api/trial/:path*",
   ],
 };

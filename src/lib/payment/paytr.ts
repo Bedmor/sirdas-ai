@@ -148,8 +148,15 @@ export function verifyPayTrHash(payload: PayTrNotificationPayload): {
 
   const normalizedStatus = status === "success" ? "SUCCESS" : "FAILED";
 
-  // If credentials are fully configured (and not placeholders), require hash and verify signature
-  if (!isPlaceholderCred(merchantKey) && !isPlaceholderCred(merchantSalt)) {
+  // Güvenlik (18.11): Anahtar ayarlı değilse bildirim REDDEDİLİR (eskiden imzasız kabul ediliyordu).
+  if (isPlaceholderCred(merchantKey) || isPlaceholderCred(merchantSalt)) {
+    return {
+      isValid: false,
+      status: normalizedStatus,
+      reason: "PayTR credentials not configured",
+    };
+  }
+  {
     if (!hash) {
       return {
         isValid: false,

@@ -129,6 +129,21 @@ export function geceDavetiYapildiMi(asistanCevaplari: ReadonlyArray<string>, son
   return asistanCevaplari.slice(-sonKac).some((c) => GECE_DAVETI_IZI.test(c || ""));
 }
 
+/**
+ * Süslü ve ağır kelimelerin sohbet içinde tekrarı.
+ * Adnan abi 17.11: "fıtrî" kelimesini çok sık kullanıyor. Bir kez geçtiyse
+ * aynı sohbette tekrar kullanılmaz.
+ */
+export const SIK_SOZLER: ReadonlyArray<{ etiket: string; iz: RegExp }> = [
+  { etiket: "fıtrî / fıtrat", iz: /f[ıi]tr(?:[îiıa]|at)/i },
+  { etiket: "aziz dostum", iz: /aziz\s+dost/i },
+];
+
+export function tekrarlananSozler(asistanCevaplari: ReadonlyArray<string>, sonKac = 8): string[] {
+  const son = asistanCevaplari.slice(-sonKac);
+  return SIK_SOZLER.filter((s) => son.some((c) => s.iz.test(c || ""))).map((s) => s.etiket);
+}
+
 /** Verilen anın Europe/Istanbul saatini döndürür. */
 export function turkiyeSaati(an: Date = new Date()): { saat: number; dakika: number } {
   const parcalar = new Intl.DateTimeFormat("en-US", {

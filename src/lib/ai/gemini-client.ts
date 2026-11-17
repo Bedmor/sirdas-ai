@@ -651,7 +651,7 @@ export function runMockGeminiReply(
     "HUZUNLU_VE_KIRGIN"
   ) {
     whatsappReply =
-      `Kalbi incinen insanın gözyaşı dökmesi ve bir müddet durulmaya ihtiyaç duyması çok insani ve fıtrîdir kardeşim; acele etmeyin.\n\n` +
+      `Kalbi incinen insanın gözyaşı dökmesi ve bir müddet durulmaya ihtiyaç duyması çok insanidir kardeşim; acele etmeyin.\n\n` +
       `Hüzün Yılı'nda kalbi daralan Peygamberimiz'e (s.a.v.) inen şu ilahi şefkat bugün de geçerlidir: _'Rabbin seni terk etmedi ve sana darılmadı... Şüphesiz zorlukla beraber bir kolaylık vardır.'_ (Duhâ 3, İnşirah 5).\n\n` +
       `Şu an her şeyi bir anda çözmek zorunda değilsiniz. Kırılan yerlerinizi şefkatle saracak olan El-Cebbâr'a sığının; Rabbim kalbinize dingin bir ferahlık ve inşirah indirsin.`;
   } else if (

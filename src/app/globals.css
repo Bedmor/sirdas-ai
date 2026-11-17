@@ -113,9 +113,10 @@
   }
 
   /* Browser Surfaces Craft */
+  /* Seçilen yazı her zeminde net görünsün (Adnan abi 17.11: soru balonunda seçim görünmüyordu). */
   ::selection {
-    background-color: rgb(var(--c-primary) / 0.28);
-    color: rgb(var(--c-on-surface));
+    background-color: rgb(var(--c-primary));
+    color: rgb(var(--c-on-primary));
   }
 
   ::-webkit-scrollbar {

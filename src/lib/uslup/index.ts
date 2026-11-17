@@ -15,6 +15,7 @@ import {
   kusakTespit,
   oncekiAcilislar,
   sessizKarartmaTespit,
+  tekrarlananSozler,
   yalnizlastirmaTespit,
   type Kusak,
 } from "./siniflandirici";
@@ -57,6 +58,8 @@ export interface UslupAnalizi {
   dongu: boolean;
   donguBenzerlik: number;
   kalipAcilislar: string[];
+  /** Bu sohbette zaten kullanılan süslü kelimeler (fıtrî vb.). */
+  sikSozler: string[];
   yalnizlastirma: boolean;
   ilkMesaj: boolean;
   kapanis: boolean;
@@ -93,6 +96,7 @@ export function uslupAnalizEt(girdi: UslupGirdisi): UslupAnalizi {
     dongu: dongu.dongu && !guvenlikOncelikli,
     donguBenzerlik: dongu.enYuksekBenzerlik,
     kalipAcilislar: oncekiAcilislar(asistanCevaplari),
+    sikSozler: tekrarlananSozler(asistanCevaplari),
     yalnizlastirma: yalnizlastirmaTespit(mesaj),
     ilkMesaj: kullaniciMesajlari.length === 0,
     kapanis,
@@ -134,6 +138,9 @@ export function uslupYonergesiKur(girdi: UslupGirdisi, analiz = uslupAnalizEt(gi
   }
   if (analiz.kalipAcilislar.length > 0) {
     satirlar.push(USLUP_YONERGELERI.kalip(analiz.kalipAcilislar));
+  }
+  if (analiz.sikSozler.length > 0) {
+    satirlar.push(USLUP_YONERGELERI.sikSoz(analiz.sikSozler));
   }
 
   if (!girdi.ilimModu) {

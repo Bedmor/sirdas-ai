@@ -4,6 +4,7 @@ import {
   benzerlik,
   donguTespit,
   geceDavetiYapildiMi,
+  tekrarlananSozler,
   geceGecSaatMi,
   gecmisYukuTespit,
   kapanisTespit,
@@ -98,6 +99,20 @@ test("gece daveti: bir kez yapılınca tekrar edilmez", () => {
   assert.equal(geceDavetiYapildiMi(["Saat de epey geç oldu; ekranı kapatıp uyuman iyi olur."]), true);
   // "dinlenir" (işitilir) anlamı davet sayılmaz
   assert.equal(geceDavetiYapildiMi(["Burada söyledikleriniz yargılamadan dinlenir."]), false);
+});
+
+test("kelime tekrarı: fıtrî bir kez geçince yönerge gelir", () => {
+  assert.deepEqual(tekrarlananSozler(["Sabır üzerine güzel bir ayet var."]), []);
+  assert.deepEqual(tekrarlananSozler(["Bu çok fıtrî bir duygudur kardeşim."]), ["fıtrî / fıtrat"]);
+  assert.deepEqual(tekrarlananSozler(["İnsanın fıtratında var."]), ["fıtrî / fıtrat"]);
+  const y = uslupYonergesiKur({
+    mesaj: "Peki ne yapayım?",
+    gecmis: [
+      { role: "user", content: "Çok yoruldum." },
+      { role: "assistant", content: "Yorulmak çok fıtrîdir kardeşim." },
+    ],
+  } as never);
+  assert.match(y, /KELİME TEKRARI/);
 });
 
 test("gece saati: Türkiye saati UTC+3 hesaplanır", () => {

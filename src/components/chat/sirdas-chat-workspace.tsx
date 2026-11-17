@@ -548,6 +548,12 @@ export function SirdasChatWorkspace() {
 
   const handlePurgeAllData = useCallback(
     async (customSuccessMessage?: string) => {
+      // KVKK (18.11): Cevap yazılırken silinirse, biten cevap silinen kaydı geri oluşturuyordu.
+      if (isLoading || isStreaming) {
+        setToastMsg("Cevap tamamlanınca silme işlemini yapabilirsiniz.");
+        setTimeout(() => setToastMsg(null), 3500);
+        return;
+      }
       setIsPurging(true);
       try {
         await fetch("/api/chat", {
@@ -600,7 +606,7 @@ export function SirdasChatWorkspace() {
       );
       setTimeout(() => setToastMsg(null), 4500);
     },
-    [clientId],
+    [clientId, isLoading, isStreaming],
   );
 
   // Bu cihazdan temizle: sunucudaki kayıtlara dokunmaz, yalnız bu cihazdaki izleri kaldırır

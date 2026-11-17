@@ -129,7 +129,7 @@ export function Hero() {
               %100 Ücretsiz
             </div>
             <div className="text-xs text-emerald-200/75 mt-1">
-              Askıda İnfak Modeli
+              Reklamsız
             </div>
           </div>
           <div className="p-4 rounded-xl bg-surface-container-low/40 border border-emerald-950/60 backdrop-blur-sm">

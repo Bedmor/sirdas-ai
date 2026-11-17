@@ -1,3 +1,4 @@
+import { BAGIS_AKTIF } from "@/lib/ozellikler";
 import React from "react";
 import { BookOpen, Users, Volume2, ShieldCheck, Lock, HeartHandshake } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -61,7 +62,7 @@ export function Features() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
-          {features.map((feat) => {
+          {features.filter((f) => BAGIS_AKTIF || !f.title.startsWith("Askıda")).map((feat) => {
             const IconComp = feat.icon;
             return (
               <div

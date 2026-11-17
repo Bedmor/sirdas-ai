@@ -270,7 +270,10 @@ export async function PATCH(req: NextRequest) {
         : [];
 
     const updatedFacts = Array.isArray(body.known_facts)
-      ? body.known_facts.filter((f: unknown) => typeof f === "string")
+      ? body.known_facts
+          .filter((f: unknown) => typeof f === "string")
+          .slice(0, 30)
+          .map((f: string) => f.slice(0, 300))
       : Array.isArray(currentMeta.known_facts)
         ? (currentMeta.known_facts as string[])
         : [];
@@ -579,7 +582,12 @@ export async function POST(req: NextRequest) {
         content: item.content.trim(),
       }));
 
-    if (!isEphemeralSession && conversationHistory.length === 0) {
+    // Güvenlik (18.11): Hafıza kapalıyken yeni sohbette eski sohbetlerin mesajları modele gitmez.
+    if (
+      !isEphemeralSession &&
+      conversationHistory.length === 0 &&
+      hafizaPaketiCoz(body.hafiza)?.acik !== false
+    ) {
       try {
         const dbMessages = await prisma.message.findMany({
           where: {

@@ -6,6 +6,7 @@ import { DisclaimerBanner } from "@/components/layout/DisclaimerBanner";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { AskidaSirdasSection } from "@/components/landing/askida-sirdas-section";
+import { BAGIS_AKTIF } from "@/lib/ozellikler";
 
 // Landing architecture: Hero, Askıda Pusula, Vizyon & Misyon, Halis Aydemir Sohbet Kesitleri, Sıkça Sorulan Sorular
 export default function TanitimLandingPage() {
@@ -56,7 +57,7 @@ export default function TanitimLandingPage() {
           </section>
 
           {/* ASKIDA PUSULA */}
-          <AskidaSirdasSection />
+          {BAGIS_AKTIF && <AskidaSirdasSection />}
 
           {/* AYET DURAĞI: VİZYONUMUZ, MİSYONUMUZ & GAYEMİZ */}
           <section

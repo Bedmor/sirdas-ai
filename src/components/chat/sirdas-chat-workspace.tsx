@@ -58,6 +58,7 @@ import {
   yersizBildirimGovdesi,
   type DenetimIzi,
 } from "@/lib/denetim/yersiz-uyari";
+import { BAGIS_AKTIF } from "@/lib/ozellikler";
 
 export interface ChatSourceBadge {
   id: string;
@@ -1933,12 +1934,14 @@ export function SirdasChatWorkspace() {
                 >
                   Mahremiyet Esasları
                 </motion.button>
-                <Link
-                  className="hover:text-primary transition-colors"
-                  href="/askida-sirdas"
-                >
-                  Askıda Pusula
-                </Link>
+                {BAGIS_AKTIF && (
+                  <Link
+                    className="hover:text-primary transition-colors"
+                    href="/askida-sirdas"
+                  >
+                    Askıda Pusula
+                  </Link>
+                )}
               </div>
 
               <Link

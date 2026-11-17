@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/morphing-popover";
 import { YaziBoyutuDugmesi } from "@/components/ui/yazi-boyutu";
 import { TemaSecici } from "@/components/ui/tema-secici";
+import { BAGIS_AKTIF } from "@/lib/ozellikler";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -63,12 +64,14 @@ export function Navbar() {
           >
             Manevi Araçlar
           </Link>
-          <Link
-            className="text-[16px] text-slate-300 hover:text-primary transition-colors py-1 px-[6px] rounded-md whitespace-nowrap focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-            href="/askida-sirdas"
-          >
-            Askıda Pusula
-          </Link>
+          {BAGIS_AKTIF && (
+            <Link
+              className="text-[16px] text-slate-300 hover:text-primary transition-colors py-1 px-[6px] rounded-md whitespace-nowrap focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              href="/askida-sirdas"
+            >
+              Askıda Pusula
+            </Link>
+          )}
           <Link
             className="text-[16px] text-slate-300 hover:text-primary transition-colors py-1 px-[6px] rounded-md whitespace-nowrap focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             href="/tanitim#gayemiz"
@@ -121,13 +124,15 @@ export function Navbar() {
                 >
                   Manevi Araçlar
                 </Link>
-                <Link
-                  href="/askida-sirdas"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block px-3 py-2 rounded-xl text-sm font-medium text-slate-200 hover:text-primary hover:bg-surface-container transition-colors"
-                >
-                  Askıda Pusula
-                </Link>
+                {BAGIS_AKTIF && (
+                  <Link
+                    href="/askida-sirdas"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block px-3 py-2 rounded-xl text-sm font-medium text-slate-200 hover:text-primary hover:bg-surface-container transition-colors"
+                  >
+                    Askıda Pusula
+                  </Link>
+                )}
                 <Link
                   href="/tanitim#gayemiz"
                   onClick={() => setMobileMenuOpen(false)}

@@ -6,6 +6,7 @@ import Image from "next/image";
 import { YaziBoyutuDugmesi } from "@/components/ui/yazi-boyutu";
 import { TemaSecici } from "@/components/ui/tema-secici";
 import { useGonulDefteri } from "@/components/chat/gonul-defteri-dugmesi";
+import { BAGIS_AKTIF } from "@/lib/ozellikler";
 
 export const GORUS_EPOSTA =
   "mailto:adnan.kus@hotmail.com?subject=Manevi%20Pusula%20-%20G%C3%B6r%C3%BC%C5%9F%20ve%20%C3%96neri";
@@ -136,10 +137,12 @@ export function MenuCekmecesi({ acik, onKapat }: { acik: boolean; onKapat: () =>
               <i aria-hidden="true" className="ph ph-chat-centered-text text-xl text-primary"></i>
               <span>Görüş &amp; Öneri Bildir</span>
             </a>
-            <Link href="/askida-sirdas" onClick={onKapat} className={SATIR}>
-              <i aria-hidden="true" className="ph ph-hand-heart text-xl text-primary"></i>
-              <span>Askıda Pusula</span>
-            </Link>
+            {BAGIS_AKTIF && (
+              <Link href="/askida-sirdas" onClick={onKapat} className={SATIR}>
+                <i aria-hidden="true" className="ph ph-hand-heart text-xl text-primary"></i>
+                <span>Askıda Pusula</span>
+              </Link>
+            )}
             <Link href="/tanitim" onClick={onKapat} className={SATIR}>
               <i aria-hidden="true" className="ph ph-info text-xl text-primary"></i>
               <span>Tanıtım</span>

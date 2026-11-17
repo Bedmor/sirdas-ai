@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { BAGIS_AKTIF } from "@/lib/ozellikler";
 
 /**
  * Yönetici bölümü koruması (/admin ve /api/admin/*).
@@ -38,6 +39,19 @@ function unauthorized(): NextResponse {
 }
 
 export async function middleware(req: NextRequest) {
+  // Askıda Pusula kapalıyken sayfa ana sayfaya döner, ödeme ucu kapalı yanıt verir.
+  const yol = req.nextUrl.pathname;
+  if (yol.startsWith("/askida-sirdas") || yol.startsWith("/api/donation")) {
+    if (BAGIS_AKTIF) return NextResponse.next();
+    if (yol.startsWith("/api/")) {
+      return NextResponse.json(
+        { success: false, error: "Bağış şu an kapalı." },
+        { status: 410 }
+      );
+    }
+    return NextResponse.redirect(new URL("/", req.url));
+  }
+
   const header = req.headers.get("authorization") || "";
   if (!header.startsWith("Basic ")) return unauthorized();
 
@@ -71,5 +85,13 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin", "/admin/:path*", "/api/admin", "/api/admin/:path*"],
+  matcher: [
+    "/admin",
+    "/admin/:path*",
+    "/api/admin",
+    "/api/admin/:path*",
+    "/askida-sirdas",
+    "/askida-sirdas/:path*",
+    "/api/donation/:path*",
+  ],
 };

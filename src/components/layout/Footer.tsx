@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { BAGIS_AKTIF } from "@/lib/ozellikler";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -108,14 +109,16 @@ export function Footer() {
                   Manevi Araçlar (Namaz Vakitleri, Kıble, Zikirmatik, Dua Havuzu)
                 </Link>
               </li>
-              <li>
-                <Link
-                  className="hover:text-on-surface transition-colors rounded focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none"
-                  href="/askida-sirdas"
-                >
-                  Askıda Pusula
-                </Link>
-              </li>
+              {BAGIS_AKTIF && (
+                <li>
+                  <Link
+                    className="hover:text-on-surface transition-colors rounded focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none"
+                    href="/askida-sirdas"
+                  >
+                    Askıda Pusula
+                  </Link>
+                </li>
+              )}
               <li>
                 <Link
                   className="hover:text-on-surface transition-colors rounded focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none"

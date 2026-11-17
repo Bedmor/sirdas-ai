@@ -94,7 +94,7 @@ function AskidaSirdasContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background font-body text-on-surface antialiased selection:bg-secondary-container selection:text-on-secondary-container spiritual-bg-pattern">
+    <div className="min-h-screen flex flex-col bg-background font-body text-on-surface antialiased selection:bg-primary selection:text-on-primary spiritual-bg-pattern">
       <DisclaimerBanner />
       <Navbar />
 

@@ -17,7 +17,7 @@ type Props = {
 /** Manevi Araçlar ve alt sayfaların ortak kabuğu (üst bar + vakit şeridi, başlık, alt sekmeler, alt bilgi). */
 export function AracSayfasi({ ust, baslik, aciklama, geriLink = true, geriHref, children }: Props) {
   return (
-    <div className="min-h-screen flex flex-col bg-background font-body text-on-surface antialiased selection:bg-secondary-container selection:text-on-secondary-container spiritual-bg-pattern overflow-x-clip">
+    <div className="min-h-screen flex flex-col bg-background font-body text-on-surface antialiased selection:bg-primary selection:text-on-primary spiritual-bg-pattern overflow-x-clip">
       <AracKabugu geriHref={geriHref ?? (geriLink ? "/araclar" : "/")} ust={<DisclaimerBanner />}>
         <main className="flex-1 w-full pt-6 pb-10 md:pt-10 md:pb-16 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
           <div className="space-y-8">

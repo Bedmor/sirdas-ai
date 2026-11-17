@@ -37,7 +37,7 @@ export default function AdminLayout({
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-background font-body text-on-surface antialiased selection:bg-secondary-container selection:text-on-secondary-container spiritual-bg-pattern relative overflow-x-hidden">
+    <div className="min-h-screen flex flex-col bg-background font-body text-on-surface antialiased selection:bg-primary selection:text-on-primary spiritual-bg-pattern relative overflow-x-hidden">
       {/* Top Admin Header */}
       <header className="sticky top-0 z-40 w-full border-b border-outline-variant/40 bg-[rgb(14_34_36_/_0.9)] backdrop-blur-xs transition-all shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between gap-4">

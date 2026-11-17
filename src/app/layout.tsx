@@ -80,7 +80,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: yaziBoyutuBetigi + temaBetigi }} />
       </head>
       <body
-        className={`${amiri.variable} ${notoNaskhArabic.variable} ${spaceGrotesk.variable} ${robotoSlab.variable} bg-background font-body text-on-surface antialiased min-h-screen selection:bg-secondary-container selection:text-on-secondary-container spiritual-bg-pattern`}
+        className={`${amiri.variable} ${notoNaskhArabic.variable} ${spaceGrotesk.variable} ${robotoSlab.variable} bg-background font-body text-on-surface antialiased min-h-screen selection:bg-primary selection:text-on-primary spiritual-bg-pattern`}
       >
         {/* Tek ses oynatıcı kökte durur: sayfa değişince hutbe kesilmez */}
         <SesOynaticiSaglayici>

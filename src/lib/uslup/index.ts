@@ -7,6 +7,7 @@ import { USLUP_YONERGELERI } from "./kurallar";
 import { HOCA_SOZLERI_GUVENLIK_YONERGESI } from "./hoca-sozleri";
 import {
   donguTespit,
+  geceDavetiYapildiMi,
   gecmisYukuTespit,
   guvenlikOncelikliMi,
   kapanisTespit,
@@ -60,6 +61,8 @@ export interface UslupAnalizi {
   ilkMesaj: boolean;
   kapanis: boolean;
   geceYorgunlugu: boolean;
+  /** Gece daveti bu sohbette zaten yapıldı; tekrarlanmaz. */
+  geceDavetiYapildi: boolean;
   uzunOturum: boolean;
   gecmisYuku: boolean;
   sessizKarartma: boolean;
@@ -94,6 +97,8 @@ export function uslupAnalizEt(girdi: UslupGirdisi): UslupAnalizi {
     ilkMesaj: kullaniciMesajlari.length === 0,
     kapanis,
     geceYorgunlugu: Boolean(girdi.geceGecSaat) && !girdi.geceFesihAktif,
+    geceDavetiYapildi:
+      Boolean(girdi.geceGecSaat) && geceDavetiYapildiMi(asistanCevaplari),
     uzunOturum: !girdi.geceGecSaat && mesajSayisi >= UZUN_OTURUM_ESIGI,
     gecmisYuku: gecmisYukuTespit(mesaj),
     sessizKarartma: sessizKarartmaTespit(mesaj),
@@ -150,7 +155,13 @@ export function uslupYonergesiKur(girdi: UslupGirdisi, analiz = uslupAnalizEt(gi
     if (analiz.kapanis && !analiz.ilkMesaj) {
       satirlar.push(USLUP_YONERGELERI.kapanis);
     } else if (!analiz.guvenlikOncelikli) {
-      if (analiz.geceYorgunlugu) satirlar.push(USLUP_YONERGELERI.geceYorgunlugu);
+      if (analiz.geceYorgunlugu) {
+        satirlar.push(
+          analiz.geceDavetiYapildi
+            ? USLUP_YONERGELERI.geceDavetTekrarYok
+            : USLUP_YONERGELERI.geceYorgunlugu
+        );
+      }
       else if (analiz.uzunOturum) satirlar.push(USLUP_YONERGELERI.uzunOturum);
     }
   }

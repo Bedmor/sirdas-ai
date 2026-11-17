@@ -38,7 +38,8 @@ import {
 } from "@/lib/safety/triage";
 import { buildSafetyIntercept } from "@/lib/safety/intercept";
 import { hocaCevabiKalkani, hocaCevabiKuraliMi } from "@/lib/uslup/hoca-cevaplari";
-import { geceGecSaatMi } from "@/lib/uslup/siniflandirici";
+import { geceDavetiYapildiMi, geceGecSaatMi } from "@/lib/uslup/siniflandirici";
+import { cevapUzunluguCoz } from "@/lib/sohbet/cevap-uzunlugu";
 import { gecmisiMaskele } from "@/lib/gizlilik/maskeleme";
 import { hafizaKapaliProfil, hafizaPaketiCoz, hafizaYonergesiKur } from "@/lib/hafiza/yonerge";
 import { CikisSuzgeci, cikisSuzgeciUygula } from "@/lib/gizlilik/cikis-suzgeci";
@@ -479,8 +480,14 @@ export async function POST(req: NextRequest) {
     );
 
     // Hem gece saati (00:30 - 04:59) hem de mesaj sınırı (>= 10 mesaj) birlikte sağlanmalı
+    // Gece daveti sohbet başına bir kez: önceki cevaplarda yapıldıysa tekrarlanmaz (Adnan abi 17.11).
+    const geceDavetiZatenYapildi = geceDavetiYapildiMi(
+      validRawHistory
+        .filter((item) => item.role === "assistant")
+        .map((item) => String((item as { content?: unknown }).content ?? ""))
+    );
     const isLateNightEscapeCandidate =
-      isLateNightTime && effectiveUserMsgCount >= 10;
+      isLateNightTime && effectiveUserMsgCount >= 10 && !geceDavetiZatenYapildi;
 
     // Veri saklanmayan geçici (stateless / ephemeral) oturum modu kontrolü
     const isEphemeralSession = body.ephemeralSession === true;
@@ -756,6 +763,7 @@ export async function POST(req: NextRequest) {
                 userMessage: safeMessage,
                 userProfile: modelProfili(activeUserProfile),
                 hafizaYonergesi: hafizaYonergesiOlustur(intentMode === "ILIM_VE_SIYER"),
+                cevapUzunlugu: cevapUzunluguCoz(body.cevapUzunlugu),
                 effectiveTone: resolvedTone,
                 sessionMood: jevResult.session_mood,
                 spiritualStage: resolvedStage,
@@ -1061,6 +1069,7 @@ export async function POST(req: NextRequest) {
         userMessage: safeMessage,
         userProfile: modelProfili(activeUserProfile),
         hafizaYonergesi: hafizaYonergesiOlustur(intentMode === "ILIM_VE_SIYER"),
+        cevapUzunlugu: cevapUzunluguCoz(body.cevapUzunlugu),
         effectiveTone: resolvedTone,
         sessionMood: jevResult.session_mood,
         spiritualStage: resolvedStage,

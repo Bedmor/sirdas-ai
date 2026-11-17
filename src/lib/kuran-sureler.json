@@ -1,0 +1,800 @@
+[
+{
+"no": 1,
+"ad": "Fâtiha",
+"arapcaAd": "الفاتحة",
+"yer": "Mekke",
+"ayetSayisi": 7
+},
+{
+"no": 2,
+"ad": "Bakara",
+"arapcaAd": "البقرة",
+"yer": "Medine",
+"ayetSayisi": 286
+},
+{
+"no": 3,
+"ad": "Âl-i İmrân",
+"arapcaAd": "آل عمران",
+"yer": "Medine",
+"ayetSayisi": 200
+},
+{
+"no": 4,
+"ad": "Nisâ",
+"arapcaAd": "النساء",
+"yer": "Medine",
+"ayetSayisi": 176
+},
+{
+"no": 5,
+"ad": "Mâide",
+"arapcaAd": "المائدة",
+"yer": "Medine",
+"ayetSayisi": 120
+},
+{
+"no": 6,
+"ad": "En'âm",
+"arapcaAd": "الأنعام",
+"yer": "Mekke",
+"ayetSayisi": 165
+},
+{
+"no": 7,
+"ad": "A'râf",
+"arapcaAd": "الأعراف",
+"yer": "Mekke",
+"ayetSayisi": 206
+},
+{
+"no": 8,
+"ad": "Enfâl",
+"arapcaAd": "الأنفال",
+"yer": "Medine",
+"ayetSayisi": 75
+},
+{
+"no": 9,
+"ad": "Tevbe",
+"arapcaAd": "التوبة",
+"yer": "Medine",
+"ayetSayisi": 129
+},
+{
+"no": 10,
+"ad": "Yunus",
+"arapcaAd": "يونس",
+"yer": "Mekke",
+"ayetSayisi": 109
+},
+{
+"no": 11,
+"ad": "Hûd",
+"arapcaAd": "هود",
+"yer": "Mekke",
+"ayetSayisi": 123
+},
+{
+"no": 12,
+"ad": "Yusuf",
+"arapcaAd": "يوسف",
+"yer": "Mekke",
+"ayetSayisi": 111
+},
+{
+"no": 13,
+"ad": "Ra'd",
+"arapcaAd": "الرعد",
+"yer": "Medine",
+"ayetSayisi": 43
+},
+{
+"no": 14,
+"ad": "İbrahim",
+"arapcaAd": "إبراهيم",
+"yer": "Mekke",
+"ayetSayisi": 52
+},
+{
+"no": 15,
+"ad": "Hicr",
+"arapcaAd": "الحجر",
+"yer": "Mekke",
+"ayetSayisi": 99
+},
+{
+"no": 16,
+"ad": "Nahl",
+"arapcaAd": "النحل",
+"yer": "Mekke",
+"ayetSayisi": 128
+},
+{
+"no": 17,
+"ad": "İsrâ",
+"arapcaAd": "الإسراء",
+"yer": "Mekke",
+"ayetSayisi": 111
+},
+{
+"no": 18,
+"ad": "Kehf",
+"arapcaAd": "الكهف",
+"yer": "Mekke",
+"ayetSayisi": 110
+},
+{
+"no": 19,
+"ad": "Meryem",
+"arapcaAd": "مريم",
+"yer": "Mekke",
+"ayetSayisi": 98
+},
+{
+"no": 20,
+"ad": "Tâ-Hâ",
+"arapcaAd": "طه",
+"yer": "Mekke",
+"ayetSayisi": 135
+},
+{
+"no": 21,
+"ad": "Enbiyâ",
+"arapcaAd": "الأنبياء",
+"yer": "Mekke",
+"ayetSayisi": 112
+},
+{
+"no": 22,
+"ad": "Hac",
+"arapcaAd": "الحج",
+"yer": "Medine",
+"ayetSayisi": 78
+},
+{
+"no": 23,
+"ad": "Mü'minûn",
+"arapcaAd": "المؤمنون",
+"yer": "Mekke",
+"ayetSayisi": 118
+},
+{
+"no": 24,
+"ad": "Nûr",
+"arapcaAd": "النور",
+"yer": "Medine",
+"ayetSayisi": 64
+},
+{
+"no": 25,
+"ad": "Furkan",
+"arapcaAd": "الفرقان",
+"yer": "Mekke",
+"ayetSayisi": 77
+},
+{
+"no": 26,
+"ad": "Şuarâ",
+"arapcaAd": "الشعراء",
+"yer": "Mekke",
+"ayetSayisi": 227
+},
+{
+"no": 27,
+"ad": "Neml",
+"arapcaAd": "النمل",
+"yer": "Mekke",
+"ayetSayisi": 93
+},
+{
+"no": 28,
+"ad": "Kasas",
+"arapcaAd": "القصص",
+"yer": "Mekke",
+"ayetSayisi": 88
+},
+{
+"no": 29,
+"ad": "Ankebût",
+"arapcaAd": "العنكبوت",
+"yer": "Mekke",
+"ayetSayisi": 69
+},
+{
+"no": 30,
+"ad": "Rûm",
+"arapcaAd": "الروم",
+"yer": "Mekke",
+"ayetSayisi": 60
+},
+{
+"no": 31,
+"ad": "Lokman",
+"arapcaAd": "لقمان",
+"yer": "Mekke",
+"ayetSayisi": 34
+},
+{
+"no": 32,
+"ad": "Secde",
+"arapcaAd": "السجدة",
+"yer": "Mekke",
+"ayetSayisi": 30
+},
+{
+"no": 33,
+"ad": "Ahzâb",
+"arapcaAd": "الأحزاب",
+"yer": "Medine",
+"ayetSayisi": 73
+},
+{
+"no": 34,
+"ad": "Sebe'",
+"arapcaAd": "سبأ",
+"yer": "Mekke",
+"ayetSayisi": 54
+},
+{
+"no": 35,
+"ad": "Fâtır",
+"arapcaAd": "فاطر",
+"yer": "Mekke",
+"ayetSayisi": 45
+},
+{
+"no": 36,
+"ad": "Yâsin",
+"arapcaAd": "يس",
+"yer": "Mekke",
+"ayetSayisi": 83
+},
+{
+"no": 37,
+"ad": "Sâffât",
+"arapcaAd": "الصافات",
+"yer": "Mekke",
+"ayetSayisi": 182
+},
+{
+"no": 38,
+"ad": "Sâd",
+"arapcaAd": "ص",
+"yer": "Mekke",
+"ayetSayisi": 88
+},
+{
+"no": 39,
+"ad": "Zümer",
+"arapcaAd": "الزمر",
+"yer": "Mekke",
+"ayetSayisi": 75
+},
+{
+"no": 40,
+"ad": "Mü'min",
+"arapcaAd": "غافر",
+"yer": "Mekke",
+"ayetSayisi": 85
+},
+{
+"no": 41,
+"ad": "Fussilet",
+"arapcaAd": "فصلت",
+"yer": "Mekke",
+"ayetSayisi": 54
+},
+{
+"no": 42,
+"ad": "Şûrâ",
+"arapcaAd": "الشورى",
+"yer": "Mekke",
+"ayetSayisi": 53
+},
+{
+"no": 43,
+"ad": "Zuhruf",
+"arapcaAd": "الزخرف",
+"yer": "Mekke",
+"ayetSayisi": 89
+},
+{
+"no": 44,
+"ad": "Duhân",
+"arapcaAd": "الدخان",
+"yer": "Mekke",
+"ayetSayisi": 59
+},
+{
+"no": 45,
+"ad": "Câsiye",
+"arapcaAd": "الجاثية",
+"yer": "Mekke",
+"ayetSayisi": 37
+},
+{
+"no": 46,
+"ad": "Ahkaf",
+"arapcaAd": "الأحقاف",
+"yer": "Mekke",
+"ayetSayisi": 35
+},
+{
+"no": 47,
+"ad": "Muhammed",
+"arapcaAd": "محمد",
+"yer": "Medine",
+"ayetSayisi": 38
+},
+{
+"no": 48,
+"ad": "Fetih",
+"arapcaAd": "الفتح",
+"yer": "Medine",
+"ayetSayisi": 29
+},
+{
+"no": 49,
+"ad": "Hucurât",
+"arapcaAd": "الحجرات",
+"yer": "Medine",
+"ayetSayisi": 18
+},
+{
+"no": 50,
+"ad": "Kaf",
+"arapcaAd": "ق",
+"yer": "Mekke",
+"ayetSayisi": 45
+},
+{
+"no": 51,
+"ad": "Zâriyât",
+"arapcaAd": "الذاريات",
+"yer": "Mekke",
+"ayetSayisi": 60
+},
+{
+"no": 52,
+"ad": "Tûr",
+"arapcaAd": "الطور",
+"yer": "Mekke",
+"ayetSayisi": 49
+},
+{
+"no": 53,
+"ad": "Necm",
+"arapcaAd": "النجم",
+"yer": "Mekke",
+"ayetSayisi": 62
+},
+{
+"no": 54,
+"ad": "Kamer",
+"arapcaAd": "القمر",
+"yer": "Mekke",
+"ayetSayisi": 55
+},
+{
+"no": 55,
+"ad": "Rahmân",
+"arapcaAd": "الرحمن",
+"yer": "Medine",
+"ayetSayisi": 78
+},
+{
+"no": 56,
+"ad": "Vâkıa",
+"arapcaAd": "الواقعة",
+"yer": "Mekke",
+"ayetSayisi": 96
+},
+{
+"no": 57,
+"ad": "Hadid",
+"arapcaAd": "الحديد",
+"yer": "Medine",
+"ayetSayisi": 29
+},
+{
+"no": 58,
+"ad": "Mücâdele",
+"arapcaAd": "المجادلة",
+"yer": "Medine",
+"ayetSayisi": 22
+},
+{
+"no": 59,
+"ad": "Haşr",
+"arapcaAd": "الحشر",
+"yer": "Medine",
+"ayetSayisi": 24
+},
+{
+"no": 60,
+"ad": "Mümtehine",
+"arapcaAd": "الممتحنة",
+"yer": "Medine",
+"ayetSayisi": 13
+},
+{
+"no": 61,
+"ad": "Saf",
+"arapcaAd": "الصف",
+"yer": "Medine",
+"ayetSayisi": 14
+},
+{
+"no": 62,
+"ad": "Cum'a",
+"arapcaAd": "الجمعة",
+"yer": "Medine",
+"ayetSayisi": 11
+},
+{
+"no": 63,
+"ad": "Münâfikûn",
+"arapcaAd": "المنافقون",
+"yer": "Medine",
+"ayetSayisi": 11
+},
+{
+"no": 64,
+"ad": "Teğabün",
+"arapcaAd": "التغابن",
+"yer": "Medine",
+"ayetSayisi": 18
+},
+{
+"no": 65,
+"ad": "Talâk",
+"arapcaAd": "الطلاق",
+"yer": "Medine",
+"ayetSayisi": 12
+},
+{
+"no": 66,
+"ad": "Tahrim",
+"arapcaAd": "التحريم",
+"yer": "Medine",
+"ayetSayisi": 12
+},
+{
+"no": 67,
+"ad": "Mülk",
+"arapcaAd": "الملك",
+"yer": "Mekke",
+"ayetSayisi": 30
+},
+{
+"no": 68,
+"ad": "Kalem",
+"arapcaAd": "القلم",
+"yer": "Mekke",
+"ayetSayisi": 52
+},
+{
+"no": 69,
+"ad": "Hâkka",
+"arapcaAd": "الحاقة",
+"yer": "Mekke",
+"ayetSayisi": 52
+},
+{
+"no": 70,
+"ad": "Meâric",
+"arapcaAd": "المعارج",
+"yer": "Mekke",
+"ayetSayisi": 44
+},
+{
+"no": 71,
+"ad": "Nuh",
+"arapcaAd": "نوح",
+"yer": "Mekke",
+"ayetSayisi": 28
+},
+{
+"no": 72,
+"ad": "Cin",
+"arapcaAd": "الجن",
+"yer": "Mekke",
+"ayetSayisi": 28
+},
+{
+"no": 73,
+"ad": "Müzzemmil",
+"arapcaAd": "المزمل",
+"yer": "Mekke",
+"ayetSayisi": 20
+},
+{
+"no": 74,
+"ad": "Müddessir",
+"arapcaAd": "المدثر",
+"yer": "Mekke",
+"ayetSayisi": 56
+},
+{
+"no": 75,
+"ad": "Kıyamet",
+"arapcaAd": "القيامة",
+"yer": "Mekke",
+"ayetSayisi": 40
+},
+{
+"no": 76,
+"ad": "İnsan",
+"arapcaAd": "الإنسان",
+"yer": "Medine",
+"ayetSayisi": 31
+},
+{
+"no": 77,
+"ad": "Mürselât",
+"arapcaAd": "المرسلات",
+"yer": "Mekke",
+"ayetSayisi": 50
+},
+{
+"no": 78,
+"ad": "Nebe'",
+"arapcaAd": "النبأ",
+"yer": "Mekke",
+"ayetSayisi": 40
+},
+{
+"no": 79,
+"ad": "Nâziât",
+"arapcaAd": "النازعات",
+"yer": "Mekke",
+"ayetSayisi": 46
+},
+{
+"no": 80,
+"ad": "Abese",
+"arapcaAd": "عبس",
+"yer": "Mekke",
+"ayetSayisi": 42
+},
+{
+"no": 81,
+"ad": "Tekvir",
+"arapcaAd": "التكوير",
+"yer": "Mekke",
+"ayetSayisi": 29
+},
+{
+"no": 82,
+"ad": "İnfitâr",
+"arapcaAd": "الإنفطار",
+"yer": "Mekke",
+"ayetSayisi": 19
+},
+{
+"no": 83,
+"ad": "Mutaffifin",
+"arapcaAd": "المطففين",
+"yer": "Mekke",
+"ayetSayisi": 36
+},
+{
+"no": 84,
+"ad": "İnşikak",
+"arapcaAd": "الإنشقاق",
+"yer": "Mekke",
+"ayetSayisi": 25
+},
+{
+"no": 85,
+"ad": "Bürûc",
+"arapcaAd": "البروج",
+"yer": "Mekke",
+"ayetSayisi": 22
+},
+{
+"no": 86,
+"ad": "Târık",
+"arapcaAd": "الطارق",
+"yer": "Mekke",
+"ayetSayisi": 17
+},
+{
+"no": 87,
+"ad": "A'lâ",
+"arapcaAd": "الأعلى",
+"yer": "Mekke",
+"ayetSayisi": 19
+},
+{
+"no": 88,
+"ad": "Gâşiye",
+"arapcaAd": "الغاشية",
+"yer": "Mekke",
+"ayetSayisi": 26
+},
+{
+"no": 89,
+"ad": "Fecr",
+"arapcaAd": "الفجر",
+"yer": "Mekke",
+"ayetSayisi": 30
+},
+{
+"no": 90,
+"ad": "Beled",
+"arapcaAd": "البلد",
+"yer": "Mekke",
+"ayetSayisi": 20
+},
+{
+"no": 91,
+"ad": "Şems",
+"arapcaAd": "الشمس",
+"yer": "Mekke",
+"ayetSayisi": 15
+},
+{
+"no": 92,
+"ad": "Leyl",
+"arapcaAd": "الليل",
+"yer": "Mekke",
+"ayetSayisi": 21
+},
+{
+"no": 93,
+"ad": "Duhâ",
+"arapcaAd": "الضحى",
+"yer": "Mekke",
+"ayetSayisi": 11
+},
+{
+"no": 94,
+"ad": "İnşirâh",
+"arapcaAd": "الشرح",
+"yer": "Mekke",
+"ayetSayisi": 8
+},
+{
+"no": 95,
+"ad": "Tin",
+"arapcaAd": "التين",
+"yer": "Mekke",
+"ayetSayisi": 8
+},
+{
+"no": 96,
+"ad": "Alak",
+"arapcaAd": "العلق",
+"yer": "Mekke",
+"ayetSayisi": 19
+},
+{
+"no": 97,
+"ad": "Kadir",
+"arapcaAd": "القدر",
+"yer": "Mekke",
+"ayetSayisi": 5
+},
+{
+"no": 98,
+"ad": "Beyyine",
+"arapcaAd": "البينة",
+"yer": "Medine",
+"ayetSayisi": 8
+},
+{
+"no": 99,
+"ad": "Zilzâl",
+"arapcaAd": "الزلزلة",
+"yer": "Medine",
+"ayetSayisi": 8
+},
+{
+"no": 100,
+"ad": "Âdiyât",
+"arapcaAd": "العاديات",
+"yer": "Mekke",
+"ayetSayisi": 11
+},
+{
+"no": 101,
+"ad": "Kâria",
+"arapcaAd": "القارعة",
+"yer": "Mekke",
+"ayetSayisi": 11
+},
+{
+"no": 102,
+"ad": "Tekâsür",
+"arapcaAd": "التكاثر",
+"yer": "Mekke",
+"ayetSayisi": 8
+},
+{
+"no": 103,
+"ad": "Asr",
+"arapcaAd": "العصر",
+"yer": "Mekke",
+"ayetSayisi": 3
+},
+{
+"no": 104,
+"ad": "Hümeze",
+"arapcaAd": "الهمزة",
+"yer": "Mekke",
+"ayetSayisi": 9
+},
+{
+"no": 105,
+"ad": "Fil",
+"arapcaAd": "الفيل",
+"yer": "Mekke",
+"ayetSayisi": 5
+},
+{
+"no": 106,
+"ad": "Kureyş",
+"arapcaAd": "قريش",
+"yer": "Mekke",
+"ayetSayisi": 4
+},
+{
+"no": 107,
+"ad": "Mâûn",
+"arapcaAd": "الماعون",
+"yer": "Mekke",
+"ayetSayisi": 7
+},
+{
+"no": 108,
+"ad": "Kevser",
+"arapcaAd": "الكوثر",
+"yer": "Mekke",
+"ayetSayisi": 3
+},
+{
+"no": 109,
+"ad": "Kâfirûn",
+"arapcaAd": "الكافرون",
+"yer": "Mekke",
+"ayetSayisi": 6
+},
+{
+"no": 110,
+"ad": "Nasr",
+"arapcaAd": "النصر",
+"yer": "Medine",
+"ayetSayisi": 3
+},
+{
+"no": 111,
+"ad": "Tebbet",
+"arapcaAd": "المسد",
+"yer": "Mekke",
+"ayetSayisi": 5
+},
+{
+"no": 112,
+"ad": "İhlâs",
+"arapcaAd": "الإخلاص",
+"yer": "Mekke",
+"ayetSayisi": 4
+},
+{
+"no": 113,
+"ad": "Felâk",
+"arapcaAd": "الفلق",
+"yer": "Mekke",
+"ayetSayisi": 5
+},
+{
+"no": 114,
+"ad": "Nâs",
+"arapcaAd": "الناس",
+"yer": "Mekke",
+"ayetSayisi": 6
+}
+]

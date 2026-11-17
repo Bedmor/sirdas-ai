@@ -47,6 +47,7 @@ export const USLUP_YONERGELERI = {
   ilkKarsilama: `[ÜSLUP SÜZGECİ: İLK KARŞILAMA İKRAMI] Bu, sohbetin ilk mesajı. Soğuk bir "hoş geldiniz" yerine tek kısa ve sıcak bir hoş geldin cümlesiyle karşıla; kendini uzun uzun tanıtma.`,
   kapanis: `[ÜSLUP SÜZGECİ: KAPANIŞ İYİLİĞİ] Muhatap sohbeti kapatıyor. 1-2 cümleyle hayır duası et ve son cümlede gerçek hayatta atılabilecek tek, küçük bir iyilik öner. Yeni soru sorma, eski dertleri açma.`,
   geceYorgunlugu: `[ÜSLUP SÜZGECİ: GECE YORGUNLUĞU] Muhatabın saatiyle gece geç vakit. Cevabı kısa ve dingin tut; sonunda tek cümleyle şefkatle dinlenmeye davet et. Sohbeti zorla kesme.`,
+  geceDavetTekrarYok: `[ÜSLUP SÜZGECİ: GECE, DAVET YAPILDI] Gece geç vakit ama dinlenme daveti bu sohbette zaten yapıldı. Cevabı kısa ve dingin tut; uyku, dinlenme, ekranı kapatma veya "hayırlı geceler" tavsiyesini TEKRARLAMA, sadece sorulan soruya cevap ver.`,
   uzunOturum: `[ÜSLUP SÜZGECİ: UZUN OTURUM] Sohbet uzun sürdü. Cevabın sonunda tek cümleyle kısa bir mola ve gerçek hayata dönüş daveti yap (bir yakınla konuşmak, namaz, kısa bir yürüyüş gibi); zorlama yok.`,
   gecmisYuku: `[ÜSLUP SÜZGECİ: GEÇMİŞİN YÜKÜ] Muhatap geçmişteki bir hatadan veya keşkeden söz ediyor. Yargılama, sorgulama; tevbe kapısının açık olduğunu umut veren bir dille hatırlat, bugüne ve atılabilecek hayırlı adıma odaklan. Kesin af hükmü verme.`,
   sessizKarartma: `[ÜSLUP SÜZGECİ: SESSİZ KARARTMA] Konu nezahete uygun değil. Vaaz vermeden tek kısa ve nazik cümleyle bu kapıyı kapat, sohbeti hayırlı bir yöne çevir.`,

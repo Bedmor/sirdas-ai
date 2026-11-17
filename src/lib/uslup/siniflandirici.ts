@@ -117,6 +117,18 @@ export function geceGecSaatMi(saat: number, dakika: number): boolean {
   return (saat === 0 && dakika >= 30) || (saat >= 1 && saat < 5);
 }
 
+/**
+ * Önceki asistan cevaplarında gece dinlenme/uyku daveti zaten yapıldı mı?
+ * Adnan abi 17.11: gece her cevapta "uyu" demesi ağır geliyor; davet sohbet
+ * başına bir kez yapılır, sonra tekrarlanmaz.
+ */
+const GECE_DAVETI_IZI =
+  /(dinlen(?:me|ip|mek|meye|meni)|uyu(?:ma|yup|yun|man)|uyku(?:ya)?\s|istirahat|hay[ıi]rl[ıi]\s+geceler|ekran[ıi]\s+kapat|vakit\s+(?:epey\s+)?ge[çc]|saat\s+(?:de\s+)?epey\s+ge[çc])/i;
+
+export function geceDavetiYapildiMi(asistanCevaplari: ReadonlyArray<string>, sonKac = 8): boolean {
+  return asistanCevaplari.slice(-sonKac).some((c) => GECE_DAVETI_IZI.test(c || ""));
+}
+
 /** Verilen anın Europe/Istanbul saatini döndürür. */
 export function turkiyeSaati(an: Date = new Date()): { saat: number; dakika: number } {
   const parcalar = new Intl.DateTimeFormat("en-US", {

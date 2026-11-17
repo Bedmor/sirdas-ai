@@ -7,10 +7,16 @@ import { VakitAyetiKarti } from "@/components/araclar/vakit-ayeti-karti";
 export const metadata: Metadata = {
   title: "Manevi Araçlar | Manevi Pusula",
   description:
-    "Zikirmatik, Diyanet namaz vakitleri, kıble pusulası, dua havuzu, cuma hutbesi ve günün vaktine göre ayet kartı. Manevi Pusula'nın sade günlük araçları.",
+    "Kur'an-ı Kerim (Arapça ve meal), zikirmatik, Diyanet namaz vakitleri, kıble pusulası, dua havuzu, cuma hutbesi ve günün vaktine göre ayet kartı. Manevi Pusula'nın sade günlük araçları.",
 };
 
 const ARACLAR = [
+  {
+    href: "/araclar/kuran",
+    ikon: "ph-book-open",
+    baslik: "Kur'an-ı Kerim",
+    aciklama: "114 sure ayet ayet: Arapça metin ve Elmalılı meali, büyük ve kolay okunur yazıyla.",
+  },
   {
     href: "/araclar/namaz-vakitleri",
     ikon: "ph-clock",

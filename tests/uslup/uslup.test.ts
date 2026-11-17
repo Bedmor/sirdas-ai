@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   benzerlik,
   donguTespit,
+  geceDavetiYapildiMi,
   geceGecSaatMi,
   gecmisYukuTespit,
   kapanisTespit,
@@ -88,6 +89,15 @@ test("gece saati: 00:30 - 04:59 arası gece sayılır", () => {
   assert.equal(geceGecSaatMi(5, 0), false);
   assert.equal(geceGecSaatMi(23, 45), false);
   assert.equal(geceGecSaatMi(Number.NaN, 0), false);
+});
+
+test("gece daveti: bir kez yapılınca tekrar edilmez", () => {
+  assert.equal(geceDavetiYapildiMi([]), false);
+  assert.equal(geceDavetiYapildiMi(["Sabır üzerine güzel bir ayet var."]), false);
+  assert.equal(geceDavetiYapildiMi(["... Şimdi biraz dinlenmeye bak, hayırlı geceler."]), true);
+  assert.equal(geceDavetiYapildiMi(["Saat de epey geç oldu; ekranı kapatıp uyuman iyi olur."]), true);
+  // "dinlenir" (işitilir) anlamı davet sayılmaz
+  assert.equal(geceDavetiYapildiMi(["Burada söyledikleriniz yargılamadan dinlenir."]), false);
 });
 
 test("gece saati: Türkiye saati UTC+3 hesaplanır", () => {

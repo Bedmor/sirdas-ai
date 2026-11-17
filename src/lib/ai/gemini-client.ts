@@ -21,6 +21,7 @@ import {
 import { uslupYonergesiKur } from "../uslup";
 import { ALIM_ESERI_ETIKETI, alimEseriKaynagiMi } from "../uslup/kaynak-atif";
 import { mercekYonergesiKur } from "../bakis/mercek-secici";
+import { cevapUzunluguYonergesi, type CevapUzunlugu } from "@/lib/sohbet/cevap-uzunlugu";
 
 const CANDIDATE_MODELS = [
   process.env.GEMINI_MODEL || "gemini-3.8-flash",
@@ -126,6 +127,8 @@ export interface GenerateSirdasReplyParams {
   intentMode?: ChatIntentMode;
   /** P4 hafıza paketi yönergesi (emanet, hal hafızası, oturum bağlamı); yoksa boş */
   hafizaYonergesi?: string;
+  /** Kullanıcının seçtiği cevap uzunluğu (Kısa / Normal / Detaylı) */
+  cevapUzunlugu?: CevapUzunlugu;
 }
 
 export function formatRagContext(chunks: RagChunkContext[]): string {
@@ -316,6 +319,11 @@ export function buildGeminiContents(
 
   if (params.hafizaYonergesi) {
     currentPrompt += `\n\n${params.hafizaYonergesi}`;
+  }
+
+  const uzunlukYonergesi = cevapUzunluguYonergesi(params.cevapUzunlugu ?? "NORMAL");
+  if (uzunlukYonergesi) {
+    currentPrompt += `\n\n${uzunlukYonergesi}`;
   }
 
   if (params.isLateNightDismissal) {

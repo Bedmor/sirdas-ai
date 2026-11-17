@@ -59,6 +59,7 @@ import {
   type DenetimIzi,
 } from "@/lib/denetim/yersiz-uyari";
 import { BAGIS_AKTIF } from "@/lib/ozellikler";
+import { CevapUzunluguSecici, useCevapUzunlugu } from "@/components/chat/cevap-uzunlugu";
 
 export interface ChatSourceBadge {
   id: string;
@@ -378,6 +379,7 @@ export function SirdasChatWorkspace() {
   const [activeThreadId, setActiveThreadId] = useState<string>("");
 
   const [inputMessage, setInputMessage] = useState("");
+  const [cevapUzunlugu, setCevapUzunlugu] = useCevapUzunlugu();
   const [isLoading, setIsLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamingText, setStreamingText] = useState("");
@@ -1176,6 +1178,7 @@ export function SirdasChatWorkspace() {
           timeZone: userTimeZone,
           sessionUserMessagesCount,
           hafiza: hafizaPaketi,
+          cevapUzunlugu,
           stream: true,
         }),
       });
@@ -2406,6 +2409,11 @@ export function SirdasChatWorkspace() {
                 />
               </div>
             )}
+            <CevapUzunluguSecici
+              deger={cevapUzunlugu}
+              onDegis={setCevapUzunlugu}
+              className="mb-1.5"
+            />
             <form
               className="relative flex items-end gap-2 sm:gap-3 rounded-[28px] sm:rounded-[32px] bg-surface-container-high/95 backdrop-blur-xl border border-outline-variant/60 focus-within:border-primary/90 focus-within:ring-4 focus-within:ring-primary/15 shadow-m3-3 focus-within:shadow-m3-4 pl-4 pr-1.5 py-1.5 sm:px-5 sm:py-3.5 lg:py-2.5 transition-all duration-300 ease-m3e-spring-smooth"
               onSubmit={handleSubmit}

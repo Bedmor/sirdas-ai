@@ -528,6 +528,13 @@ export async function analyzeWithJev(
   return runHeuristicFallback(params.userMessage, params.sessionHistory);
 }
 
+/** Tek başına dertleşme de olabilen fetva kelimeleri: yalnız hüküm sorusu kalıbıyla fetva sayılır. */
+const YALNIZ_HUKUMLE_FETVA: ReadonlySet<string> = new Set(["boşan", "bosan", "talak", "miras"]);
+
+/** Hüküm sorusu kalıbı (küçük harfe çevrilmiş metinde). */
+const HUKUM_SORUSU_KALIBI =
+  /caiz|haram\s*m|haramd|helal\s*m|helald|ge[çc]erli\s*m|d[üu][şs]er\s*m|d[üu][şs]t[üu]\s*m|olur\s*mu|say[ıi]l[ıi]r\s*m|nas[ıi]l\s*(b[öo]l|payla[şs]|hesap)|hakk[ıi]\s*(var|yok)|ka[çc]\s*talak|ka[çc]\s*(kere|kez|defa)|pay[ıi]?\s*(ne\s*kadar|ka[çc])|hisse|h[üu]km|dinen|[şs]er['’]?[iî]\s*(olarak|h[üu]km|a[çc][ıi])|f[ıi]kh|kime\s*(kal|d[üu][şs])|(boşan|bosan|talak|miras)\p{L}*(\s+\p{L}+){0,3}\s+m[ıiuü]\p{L}*/u;
+
 /**
  * Rule-based System 1 reflex classifier driven by the declarative HEURISTIC_TOPIC_RULES table
  * and stateless in-session mood detection.
@@ -541,7 +548,12 @@ export function runHeuristicFallback(
   const crisisCheck = checkCrisisAndSuicide(text);
   const sessionMood = detectSessionMood(text, sessionHistory);
 
-  const fatwaMatches = FATWA_KEYWORDS.filter((k) => lower.includes(k));
+  // 18.11 fetva yaması: "boşan", "talak", "miras" tek başına dertleşmedir ("boşandım, çok yalnızım");
+  // yalnız hüküm sorusu kalıbıyla birlikteyse fetva sayılır.
+  const hukumKalibi = HUKUM_SORUSU_KALIBI.test(lower);
+  const fatwaMatches = FATWA_KEYWORDS.filter(
+    (k) => lower.includes(k) && (hukumKalibi || !YALNIZ_HUKUMLE_FETVA.has(k))
+  );
   const isIlmihalQuery = detectIlmihalWorshipQuery(text);
   const isFatwa = isIlmihalQuery
     ? 0.96

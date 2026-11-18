@@ -298,3 +298,33 @@ test("uçtan uca: 'namazda gülmek namazı bozar mı' sahte model yanıtıyla te
     ["Manevi yönünü anlat", "Konuyu değiştir"]
   );
 });
+
+// --- "boşan" / "talak" / "miras" yanlış pozitifi (18.11) ---
+
+test("fetva: boşanma/miras dertleşmesi fetva akışına girmez, kapanış almaz", () => {
+  for (const m of [
+    "boşandım, çok yalnızım",
+    "eşimle boşanma aşamasındayız çok üzgünüm",
+    "miras yüzünden kardeşlerimle küstük",
+    "miras yüzünden kardeşlerimle küstük, helalleşmek istiyorum",
+  ]) {
+    const a = akis(m);
+    assert.ok(a.jev.is_fiqh_fatwa_request < 0.75, m);
+    assert.equal(a.plan.aktif, false, m);
+  }
+});
+
+test("fetva: boşanma/miras hüküm sorusu kalıbıyla fetva sayılır", () => {
+  for (const m of [
+    "üç talak tek seferde düşer mi",
+    "mirasta kız çocuğunun payı ne kadar",
+    "miras nasıl bölünür",
+    "boşanmak caiz mi",
+    "eşime boş ol dedim boşandık mı",
+  ]) {
+    const a = akis(m);
+    assert.ok(a.jev.is_fiqh_fatwa_request >= 0.75, m);
+    assert.equal(a.plan.aktif, true, m);
+    assert.equal(a.intercept, null, m);
+  }
+});

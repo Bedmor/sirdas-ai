@@ -11,6 +11,8 @@ import { MiniOynatici } from "@/components/kabuk/ses-oynatici";
 import { GonulDefterimSatiri, MenuGorunumBolumu } from "@/components/kabuk/menu-cekmecesi";
 import { SesliDinleDugmesi } from "./sesli-dinle-dugmesi";
 import { GonulDefteriDugmesi } from "./gonul-defteri-dugmesi";
+import { GonulKartiDugmesi } from "./gonul-karti-dugmesi";
+import { yenidenUretPlani, yenidenUretilebilirMi } from "@/lib/sohbet/yeniden-uret";
 import { GONUL_DEFTERI_OLAY, GONUL_DEFTERI_ANAHTAR } from "@/lib/sohbet/gonul-defteri";
 import { SourceBookModal } from "./source-book-modal";
 import {
@@ -367,9 +369,12 @@ function generateClientUuid(): string {
   return `sirdas_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
-/** Cevap altı eylem düğmesi (Kopyala, Paylaş, Dinle, Deftere ekle): en az 36px yükseklik */
+/**
+ * Cevap altı eylem düğmesi (Kopyala, Paylaş, Dinle, Deftere ekle, Gönül Kartı, Yeniden üret): en az 36px yükseklik.
+ * Dar ekranda yalnız simge görünür (etiketler sm ve üstünde); erişilebilir adlar aria-label ile kalır.
+ */
 const CEVAP_EYLEM =
-  "inline-flex min-h-[36px] items-center gap-1.5 rounded-full px-2.5 sm:px-3 py-1 text-xs text-on-surface-variant/80 hover:bg-surface-container-highest hover:text-on-surface active:scale-95 transition-all duration-200 ease-m3e-spring-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
+  "inline-flex min-h-[36px] min-w-[36px] shrink-0 items-center justify-center gap-1.5 rounded-full px-2 sm:px-3 py-1 text-xs [&>span]:hidden sm:[&>span]:inline disabled:opacity-40 disabled:pointer-events-none text-on-surface-variant/80 hover:bg-surface-container-highest hover:text-on-surface active:scale-95 transition-all duration-200 ease-m3e-spring-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary";
 
 export function SirdasChatWorkspace() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -1077,12 +1082,17 @@ export function SirdasChatWorkspace() {
     }
   };
 
-  const handleSubmit = async (e?: React.FormEvent, hazirMetin?: string) => {
+  const handleSubmit = async (e?: React.FormEvent, hazirMetin?: string, yenidenUret = false) => {
     if (e) e.preventDefault();
     if (isLoading || isStreaming) return;
 
-    const hazirMi = typeof hazirMetin === "string";
-    const trimmed = (hazirMi ? hazirMetin : inputMessage).trim();
+    // "Yeniden üret": son soruyu aynen yeniden gönder, son cevabı yenisiyle değiştir
+    const plan = yenidenUret ? yenidenUretPlani(activeMessages) : null;
+    if (yenidenUret && (!plan || !activeThreadId)) return;
+    const oncekiThreads = threads;
+
+    const hazirMi = typeof hazirMetin === "string" || !!plan;
+    const trimmed = (plan ? plan.soru : hazirMi ? (hazirMetin ?? "") : inputMessage).trim();
     if (!hasGivenConsent) {
       setIsConsentModalOpen(true);
       setErrorMsg(
@@ -1108,16 +1118,18 @@ export function SirdasChatWorkspace() {
     }
 
     const nowIso = new Date().toISOString();
-    const userMsgItem: ChatMessageItem = {
-      id: generateClientUuid(),
-      role: "user",
-      content: trimmed,
-      createdAt: nowIso,
-    };
+    const userMsgItem: ChatMessageItem = plan
+      ? plan.soruMesaji
+      : {
+          id: generateClientUuid(),
+          role: "user",
+          content: trimmed,
+          createdAt: nowIso,
+        };
 
     let currentThreadId = activeThreadId;
     let updatedThreads: ChatConversationThread[];
-    const priorHistory = activeMessages.map((m) => ({
+    const priorHistory = (plan ? plan.oncekiMesajlar : activeMessages).map((m) => ({
       role: m.role,
       content: m.content,
     }));
@@ -1140,11 +1152,16 @@ export function SirdasChatWorkspace() {
           ? {
               ...t,
               updatedAt: nowIso,
-              messages: [...t.messages, userMsgItem],
+              messages: plan ? [...plan.oncekiMesajlar, userMsgItem] : [...t.messages, userMsgItem],
             }
           : t,
       );
     }
+
+    // Yeniden üretim başarısız olursa eski cevap geri gelsin
+    const yenidenUretimiGeriAl = () => {
+      if (plan) saveThreadsToStorage(oncekiThreads);
+    };
 
     // P4 hafıza: sunucuya giden paket ve hal notu güncellemesi (yalnız bu cihazda)
     const hafizaPaketi = hafizaPaketiHazirla(hafiza, {
@@ -1152,12 +1169,15 @@ export function SirdasChatWorkspace() {
       ilkMesaj: priorHistory.length === 0,
       sohbetId: currentThreadId,
     });
-    hafizaGuncelle(
-      halGuncelle(
-        hafizaPaketi.halHatirlatma ? hatirlatildiIsaretle(hafiza) : hafiza,
-        { mesaj: trimmed, sohbetId: currentThreadId },
-      ),
-    );
+    // Yeniden üretimde aynı mesaj hal notuna ikinci kez yazılmaz
+    if (!plan) {
+      hafizaGuncelle(
+        halGuncelle(
+          hafizaPaketi.halHatirlatma ? hatirlatildiIsaretle(hafiza) : hafiza,
+          { mesaj: trimmed, sohbetId: currentThreadId },
+        ),
+      );
+    }
 
     saveThreadsToStorage(updatedThreads);
     setIsLoading(true);
@@ -1201,6 +1221,7 @@ export function SirdasChatWorkspace() {
         setIsLoading(false);
         setIsStreaming(false);
         const errJson = await res.json().catch(() => ({}));
+        yenidenUretimiGeriAl();
         setErrorMsg(
           errJson.message ||
             "Şu anda yanıt oluşturulamadı, lütfen biraz sonra tekrar deneyin.",
@@ -1352,6 +1373,8 @@ export function SirdasChatWorkspace() {
               : t,
           );
           saveThreadsToStorage(finalThreads);
+        } else {
+          yenidenUretimiGeriAl();
         }
 
         // Arka plandaki gemini-3.5-flash-lite triyaj zenginleştirmesini senkronize et
@@ -1398,6 +1421,8 @@ export function SirdasChatWorkspace() {
               : t,
           );
           saveThreadsToStorage(finalThreads);
+        } else {
+          yenidenUretimiGeriAl();
         }
 
         if (clientId) {
@@ -1412,6 +1437,7 @@ export function SirdasChatWorkspace() {
     } catch {
       setIsLoading(false);
       setIsStreaming(false);
+      yenidenUretimiGeriAl();
       setErrorMsg(
         "Bağlantı sırasında bir sorun yaşandı. Lütfen tekrar deneyin.",
       );
@@ -2204,8 +2230,8 @@ export function SirdasChatWorkspace() {
                           )}
 
                           {/* Message Action Bar & Timestamp */}
-                          <div className="flex items-start justify-between gap-1 pt-0.5 text-xs text-on-surface-variant/75">
-                            <div className="flex flex-wrap items-center gap-x-0.5 gap-y-1 sm:gap-1.5">
+                          <div className="flex items-center justify-between gap-1 pt-0.5 text-xs text-on-surface-variant/75">
+                            <div className="flex min-w-0 flex-nowrap items-center gap-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap sm:gap-1.5">
                               <button
                                 aria-label="Yanıtı kopyala"
                                 className={CEVAP_EYLEM}
@@ -2248,9 +2274,29 @@ export function SirdasChatWorkspace() {
                                 }}
                               />
 
+                              {msg.status !== "crisis_redirected" && (
+                                <GonulKartiDugmesi metin={msg.content} className={CEVAP_EYLEM} />
+                              )}
+
+                              {index === activeMessages.length - 1 && yenidenUretilebilirMi(msg) && (
+                                <button
+                                  type="button"
+                                  aria-label="Cevabı yeniden üret"
+                                  title="Aynı soruyu yeniden sorup bu cevabı yenisiyle değiştir"
+                                  className={CEVAP_EYLEM}
+                                  disabled={isLoading || isStreaming}
+                                  onClick={() => handleSubmit(undefined, undefined, true)}
+                                >
+                                  <svg aria-hidden="true" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                                    <path d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" strokeLinecap="round" strokeLinejoin="round" />
+                                  </svg>
+                                  <span>Yeniden üret</span>
+                                </button>
+                              )}
+
                               <a
                                 href={`mailto:adnan.kus@hotmail.com?subject=${encodeURIComponent("Manevi Pusula - Hatalı Cevap / Öneri Bildirimi")}&body=${encodeURIComponent(`Mesaj Tarihi: ${msg.createdAt}\nMesaj ID: ${msg.id}\nYanıt Kesiti:\n${msg.content.slice(0, 300)}...\n\n--- Görüş, Tenkit veya Hatalı Yanıt Düzeltme Öneriniz ---\n`)}`}
-                                className="inline-flex items-center justify-center rounded-full p-1.5 text-on-surface-variant/80 hover:bg-surface-container-highest hover:text-primary hover:scale-110 active:scale-95 transition-all duration-200 ease-m3e-spring-fast"
+                                className="inline-flex min-h-[36px] min-w-[36px] shrink-0 items-center justify-center rounded-full p-1.5 text-on-surface-variant/80 hover:bg-surface-container-highest hover:text-primary hover:scale-110 active:scale-95 transition-all duration-200 ease-m3e-spring-fast"
                                 title="Hatalı cevap veya öneri bildir (adnan.kus@hotmail.com)"
                                 aria-label="Hatalı cevap veya öneri bildir"
                               >
@@ -2274,7 +2320,7 @@ export function SirdasChatWorkspace() {
                             {timeString && (
                               <time
                                 dateTime={msg.createdAt}
-                                className="text-[10px] text-on-surface-variant/60 select-none mr-1"
+                                className="shrink-0 whitespace-nowrap text-[10px] text-on-surface-variant/60 select-none mr-1"
                               >
                                 {timeString}
                               </time>

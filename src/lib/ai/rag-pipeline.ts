@@ -11,11 +11,10 @@ import {
 import { ChatIntentMode } from "./intent-router";
 import { checkAdversarialGuardrails } from "./adversarial-guardrails";
 import { filterUsedSourcesByReply, isSourceUsedInReply } from "./source-citation-filter";
+import { FETVA_MODELE_BIRAKILAN_KURALLAR } from "./fetva-akisi";
 
 export { filterUsedSourcesByReply, isSourceUsedInReply };
 import {
-  FATWA_REJECTION_MESSAGE,
-  fatwaRejectionMessage,
   CRISIS_EMERGENCY_MESSAGE,
   checkViolenceAndAbuse,
   checkCrisisAndSuicide,
@@ -104,15 +103,16 @@ export function buildEnrichedJevMetadata(
  * Evaluates all 3 spiritual & safety guardrails in strict priority order:
  * 1. Violence & Domestic Abuse (112 / ALO 183 / KADES)
  * 2. Existential Crisis & Suicide (112 Emergency)
- * 3. Fiqh / Fatwa Boundary (Alo 190 Diyanet)
+ * 3. Fiqh / Fatwa Boundary: artık modele gider (üç aşamalı fetva akışı, Alo 190 kapanışı)
  */
 export function evaluateSpiritualGuardrails(
   userMessage: string,
   jevResult: JevAnalysisResult
 ): GuardrailIntercept | null {
   // 0. Çelik Kasa Adversarial Kalkanı (18 Zorlayıcı Senaryo Ön Süzgeci)
+  // İlmihal / talak / kripto hüküm soruları burada kesilmez; üç aşamalı fetva akışıyla modele gider.
   const adv = checkAdversarialGuardrails(userMessage);
-  if (adv) {
+  if (adv && !FETVA_MODELE_BIRAKILAN_KURALLAR.has(adv.ruleId)) {
     const isCrisis = adv.status === "crisis_redirected";
     return {
       status: adv.status,
@@ -192,26 +192,9 @@ export function evaluateSpiritualGuardrails(
     };
   }
 
-  if (jevResult.is_fiqh_fatwa_request >= 0.75) {
-    return {
-      status: "fatwa_blocked",
-      replyText: fatwaRejectionMessage(userMessage),
-      extraFlags: { bypassed_to_fatwa_block: true },
-      editorAudit: {
-        murakabe_applied: true,
-        ilahi_riza_checked: true,
-        tevekkul_and_talak_hope_included: true,
-        nafs_and_vesvese_addressed: "FIKIH_FETVA_SINIRI",
-        siyer_example_used: "Ehl-i Zikir ve Alo 190 Yönlendirmesi",
-        riba_warning_included: false,
-        nafs_trap: jevResult.nafs_trap,
-        rag_category: jevResult.rag_category,
-        distress_level: jevResult.distress_level,
-        tone: "NET_VE_MUALLIM",
-        spiritual_stage: jevResult.spiritual_stage || "ARAYIS_VE_BASLANGIC",
-      },
-    };
-  }
+  // 3. Fıkıh / fetva sınırı (18.11 fetva yaması): kalıp cevapla model ATLANMAZ.
+  // Soru üç aşamalı fetva yönergesiyle modele gider (bkz. fetva-akisi.ts); kalıp
+  // cevaplar yalnızca model çağrılamazsa yedek olarak kullanılır.
 
   return null;
 }

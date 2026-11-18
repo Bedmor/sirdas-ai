@@ -22,6 +22,12 @@ import { uslupYonergesiKur } from "../uslup";
 import { ALIM_ESERI_ETIKETI, alimEseriKaynagiMi } from "../uslup/kaynak-atif";
 import { mercekYonergesiKur } from "../bakis/mercek-secici";
 import { cevapUzunluguYonergesi, type CevapUzunlugu } from "@/lib/sohbet/cevap-uzunlugu";
+import { fetvaYonergesiKur, fetvaYedekCevabi } from "./fetva-akisi";
+import {
+  ALIM_GORUSU_BASLIGI,
+  ALIM_GORUSU_ETIKETI,
+  alimGorusuKaynagiMi,
+} from "../uslup/alim-gorusu";
 
 const CANDIDATE_MODELS = [
   process.env.GEMINI_MODEL || "gemini-3.8-flash",
@@ -129,6 +135,11 @@ export interface GenerateSirdasReplyParams {
   hafizaYonergesi?: string;
   /** Kullanıcının seçtiği cevap uzunluğu (Kısa / Normal / Detaylı) */
   cevapUzunlugu?: CevapUzunlugu;
+  /**
+   * Fetva sorusu (18.11 yaması): üç aşamalı fetva yönergesi eklenir; model
+   * çağrılamazsa harfiyen kapanışlı yedek kalıp cevap döner. Kapanışı route ekler.
+   */
+  fetvaModu?: boolean;
 }
 
 export function formatRagContext(chunks: RagChunkContext[]): string {
@@ -142,6 +153,10 @@ export function formatRagContext(chunks: RagChunkContext[]): string {
         chunk.content.length > 600
           ? `${chunk.content.slice(0, 597)}...`
           : chunk.content;
+      // Hoca/âlim görüşü kayıtları (kaynak türüne bağlı genel kural): kişi adı modele verilmez.
+      if (alimGorusuKaynagiMi(chunk)) {
+        return `[KAYNAK ${idx + 1} | ${ALIM_GORUSU_ETIKETI} | ${ALIM_GORUSU_BASLIGI}]\n${snippet}`;
+      }
       // İhyâ ve akaid kayıtları kasada HADITH türüyle durur; model hadis sanmasın diye ayrı etiketlenir.
       const turEtiketi = alimEseriKaynagiMi(chunk) ? ALIM_ESERI_ETIKETI : chunk.sourceType;
       return `[KAYNAK ${idx + 1} | ${turEtiketi} | ${chunk.sourceTitle}]\n${snippet}`;
@@ -232,6 +247,7 @@ export function buildGeminiContents(
       params.userMessage
     );
   const isBriefOpener =
+    !params.fetvaModu &&
     !isIlimMode &&
     userWordCount <= 5 &&
     params.distressLevel < 7 &&
@@ -319,6 +335,11 @@ export function buildGeminiContents(
 
   if (params.hafizaYonergesi) {
     currentPrompt += `\n\n${params.hafizaYonergesi}`;
+  }
+
+  // Fetva sorusu: üç aşamalı cevap yönergesi (+ varsa isimsiz hoca görüşü). Kapanışı kod ekler.
+  if (params.fetvaModu) {
+    currentPrompt += `\n\n${fetvaYonergesiKur(params.userMessage)}`;
   }
 
   const uzunlukYonergesi = cevapUzunluguYonergesi(params.cevapUzunlugu ?? "NORMAL");
@@ -436,7 +457,7 @@ export async function generateSirdasReply(
   const ai = getAIClient();
 
   if (!ai) {
-    return runMockGeminiReply(params);
+    return yedekCevap(params);
   }
 
   const contents = buildGeminiContents(params);
@@ -484,7 +505,15 @@ export async function generateSirdasReply(
     }
   }
 
-  return runMockGeminiReply(params);
+  return yedekCevap(params);
+}
+
+/** Model çağrılamadığında: fetva sorusunda harfiyen kapanışlı yedek, diğerlerinde yerel sentez. */
+function yedekCevap(params: GenerateSirdasReplyParams): SirdasOutput {
+  const mock = runMockGeminiReply(params);
+  if (!params.fetvaModu) return mock;
+  const metin = fetvaYedekCevabi(params.userMessage);
+  return { ...mock, reply_text: metin, whatsapp_reply: metin, selected_audio_chunk_id: null };
 }
 
 /**
@@ -759,7 +788,7 @@ export async function* generateSirdasReplyStream(
   const ai = getAIClient();
 
   if (!ai) {
-    const mock = runMockGeminiReply(resolvedParams);
+    const mock = yedekCevap(resolvedParams);
     const tokens = mock.whatsapp_reply.match(/\S+\s*/g) || [
       mock.whatsapp_reply,
     ];
@@ -813,7 +842,7 @@ export async function* generateSirdasReplyStream(
     }
   }
 
-  const mock = runMockGeminiReply(resolvedParams);
+  const mock = yedekCevap(resolvedParams);
   const tokens = mock.whatsapp_reply.match(/\S+\s*/g) || [
     mock.whatsapp_reply,
   ];

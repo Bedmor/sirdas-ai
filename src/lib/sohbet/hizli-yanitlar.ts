@@ -16,6 +16,7 @@
  *   daha çok kalmaya teşvik eden kanca kurulmaz.
  */
 import { geceGecSaatMi, kapanisTespit } from "../uslup/siniflandirici";
+import { fetvaKapanisiVarMi } from "./fetva-kapanis";
 
 export type HizliYanit = { etiket: string; gonderilecek: string };
 
@@ -88,7 +89,10 @@ export function hizliYanitlar(g: HizliYanitGirdisi): HizliYanit[] {
   if (!g.icerik || !g.icerik.trim()) return [];
   if (g.status === "crisis_redirected") return [];
   if (g.guvenlikTuru === "crisis" || g.guvenlikTuru === "health" || g.guvenlikTuru === "child") return [];
-  if (g.guvenlikTuru === "fatwa" || g.status === "fatwa_blocked") return [MANEVI, DEGISTIR];
+  // 18.11 fetva yaması: fetva cevabında uyarı kutusu yok, kapanış metnin içinde; düğmeler aynı kalır.
+  if (g.guvenlikTuru === "fatwa" || g.status === "fatwa_blocked" || fetvaKapanisiVarMi(g.icerik)) {
+    return [MANEVI, DEGISTIR];
+  }
 
   if (g.kullaniciSonMesaj && kapanisTespit(g.kullaniciSonMesaj)) return [];
 

@@ -39,6 +39,7 @@ import {
 } from "@/lib/safety/triage";
 import { buildSafetyIntercept } from "@/lib/safety/intercept";
 import { hocaCevabiKalkani, hocaCevabiKuraliMi } from "@/lib/uslup/hoca-cevaplari";
+import { FETVA_KAPANIS, fetvaKapanisiEkle, fetvaPlaniKur } from "@/lib/ai/fetva-akisi";
 import { geceDavetiYapildiMi, geceGecSaatMi } from "@/lib/uslup/siniflandirici";
 import { cevapUzunluguCoz } from "@/lib/sohbet/cevap-uzunlugu";
 import { gecmisiMaskele } from "@/lib/gizlilik/maskeleme";
@@ -658,6 +659,8 @@ export async function POST(req: NextRequest) {
           let kalkanKuralKodu: string | null = null;
           const cikisSuzgeci = new CikisSuzgeci();
           let akisIntentMode: string = "BILINMIYOR";
+          // Cevapta gösterilecek uyarı kutusu/dipnot: fetva akışında FATWA_LIMIT kutusu düşer.
+          let cevapTriage = safetyTriage;
 
           try {
             jevResult = await analyzeWithJev({
@@ -686,16 +689,22 @@ export async function POST(req: NextRequest) {
               jevResult,
             });
 
+            // Fetva sorusu (18.11 yaması): model atlanmaz, üç aşamalı yönerge + harfiyen kapanış.
+            const fetvaPlani = fetvaPlaniKur(safeMessage, jevResult, safetyTriage);
+
             // Sıra: güvenlik ön süzgeci -> manevi kalkanlar -> hocanın birebir cevabı (Q&A 01-03).
+            // Fetva sorusunda hoca cevabı birebir verilmez; ilgili görüş modele isimsiz anılmak üzere gider.
             const intercept =
               buildSafetyIntercept(safetyTriage, jevResult) ??
               evaluateSpiritualGuardrails(safeMessage, jevResult) ??
-              hocaCevabiKalkani(
-                safeMessage,
-                safetyTriage,
-                jevResult,
-                intentMode === "ILIM_VE_SIYER"
-              );
+              (fetvaPlani.aktif
+                ? null
+                : hocaCevabiKalkani(
+                    safeMessage,
+                    safetyTriage,
+                    jevResult,
+                    intentMode === "ILIM_VE_SIYER"
+                  ));
 
             if (intercept) {
               statusType = intercept.status;
@@ -750,6 +759,8 @@ export async function POST(req: NextRequest) {
                 controller.enqueue(encoder.encode(frame));
               }
             } else {
+              cevapTriage = fetvaPlani.cevapTriage;
+              if (fetvaPlani.aktif) extraFlags = { fetva_uc_asama: true };
               const queryEmbedding = isRemoteDbOffline()
                 ? new Array(768).fill(0)
                 : await generateEmbedding(safeMessage);
@@ -768,7 +779,7 @@ export async function POST(req: NextRequest) {
                 intentMode,
                 jevResult,
                 sources: [],
-                safety: resolveSafetyNotice(safetyTriage, statusType),
+                safety: resolveSafetyNotice(cevapTriage, statusType),
               })}\n\n`;
               controller.enqueue(encoder.encode(metaFrame));
 
@@ -811,6 +822,7 @@ export async function POST(req: NextRequest) {
                 ragChunks: chunks,
                 conversationHistory,
                 intentMode,
+                fetvaModu: fetvaPlani.aktif,
               });
 
               let streamFinalResult: StreamReplyResult | null = null;
@@ -848,10 +860,10 @@ export async function POST(req: NextRequest) {
               // Fetva sınırı / sağlık dipnotu (yanıtta yoksa) akışın sonuna eklenir
               const footnotedReply = appendSafetyFootnote(
                 accumulatedReply,
-                safetyTriage
+                cevapTriage
               );
               if (footnotedReply !== accumulatedReply) {
-                const noteToken = `\n\n${safetyTriage?.footnote ?? ""}`;
+                const noteToken = `\n\n${cevapTriage?.footnote ?? ""}`;
                 accumulatedReply = footnotedReply;
                 controller.enqueue(
                   encoder.encode(
@@ -861,6 +873,30 @@ export async function POST(req: NextRequest) {
                     })}\n\n`
                   )
                 );
+              }
+
+              // Fetva sorusu: resmi kapanış harfiyen ve tek kez sona eklenir. Model kendi
+              // yönlendirme cümlesini yazdıysa nihai metinden ayıklanır ("done" metni esastır).
+              if (fetvaPlani.aktif) {
+                const kapanisli = fetvaKapanisiEkle(accumulatedReply);
+                if (kapanisli !== accumulatedReply) {
+                  // Önek değilse (model kendi yönlendirmesini yazmıştı) kapanış yine akışa düşer;
+                  // istemci "done" olayında metni temizlenmiş nihai hâliyle değiştirir.
+                  const ekToken = kapanisli.startsWith(accumulatedReply)
+                    ? kapanisli.slice(accumulatedReply.length)
+                    : `\n\n${FETVA_KAPANIS}`;
+                  accumulatedReply = kapanisli;
+                  if (ekToken) {
+                    controller.enqueue(
+                      encoder.encode(
+                        `event: token\ndata: ${JSON.stringify({
+                          token: ekToken,
+                          text: accumulatedReply,
+                        })}\n\n`
+                      )
+                    );
+                  }
+                }
               }
 
               // Sadece AI'ın ürettiği nihai cevap metniyle gerçekten örtüşen / atıf yapılan kaynakları göster
@@ -949,7 +985,7 @@ export async function POST(req: NextRequest) {
               editorAudit,
               sources,
               audioUrl: audioUrlSent,
-              safety: resolveSafetyNotice(safetyTriage, statusType),
+              safety: resolveSafetyNotice(cevapTriage, statusType),
               assistantMessageId,
               denetim: denetimKaydi.olaylar.map((o) => ({
                 tur: o.tur,
@@ -1021,16 +1057,24 @@ export async function POST(req: NextRequest) {
       jevResult,
     });
 
+    // Fetva sorusu (18.11 yaması): model atlanmaz, üç aşamalı yönerge + harfiyen kapanış.
+    const fetvaPlani = fetvaPlaniKur(safeMessage, jevResult, safetyTriage);
+    // Cevapta gösterilecek uyarı kutusu/dipnot: fetva akışında FATWA_LIMIT kutusu düşer.
+    let cevapTriage = safetyTriage;
+
     // Sıra: güvenlik ön süzgeci -> manevi kalkanlar -> hocanın birebir cevabı (Q&A 01-03).
+    // Fetva sorusunda hoca cevabı birebir verilmez; ilgili görüş modele isimsiz anılmak üzere gider.
     const intercept =
       buildSafetyIntercept(safetyTriage, jevResult) ??
       evaluateSpiritualGuardrails(safeMessage, jevResult) ??
-      hocaCevabiKalkani(
-        safeMessage,
-        safetyTriage,
-        jevResult,
-        intentMode === "ILIM_VE_SIYER"
-      );
+      (fetvaPlani.aktif
+        ? null
+        : hocaCevabiKalkani(
+            safeMessage,
+            safetyTriage,
+            jevResult,
+            intentMode === "ILIM_VE_SIYER"
+          ));
     let replyText = "";
     let editorAudit: UnifiedEditorAudit | Record<string, unknown>;
     let audioUrlSent: string | null = null;
@@ -1068,6 +1112,8 @@ export async function POST(req: NextRequest) {
         sources = [];
       }
     } else {
+      cevapTriage = fetvaPlani.cevapTriage;
+      if (fetvaPlani.aktif) extraFlags = { fetva_uc_asama: true };
       const queryEmbedding = isRemoteDbOffline()
         ? new Array(768).fill(0)
         : await generateEmbedding(safeMessage);
@@ -1117,6 +1163,7 @@ export async function POST(req: NextRequest) {
         ragChunks: chunks,
         conversationHistory,
         intentMode,
+        fetvaModu: fetvaPlani.aktif,
       });
 
       // Çıkış süzgeci (kural tabanlı hakem) dipnottan önce uygulanır.
@@ -1124,7 +1171,9 @@ export async function POST(req: NextRequest) {
         sirdasOutput.reply_text || sirdasOutput.whatsapp_reply || ""
       );
       cikisOlaylari = suzulmus.olaylar;
-      replyText = appendSafetyFootnote(suzulmus.metin, safetyTriage);
+      replyText = appendSafetyFootnote(suzulmus.metin, cevapTriage);
+      // Fetva sorusu: resmi kapanış harfiyen ve tek kez sona eklenir.
+      if (fetvaPlani.aktif) replyText = fetvaKapanisiEkle(replyText);
 
       // Sadece AI'ın ürettiği nihai cevap metniyle gerçekten örtüşen / atıf yapılan kaynakları göster
       const usedChunks = filterUsedSourcesByReply(chunks, replyText);
@@ -1205,7 +1254,7 @@ export async function POST(req: NextRequest) {
       editorAudit,
       sources,
       audioUrl: audioUrlSent,
-      safety: resolveSafetyNotice(safetyTriage, statusType),
+      safety: resolveSafetyNotice(cevapTriage, statusType),
       assistantMessageId,
       denetim: denetimKaydi.olaylar.map((o) => ({
         tur: o.tur,

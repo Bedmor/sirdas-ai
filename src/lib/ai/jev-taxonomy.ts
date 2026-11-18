@@ -1,3 +1,5 @@
+import { FETVA_KAPANIS } from "../sohbet/fetva-kapanis";
+
 export interface JevAnalysisRequest {
   userMessage: string;
   userContextSnippet?: string;
@@ -245,20 +247,39 @@ export const SPIRITUAL_STAGE_CRITERIA: Record<SpiritualStage, string> = {
     "Geçmiş hatalarıyla yüzleşip samimi bir arınma ve nasuh tövbesi eşiğinde olan gönül",
 };
 
-export const FATWA_REJECTION_MESSAGES: ReadonlyArray<string> = [
-  "Ben bir yapay zekâyım ve fetva mercii değilim; durumunuzun özel şartlarını eksik değerlendirmiş veya yanlış bilgi vermiş olabilirim. Bu sorunuzun şer'i/fıkhi hükmü (ibadet sıhhati, helal/haram, caiz, boşanma, miras vb.) için lütfen Diyanet İşleri Başkanlığı'nı (Alo 190 Fetva Hattı) arayınız veya ehliyetli müftülüklere danışınız.\n\n" +
-    "Ancak bu sürecin ruhunuzda, ailenizde veya iç dünyanızda oluşturduğu ağırlık, imtihan ve tevekkül boyutu üzerine dertleşebiliriz.",
-  "Bu soru bağlayıcı bir dini hüküm istiyor aziz kardeşim; böyle bir hükmü vermek bana düşmez, çünkü ben fetva makamı değilim ve sizin özel durumunuzu eksik görebilirim. Kesin cevap için Diyanet İşleri Başkanlığı Alo 190 Fetva Hattı'nı arayabilir ya da bulunduğunuz yerin müftülüğüne danışabilirsiniz.\n\n" +
+/**
+ * Fetva sorusunda model çağrılamazsa (anahtar yok / model hatası) kullanılan yedek gövdeler.
+ * 18.11 fetva yaması: gövde hüküm vermez, Alo 190 cümlesi içermez; resmi kapanış
+ * (FETVA_KAPANIS) her zaman sona harfiyen eklenir. "Fıtrat/fıtrî" kullanılmaz.
+ */
+export const FATWA_FALLBACK_BODIES: ReadonlyArray<string> = [
+  "Bu soru gönlünüzde bir telaş uyandırmış olmalı; bir ibadetin ya da bir kararın doğru olup olmadığını merak etmek, kalbin terazisinin hâlâ hassas çalıştığını gösterir.\n\n" +
+    "Hüküm kısmında size yanlış yol göstermekten çekinirim; ancak bu meselenin ruhunuzda, ailenizde veya iç dünyanızda bıraktığı ağırlık üzerine seve seve dertleşebiliriz.",
+  "Böyle bir soruyu sormanız, vicdanınızın işini ciddiye aldığını gösteriyor. Bağlayıcı bir dini hükmü vermek bana düşmez; sizin özel durumunuzu eksik görebilirim.\n\n" +
     "Bu meselenin gönlünüzde bıraktığı yük üzerine ise seve seve konuşabiliriz.",
-  "Hüküm kısmında size yanlış yol göstermekten çekinirim; bir yapay zekâ olarak fetva veremem. Bu konuda en sağlıklı cevabı Diyanet'in Alo 190 Fetva Hattı ya da müftülükteki ehil hocalar verir.\n\n" +
+  "İnsanın iç sesi bazen bir meselede durup \"doğru mu yapıyorum?\" diye sorar; bu soru kulluğun inceliğindendir. Hüküm kısmında size yanlış yol göstermekten çekinirim.\n\n" +
     "İsterseniz bu durumun size neler hissettirdiğini anlatın, o tarafında yanınızdayım.",
 ];
 
-/** Aynı soruya hep aynı kalıp cümle dönmesin (Adnan 18.11): mesaja göre üç söyleyişten biri seçilir. */
-export function fatwaRejectionMessage(userMessage = ""): string {
+/** Yedek kalıp cevaplar: gövde + harfiyen resmi kapanış. */
+export const FATWA_REJECTION_MESSAGES: ReadonlyArray<string> = FATWA_FALLBACK_BODIES.map(
+  (b) => `${b}\n\n${FETVA_KAPANIS}`
+);
+
+function fatwaVariantIndex(userMessage: string): number {
   let h = 0;
   for (const ch of userMessage) h = (h * 31 + ch.codePointAt(0)!) >>> 0;
-  return FATWA_REJECTION_MESSAGES[h % FATWA_REJECTION_MESSAGES.length];
+  return h % FATWA_FALLBACK_BODIES.length;
+}
+
+/** Aynı soruya hep aynı kalıp cümle dönmesin (Adnan 18.11): mesaja göre üç gövdeden biri seçilir. */
+export function fatwaRejectionBody(userMessage = ""): string {
+  return FATWA_FALLBACK_BODIES[fatwaVariantIndex(userMessage)];
+}
+
+/** Yedek kalıp cevap (gövde + kapanış). */
+export function fatwaRejectionMessage(userMessage = ""): string {
+  return FATWA_REJECTION_MESSAGES[fatwaVariantIndex(userMessage)];
 }
 
 /** Geriye dönük uyum: ilk söyleyiş. */

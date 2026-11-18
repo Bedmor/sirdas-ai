@@ -259,7 +259,10 @@ const WORSHIP_CONTEXT_PATTERN =
 const FATWA_PATTERNS: ReadonlyArray<RegExp> = [
   /\b(helal|haram|caiz|gunah|mubah|mekruh|farz|vacip|sevap)\s*(mi|mu|midir|mudur|olur\s*mu|sayilir\s*mi)\b/,
   /\bhelal\s*mi\s*haram\s*mi/,
-  /\bfetva/,
+  // 18.11 fetva yaması: çıplak "fetva" kelimesi ("sen hani fetva vermiyordun") sohbet sayılır;
+  // yalnız fetva TALEBİ yakalanır.
+  /\bfetva\s*(verir\s*mi|verebilir\s*mi|ver\s*bana|ver\s*lutfen|istiyorum|isterim|lazim|gerek)/,
+  /\bfetva(si|n|niz|niz\s*da)\s*(nedir|ne\b|nasil)/,
   // 18.11 (kaza namazı sorusu): uygulama sorularına da fetva dipnotu eklenir, cevap modele kalır
   /\b(kaza\s*namaz|kefaret|fidye)\p{L}*\b.*\b(nasil|var\s*mi|gerek|lazim|kilmali|odemeli|vermeli|hukm)/u,
   /\b(dini|seri|fikhi)\s*hukmu/,

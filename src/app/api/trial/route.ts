@@ -19,6 +19,7 @@ import { sanitizeIncomingUserMessage } from "@/lib/ai/pii-anonymizer";
 import { runSafetyTriage } from "@/lib/safety/triage";
 import { buildSafetyIntercept } from "@/lib/safety/intercept";
 import { hocaCevabiKalkani } from "@/lib/uslup/hoca-cevaplari";
+import { FETVA_KAPANIS, fetvaKapanisiEkle, fetvaPlaniKur } from "@/lib/ai/fetva-akisi";
 import { CikisSuzgeci, cikisSuzgeciUygula, type CikisOlayi } from "@/lib/gizlilik/cikis-suzgeci";
 import {
   denetimKaydiOlustur,
@@ -281,10 +282,12 @@ export async function POST(req: NextRequest) {
               userContextSnippet: JSON.stringify({ source: "web_landing_trial" }),
             });
 
+            // Fetva sorusu (18.11 yaması): model atlanmaz, üç aşamalı yönerge + harfiyen kapanış.
+            const fetvaPlani = fetvaPlaniKur(safeMessage, jevResult, safetyTriage);
             const intercept =
               buildSafetyIntercept(safetyTriage, jevResult) ??
               evaluateSpiritualGuardrails(safeMessage, jevResult) ??
-              hocaCevabiKalkani(safeMessage, safetyTriage, jevResult);
+              (fetvaPlani.aktif ? null : hocaCevabiKalkani(safeMessage, safetyTriage, jevResult));
 
             if (intercept) {
               statusType = intercept.status;
@@ -341,6 +344,7 @@ export async function POST(req: NextRequest) {
                 nafsTrap: jevResult.nafs_trap,
                 ragCategory: jevResult.rag_category,
                 ragChunks: chunks,
+                fetvaModu: fetvaPlani.aktif,
               });
 
               let hasStrippedGreeting = false;
@@ -402,6 +406,19 @@ export async function POST(req: NextRequest) {
                 accumulatedReply += kalanToken;
                 const frame = `event: token\ndata: ${JSON.stringify({ token: kalanToken, text: accumulatedReply })}\n\n`;
                 controller.enqueue(encoder.encode(frame));
+              }
+
+              // Fetva sorusu: resmi kapanış harfiyen ve tek kez sona eklenir ("done" metni esastır).
+              if (fetvaPlani.aktif) {
+                const kapanisli = fetvaKapanisiEkle(accumulatedReply);
+                if (kapanisli !== accumulatedReply) {
+                  const ekToken = kapanisli.startsWith(accumulatedReply)
+                    ? kapanisli.slice(accumulatedReply.length)
+                    : `\n\n${FETVA_KAPANIS}`;
+                  accumulatedReply = kapanisli;
+                  const frame = `event: token\ndata: ${JSON.stringify({ token: ekToken, text: accumulatedReply })}\n\n`;
+                  controller.enqueue(encoder.encode(frame));
+                }
               }
 
               const usedChunks = filterUsedSourcesByReply(
@@ -522,10 +539,12 @@ export async function POST(req: NextRequest) {
       userContextSnippet: JSON.stringify({ source: "web_landing_trial" }),
     });
 
+    // Fetva sorusu (18.11 yaması): model atlanmaz, üç aşamalı yönerge + harfiyen kapanış.
+    const fetvaPlani = fetvaPlaniKur(safeMessage, jevResult, safetyTriage);
     const intercept =
       buildSafetyIntercept(safetyTriage, jevResult) ??
       evaluateSpiritualGuardrails(safeMessage, jevResult) ??
-      hocaCevabiKalkani(safeMessage, safetyTriage, jevResult);
+      (fetvaPlani.aktif ? null : hocaCevabiKalkani(safeMessage, safetyTriage, jevResult));
 
     let replyText = "";
     let editorAudit: UnifiedEditorAudit | Record<string, unknown>;
@@ -579,13 +598,14 @@ export async function POST(req: NextRequest) {
         nafsTrap: jevResult.nafs_trap,
         ragCategory: jevResult.rag_category,
         ragChunks: chunks,
+        fetvaModu: fetvaPlani.aktif,
       });
 
       const suzulmus = cikisSuzgeciUygula(
         sirdasReply.reply_text || sirdasReply.whatsapp_reply || ""
       );
       cikisOlaylari = suzulmus.olaylar;
-      replyText = suzulmus.metin;
+      replyText = fetvaPlani.aktif ? fetvaKapanisiEkle(suzulmus.metin) : suzulmus.metin;
       editorAudit = sirdasReply.editor_audit;
 
       const usedChunks = filterUsedSourcesByReply(chunks, replyText);

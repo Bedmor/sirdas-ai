@@ -16,7 +16,7 @@ import {
  * Cevap metni değiştirilmez: yalnız baştan tam cümleler alınır.
  */
 
-export const KART_IMZASI = "Sırdaş AI";
+export const KART_IMZASI = "Manevi Pusula";
 
 const RENK = {
   zeminUst: "#f4ecdd",

@@ -250,7 +250,7 @@ export const SPIRITUAL_STAGE_CRITERIA: Record<SpiritualStage, string> = {
 /**
  * Fetva sorusunda model çağrılamazsa (anahtar yok / model hatası) kullanılan yedek gövdeler.
  * 18.11 fetva yaması: gövde hüküm vermez, Alo 190 cümlesi içermez; resmi kapanış
- * (FETVA_KAPANIS) her zaman sona harfiyen eklenir. "Fıtrat/fıtrî" kullanılmaz.
+ * (FETVA_KAPANIS) her zaman sona harfiyen eklenir. "Fıtrî" kullanılmaz.
  */
 export const FATWA_FALLBACK_BODIES: ReadonlyArray<string> = [
   "Bu soru gönlünüzde bir telaş uyandırmış olmalı; bir ibadetin ya da bir kararın doğru olup olmadığını merak etmek, kalbin terazisinin hâlâ hassas çalıştığını gösterir.\n\n" +

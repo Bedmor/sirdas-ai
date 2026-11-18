@@ -133,9 +133,13 @@ export function geceDavetiYapildiMi(asistanCevaplari: ReadonlyArray<string>, son
  * Süslü ve ağır kelimelerin sohbet içinde tekrarı.
  * Adnan abi 17.11: "fıtrî" kelimesini çok sık kullanıyor. Bir kez geçtiyse
  * aynı sohbette tekrar kullanılmaz.
+ * 18.11 müşteri ayrımı: "fıtrî" (doğal/tabii anlamı) varsayılan olarak hiç kullanılmaz;
+ * "fıtrat" (yaradılıştaki saf hal) ölçülü serbesttir ama aynı sohbette tekrarlanmaz.
+ * İkisi ayrı izlenir: "fıtrî" iz'i "fıtrat"ı yakalamaz (fıtr + î/i, fıtratta r'den sonra "a" gelir).
  */
 export const SIK_SOZLER: ReadonlyArray<{ etiket: string; iz: RegExp }> = [
-  { etiket: "fıtrî / fıtrat", iz: /f[ıi]tr(?:[îiıa]|at)/i },
+  { etiket: "fıtrî", iz: /f[ıi]tr[îi]/i },
+  { etiket: "fıtrat", iz: /f[ıi]trat/i },
   { etiket: "aziz dostum", iz: /aziz\s+dost/i },
 ];
 

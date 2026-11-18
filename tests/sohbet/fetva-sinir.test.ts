@@ -19,6 +19,8 @@ import { evaluateSpiritualGuardrails } from "../../src/lib/ai/rag-pipeline";
 import {
   FETVA_KAPANIS,
   FETVA_UC_ASAMA_YONERGESI,
+  FETVA_PRATIK_ILMIHAL_YONERGESI,
+  fetvaSoruTuru,
   fetvaKapanisiEkle,
   fetvaPlaniKur,
   fetvaYedekCevabi,
@@ -210,23 +212,78 @@ test("fetva yedeği: anahtar yokken model yerine yedek cevap döner (düz ve ak�
 
 // --- Talimat ---
 
-test("fetva talimatı: üç aşama var, fıtrat/fıtrî kullanımı yasak, kapanışı model yazmaz", () => {
+test("fetva talimatı: üç aşama var, saf fıtrata atıf serbest, fıtrî yasak, kapanışı model yazmaz", () => {
   assert.match(FETVA_UC_ASAMA_YONERGESI, /ŞEFKATLİ GİRİŞ/);
   assert.match(FETVA_UC_ASAMA_YONERGESI, /İLMİ VE MANEVİ ZEMİN/);
   assert.match(FETVA_UC_ASAMA_YONERGESI, /KAPANIŞ/);
-  assert.match(FETVA_UC_ASAMA_YONERGESI, /"Fıtrat" ve "fıtrî" kelimelerini KULLANMA/);
+  // 18.11 müşteri ayrımı: "fıtrat" yaradılıştaki saf hal anlamında ölçülü serbest, "fıtrî" yasak.
+  assert.match(FETVA_UC_ASAMA_YONERGESI, /saf fıtrata \(yaradılıştaki saf hale\)/);
+  assert.match(FETVA_UC_ASAMA_YONERGESI, /"Fıtrat" kelimesini bu cevapta en fazla bir kez/);
+  assert.match(FETVA_UC_ASAMA_YONERGESI, /"fıtrî" kelimesini KULLANMA/);
   assert.match(FETVA_UC_ASAMA_YONERGESI, /vicdan/);
   assert.match(FETVA_UC_ASAMA_YONERGESI, /SEN YAZMA/);
   assert.match(FETVA_UC_ASAMA_YONERGESI, /âlimlerin çoğunluğuna göre/);
-  // Yasak cümlesi dışında fıtrat kelimesi geçmez (talimat kelimeyi kendisi kullanmaz).
-  const yasaksiz = FETVA_UC_ASAMA_YONERGESI.replace(/"Fıtrat" ve "fıtrî" kelimelerini KULLANMA/, "");
-  assert.ok(!/f[ıi]tr/i.test(yasaksiz));
+  // Talimat "fıtrî"yi yasak cümlesi dışında kendisi kullanmaz.
+  const yasaksiz = FETVA_UC_ASAMA_YONERGESI.replace(/"fıtrî" kelimesini KULLANMA/, "");
+  assert.ok(!/f[ıi]tr[îi]/i.test(yasaksiz));
 
   for (const talimat of [SIRDAS_MANEVI_AYNA_INSTRUCTION, SIRDAS_ILIM_VE_SIYER_INSTRUCTION]) {
-    assert.match(talimat, /FETVA SINIRI \(ÜÇ AŞAMALI CEVAP\)/);
-    assert.match(talimat, /"fıtrat" ve "fıtrî" kelimelerini kullanma/);
+    assert.match(talimat, /FETVA SINIRI \(İKİ KOLLU CEVAP\)/);
+    assert.match(talimat, /PRATİK İLMİHAL/);
+    assert.match(talimat, /"fıtrî" kelimesini kullanma/);
+    assert.match(talimat, /AKIL VE GERÇEKLİK SÜZGECİ/);
+    assert.match(talimat, /6-17 yaş arası makul bir yaş beyanını \("12 yaşındayım", "lisedeyim"\) ASLA alaya alma/);
     assert.ok(talimat.includes(ALIM_GORUSU_BOLUMU));
   }
+});
+
+// --- Fetva v2: iki kollu ---
+
+test("fetva v2: teknik ilmihal soruları pratik kola, kalbi/hüküm soruları üç aşamaya gider", () => {
+  const pratik = [
+    "sehiv secdesi nasıl yapılır",
+    "gusülde ağza su vermek farz mı",
+    "abdest nasıl alınır",
+    "vitir namazı kaç rekat",
+    "teyemmüm nasıl yapılır",
+  ];
+  for (const m of pratik) {
+    assert.equal(fetvaSoruTuru(m), "PRATIK_ILMIHAL", m);
+    const a = akis(m);
+    assert.equal(a.plan.aktif, true, `kapanış alır: ${m}`);
+    assert.equal(a.plan.tur, "PRATIK_ILMIHAL", m);
+    const y = fetvaYonergesiKur(m);
+    assert.ok(y.includes("[FETVA SORUSU: PRATİK İLMİHAL]"), m);
+    assert.ok(!y.includes("ÜÇ AŞAMALI"), m);
+  }
+  const kalbi = [
+    "vicdanım çok rahatsız, namazı geç kılmak günah mı",
+    "rızkım daraldı, bu iş caiz mi",
+    "faizli kredi çeksem olur mu",
+    "namazda gülmek namazı bozar mı",
+    "eşime üç kere boş ol dedim boşandık mı",
+    "mirasta kız çocuğunun payı ne kadar",
+    "kaza namazı borcum var içim çok sıkılıyor nasıl kılmalıyım",
+  ];
+  for (const m of kalbi) {
+    assert.equal(fetvaSoruTuru(m), "KALBI_HUKUM", m);
+    assert.ok(fetvaYonergesiKur(m).includes("[FETVA SORUSU: ÜÇ AŞAMALI CEVAP]"), m);
+  }
+  // Fıkıh dışı sorular fetva akışına girmez.
+  assert.equal(akis("Bugün içim sıkılıyor").plan.aktif, false);
+  assert.equal(akis("nasıl sabredebilirim").plan.aktif, false);
+});
+
+test("fetva v2: pratik yönerge kısa, Hanefî çerçeveli, kapanışı model yazmaz; yedekte de kapanış var", () => {
+  assert.match(FETVA_PRATIK_ILMIHAL_YONERGESI, /Hanefî mezhebine göre/);
+  assert.match(FETVA_PRATIK_ILMIHAL_YONERGESI, /mezhep farkı/);
+  assert.match(FETVA_PRATIK_ILMIHAL_YONERGESI, /Edebiyat, duygu/);
+  assert.match(FETVA_PRATIK_ILMIHAL_YONERGESI, /SEN YAZMA/);
+  const istem = sonIstem(modelParametreleri("sehiv secdesi nasıl yapılır", true));
+  assert.ok(istem.includes("[FETVA SORUSU: PRATİK İLMİHAL]"));
+  const y = fetvaYedekCevabi("abdest nasıl alınır");
+  assert.ok(y.endsWith(FETVA_KAPANIS));
+  assert.equal(kapanisSayisi(y), 1);
 });
 
 test("fetva talimatı: yalnız fetva sorusunda modele eklenir, kısa soru 'kısa selam' kuralına düşmez", () => {

@@ -103,8 +103,10 @@ test("gece daveti: bir kez yapılınca tekrar edilmez", () => {
 
 test("kelime tekrarı: fıtrî bir kez geçince yönerge gelir", () => {
   assert.deepEqual(tekrarlananSozler(["Sabır üzerine güzel bir ayet var."]), []);
-  assert.deepEqual(tekrarlananSozler(["Bu çok fıtrî bir duygudur kardeşim."]), ["fıtrî / fıtrat"]);
-  assert.deepEqual(tekrarlananSozler(["İnsanın fıtratında var."]), ["fıtrî / fıtrat"]);
+  // 18.11 müşteri ayrımı: "fıtrî" (doğal anlamı) ve "fıtrat" (yaradılıştaki saf hal) ayrı izlenir.
+  assert.deepEqual(tekrarlananSozler(["Bu çok fıtrî bir duygudur kardeşim."]), ["fıtrî"]);
+  assert.deepEqual(tekrarlananSozler(["Yorulmak fıtridir."]), ["fıtrî"]);
+  assert.deepEqual(tekrarlananSozler(["İnsanın fıtratında var."]), ["fıtrat"]);
   const y = uslupYonergesiKur({
     mesaj: "Peki ne yapayım?",
     gecmis: [

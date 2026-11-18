@@ -21,6 +21,7 @@ import {
 } from "./siniflandirici";
 import { espriUygunMu } from "./espri";
 import type { SessionMood } from "../ai/jev-taxonomy";
+import { imkansizBeyanTespit, type ImkansizBeyan } from "../safety/triage";
 
 export { USLUP_SISTEM_BOLUMU, USLUP_ILIM_BOLUMU, USLUP_YONERGELERI } from "./kurallar";
 export { HOCA_SOZLERI_BOLUMU, HOCA_SOZLERI_GUVENLIK_YONERGESI } from "./hoca-sozleri";
@@ -55,6 +56,8 @@ export interface UslupAnalizi {
   kurguIsaretleri: string[];
   kurguGercekSoru: boolean;
   yasCeliskisi: boolean;
+  /** Akıl ve gerçeklik süzgeci: açıkça imkânsız beyan (bebek yaşı, okuma yazma bilmeyen, ölü). Güvenlik önceliğinde null. */
+  akilSuzgeci: ImkansizBeyan | null;
   dongu: boolean;
   donguBenzerlik: number;
   kalipAcilislar: string[];
@@ -85,13 +88,17 @@ export function uslupAnalizEt(girdi: UslupGirdisi): UslupAnalizi {
   const dongu = donguTespit(mesaj, kullaniciMesajlari);
   const kapanis = kapanisTespit(mesaj);
   const mesajSayisi = girdi.oturumMesajSayisi ?? kullaniciMesajlari.length + 1;
+  // Kriz, istismar, şiddet ve sağlık işaretinde akıl süzgeci devreye girmez (ironi yok).
+  const akilSuzgeci = guvenlikOncelikli ? null : imkansizBeyanTespit(mesaj);
 
   return {
     guvenlikOncelikli,
     kurgu: kurgu.kurgu,
     kurguIsaretleri: kurgu.isaretler,
     kurguGercekSoru: kurgu.gercekDiniSoru,
-    yasCeliskisi: kurgu.yasCeliskisi,
+    // Akıl süzgeci varsa yaş çelişkisi yönergesi ayrıca verilmez (ikisi çelişir).
+    yasCeliskisi: kurgu.yasCeliskisi && !akilSuzgeci,
+    akilSuzgeci,
     // Kriz/sağlık mesajında döngü kesici devreye girmez: her seferinde tam ilgi gösterilir.
     dongu: dongu.dongu && !guvenlikOncelikli,
     donguBenzerlik: dongu.enYuksekBenzerlik,
@@ -132,6 +139,9 @@ export function uslupYonergesiKur(girdi: UslupGirdisi, analiz = uslupAnalizEt(gi
   if (analiz.kurgu) {
     satirlar.push(USLUP_YONERGELERI.kurgu(analiz.kurguIsaretleri));
     if (analiz.kurguGercekSoru) satirlar.push(USLUP_YONERGELERI.kurguGercekSoru);
+  }
+  if (analiz.akilSuzgeci) {
+    satirlar.push(USLUP_YONERGELERI.akilSuzgeci);
   }
   if (analiz.yasCeliskisi && !analiz.guvenlikOncelikli) {
     satirlar.push(USLUP_YONERGELERI.yasCeliskisi);

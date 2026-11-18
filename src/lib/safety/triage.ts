@@ -355,6 +355,39 @@ export function detectDeclaredAge(input: string): number | null {
 export const CHILD_AGE_LIMIT = 12;
 
 // ---------------------------------------------------------------------------
+// Akıl ve gerçeklik süzgeci (18.11 müşteri yaması): açıkça imkânsız beyanlar
+// ---------------------------------------------------------------------------
+
+/** Bu yaşın ve altının yazıyla soru sorması imkânsız sayılır (0-5). 6-17 makul yaştır, asla alaya alınmaz. */
+export const AKIL_SUZGECI_YAS_SINIRI = 5;
+
+/** Ebeveyn kendi çocuğunu anlatıyorsa ("3 yaşında bir çocuğum var", "kızım hasta") süzgeç çalışmaz. */
+const EBEVEYN_ANLATIMI =
+  /\b(cocugum|bebegim|oglum|kizim|yavrum|torunum)\s+(var|oldu|dogdu|hasta)|\b(annesiyim|babasiyim)\b|\b(annesi|babasi)\s+olarak\b|\byasindaki\b/;
+const OKUMA_YAZMA_BILMEYEN = /\bokuma\s*yazma\s*(bilmeyen|bilmiyorum|bilmem)\b/;
+const YAZIYORUM = /\b(yaziyorum|yazabiliyorum|yazdim)\b/;
+const OLU_BEYANI =
+  /\b(olu\s+biriyim|ben\s+bir\s+oluyum|mezardan\s+yaziyorum|mezarimdan\s+yaziyorum|obur\s+dunyadan\s+yaziyorum|ahiretten\s+yaziyorum|oldukten\s+sonra\s+yaziyorum)\b/;
+
+export type ImkansizBeyan = "BEBEK_YASI" | "OKUMA_YAZMA" | "OLU";
+
+/**
+ * Mesajda AÇIKÇA imkânsız bir beyan var mı: yazıyla soru soran birinin kendini 0-5 yaşında
+ * tanıtması, okuma yazma bilmediğini yazarak söylemesi ya da ölü olduğunu söylemesi.
+ * Dar ve kesin kalıplar; emin değilse null. Kriz/istismar önceliğini çağıran taraf korur.
+ */
+export function imkansizBeyanTespit(message: string): ImkansizBeyan | null {
+  if (!message || !message.trim()) return null;
+  const t = foldTurkish(message);
+  if (OLU_BEYANI.test(t)) return "OLU";
+  const age = detectDeclaredAge(message);
+  const bebekYasi = age !== null && age <= AKIL_SUZGECI_YAS_SINIRI && !EBEVEYN_ANLATIMI.test(t);
+  if (OKUMA_YAZMA_BILMEYEN.test(t) && (bebekYasi || YAZIYORUM.test(t))) return "OKUMA_YAZMA";
+  if (bebekYasi) return "BEBEK_YASI";
+  return null;
+}
+
+// ---------------------------------------------------------------------------
 // Sabit yanıt metinleri
 // ---------------------------------------------------------------------------
 
@@ -524,7 +557,11 @@ export function runSafetyTriage(message: string): SafetyTriageResult | null {
     );
   }
 
-  if (isChild) {
+  // Akıl süzgeci (18.11): yazıyla soru soran "2 yaşındayım" beyanı imkânsızdır; kalıp çocuk
+  // cevabı yerine model, tebessümlü bir gerçeklik hatırlatmasıyla cevap verir (uslup: akilSuzgeci).
+  // 6-11 yaş beyanı eskisi gibi çocuk akışında kalır. Kriz/istismar/sağlık yukarıda zaten önce gelir.
+  const imkansizBebekYasi = isChild && imkansizBeyanTespit(message) !== null;
+  if (isChild && !imkansizBebekYasi) {
     return bypass(
       "CHILD_AGE",
       "SAFETY_CHILD_AGE",

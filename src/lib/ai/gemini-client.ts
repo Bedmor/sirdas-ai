@@ -689,7 +689,7 @@ export function runMockGeminiReply(
     )
   ) {
     whatsappReply =
-      `Geçim derdi de gelecek kaygısı da insanı gerçekten yorar aziz dostum. Çünkü insan tek başına her şeye yetebilecek, bütün dünyayı sırtında taşıyabilecek şekilde yaratılmadı. Bütün bu yükleri sadece kendi sınırlı gücünle göğüslemeye kalktığında nefesinin daralması ve tükenmiş hissetmen son derece fıtrî ve insanidir.\n\n` +
+      `Geçim derdi de gelecek kaygısı da insanı gerçekten yorar aziz dostum. Çünkü insan tek başına her şeye yetebilecek, bütün dünyayı sırtında taşıyabilecek şekilde yaratılmadı. Bütün bu yükleri sadece kendi sınırlı gücünle göğüslemeye kalktığında nefesinin daralması ve tükenmiş hissetmen son derece doğal ve insanidir.\n\n` +
       `Böyle zamanlarda zihin her belirsizliği aynı anda çözmeye kalkar ve insanı tüketir. Oysa hayatın en daraldığı anlarda bile sebepler dairesinde elinden gelen gayreti gösterip gerisini Rezzâk ve Kadîr olan Rabbine emanet etmek insana asıl ferahlığı verir. Cenâb-ı Hakk'ın her darlığın arkasında bir inşirah ve kolaylık kapısı açtığını unutma; yalnız değilsin.\n\n` +
       `Bugün kendine biraz nefes alma fırsatı tanı, zihnini dinlendir ve yükünü O'na emanet et. Güvendiğin biriyle konuşmak da iyi gelir; gönlün ferah olsun.`;
   } else if (quranOrPrimary || hadithOrSiyer) {

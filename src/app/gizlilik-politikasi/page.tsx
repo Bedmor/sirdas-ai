@@ -1,6 +1,6 @@
 import React from "react";
 import type { Metadata } from "next";
-import { Navbar } from "@/components/layout/Navbar";
+import { AracKabugu } from "@/components/kabuk/arac-kabugu";
 import { Footer } from "@/components/layout/Footer";
 import { DisclaimerBanner } from "@/components/layout/DisclaimerBanner";
 
@@ -13,8 +13,7 @@ export const metadata: Metadata = {
 export default function PrivacyPolicyPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background font-body text-on-surface antialiased selection:bg-primary selection:text-on-primary spiritual-bg-pattern">
-      <DisclaimerBanner />
-      <Navbar />
+      <AracKabugu geriHref="/" ust={<DisclaimerBanner />}>
 
       <main className="flex-1 py-12 md:py-20 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
         <div className="space-y-10">
@@ -167,6 +166,9 @@ export default function PrivacyPolicyPage() {
       </main>
 
       <Footer />
+      {/* Alt sekme çubuğu içeriği örtmesin */}
+      <div aria-hidden="true" className="h-24" />
+      </AracKabugu>
     </div>
   );
 }

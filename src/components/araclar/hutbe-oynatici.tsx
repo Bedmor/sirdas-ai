@@ -73,15 +73,15 @@ export function HutbeOynatici({ src, baslik, tarih }: { src: string; baslik: str
       </div>
 
       <div className="mt-2 flex flex-col-reverse items-center gap-3 sm:flex-row sm:justify-between">
-        <div role="group" aria-label="Oynatma hızı" className="flex rounded-full border border-outline-variant/50 bg-surface-container p-0.5">
+        <div role="group" aria-label="Oynatma hızı" className="flex rounded-full border border-outline/60 bg-surface-container-lowest/80 p-0.5">
           {HIZLAR.map((h) => (
             <button
               key={h}
               type="button"
               aria-pressed={s.hiz === h}
               onClick={() => s.hizAyarla(h)}
-              className={`min-h-[36px] min-w-[44px] rounded-full px-2 text-[12px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
-                s.hiz === h ? "bg-primary text-on-primary" : "text-on-surface-variant hover:text-on-surface"
+              className={`min-h-[36px] min-w-[48px] rounded-full px-2.5 text-[13px] font-bold tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                s.hiz === h ? "bg-primary text-on-primary shadow-m3-1" : "text-on-surface hover:bg-surface-container-highest"
               }`}
             >
               {h}x

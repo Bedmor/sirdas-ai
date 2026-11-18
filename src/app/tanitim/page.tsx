@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { DisclaimerBanner } from "@/components/layout/DisclaimerBanner";
-import { Navbar } from "@/components/layout/Navbar";
+import { AracKabugu } from "@/components/kabuk/arac-kabugu";
 import { Footer } from "@/components/layout/Footer";
 import { AskidaSirdasSection } from "@/components/landing/askida-sirdas-section";
 import { BAGIS_AKTIF } from "@/lib/ozellikler";
@@ -12,8 +12,7 @@ import { BAGIS_AKTIF } from "@/lib/ozellikler";
 export default function TanitimLandingPage() {
   return (
     <>
-      <DisclaimerBanner />
-      <Navbar />
+      <AracKabugu geriHref="/" ust={<DisclaimerBanner />}>
 
       <main className="w-full" id="ana-icerik" role="main">
         <div className="flex flex-col w-full relative overflow-hidden">
@@ -263,6 +262,9 @@ export default function TanitimLandingPage() {
       </main>
 
       <Footer />
+      {/* Alt sekme çubuğu içeriği örtmesin */}
+      <div aria-hidden="true" className="h-24" />
+      </AracKabugu>
     </>
   );
 }

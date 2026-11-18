@@ -245,9 +245,24 @@ export const SPIRITUAL_STAGE_CRITERIA: Record<SpiritualStage, string> = {
     "Geçmiş hatalarıyla yüzleşip samimi bir arınma ve nasuh tövbesi eşiğinde olan gönül",
 };
 
-export const FATWA_REJECTION_MESSAGE =
+export const FATWA_REJECTION_MESSAGES: ReadonlyArray<string> = [
   "Ben bir yapay zekâyım ve fetva mercii değilim; durumunuzun özel şartlarını eksik değerlendirmiş veya yanlış bilgi vermiş olabilirim. Bu sorunuzun şer'i/fıkhi hükmü (ibadet sıhhati, helal/haram, caiz, boşanma, miras vb.) için lütfen Diyanet İşleri Başkanlığı'nı (Alo 190 Fetva Hattı) arayınız veya ehliyetli müftülüklere danışınız.\n\n" +
-  "Ancak bu sürecin ruhunuzda, ailenizde veya iç dünyanızda oluşturduğu ağırlık, imtihan ve tevekkül boyutu üzerine dertleşebiliriz.";
+    "Ancak bu sürecin ruhunuzda, ailenizde veya iç dünyanızda oluşturduğu ağırlık, imtihan ve tevekkül boyutu üzerine dertleşebiliriz.",
+  "Bu soru bağlayıcı bir dini hüküm istiyor aziz kardeşim; böyle bir hükmü vermek bana düşmez, çünkü ben fetva makamı değilim ve sizin özel durumunuzu eksik görebilirim. Kesin cevap için Diyanet İşleri Başkanlığı Alo 190 Fetva Hattı'nı arayabilir ya da bulunduğunuz yerin müftülüğüne danışabilirsiniz.\n\n" +
+    "Bu meselenin gönlünüzde bıraktığı yük üzerine ise seve seve konuşabiliriz.",
+  "Hüküm kısmında size yanlış yol göstermekten çekinirim; bir yapay zekâ olarak fetva veremem. Bu konuda en sağlıklı cevabı Diyanet'in Alo 190 Fetva Hattı ya da müftülükteki ehil hocalar verir.\n\n" +
+    "İsterseniz bu durumun size neler hissettirdiğini anlatın, o tarafında yanınızdayım.",
+];
+
+/** Aynı soruya hep aynı kalıp cümle dönmesin (Adnan 18.11): mesaja göre üç söyleyişten biri seçilir. */
+export function fatwaRejectionMessage(userMessage = ""): string {
+  let h = 0;
+  for (const ch of userMessage) h = (h * 31 + ch.codePointAt(0)!) >>> 0;
+  return FATWA_REJECTION_MESSAGES[h % FATWA_REJECTION_MESSAGES.length];
+}
+
+/** Geriye dönük uyum: ilk söyleyiş. */
+export const FATWA_REJECTION_MESSAGE = FATWA_REJECTION_MESSAGES[0];
 
 export const CRISIS_EMERGENCY_MESSAGE =
   "İnsan bazen öyle bir acıya ve çaresizliğe düşer ki her şey üstüne geliyormuş gibi olur aziz kardeşim. Şu an hiçbir yükü tek başınıza omuzlamak zorunda değilsiniz.\n\n" +
@@ -303,7 +318,12 @@ export const FATWA_KEYWORDS: ReadonlyArray<string> = [
   "orucum geçerli mi",
   "oruç kabul olur mu",
   "orucum kabul olur mu",
-  "fetva",
+  // 18.11: çıplak "fetva" kaldırıldı ("sen fetva vermiyordun" gibi sohbet kalıp cevaba düşüyordu)
+  "fetva verir misin",
+  "fetva ver bana",
+  "fetvası nedir",
+  "fetvası ne",
+  "fetvan nedir",
   "hükmü nedir",
   "fıkhi hükmü",
   "fıkhen",

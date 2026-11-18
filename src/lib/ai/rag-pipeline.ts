@@ -15,6 +15,7 @@ import { filterUsedSourcesByReply, isSourceUsedInReply } from "./source-citation
 export { filterUsedSourcesByReply, isSourceUsedInReply };
 import {
   FATWA_REJECTION_MESSAGE,
+  fatwaRejectionMessage,
   CRISIS_EMERGENCY_MESSAGE,
   checkViolenceAndAbuse,
   checkCrisisAndSuicide,
@@ -194,7 +195,7 @@ export function evaluateSpiritualGuardrails(
   if (jevResult.is_fiqh_fatwa_request >= 0.75) {
     return {
       status: "fatwa_blocked",
-      replyText: FATWA_REJECTION_MESSAGE,
+      replyText: fatwaRejectionMessage(userMessage),
       extraFlags: { bypassed_to_fatwa_block: true },
       editorAudit: {
         murakabe_applied: true,

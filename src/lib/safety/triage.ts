@@ -260,6 +260,8 @@ const FATWA_PATTERNS: ReadonlyArray<RegExp> = [
   /\b(helal|haram|caiz|gunah|mubah|mekruh|farz|vacip|sevap)\s*(mi|mu|midir|mudur|olur\s*mu|sayilir\s*mi)\b/,
   /\bhelal\s*mi\s*haram\s*mi/,
   /\bfetva/,
+  // 18.11 (kaza namazı sorusu): uygulama sorularına da fetva dipnotu eklenir, cevap modele kalır
+  /\b(kaza\s*namaz|kefaret|fidye)\p{L}*\b.*\b(nasil|var\s*mi|gerek|lazim|kilmali|odemeli|vermeli|hukm)/u,
   /\b(dini|seri|fikhi)\s*hukmu/,
   /\bhukmu\s*(nedir|ne)\b/,
   /\bdinen\s*(uygun\s*mu|caiz|sakincasi|bir\s*sakinca|gecerli\s*mi|dogru\s*mu)/,

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { hataBildirimiTespit } from "@/lib/uslup/siniflandirici";
 import { prisma } from "@/lib/db/prisma";
 import { isRemoteDbOffline } from "@/lib/db/local-corpus";
 import { analyzeWithJev, JevAnalysisResult } from "@/lib/ai/jev-client";
@@ -461,6 +462,7 @@ export async function POST(req: NextRequest) {
                 guvenlik: safetyTriage,
                 kalkanKuralKodu,
                 maskeKategorileri: anonymization.redactedCategories,
+                kullaniciHataBildirdi: hataBildirimiTespit(rawMessage),
                 cikisOlaylari: cikisSuzgeci.tetiklenenler,
               }),
             });
@@ -629,6 +631,7 @@ export async function POST(req: NextRequest) {
         guvenlik: safetyTriage,
         kalkanKuralKodu: intercept?.ruleId ?? null,
         maskeKategorileri: anonymization.redactedCategories,
+        kullaniciHataBildirdi: hataBildirimiTespit(rawMessage),
         cikisOlaylari,
       }),
     });

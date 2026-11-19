@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
+import { sohbetiIndir } from "@/lib/sohbet/sohbet-disa-aktar";
 import Link from "next/link";
 import Image from "next/image";
 import { YaziBoyutuDugmesi } from "@/components/ui/yazi-boyutu";
@@ -1723,6 +1724,21 @@ export function SirdasChatWorkspace() {
                       <span className="text-xs truncate">{thread.title}</span>
                     </div>
 
+                    <div className="flex items-center gap-0.5 shrink-0">
+                    <button
+                      aria-label="Sohbeti cihazına kaydet"
+                      title="Sohbeti metin dosyası olarak cihazına kaydet"
+                      className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 p-1.5 rounded-full text-on-surface-variant/70 hover:text-primary hover:bg-surface-container-highest hover:scale-110 active:scale-90 transition-all duration-200 ease-m3e-spring-fast"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        sohbetiIndir(thread);
+                      }}
+                      type="button"
+                    >
+                      <svg aria-hidden="true" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.9" viewBox="0 0 24 24">
+                        <path d="M12 4v11m0 0-4-4m4 4 4-4M5 19h14" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </button>
                     <button
                       aria-label="Sohbeti sil"
                       className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1.5 rounded-full text-on-surface-variant/70 hover:text-error hover:bg-error-container/60 hover:scale-110 active:scale-90 transition-all duration-200 ease-m3e-spring-fast"
@@ -1744,6 +1760,7 @@ export function SirdasChatWorkspace() {
                         />
                       </svg>
                     </button>
+                    </div>
                   </div>
                 );
               })

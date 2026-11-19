@@ -15,7 +15,8 @@ export type DenetimTuru =
   | "GUVENLIK_ON_SUZGECI"
   | "MANEVI_KALKAN"
   | "GIRIS_MASKELEME"
-  | "CIKIS_SUZGECI";
+  | "CIKIS_SUZGECI"
+  | "GELISTIRICI_GERI_BILDIRIMI";
 
 export interface DenetimOlayi {
   tur: DenetimTuru;
@@ -45,6 +46,7 @@ const TURLER: ReadonlySet<string> = new Set<DenetimTuru>([
   "MANEVI_KALKAN",
   "GIRIS_MASKELEME",
   "CIKIS_SUZGECI",
+  "GELISTIRICI_GERI_BILDIRIMI",
 ]);
 
 /** Yalnızca BÜYÜK_HARF_KOD biçimindeki değerleri kabul eder; serbest metin (içerik) kayda giremez. */
@@ -176,6 +178,8 @@ export function sohbetDenetimOlaylari(params: {
   kalkanKuralKodu?: string | null;
   maskeKategorileri?: ReadonlyArray<string>;
   cikisOlaylari?: ReadonlyArray<{ kuralKodu: string; eylem: string; adet: number }>;
+  /** Kullanıcı Sırdaş'ın bir hatasını bildirdi (Adnan Bey 19.11 "Hata İtirafı" yaması) */
+  kullaniciHataBildirdi?: boolean;
 }): DenetimOlayi[] {
   const olaylar: DenetimOlayi[] = [];
   if (params.guvenlik) {
@@ -193,6 +197,9 @@ export function sohbetDenetimOlaylari(params: {
   }
   for (const o of params.cikisOlaylari ?? []) {
     olaylar.push({ tur: "CIKIS_SUZGECI", kuralKodu: o.kuralKodu, eylem: o.eylem, adet: o.adet });
+  }
+  if (params.kullaniciHataBildirdi) {
+    olaylar.push({ tur: "GELISTIRICI_GERI_BILDIRIMI", kuralKodu: "KULLANICI_HATA_BILDIRDI", eylem: "INCELENECEK" });
   }
   return olaylar;
 }

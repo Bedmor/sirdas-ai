@@ -23,6 +23,7 @@ const DENETIM_TUR_ADI: Record<string, string> = {
   MANEVI_KALKAN: "Manevi kalkan",
   GIRIS_MASKELEME: "Kişisel bilgi maskeleme",
   CIKIS_SUZGECI: "Çıkış süzgeci",
+  GELISTIRICI_GERI_BILDIRIMI: "Kullanıcı hata bildirdi",
 };
 
 interface AdminStats {

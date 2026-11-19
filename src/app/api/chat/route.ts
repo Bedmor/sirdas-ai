@@ -40,7 +40,7 @@ import {
 import { buildSafetyIntercept } from "@/lib/safety/intercept";
 import { hocaCevabiKalkani, hocaCevabiKuraliMi } from "@/lib/uslup/hoca-cevaplari";
 import { FETVA_KAPANIS, fetvaKapanisiEkle, fetvaPlaniKur } from "@/lib/ai/fetva-akisi";
-import { geceDavetiYapildiMi, geceGecSaatMi } from "@/lib/uslup/siniflandirici";
+import { geceDavetiYapildiMi, geceGecSaatMi, hataBildirimiTespit } from "@/lib/uslup/siniflandirici";
 import { cevapUzunluguCoz } from "@/lib/sohbet/cevap-uzunlugu";
 import { gecmisiMaskele } from "@/lib/gizlilik/maskeleme";
 import { hafizaKapaliProfil, hafizaPaketiCoz, hafizaYonergesiKur } from "@/lib/hafiza/yonerge";
@@ -947,6 +947,7 @@ export async function POST(req: NextRequest) {
                 guvenlik: safetyTriage,
                 kalkanKuralKodu,
                 maskeKategorileri: anonymization.redactedCategories,
+                kullaniciHataBildirdi: hataBildirimiTespit(rawMessage),
                 cikisOlaylari: cikisSuzgeci.tetiklenenler,
               }),
             });
@@ -1216,6 +1217,7 @@ export async function POST(req: NextRequest) {
         guvenlik: safetyTriage,
         kalkanKuralKodu: intercept?.ruleId ?? null,
         maskeKategorileri: anonymization.redactedCategories,
+        kullaniciHataBildirdi: hataBildirimiTespit(rawMessage),
         cikisOlaylari,
       }),
     });

@@ -202,6 +202,33 @@ export function GonulKartiDugmesi({ metin, className = "" }: { metin: string; cl
 
   const kapat = useCallback(() => setAcik(false), []);
 
+  // Telefonda geri tuşu sayfadan çıkarmasın: kart açılınca geçmişe bir adım eklenir,
+  // geri tuşu yalnız kartı kapatır. Kart düğmeyle kapanırsa eklenen adım geri alınır.
+  useEffect(() => {
+    if (!acik || typeof window === "undefined") return;
+    let geriIleKapandi = false;
+    try {
+      window.history.pushState({ gonulKarti: true }, "");
+    } catch {
+      return;
+    }
+    const geri = () => {
+      geriIleKapandi = true;
+      setAcik(false);
+    };
+    window.addEventListener("popstate", geri);
+    return () => {
+      window.removeEventListener("popstate", geri);
+      if (!geriIleKapandi && window.history.state?.gonulKarti) {
+        try {
+          window.history.back();
+        } catch {
+          /* yut */
+        }
+      }
+    };
+  }, [acik]);
+
   useEffect(() => {
     if (!acik) return;
     let iptal = false;
@@ -300,7 +327,7 @@ export function GonulKartiDugmesi({ metin, className = "" }: { metin: string; cl
                 </button>
               </div>
 
-              <div className="mx-auto aspect-[9/16] max-h-[58vh] overflow-hidden rounded-2xl border border-outline-variant/50 bg-surface-container shadow-m3-2">
+              <div className="mx-auto aspect-[9/16] max-h-[50vh] overflow-hidden rounded-2xl border border-outline-variant/50 bg-surface-container shadow-m3-2">
                 {adres ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={adres} alt="Gönül Kartı önizlemesi" className="h-full w-full object-contain" />
@@ -315,6 +342,8 @@ export function GonulKartiDugmesi({ metin, className = "" }: { metin: string; cl
                 <a
                   href={adres ?? undefined}
                   download={dosya?.name ?? kartDosyaAdi()}
+                  target="_blank"
+                  rel="noopener"
                   aria-disabled={!adres}
                   className={`flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-on-primary shadow-m3-1 transition-transform active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface ${
                     adres ? "" : "pointer-events-none opacity-50"
@@ -339,6 +368,16 @@ export function GonulKartiDugmesi({ metin, className = "" }: { metin: string; cl
                   </button>
                 )}
               </div>
+              <p className="text-center text-[11px] text-on-surface-variant">
+                İndirme olmazsa görsele basılı tutup kaydedebilirsin.
+              </p>
+              <button
+                type="button"
+                onClick={kapat}
+                className="flex min-h-[44px] w-full items-center justify-center rounded-full text-sm font-semibold text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                Sohbete dön
+              </button>
             </div>
           </div>,
           document.body,

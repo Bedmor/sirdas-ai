@@ -323,3 +323,21 @@ export function kusakTespit(mesaj: string): Kusak {
   if (eslesir(mesaj, GENC_DESENLERI)) return "GENC";
   return null;
 }
+
+// ---------------------------------------------------------------------------
+// Hata bildirimi (Adnan Bey 19.11 "Hata İtirafı ve Geri Bildirim" yaması):
+// kullanıcı Sırdaş'ın bir yanlışını gösterdiğinde tevazu yönergesi ve içeriksiz denetim kaydı.
+// ---------------------------------------------------------------------------
+
+const HATA_BILDIRIMI_DESENLERI: ReadonlyArray<RegExp> = [
+  /\byanlis\s*(soyledin|soylediniz|yazdin|yazdiniz|bilgi\s*verdin|bilgi\s*verdiniz|cevap\s*verdin|aktardin|biliyorsun|yaptin)\b/,
+  /\b(hata|yanlis)\s*(yaptin|yaptiniz|ettin|var\s*bu\s*cevapta|var\s*cevabinda)\b/,
+  /\b(cevabin|cevabiniz|soyledigin|soylediginiz|verdigin\s*bilgi|bu\s*bilgi|bu\s*ayet|bu\s*hadis)\s*(yanlis|hatali|dogru\s*degil)\b/,
+  /\b(yaniliyorsun|yaniliyorsunuz|yanildin|yanildiniz)\b/,
+  /\bboyle\s*bir\s*(ayet|hadis)\s*yok\b/,
+];
+
+/** Kullanıcı Sırdaş'ın bir hatasını gösteriyor mu? */
+export function hataBildirimiTespit(mesaj: string): boolean {
+  return eslesir(mesaj, HATA_BILDIRIMI_DESENLERI);
+}

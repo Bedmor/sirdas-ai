@@ -18,6 +18,7 @@ import {
   tekrarlananSozler,
   yalnizlastirmaTespit,
   type Kusak,
+  hataBildirimiTespit,
 } from "./siniflandirici";
 import { espriUygunMu } from "./espri";
 import type { SessionMood } from "../ai/jev-taxonomy";
@@ -75,6 +76,8 @@ export interface UslupAnalizi {
   kusak: Kusak;
   /** Hafif espri kapısı açık mı (bkz. espri.ts) */
   espri: boolean;
+  /** Kullanıcı Sırdaş'ın bir hatasını gösteriyor (tevazu ve geri bildirim kaydı) */
+  hataBildirimi: boolean;
 }
 
 export function uslupAnalizEt(girdi: UslupGirdisi): UslupAnalizi {
@@ -114,6 +117,7 @@ export function uslupAnalizEt(girdi: UslupGirdisi): UslupAnalizi {
     gecmisYuku: gecmisYukuTespit(mesaj),
     sessizKarartma: sessizKarartmaTespit(mesaj),
     kusak: kusakTespit(mesaj),
+    hataBildirimi: !guvenlikOncelikli && hataBildirimiTespit(mesaj),
     espri:
       !guvenlikOncelikli &&
       espriUygunMu({
@@ -142,6 +146,9 @@ export function uslupYonergesiKur(girdi: UslupGirdisi, analiz = uslupAnalizEt(gi
   }
   if (analiz.akilSuzgeci) {
     satirlar.push(USLUP_YONERGELERI.akilSuzgeci);
+  }
+  if (analiz.hataBildirimi) {
+    satirlar.push(USLUP_YONERGELERI.hataBildirimi);
   }
   if (analiz.yasCeliskisi && !analiz.guvenlikOncelikli) {
     satirlar.push(USLUP_YONERGELERI.yasCeliskisi);

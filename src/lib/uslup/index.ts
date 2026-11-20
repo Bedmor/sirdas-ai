@@ -4,7 +4,6 @@
  * kriz, sağlık ve çocuk işaretleri her zaman önce gelir.
  */
 import { USLUP_YONERGELERI } from "./kurallar";
-import { HOCA_SOZLERI_AKTIF, HOCA_SOZLERI_GUVENLIK_YONERGESI } from "./hoca-sozleri";
 import {
   donguTespit,
   geceDavetiYapildiMi,
@@ -25,7 +24,6 @@ import type { SessionMood } from "../ai/jev-taxonomy";
 import { imkansizBeyanTespit, type ImkansizBeyan } from "../safety/triage";
 
 export { USLUP_SISTEM_BOLUMU, USLUP_ILIM_BOLUMU, USLUP_YONERGELERI } from "./kurallar";
-export { HOCA_SOZLERI_AKTIF, HOCA_SOZLERI_BOLUMU, HOCA_SOZLERI_GUVENLIK_YONERGESI } from "./hoca-sozleri";
 export * from "./siniflandirici";
 export * from "./espri";
 
@@ -161,7 +159,6 @@ export function uslupYonergesiKur(girdi: UslupGirdisi, analiz = uslupAnalizEt(gi
   }
 
   if (!girdi.ilimModu) {
-    if (HOCA_SOZLERI_AKTIF && analiz.guvenlikOncelikli) satirlar.push(HOCA_SOZLERI_GUVENLIK_YONERGESI);
     if (analiz.dongu && !analiz.kurgu) satirlar.push(USLUP_YONERGELERI.dongu);
     if (analiz.yalnizlastirma) satirlar.push(USLUP_YONERGELERI.yalnizlastirma);
     if (analiz.sessizKarartma && !analiz.guvenlikOncelikli) {

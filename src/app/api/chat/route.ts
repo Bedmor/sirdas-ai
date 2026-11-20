@@ -38,7 +38,6 @@ import {
   runSafetyTriage,
 } from "@/lib/safety/triage";
 import { buildSafetyIntercept } from "@/lib/safety/intercept";
-import { hocaCevabiKalkani, hocaCevabiKuraliMi } from "@/lib/uslup/hoca-cevaplari";
 import { FETVA_KAPANIS, fetvaKapanisiEkle, fetvaPlaniKur } from "@/lib/ai/fetva-akisi";
 import { geceDavetiYapildiMi, geceGecSaatMi, hataBildirimiTespit } from "@/lib/uslup/siniflandirici";
 import { cevapUzunluguCoz } from "@/lib/sohbet/cevap-uzunlugu";
@@ -692,19 +691,10 @@ export async function POST(req: NextRequest) {
             // Fetva sorusu (18.11 yaması): model atlanmaz, üç aşamalı yönerge + harfiyen kapanış.
             const fetvaPlani = fetvaPlaniKur(safeMessage, jevResult, safetyTriage);
 
-            // Sıra: güvenlik ön süzgeci -> manevi kalkanlar -> hocanın birebir cevabı (Q&A 01-03).
-            // Fetva sorusunda hoca cevabı birebir verilmez; ilgili görüş modele isimsiz anılmak üzere gider.
-            const intercept =
+            // Sıra: güvenlik ön süzgeci -> manevi kalkanlar (hoca soru-cevapları 20.11 silindi).
+                        const intercept =
               buildSafetyIntercept(safetyTriage, jevResult) ??
-              evaluateSpiritualGuardrails(safeMessage, jevResult) ??
-              (fetvaPlani.aktif
-                ? null
-                : hocaCevabiKalkani(
-                    safeMessage,
-                    safetyTriage,
-                    jevResult,
-                    intentMode === "ILIM_VE_SIYER"
-                  ));
+              evaluateSpiritualGuardrails(safeMessage, jevResult);
 
             if (intercept) {
               statusType = intercept.status;
@@ -714,8 +704,7 @@ export async function POST(req: NextRequest) {
               if (
                 intercept.status === "processed" &&
                 intercept.ruleId !== "CONVERSATIONAL_CLOSING_THANKS" &&
-                !isSafetyTriageRule(intercept.ruleId) &&
-                !hocaCevabiKuraliMi(intercept.ruleId)
+                !isSafetyTriageRule(intercept.ruleId)
               ) {
                 const matchedVaultChunks = filterUsedSourcesByReply(
                   getLocalKnowledgeCorpus(),
@@ -1063,19 +1052,10 @@ export async function POST(req: NextRequest) {
     // Cevapta gösterilecek uyarı kutusu/dipnot: fetva akışında FATWA_LIMIT kutusu düşer.
     let cevapTriage = safetyTriage;
 
-    // Sıra: güvenlik ön süzgeci -> manevi kalkanlar -> hocanın birebir cevabı (Q&A 01-03).
-    // Fetva sorusunda hoca cevabı birebir verilmez; ilgili görüş modele isimsiz anılmak üzere gider.
-    const intercept =
+    // Sıra: güvenlik ön süzgeci -> manevi kalkanlar (hoca soru-cevapları 20.11 silindi).
+        const intercept =
       buildSafetyIntercept(safetyTriage, jevResult) ??
-      evaluateSpiritualGuardrails(safeMessage, jevResult) ??
-      (fetvaPlani.aktif
-        ? null
-        : hocaCevabiKalkani(
-            safeMessage,
-            safetyTriage,
-            jevResult,
-            intentMode === "ILIM_VE_SIYER"
-          ));
+      evaluateSpiritualGuardrails(safeMessage, jevResult);
     let replyText = "";
     let editorAudit: UnifiedEditorAudit | Record<string, unknown>;
     let audioUrlSent: string | null = null;
@@ -1094,8 +1074,7 @@ export async function POST(req: NextRequest) {
       if (
         intercept.status === "processed" &&
         intercept.ruleId !== "CONVERSATIONAL_CLOSING_THANKS" &&
-        !isSafetyTriageRule(intercept.ruleId) &&
-        !hocaCevabiKuraliMi(intercept.ruleId)
+        !isSafetyTriageRule(intercept.ruleId)
       ) {
         const matchedVaultChunks = filterUsedSourcesByReply(
           getLocalKnowledgeCorpus(),

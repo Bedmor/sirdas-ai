@@ -8,8 +8,8 @@
  *
  * Güvenlik önceliği: kriz, istismar, sağlık ve çocuk işareti taşıyan mesajda
  * mercek EKLENMEZ (guvenlikOncelikliMi). Fetva soruları zaten bu aşamadan önce
- * Alo 190 yönlendirmesine düşer. Hoca sözleri eşleşmeleriyle çakışan mercekler
- * (hocaSozuKarsiligi dolu olanlar) seçilmez; o konuda hoca sözü önceliklidir.
+ * Alo 190 yönlendirmesine düşer. hocaSozuKarsiligi dolu mercek seçilmez (20.11'den beri
+ * hoca soru-cevapları silindiği için hiçbir mercekte dolu değil).
  *
  * Derlemede yalnızca denetimden TEMİZ ya da YUMUŞATILMIŞ olarak geçen mercekler var.
  * Adnan Bey'in kararını bekleyenler src/data/bekleyen/ altındadır ve buraya yüklenmez.

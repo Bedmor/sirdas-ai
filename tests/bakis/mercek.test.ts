@@ -253,20 +253,8 @@ test("seçici: İlim ve Siyer modunda mercek eklenmez", () => {
   );
 });
 
-test("seçici: hoca sözleriyle çakışan mercekler seçilmez", () => {
-  const hoca = MERCEKLER.filter((m) => m.hocaSozuKarsiligi);
-  assert.deepEqual(
-    hoca.map((m) => m.no).sort((a, b) => a - b),
-    [57, 58, 64, 130, 149]
-  );
-  for (const m of [
-    "Elimdeki imkânlar çok kısıtlı, kendimi yetersiz hissediyorum, büyük niyetler kurmaktan korkuyorum",
-    "Geleceğimi planlamak için uykusuz geceler geçiriyorum, her şeyi kontrol etmek istiyorum",
-    "Hırsım, mal mülk kaygım ve haksızlığa öfkem beni yoruyor",
-  ]) {
-    const nolar = secilen(m);
-    for (const h of hoca) assert.ok(!nolar.includes(h.no), `${m} -> ${h.no}`);
-  }
+test("seçici: hoca soru-cevapları silindi (20.11), hiçbir mercek hoca sözüne bağlı değil", () => {
+  assert.equal(MERCEKLER.filter((m) => m.hocaSozuKarsiligi).length, 0);
 });
 
 test("yönerge: kısa blok, öncelik notu ve kaynak uydurma yasağı içerir", () => {

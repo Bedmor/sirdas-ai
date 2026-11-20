@@ -17,7 +17,6 @@
  */
 import { buildMatchVariants, runSafetyTriage } from "../safety/triage";
 import type { SessionMood } from "../ai/jev-taxonomy";
-import { hocaCevabiBul } from "./hoca-cevaplari";
 import {
   gecmisYukuTespit,
   kurguMizahTespit,
@@ -132,7 +131,6 @@ export function espriTekMesaj(mesaj: string): EspriTekMesajSonucu {
 
   const hassas = espriHassasIsaret(metin);
   if (hassas) return { hafif: false, neden: hassas };
-  if (hocaCevabiBul(metin)) return { hafif: false, neden: "hoca cevabı" };
   // Kurguya kendi süzgeci tebessümle karşılık verir; iki yönerge üst üste binmesin.
   if (kurguMizahTespit(metin).kurgu) return { hafif: false, neden: "kurgu süzgeci" };
 

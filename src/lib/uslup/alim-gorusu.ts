@@ -2,7 +2,7 @@
  * Hoca ve âlim görüşlerini anma kuralı (kaynak türüne bağlı genel kural, 18.11 fetva yaması).
  *
  * Kasadaki bazı kayıtlar ayet/hadis değil, bir hocanın görüşü veya sohbetidir
- * (Halis Hoca soru-cevapları, Halis Hoca sohbet kesitleri; ileride kurandersleri arşivi).
+ * (hoca sohbet kesitleri; ileride ders arşivi). Üç hoca soru-cevabı 20.11 Adnan Bey isteğiyle silindi.
  * Bu kayıtlar:
  *  - modele "HOCA/ÂLİM GÖRÜŞÜ" etiketiyle ve kişi adı olmadan verilir,
  *  - cevapta isim verilmeden ("bazı âlimler/hocalarımız şöyle der") anılır,
@@ -11,13 +11,10 @@
  * Yeni bir arşiv eklendiğinde yalnızca kaynak türünü ALIM_GORUSU_KAYNAK_TURLERI listesine
  * eklemek yeter; etiket, isim gizleme ve fetva yönergesi aynı kuralla çalışır.
  */
-import { hocaCevabiBul } from "./hoca-cevaplari";
-import { HOCA_SOZLERI_AKTIF } from "./hoca-sozleri";
 
 /** Görüş/sohbet niteliğindeki kaynak türleri (büyük harf). */
 export const ALIM_GORUSU_KAYNAK_TURLERI: ReadonlyArray<string> = [
   "HALIS_AYDEMIR", // sohbet kesitleri (ses + deşifre)
-  "HOCA_CEVABI", // hoca soru-cevapları (Q&A 01-03)
   "KURANDERSLERI", // ileride eklenecek ders arşivi
 ];
 
@@ -44,13 +41,12 @@ export interface AlimGorusuKaydi {
 }
 
 /**
- * Mesajla ilgili depodaki görüş kayıtlarını bulur (şimdilik hoca soru-cevapları).
+ * Mesajla ilgili depodaki görüş kayıtlarını bulur (şimdilik kayıt yok: 20.11 soru-cevaplar silindi).
  * İleride eklenecek arşivler bu fonksiyona yeni bir arama olarak bağlanır.
  */
 export function ilgiliAlimGorusleri(mesaj: string): AlimGorusuKaydi[] {
   const sonuc: AlimGorusuKaydi[] = [];
-  const hoca = HOCA_SOZLERI_AKTIF ? hocaCevabiBul(mesaj) : null;
-  if (hoca) sonuc.push({ kaynakTuru: "HOCA_CEVABI", metin: hoca.cevap });
+  void mesaj;
   return sonuc;
 }
 

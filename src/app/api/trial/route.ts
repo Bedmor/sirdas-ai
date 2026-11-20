@@ -19,7 +19,6 @@ import {
 import { sanitizeIncomingUserMessage } from "@/lib/ai/pii-anonymizer";
 import { runSafetyTriage } from "@/lib/safety/triage";
 import { buildSafetyIntercept } from "@/lib/safety/intercept";
-import { hocaCevabiKalkani } from "@/lib/uslup/hoca-cevaplari";
 import { FETVA_KAPANIS, fetvaKapanisiEkle, fetvaPlaniKur } from "@/lib/ai/fetva-akisi";
 import { CikisSuzgeci, cikisSuzgeciUygula, type CikisOlayi } from "@/lib/gizlilik/cikis-suzgeci";
 import {
@@ -287,8 +286,7 @@ export async function POST(req: NextRequest) {
             const fetvaPlani = fetvaPlaniKur(safeMessage, jevResult, safetyTriage);
             const intercept =
               buildSafetyIntercept(safetyTriage, jevResult) ??
-              evaluateSpiritualGuardrails(safeMessage, jevResult) ??
-              (fetvaPlani.aktif ? null : hocaCevabiKalkani(safeMessage, safetyTriage, jevResult));
+              evaluateSpiritualGuardrails(safeMessage, jevResult);
 
             if (intercept) {
               statusType = intercept.status;
@@ -545,8 +543,7 @@ export async function POST(req: NextRequest) {
     const fetvaPlani = fetvaPlaniKur(safeMessage, jevResult, safetyTriage);
     const intercept =
       buildSafetyIntercept(safetyTriage, jevResult) ??
-      evaluateSpiritualGuardrails(safeMessage, jevResult) ??
-      (fetvaPlani.aktif ? null : hocaCevabiKalkani(safeMessage, safetyTriage, jevResult));
+      evaluateSpiritualGuardrails(safeMessage, jevResult);
 
     let replyText = "";
     let editorAudit: UnifiedEditorAudit | Record<string, unknown>;

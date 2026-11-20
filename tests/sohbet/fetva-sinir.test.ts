@@ -1,7 +1,6 @@
 // Gerçek model çağrılmaz: anahtar yerine test değeri (getAIClient bunu "anahtar yok" sayar).
 process.env.GEMINI_API_KEY = "mock_gemini_key_for_testing_and_verification";
 
-import { HOCA_SOZLERI_AKTIF } from "../../src/lib/uslup/hoca-sozleri";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { runHeuristicFallback } from "../../src/lib/ai/jev-client";
@@ -297,19 +296,12 @@ test("fetva talimatı: yalnız fetva sorusunda modele eklenir, kısa soru 'kısa
 
 // --- Halis Hoca görüşü: isimsiz ---
 
-test("hoca görüşü: fetva sorusunda ilgili görüş isim verilmeden modele gider", { skip: !HOCA_SOZLERI_AKTIF && "20.11: üç soru-cevap kapalı" }, () => {
+test("hoca görüşü: üç soru-cevap silindi (20.11), fetva yönergesine hoca görüşü eklenmez", () => {
   const soru =
     "Elimdeki imkanlar çok kısıtlı, kendimi sürekli yetersiz hissediyorum. Büyük niyetler kurmak günah mı?";
-  const a = akis(soru);
-  assert.equal(a.plan.aktif, true);
   const y = fetvaYonergesiKur(soru);
-  assert.match(y, /İLGİLİ HOCA GÖRÜŞÜ: İSİMSİZ ANILIR/);
-  assert.match(y, /bazı hocalarımız şöyle der/);
-  assert.match(y, /Sen niyetini büyük tut/);
-  assert.ok(!/Halis|Aydemir/.test(y));
-  assert.ok(sonIstem(modelParametreleri(soru, true)).includes("İLGİLİ HOCA GÖRÜŞÜ"));
-  // İlgisiz fetva sorusunda görüş uydurulmaz.
-  assert.ok(!fetvaYonergesiKur("namazda gülmek namazı bozar mı").includes("HOCA GÖRÜŞÜ"));
+  assert.ok(!y.includes("HOCA GÖRÜŞÜ"));
+  assert.ok(!/Sen niyetini büyük tut/.test(y));
 });
 
 test("hoca görüşü: sohbet kesiti kaynağı kaynak türüne göre isimsiz etiketlenir", () => {

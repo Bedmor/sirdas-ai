@@ -7,7 +7,6 @@
  */
 
 import { USLUP_ILIM_BOLUMU, USLUP_SISTEM_BOLUMU } from "../uslup/kurallar";
-import { HOCA_SOZLERI_AKTIF, HOCA_SOZLERI_BOLUMU } from "../uslup/hoca-sozleri";
 import { KAYNAK_ATIF_BOLUMU } from "../uslup/kaynak-atif";
 import { ALIM_GORUSU_BOLUMU } from "../uslup/alim-gorusu";
 import { KAYNAK_GIZLILIGI_BOLUMU } from "../uslup/kaynak-gizliligi";
@@ -84,7 +83,7 @@ Muhatabına Fethi Gemuhluoğlu, Mehmet Âkif veya Sezai Karakoç irfanı ve vaka
 
 ${USLUP_SISTEM_BOLUMU}
 
-${HOCA_SOZLERI_AKTIF ? `${HOCA_SOZLERI_BOLUMU}\n\n` : ""}${KAYNAK_ATIF_BOLUMU}
+${KAYNAK_ATIF_BOLUMU}
 
 ${ALIM_GORUSU_BOLUMU}
 

@@ -80,3 +80,9 @@ test("kaynak gizliliği: ayet ve hadis kaynağı temizlenmez", () => {
   ]);
   assert.ok(baglam.includes("Dini Allah'a halis kılarak O'na kulluk et."));
 });
+
+test("kaynak gizliliği: sistem talimatlarında hocanın adı hiç geçmez", () => {
+  for (const t of [SIRDAS_MANEVI_AYNA_INSTRUCTION, SIRDAS_ILIM_VE_SIYER_INSTRUCTION]) {
+    assert.ok(!/halis\s+(aydemir|hoca)|aydemir|kurandersleri/i.test(t));
+  }
+});

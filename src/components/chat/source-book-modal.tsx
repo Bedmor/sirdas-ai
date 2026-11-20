@@ -658,7 +658,7 @@ export function SourceBookModal({ source, onClose }: SourceBookModalProps) {
             <div className="space-y-6">
               <div className="rounded-2xl bg-surface-container border border-primary/30 p-5 text-center">
                 <span className="text-xs font-semibold text-primary tracking-wider uppercase">
-                  Dr. Halis Aydemir • Tefekkür Sohbeti
+                  Tefekkür Sohbeti
                 </span>
                 <h3 className="text-xl sm:text-2xl font-heading font-semibold text-on-surface mt-1">
                   {halisDetail.sohbetKonusu}

@@ -9,6 +9,7 @@
  *  - tiyatral yapay empati               -> ilgili yan cümle (gerekirse tüm cümle) çıkarılır
  *  - kişisel bilgi sızıntısı             -> satır içinde maskelenir
  *  - bilinen yanlış atıf (ör. Hz. Ömer sözünü hadis diye vermek) -> cümle, doğru atıflı metinle değiştirilir
+ *  - kaynak sahibi hoca adı / arşiv izi (20.11, Halis Hoca izin şartı) -> cümle çıkarılır
  * Süzgeç sonunda anlamlı metin kalmazsa güvenli yedek cevap verilir.
  *
  * İkinci bir yapay zekâ çağrısı yapılmaz (maliyet). Akışta (SSE) cümle tamamlanınca
@@ -16,6 +17,7 @@
  */
 import { dogrudanKisiselVeriyiMaskele } from "./maskeleme";
 import { nebeviGirisMi, yanlisAtifBul } from "../uslup/kaynak-atif";
+import { kaynakSahisIziVarMi } from "../uslup/kaynak-gizliligi";
 
 export type CikisKuralKodu =
   | "CIKIS_FETVA_HUKUM"
@@ -25,6 +27,7 @@ export type CikisKuralKodu =
   | "CIKIS_YAPAY_EMPATI"
   | "CIKIS_KISISEL_BILGI"
   | "CIKIS_YANLIS_ATIF"
+  | "CIKIS_KAYNAK_SAHIS"
   | "CIKIS_YEDEK_CEVAP";
 
 export type CikisEylemi = "DEGISTIRILDI" | "CIKARILDI" | "MASKELENDI" | "YEDEK_CEVAP";
@@ -271,6 +274,12 @@ export class CikisSuzgeci {
     }
 
     const katli = katla(cumle);
+
+    // 1b) Kaynak sahibi hoca adı veya arşiv izi: cümle ekrana hiç düşmez.
+    if (kaynakSahisIziVarMi(katli)) {
+      this.olayEkle("CIKIS_KAYNAK_SAHIS", "CIKARILDI");
+      return "";
+    }
 
     // 2) Tıbbi reçete / doz / ilaç bıraktırma
     if (tibbiMi(katli)) return this.yerineKoy(CIKIS_YERINE_CUMLELER.tibbi, "CIKIS_TIBBI_RECETE");

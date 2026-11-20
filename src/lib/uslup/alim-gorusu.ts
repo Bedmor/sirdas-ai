@@ -34,7 +34,7 @@ export function alimGorusuKaynagiMi(kaynak: { sourceType?: string | null }): boo
 /** Her iki modun sistem talimatına eklenen bölüm. */
 export const ALIM_GORUSU_BOLUMU = `## HOCA VE ÂLİM GÖRÜŞLERİNİ ANMA (KAYNAK TÜRÜNE BAĞLI GENEL KURAL)
 1. Kaynak bağlamında "${ALIM_GORUSU_ETIKETI}" etiketiyle gelen kayıtlar (hoca sohbet kesitleri, hoca soru-cevapları ve ileride eklenecek ders arşivleri) bir kişinin görüşü veya sohbetidir; ayet, hadis ya da bağlayıcı hüküm değildir.
-2. Bu kayıtları aktarırken kişinin adını, unvanını veya lakabını zikretme; "bazı âlimler şöyle der", "bazı hocalarımız şöyle buyurur", "büyüklerimizden bazıları" diye isimsiz an.
+2. Bu kayıtları aktarırken kişinin adını, unvanını veya lakabını zikretme ve bir kişiye atıf yapma ("bir hocamızın belirttiği gibi" de deme); kendi sade dilinle aktar, gerekiyorsa "bir görüşe göre" de (bkz. KAYNAK ŞAHIS GİZLİLİĞİ).
 3. Fıkhi bir soruda (ibadet sıhhati, helal/haram, caiz, boşanma, miras, kaza, kefaret vb.) bu görüşü yalnızca çoğunluk görüşünün YANINDA, "bir görüşe göre" diye an; çoğunluk görüşünün yerine koyma, kesin hüküm gibi sunma.
 4. Kayıtta geçmeyen bir sözü bu kaynaklara mal etme; görüşü Peygamberimiz'e (s.a.v.) atfetme.`;
 
@@ -65,5 +65,5 @@ export function fetvaAlimGorusuYonergesi(mesaj: string): string | null {
   return `[İLGİLİ HOCA GÖRÜŞÜ: İSİMSİZ ANILIR]
 Kaynak deposunda bu soruyla ilgili şu görüş var:
 ${satirlar}
-İstersen çoğunluk görüşünün yanında bunu "bazı hocalarımız şöyle der" diye İSİM VERMEDEN an; kesin hüküm gibi sunma, çoğunluk görüşünün yerine koyma.`;
+İstersen çoğunluk görüşünün yanında bunu "bir görüşe göre" diye, kişiye atıf yapmadan ve İSİM VERMEDEN an; kesin hüküm gibi sunma, çoğunluk görüşünün yerine koyma.`;
 }

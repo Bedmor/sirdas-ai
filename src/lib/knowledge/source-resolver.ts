@@ -727,6 +727,7 @@ export function resolveSourceBookDetail(params: {
   }
 
   // 4. Check if it's Halis Aydemir
+  const HOCA_ADI = /(?:Prof\.?\s*)?(?:Dr\.?\s*)?Halis\s+Aydemir\s*[-–:•]?\s*/gi;
   if (
     upperType === "HALIS_AYDEMIR" ||
     cleanTitle.toLowerCase().includes("halis aydemir") ||
@@ -734,11 +735,12 @@ export function resolveSourceBookDetail(params: {
   ) {
     return {
       kind: "HALIS_AYDEMIR",
-      title: cleanTitle || "Dr. Halis Aydemir - Tefekkür Sohbeti",
-      sohbetKonusu: cleanTitle.replace(/^Dr\.\s*Halis Aydemir\s*[-–:]?\s*/i, ""),
+      // 20.11: kaynak sahibi hocanın adı kullanıcıya gösterilmez (izin şartı).
+      title: cleanTitle.replace(HOCA_ADI, "").trim() || "Tefekkür Sohbeti",
+      sohbetKonusu: cleanTitle.replace(HOCA_ADI, "").trim(),
       desifreMetni:
         content ||
-        "Dr. Halis Aydemir'in Kur'an ve Sünnet mihverinde irade, kader, nefis tezkiyesi ve tevekkül üzerine gerçekleştirdiği tefekkür sohbeti.",
+        "Kur'an ve Sünnet mihverinde irade, kader, nefis tezkiyesi ve tevekkül üzerine gerçekleştirdiği tefekkür sohbeti.",
       audioUrl: audioUrl || null,
       maneviMesaj:
         "İnsanın kontrol yanılsamasını bırakıp ilahi iradeye teslimiyeti ve darlıkta genişlik bulma şuuru.",

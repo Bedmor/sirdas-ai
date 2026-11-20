@@ -20,6 +20,7 @@ import {
 } from "./jev-client";
 import { uslupYonergesiKur } from "../uslup";
 import { ALIM_ESERI_ETIKETI, alimEseriKaynagiMi } from "../uslup/kaynak-atif";
+import { kaynakMetniniTemizle } from "../uslup/kaynak-gizliligi";
 import { mercekYonergesiKur } from "../bakis/mercek-secici";
 import { cevapUzunluguYonergesi, type CevapUzunlugu } from "@/lib/sohbet/cevap-uzunlugu";
 import { fetvaYonergesiKur, fetvaYedekCevabi } from "./fetva-akisi";
@@ -155,7 +156,8 @@ export function formatRagContext(chunks: RagChunkContext[]): string {
           : chunk.content;
       // Hoca/âlim görüşü kayıtları (kaynak türüne bağlı genel kural): kişi adı modele verilmez.
       if (alimGorusuKaynagiMi(chunk)) {
-        return `[KAYNAK ${idx + 1} | ${ALIM_GORUSU_ETIKETI} | ${ALIM_GORUSU_BASLIGI}]\n${snippet}`;
+        // Kişi/arşiv izi ve ders hitapları model görmeden temizlenir (20.11 kaynak gizliliği).
+        return `[KAYNAK ${idx + 1} | ${ALIM_GORUSU_ETIKETI} | ${ALIM_GORUSU_BASLIGI}]\n${kaynakMetniniTemizle(snippet)}`;
       }
       // İhyâ ve akaid kayıtları kasada HADITH türüyle durur; model hadis sanmasın diye ayrı etiketlenir.
       const turEtiketi = alimEseriKaynagiMi(chunk) ? ALIM_ESERI_ETIKETI : chunk.sourceType;

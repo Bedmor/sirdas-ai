@@ -10,6 +10,7 @@ import { USLUP_ILIM_BOLUMU, USLUP_SISTEM_BOLUMU } from "../uslup/kurallar";
 import { HOCA_SOZLERI_AKTIF, HOCA_SOZLERI_BOLUMU } from "../uslup/hoca-sozleri";
 import { KAYNAK_ATIF_BOLUMU } from "../uslup/kaynak-atif";
 import { ALIM_GORUSU_BOLUMU } from "../uslup/alim-gorusu";
+import { KAYNAK_GIZLILIGI_BOLUMU } from "../uslup/kaynak-gizliligi";
 
 /**
  * Güvenlik Öncelik Kuralları (her iki moda da eklenir).
@@ -87,6 +88,8 @@ ${HOCA_SOZLERI_AKTIF ? `${HOCA_SOZLERI_BOLUMU}\n\n` : ""}${KAYNAK_ATIF_BOLUMU}
 
 ${ALIM_GORUSU_BOLUMU}
 
+${KAYNAK_GIZLILIGI_BOLUMU}
+
 ${SIRDAS_SAFETY_PRIORITY_RULES}`;
 
 /**
@@ -113,6 +116,8 @@ ${USLUP_ILIM_BOLUMU}
 ${KAYNAK_ATIF_BOLUMU}
 
 ${ALIM_GORUSU_BOLUMU}
+
+${KAYNAK_GIZLILIGI_BOLUMU}
 
 ${SIRDAS_SAFETY_PRIORITY_RULES}`;
 

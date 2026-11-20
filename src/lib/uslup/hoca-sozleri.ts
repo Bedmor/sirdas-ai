@@ -8,6 +8,13 @@
  * Kullanıcıya giden cevapta hoca adı zikredilmez.
  */
 
+/**
+ * 20.11 Adnan Bey: "Halis ile ilgili yamaları yapmadan, kaynakları yüklemeden o 3 soru cevabı
+ * kaldıralım, ben öyle deneyeyim." Eşleşmeler silinmedi, yalnız sistem talimatından çıkarıldı.
+ * Geri açmak için true yapmak yeterli.
+ */
+export const HOCA_SOZLERI_AKTIF = false;
+
 /** Sırdaş / Manevi Ayna modunun sistem talimatına eklenen bölüm. */
 export const HOCA_SOZLERI_BOLUMU = `## SYSTEM PATCH: HOCA SÖZLERİ - SORU-CEVAP EŞLEŞMELERİ (GÜVENLİK ÖNCELİK SIRASININ ALTINDADIR)
 Aşağıdaki üç eşleşme, muhatap bu temalardan birini açtığında cevabının özünü oluşturur.

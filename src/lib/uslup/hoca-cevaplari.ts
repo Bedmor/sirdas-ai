@@ -18,6 +18,7 @@
 import type { JevAnalysisResult } from "@/lib/ai/jev-client";
 import type { GuardrailIntercept } from "@/lib/ai/rag-pipeline";
 import { foldTurkish, type SafetyTriageResult } from "@/lib/safety/triage";
+import { HOCA_SOZLERI_AKTIF } from "./hoca-sozleri";
 
 export type HocaCevapKimligi = "HOCA_QA_01" | "HOCA_QA_02" | "HOCA_QA_03";
 
@@ -182,6 +183,8 @@ export function hocaCevabiKalkani(
   jevResult: JevAnalysisResult,
   ilimModu = false
 ): GuardrailIntercept | null {
+  // 20.11 Adnan Bey: üç soru-cevap deneme için kapatıldı (HOCA_SOZLERI_AKTIF).
+  if (!HOCA_SOZLERI_AKTIF) return null;
   if (triage || ilimModu) return null;
   if (jevResult.is_extreme_crisis || jevResult.distress_level >= 10) return null;
   const eslesme = hocaCevabiBul(mesaj);

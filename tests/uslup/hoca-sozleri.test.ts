@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
+  HOCA_SOZLERI_AKTIF,
   HOCA_SOZLERI_BOLUMU,
   HOCA_SOZLERI_GUVENLIK_YONERGESI,
   uslupYonergesiKur,
@@ -11,7 +12,7 @@ import {
 } from "../../src/lib/ai/constitution";
 
 test("hoca sözleri: sistem talimatı üç eşleşmeyi ve kilit cümleleri içerir", () => {
-  assert.ok(SIRDAS_MANEVI_AYNA_INSTRUCTION.includes(HOCA_SOZLERI_BOLUMU));
+  assert.equal(SIRDAS_MANEVI_AYNA_INSTRUCTION.includes(HOCA_SOZLERI_BOLUMU), HOCA_SOZLERI_AKTIF);
   assert.match(HOCA_SOZLERI_BOLUMU, /SORU-CEVAP EŞLEŞMELERİ/);
   for (const baslik of ["01 - İMKÂNSIZLIK", "02 - GELECEĞİ KONTROL", "03 - HIRS"]) {
     assert.ok(HOCA_SOZLERI_BOLUMU.includes(baslik), baslik);
@@ -37,12 +38,13 @@ test("hoca sözleri: güvenlik istisnası yazılı ve güvenlik kuralları sonra
   }
   const i = SIRDAS_MANEVI_AYNA_INSTRUCTION.indexOf(HOCA_SOZLERI_BOLUMU);
   const g = SIRDAS_MANEVI_AYNA_INSTRUCTION.indexOf(SIRDAS_SAFETY_PRIORITY_RULES);
-  assert.ok(i > 0 && g > i, "güvenlik öncelik sırası hoca sözlerinden sonra ve tam olarak bulunmalı");
+  if (HOCA_SOZLERI_AKTIF) assert.ok(i > 0 && g > i, "güvenlik öncelik sırası hoca sözlerinden sonra ve tam olarak bulunmalı");
+  else assert.ok(i === -1 && g > 0, "eşleşmeler kapalıyken talimatta yer almaz (20.11)");
 });
 
 test("hoca sözleri: kriz mesajında ölüm bilinci eşleşmesi kapatılır, normal mesajda kapatılmaz", () => {
   const kriz = uslupYonergesiKur({ mesaj: "Artık yaşamak istemiyorum, ölmek istiyorum" });
-  assert.ok(kriz.includes(HOCA_SOZLERI_GUVENLIK_YONERGESI));
+  assert.equal(kriz.includes(HOCA_SOZLERI_GUVENLIK_YONERGESI), HOCA_SOZLERI_AKTIF);
   const normal = uslupYonergesiKur({ mesaj: "Hırsım ve mal mülk kaygım beni yoruyor" });
   assert.ok(!normal.includes(HOCA_SOZLERI_GUVENLIK_YONERGESI));
 });

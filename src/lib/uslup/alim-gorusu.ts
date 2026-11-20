@@ -12,6 +12,7 @@
  * eklemek yeter; etiket, isim gizleme ve fetva yönergesi aynı kuralla çalışır.
  */
 import { hocaCevabiBul } from "./hoca-cevaplari";
+import { HOCA_SOZLERI_AKTIF } from "./hoca-sozleri";
 
 /** Görüş/sohbet niteliğindeki kaynak türleri (büyük harf). */
 export const ALIM_GORUSU_KAYNAK_TURLERI: ReadonlyArray<string> = [
@@ -48,7 +49,7 @@ export interface AlimGorusuKaydi {
  */
 export function ilgiliAlimGorusleri(mesaj: string): AlimGorusuKaydi[] {
   const sonuc: AlimGorusuKaydi[] = [];
-  const hoca = hocaCevabiBul(mesaj);
+  const hoca = HOCA_SOZLERI_AKTIF ? hocaCevabiBul(mesaj) : null;
   if (hoca) sonuc.push({ kaynakTuru: "HOCA_CEVABI", metin: hoca.cevap });
   return sonuc;
 }

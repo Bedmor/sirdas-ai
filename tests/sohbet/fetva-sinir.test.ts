@@ -1,6 +1,7 @@
 // Gerçek model çağrılmaz: anahtar yerine test değeri (getAIClient bunu "anahtar yok" sayar).
 process.env.GEMINI_API_KEY = "mock_gemini_key_for_testing_and_verification";
 
+import { HOCA_SOZLERI_AKTIF } from "../../src/lib/uslup/hoca-sozleri";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { runHeuristicFallback } from "../../src/lib/ai/jev-client";
@@ -296,7 +297,7 @@ test("fetva talimatı: yalnız fetva sorusunda modele eklenir, kısa soru 'kısa
 
 // --- Halis Hoca görüşü: isimsiz ---
 
-test("hoca görüşü: fetva sorusunda ilgili görüş isim verilmeden modele gider", () => {
+test("hoca görüşü: fetva sorusunda ilgili görüş isim verilmeden modele gider", { skip: !HOCA_SOZLERI_AKTIF && "20.11: üç soru-cevap kapalı" }, () => {
   const soru =
     "Elimdeki imkanlar çok kısıtlı, kendimi sürekli yetersiz hissediyorum. Büyük niyetler kurmak günah mı?";
   const a = akis(soru);

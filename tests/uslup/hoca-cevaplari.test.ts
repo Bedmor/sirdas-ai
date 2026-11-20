@@ -1,3 +1,4 @@
+import { HOCA_SOZLERI_AKTIF } from "../../src/lib/uslup/hoca-sozleri";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
@@ -80,7 +81,7 @@ test("hoca cevapları: cevap metinleri kaynaktakiyle birebir aynı, hoca adı yo
   }
 });
 
-test("hoca cevapları: üç sorunun birebir hâli doğru cevabı ve tam metni verir", () => {
+test("hoca cevapları: üç sorunun birebir hâli doğru cevabı ve tam metni verir", { skip: !HOCA_SOZLERI_AKTIF && "20.11: üç soru-cevap kapalı" }, () => {
   const ciftler: Array<[string, Kimlik]> = [
     [SORU_1, "HOCA_QA_01"],
     [SORU_2, "HOCA_QA_02"],
@@ -106,7 +107,7 @@ test("hoca cevapları: üç sorunun birebir hâli doğru cevabı ve tam metni ve
   }
 });
 
-test("hoca cevapları: küçük yazım, büyük-küçük harf, noktalama ve Türkçe karakter farkı eşleşir", () => {
+test("hoca cevapları: küçük yazım, büyük-küçük harf, noktalama ve Türkçe karakter farkı eşleşir", { skip: !HOCA_SOZLERI_AKTIF && "20.11: üç soru-cevap kapalı" }, () => {
   const varyantlar: Array<[Kimlik, string]> = [
     ["HOCA_QA_01", SORU_1.toLocaleUpperCase("tr-TR")],
     ["HOCA_QA_01", "elimdeki imkanlar cok kisitli kendimi surekli yetersiz hissediyorum buyuk niyetler kurmaktan buyuk adimlar atmaktan korkuyorum ne tavsiye edersin"],
@@ -125,7 +126,7 @@ test("hoca cevapları: küçük yazım, büyük-küçük harf, noktalama ve Tür
   }
 });
 
-test("hoca cevapları: aynı anlamı taşıyan farklı cümleler kelime kümeleriyle eşleşir", () => {
+test("hoca cevapları: aynı anlamı taşıyan farklı cümleler kelime kümeleriyle eşleşir", { skip: !HOCA_SOZLERI_AKTIF && "20.11: üç soru-cevap kapalı" }, () => {
   const anlam: Array<[Kimlik, string]> = [
     ["HOCA_QA_01", "İmkanlarım kısıtlı olduğu için büyük niyet etmekten korkuyorum, ne yapayım?"],
     ["HOCA_QA_01", "Kendimi hep yetersiz görüyorum, büyük adım atmaya cesaret edemiyorum, niyetlerimi hep küçük tutuyorum"],
@@ -200,7 +201,7 @@ test("hoca cevapları: güvenlik dipnotu, ilim modu veya en yüksek sıkıntıda
   assert.equal(hocaCevabiKalkani(SORU_1, null, { ...jev, distress_level: 10 }), null);
 });
 
-test("hoca cevapları: konuşmanın ortasında sorulsa da eşleşir", () => {
+test("hoca cevapları: konuşmanın ortasında sorulsa da eşleşir", { skip: !HOCA_SOZLERI_AKTIF && "20.11: üç soru-cevap kapalı" }, () => {
   const gecmis = [
     { role: "user", content: "Selam" },
     { role: "assistant", content: "Aleykümselam, hoş geldin." },
